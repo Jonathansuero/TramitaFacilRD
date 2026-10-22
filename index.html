@@ -148,7 +148,11 @@
             <div class="stat-pill"><strong id="instCountPriv">5</strong><span data-i18n="inst.privadas">privadas</span></div>
             <div class="stat-pill"><strong id="instCountInt">4</strong><span data-i18n="inst.internacionales">internacionales</span></div>
         </div>
-        <div class="inst-wall" id="instWall"></div>
+        <div class="inst-carousel" id="instCarousel" role="region" aria-roledescription="carrusel" data-i18n-aria="inst.carrusel">
+            <button type="button" class="inst-nav inst-prev" id="instPrev" data-i18n-aria="inst.anterior"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="inst-track" id="instWall" tabindex="0"></div>
+            <button type="button" class="inst-nav inst-next" id="instNext" data-i18n-aria="inst.siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
         <div class="text-center mt-8">
             <a href="instituciones.html" class="inline-flex items-center gap-2 bg-domBlue hover:bg-domRed text-white text-sm font-bold px-6 py-3 rounded-xl transition-colors"><span data-i18n="inst.cta">Ver todas las instituciones</span> <i class="fa-solid fa-arrow-right"></i></a>
             <p class="text-[11px] text-slate-400 mt-3 max-w-2xl mx-auto" data-i18n="inst.aviso">Somos gestores independientes. Los nombres se muestran solo para indicar ante qué entidad realizamos cada trámite.</p>
@@ -169,59 +173,6 @@
             <li class="paso"><span class="paso-n">3</span><i class="fa-solid fa-paper-plane paso-i"></i><h3 data-i18n="como.p3.t">Envía tu solicitud</h3><p data-i18n="como.p3.d">Recibes un código de seguimiento al instante.</p><a href="#solicitud" data-i18n="como.p3.a">Iniciar →</a></li>
             <li class="paso"><span class="paso-n">4</span><i class="fa-solid fa-location-dot paso-i"></i><h3 data-i18n="como.p4.t">Sigue tu expediente</h3><p data-i18n="como.p4.d">Consulta el estado en línea, desde donde estés.</p><a href="#rastreo" data-i18n="como.p4.a">Rastrear →</a></li>
         </ol>
-    </div>
-</section>
-
-<!-- CATÁLOGO -->
-<section id="servicios" class="py-16 md:py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto mb-8">
-            <span class="eyebrow bg-sky-100 text-domBlue" data-i18n="cat.eyebrow">Catálogo completo</span>
-            <h2 class="section-title" data-i18n="cat.t">Todos nuestros servicios</h2>
-            <p class="text-slate-600 text-sm mt-1"><span data-i18n="cat.sub">Filtra por área o por tu ubicación. Toca un servicio para ver su página completa. Precios en</span> <strong id="catMonedaLabel">RD$</strong>.</p>
-        </div>
-        <div class="flex flex-col md:flex-row gap-3 mb-4">
-            <input type="search" id="catSearch" data-i18n-ph="cat.ph" data-i18n-aria="cat.ph" class="flex-1 bg-slate-50 border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
-            <div id="catPaisFilter" class="flex gap-2 overflow-x-auto"></div>
-        </div>
-        <div id="catChips" class="flex gap-2 overflow-x-auto pb-3 mb-4"></div>
-        <p id="catCount" class="text-xs text-slate-500 mb-3"></p>
-        <div id="catGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-    </div>
-</section>
-
-<!-- ASISTENTE -->
-<section id="asistente" class="py-16 bg-slate-50 border-y border-slate-200">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-10">
-            <span class="eyebrow bg-blue-100 text-domBlue" data-i18n="quiz.eyebrow">Guía paso a paso</span>
-            <h2 class="section-title" data-i18n="quiz.t">Asistente virtual de trámites</h2>
-            <p class="text-slate-600 text-sm mt-1" data-i18n="quiz.sub">Selecciona el área de tu trámite para obtener asesoría instantánea:</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-            <div class="flex items-center gap-2 mb-6" aria-hidden="true">
-                <span class="quiz-dot is-on" data-dot="1"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="2"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="3"></span>
-            </div>
-            <div id="quizStep1">
-                <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4" data-i18n="quiz.p1">Paso 1: ¿Qué tipo de gestión necesitas?</h3>
-                <div id="quizCats" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-            </div>
-            <div id="quizStep2" class="hidden">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider" data-i18n="quiz.p2">Paso 2: Selecciona el servicio</h3>
-                    <button id="quizBack" class="text-xs text-domBlue font-semibold hover:underline" data-i18n="quiz.volver">← Volver</button>
-                </div>
-                <div id="quizOptionsContainer" class="grid sm:grid-cols-2 gap-3"></div>
-            </div>
-            <div id="quizStep3" class="hidden space-y-4">
-                <div id="quizResultBox" class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"></div>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button id="quizReset" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100" data-i18n="quiz.reiniciar">Reiniciar</button>
-                    <a id="quizPageBtn" href="#" class="px-4 py-2.5 rounded-xl border border-domBlue text-domBlue text-xs font-semibold hover:bg-sky-50 text-center" data-i18n="quiz.pagina">Ver página del servicio</a>
-                    <button id="quizCalcBtn" class="flex-1 bg-domBlue hover:bg-domBlueHover text-white px-4 py-2.5 rounded-xl text-xs font-bold" data-i18n="quiz.calc">Ver cotización en calculadora →</button>
-                </div>
-            </div>
-        </div>
     </div>
 </section>
 
@@ -277,6 +228,59 @@
                     <button id="quoteFormBtn" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-sm" data-i18n="calc.iniciar">Iniciar solicitud →</button>
                 </div>
                 <a id="quotePageLink" href="#" class="block text-center text-xs text-sky-200 hover:text-white mt-3 underline" data-i18n="calc.detalle">Ver detalles y requisitos del servicio</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CATÁLOGO -->
+<section id="servicios" class="py-16 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-8">
+            <span class="eyebrow bg-sky-100 text-domBlue" data-i18n="cat.eyebrow">Catálogo completo</span>
+            <h2 class="section-title" data-i18n="cat.t">Todos nuestros servicios</h2>
+            <p class="text-slate-600 text-sm mt-1"><span data-i18n="cat.sub">Filtra por área o por tu ubicación. Toca un servicio para ver su página completa. Precios en</span> <strong id="catMonedaLabel">RD$</strong>.</p>
+        </div>
+        <div class="flex flex-col md:flex-row gap-3 mb-4">
+            <input type="search" id="catSearch" data-i18n-ph="cat.ph" data-i18n-aria="cat.ph" class="flex-1 bg-slate-50 border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
+            <div id="catPaisFilter" class="flex gap-2 overflow-x-auto"></div>
+        </div>
+        <div id="catChips" class="flex gap-2 overflow-x-auto pb-3 mb-4"></div>
+        <p id="catCount" class="text-xs text-slate-500 mb-3"></p>
+        <div id="catGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+</section>
+
+<!-- ASISTENTE -->
+<section id="asistente" class="py-16 bg-slate-50 border-y border-slate-200">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-10">
+            <span class="eyebrow bg-blue-100 text-domBlue" data-i18n="quiz.eyebrow">Guía paso a paso</span>
+            <h2 class="section-title" data-i18n="quiz.t">Asistente virtual de trámites</h2>
+            <p class="text-slate-600 text-sm mt-1" data-i18n="quiz.sub">Selecciona el área de tu trámite para obtener asesoría instantánea:</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="flex items-center gap-2 mb-6" aria-hidden="true">
+                <span class="quiz-dot is-on" data-dot="1"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="2"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="3"></span>
+            </div>
+            <div id="quizStep1">
+                <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4" data-i18n="quiz.p1">Paso 1: ¿Qué tipo de gestión necesitas?</h3>
+                <div id="quizCats" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            </div>
+            <div id="quizStep2" class="hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider" data-i18n="quiz.p2">Paso 2: Selecciona el servicio</h3>
+                    <button id="quizBack" class="text-xs text-domBlue font-semibold hover:underline" data-i18n="quiz.volver">← Volver</button>
+                </div>
+                <div id="quizOptionsContainer" class="grid sm:grid-cols-2 gap-3"></div>
+            </div>
+            <div id="quizStep3" class="hidden space-y-4">
+                <div id="quizResultBox" class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"></div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="quizReset" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100" data-i18n="quiz.reiniciar">Reiniciar</button>
+                    <a id="quizPageBtn" href="#" class="px-4 py-2.5 rounded-xl border border-domBlue text-domBlue text-xs font-semibold hover:bg-sky-50 text-center" data-i18n="quiz.pagina">Ver página del servicio</a>
+                    <button id="quizCalcBtn" class="flex-1 bg-domBlue hover:bg-domBlueHover text-white px-4 py-2.5 rounded-xl text-xs font-bold" data-i18n="quiz.calc">Ver cotización en calculadora →</button>
+                </div>
             </div>
         </div>
     </div>

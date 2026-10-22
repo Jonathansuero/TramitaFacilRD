@@ -154,6 +154,41 @@
         }).join('');
     }
 
+    /** Carrusel: flechas, teclado y avance automático que se pausa al pasar el mouse, tocar o enfocar. */
+    function initInstCarrusel() {
+        const track = $('instWall'), wrap = $('instCarousel');
+        const paso = () => {
+            const card = track.querySelector('.inst-card');
+            return card ? card.getBoundingClientRect().width + (parseFloat(getComputedStyle(track).columnGap) || 12) : 180;
+        };
+        const mover = dir => {
+            const max = track.scrollWidth - track.clientWidth;
+            if (dir > 0 && track.scrollLeft >= max - 4) track.scrollTo({ left: 0 });          // al final, vuelve al inicio
+            else if (dir < 0 && track.scrollLeft <= 4) track.scrollTo({ left: max });         // al inicio, salta al final
+            else track.scrollBy({ left: dir * paso() });
+        };
+        $('instPrev').addEventListener('click', () => mover(-1));
+        $('instNext').addEventListener('click', () => mover(1));
+        track.addEventListener('keydown', e => {
+            if (e.key === 'ArrowRight') { e.preventDefault(); mover(1); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); mover(-1); }
+        });
+
+        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+        let pausa = false, visible = false, reanudar;
+        const parar = () => { pausa = true; clearTimeout(reanudar); };
+        const seguir = (ms = 0) => { clearTimeout(reanudar); reanudar = setTimeout(() => { pausa = false; }, ms); };
+        wrap.addEventListener('mouseenter', parar);
+        wrap.addEventListener('mouseleave', () => seguir());
+        wrap.addEventListener('focusin', parar);
+        wrap.addEventListener('focusout', () => seguir());
+        wrap.addEventListener('touchstart', parar, { passive: true });
+        wrap.addEventListener('touchend', () => seguir(5000), { passive: true });
+        if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.3 }).observe(wrap);
+        else visible = true;
+        setInterval(() => { if (!pausa && visible && !document.hidden) mover(1); }, 3200);
+    }
+
     // ============================================================
     // CATÁLOGO
     // ============================================================
@@ -573,7 +608,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         ui.checklistKey = PAISES[state.pais].destacados.find(k => D.checklists[k]) || Object.keys(D.checklists)[0];
-        initPresencia(); initMundo(); initCatalogo(); initQuiz(); initCotizador(); initSolicitud(); initDelegacion();
+        initPresencia(); initMundo(); initInstCarrusel(); initCatalogo(); initQuiz(); initCotizador(); initSolicitud(); initDelegacion();
         $('checklistTabs').addEventListener('click', e => { const b = e.target.closest('[data-key]'); if (b) loadChecklist(b.dataset.key); });
         $('trackForm').addEventListener('submit', e => { e.preventDefault(); trackStatus(); });
         $('ipiForm').addEventListener('submit', calculateIPI);

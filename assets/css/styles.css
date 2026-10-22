@@ -242,7 +242,16 @@ mark { background: #fef08a; padding: 0 .1em; border-radius: 2px; }
 .stat-dark strong { color: var(--oro); }
 .stat-dark span { color: #cbd5e1; }
 
-.inst-wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .75rem; }
+/* Carrusel de instituciones (portada) */
+.inst-carousel { position: relative; padding-inline: 3.5rem; }
+.inst-track { display: flex; gap: .75rem; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; padding: .5rem .25rem 1rem; scrollbar-width: none; mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent); }
+.inst-track::-webkit-scrollbar { display: none; }
+.inst-track:focus-visible { outline-offset: 4px; border-radius: 1.25rem; }
+.inst-track .inst-card { flex: 0 0 170px; scroll-snap-align: start; }
+.inst-nav { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 2.75rem; height: 2.75rem; border-radius: 999px; display: flex; align-items: center; justify-content: center; background: #fff; color: var(--azul); border: 1px solid var(--borde); box-shadow: 0 8px 20px -10px rgba(0,45,98,.45); transition: background .2s, color .2s, border-color .2s; }
+.inst-nav:hover { background: var(--azul); color: #fff; border-color: var(--azul); }
+.inst-prev { left: 0; }
+.inst-next { right: 0; }
 .inst-card { display: flex; flex-direction: column; align-items: center; text-align: center; gap: .5rem; padding: 1rem .75rem; border-radius: 1.25rem; background: #fff; border: 1px solid var(--borde); transition: transform .25s, box-shadow .25s, border-color .25s; animation: heroIn .4s ease both; }
 .inst-card:hover { transform: translateY(-4px); border-color: var(--oro); box-shadow: 0 16px 30px -18px rgba(0,45,98,.5); }
 .inst-name { font-size: .72rem; font-weight: 700; color: #0f172a; line-height: 1.25; }
@@ -307,7 +316,9 @@ mark { background: #fef08a; padding: 0 .1em; border-radius: 2px; }
 @media (max-width: 640px) {
     .h-cell { height: 2.2rem; }
     .h-cell span { font-size: .45rem; }
-    .inst-wall { grid-template-columns: repeat(2, 1fr); }
+    .inst-carousel { padding-inline: 0; }
+    .inst-nav { display: none; }
+    .inst-track .inst-card { flex-basis: 44%; }
 }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; flex-wrap: wrap; width: auto; } }
 

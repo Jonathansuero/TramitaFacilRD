@@ -213,8 +213,8 @@
         { href: homeLink('faq'), key: 'nav.faq', id: 'faq' }
     ];
     const MOBILE = [
-        ['presencia', '🌎', 'm.presencia'], ['servicios', '📚', 'm.servicios'], ['asistente', '✨', 'm.asistente'],
-        ['cotizador', '🧮', 'm.cotizador'], ['requisitos', '✅', 'm.requisitos'], ['rastreo', '📍', 'm.rastreo'],
+        ['presencia', '🌎', 'm.presencia'], ['cotizador', '🧮', 'm.cotizador'], ['servicios', '📚', 'm.servicios'],
+        ['asistente', '✨', 'm.asistente'], ['requisitos', '✅', 'm.requisitos'], ['rastreo', '📍', 'm.rastreo'],
         ['solicitud', '📝', 'm.solicitud'], ['herramientas-dgii', '🏛️', 'm.dgii'], ['faq', '❓', 'm.faq']
     ];
 

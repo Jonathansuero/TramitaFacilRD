@@ -1550,6 +1550,21 @@
       "👤 Nombre",
       "👤 Name",
       "👤 Nom"
+    ],
+    "inst.carrusel": [
+      "Instituciones donde gestionamos",
+      "Institutions where we handle your paperwork",
+      "Institutions où nous gérons vos démarches"
+    ],
+    "inst.anterior": [
+      "Institución anterior",
+      "Previous institution",
+      "Institution précédente"
+    ],
+    "inst.siguiente": [
+      "Siguiente institución",
+      "Next institution",
+      "Institution suivante"
     ]
   },
   "contenido": {
