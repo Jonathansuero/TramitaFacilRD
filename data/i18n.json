@@ -1551,20 +1551,75 @@
       "👤 Name",
       "👤 Nom"
     ],
-    "inst.carrusel": [
-      "Instituciones donde gestionamos",
-      "Institutions where we handle your paperwork",
-      "Institutions où nous gérons vos démarches"
+    "meta.rastreo.title": [
+      "Rastrear mi trámite | TramitaFácil RD",
+      "Track my request | TramitaFácil RD",
+      "Suivre ma démarche | TramitaFácil RD"
     ],
-    "inst.anterior": [
-      "Institución anterior",
-      "Previous institution",
-      "Institution précédente"
+    "meta.rastreo.desc": [
+      "Consulta en línea el estado de tu expediente con tu código de seguimiento, desde cualquier país.",
+      "Check your file status online with your tracking code, from any country.",
+      "Consultez l'état de votre dossier en ligne avec votre code de suivi, depuis n'importe quel pays."
     ],
-    "inst.siguiente": [
-      "Siguiente institución",
-      "Next institution",
-      "Institution suivante"
+    "meta.preguntas.title": [
+      "Preguntas frecuentes | TramitaFácil RD",
+      "Frequently asked questions | TramitaFácil RD",
+      "Questions fréquentes | TramitaFácil RD"
+    ],
+    "meta.preguntas.desc": [
+      "Respuestas sobre trámites en República Dominicana desde cualquier país: poderes, pagos desde el exterior, tiempos y documentos.",
+      "Answers about Dominican Republic paperwork from any country: powers of attorney, paying from abroad, timing and documents.",
+      "Réponses sur les démarches en République dominicaine depuis n'importe quel pays : procurations, paiement depuis l'étranger, délais et documents."
+    ],
+    "trackp.sub": [
+      "Escribe el código que recibiste al enviar tu solicitud y mira en qué paso va tu expediente.",
+      "Enter the code you received with your request and see which step your file is at.",
+      "Saisissez le code reçu avec votre demande pour voir à quelle étape en est votre dossier."
+    ],
+    "trackp.sin.t": [
+      "¿Aún no tienes código?",
+      "Don't have a code yet?",
+      "Pas encore de code ?"
+    ],
+    "trackp.sin.d": [
+      "Inicia tu trámite y lo recibes al instante.",
+      "Start your request and get one instantly.",
+      "Commencez votre démarche et recevez-le immédiatement."
+    ],
+    "trackp.ayuda.t": [
+      "¿Dudas sobre tu expediente?",
+      "Questions about your file?",
+      "Une question sur votre dossier ?"
+    ],
+    "trackp.ayuda.d": [
+      "Escríbenos por WhatsApp con tu código.",
+      "Message us on WhatsApp with your code.",
+      "Écrivez-nous sur WhatsApp avec votre code."
+    ],
+    "faqp.sub": [
+      "Lo que más nos preguntan quienes hacen trámites en RD, desde aquí o desde el exterior.",
+      "What people ask us most about DR paperwork, from here or from abroad.",
+      "Les questions les plus posées sur les démarches en RD, sur place ou depuis l'étranger."
+    ],
+    "faqp.cta.t": [
+      "¿No encontraste tu respuesta?",
+      "Didn't find your answer?",
+      "Vous n'avez pas trouvé votre réponse ?"
+    ],
+    "faqp.cta.d": [
+      "Escríbenos y te respondemos en tu horario.",
+      "Message us and we'll reply in your time zone.",
+      "Écrivez-nous : nous vous répondons à votre heure."
+    ],
+    "wa.rastreo": [
+      "🔖 Quiero saber el estado de mi expediente: *{code}*",
+      "🔖 I'd like an update on my file: *{code}*",
+      "🔖 J'aimerais connaître l'état de mon dossier : *{code}*"
+    ],
+    "wa.rastreo.sin": [
+      "🔖 Quiero saber el estado de mi expediente.",
+      "🔖 I'd like an update on my file.",
+      "🔖 J'aimerais connaître l'état de mon dossier."
     ]
   },
   "contenido": {

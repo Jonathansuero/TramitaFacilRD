@@ -3,6 +3,8 @@
   <url><loc>https://TU-DOMINIO.com/</loc><priority>1.0</priority></url>
   <url><loc>https://TU-DOMINIO.com/instituciones.html</loc><priority>0.8</priority></url>
   <url><loc>https://TU-DOMINIO.com/diaspora.html</loc><priority>0.8</priority></url>
+  <url><loc>https://TU-DOMINIO.com/preguntas.html</loc><priority>0.7</priority></url>
+  <url><loc>https://TU-DOMINIO.com/rastreo.html</loc><priority>0.5</priority></url>
   <url><loc>https://TU-DOMINIO.com/servicio.html?id=residencia_dominicana</loc><priority>0.6</priority></url>
   <url><loc>https://TU-DOMINIO.com/servicio.html?id=green_card_usa</loc><priority>0.6</priority></url>
   <url><loc>https://TU-DOMINIO.com/servicio.html?id=peticiones_familiares</loc><priority>0.6</priority></url>

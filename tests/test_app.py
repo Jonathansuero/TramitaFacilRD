@@ -117,7 +117,7 @@ def test_paises_mundo_validos():
 
 
 def test_paginas_nuevas(client):
-    for page in ("servicio.html", "instituciones.html", "diaspora.html"):
+    for page in ("servicio.html", "instituciones.html", "diaspora.html", "rastreo.html", "preguntas.html"):
         r = client.get("/" + page)
         assert r.status_code == 200 and b'id="tf-header"' in r.data
 

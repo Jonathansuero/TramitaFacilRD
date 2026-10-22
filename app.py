@@ -320,7 +320,7 @@ def no_encontrado(_e):
 
 # ---------------------------------------------------------------- sitio estático
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
-ARCHIVOS_RAIZ = {"index.html", "servicio.html", "instituciones.html", "diaspora.html",
+ARCHIVOS_RAIZ = {"index.html", "servicio.html", "instituciones.html", "diaspora.html", "rastreo.html", "preguntas.html",
                  "robots.txt", "sitemap.xml", "site.webmanifest"}
 
 

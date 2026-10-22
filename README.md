@@ -46,6 +46,10 @@ assets/js/servicio.js      Página de cada servicio
 assets/js/instituciones.js Directorio de instituciones
 assets/js/diaspora.js      Guía para la diáspora
 servicio.html · instituciones.html · diaspora.html
+rastreo.html               Rastreo de expedientes (rastreo.html?c=RD-XXXX)
+preguntas.html             Preguntas frecuentes
+assets/js/rastreo.js       Lógica del rastreo
+assets/js/preguntas.js     Lógica de las preguntas frecuentes
 assets/js/data.js          Datos para el navegador (generado desde data/catalogo.json)
 assets/img/favicon.svg
 data/catalogo.json         ★ ÚNICA fuente de precios, servicios, requisitos, FAQ, países e instituciones

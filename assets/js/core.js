@@ -209,13 +209,13 @@
         { href: homeLink('cotizador'), key: 'nav.cotizar', id: 'cotizador' },
         { href: 'instituciones.html', key: 'nav.instituciones', page: 'instituciones' },
         { href: 'diaspora.html', key: 'nav.diaspora', page: 'diaspora' },
-        { href: homeLink('rastreo'), key: 'nav.rastrear', id: 'rastreo' },
-        { href: homeLink('faq'), key: 'nav.faq', id: 'faq' }
+        { href: 'rastreo.html', key: 'nav.rastrear', page: 'rastreo' },
+        { href: 'preguntas.html', key: 'nav.faq', page: 'preguntas' }
     ];
     const MOBILE = [
         ['presencia', 'fa-earth-americas', 'm.presencia'], ['cotizador', 'fa-calculator', 'm.cotizador'], ['servicios', 'fa-layer-group', 'm.servicios'],
-        ['asistente', 'fa-wand-magic-sparkles', 'm.asistente'], ['requisitos', 'fa-list-check', 'm.requisitos'], ['rastreo', 'fa-location-crosshairs', 'm.rastreo'],
-        ['solicitud', 'fa-file-pen', 'm.solicitud'], ['herramientas-dgii', 'fa-file-invoice-dollar', 'm.dgii'], ['faq', 'fa-circle-question', 'm.faq']
+        ['asistente', 'fa-wand-magic-sparkles', 'm.asistente'], ['requisitos', 'fa-list-check', 'm.requisitos'],
+        ['solicitud', 'fa-file-pen', 'm.solicitud'], ['herramientas-dgii', 'fa-file-invoice-dollar', 'm.dgii']
     ];
     /** Enlace del menú móvil: ícono sobrio + texto + flecha que aparece al pasar o tocar. */
     const mobileLink = (href, icono, key, extra = '') =>
@@ -266,6 +266,8 @@
   <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-4 text-sm max-h-[75vh] overflow-y-auto">
     ${mobileLink('instituciones.html', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
     ${mobileLink('diaspora.html', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
+    ${mobileLink('rastreo.html', 'fa-location-crosshairs', 'm.rastreo', ` ml-page${PAGE === 'rastreo' ? ' nav-active' : ''}`)}
+    ${mobileLink('preguntas.html', 'fa-circle-question', 'm.faq', ` ml-page${PAGE === 'preguntas' ? ' nav-active' : ''}`)}
     <div class="ml-sep" role="presentation"></div>
     ${MOBILE.map(([id, ico, key]) => mobileLink(homeLink(id), ico, key)).join('')}
   </div>
@@ -288,11 +290,13 @@
         <li><a href="index.html" data-i18n="foot.inicio"></a></li>
         <li><a href="instituciones.html" data-i18n="nav.instituciones"></a></li>
         <li><a href="diaspora.html" data-i18n="nav.diaspora"></a></li>
+        <li><a href="rastreo.html" data-i18n="m.rastreo"></a></li>
+        <li><a href="preguntas.html" data-i18n="m.faq"></a></li>
         <li><a href="servicio.html?id=apostilla_documentos" data-i18n="foot.ejemplo"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.navega"></h4><ul class="foot-ul">
         <li><a href="${homeLink('servicios')}" data-i18n="m.servicios"></a></li>
         <li><a href="${homeLink('cotizador')}" data-i18n="m.cotizador"></a></li>
-        <li><a href="${homeLink('rastreo')}" data-i18n="m.rastreo"></a></li>
+        <li><a href="${homeLink('solicitud')}" data-i18n="m.solicitud"></a></li>
         <li><a href="${homeLink('herramientas-dgii')}" data-i18n="m.dgii"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.contacto"></h4><ul class="foot-ul">
         <li><i class="fa-brands fa-whatsapp text-emerald-400 mr-2"></i><a id="footWa" href="#" target="_blank" rel="noopener" data-wa-display></a></li>

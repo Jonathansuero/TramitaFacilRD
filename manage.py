@@ -72,7 +72,8 @@ def cmd_sitemap(_args):
     """sitemap.xml con la portada, las páginas fijas y una página por servicio."""
     cat = calculos.cargar_catalogo()
     sitio = cat["config"]["sitio"].rstrip("/")
-    urls = [("/", "1.0"), ("/instituciones.html", "0.8"), ("/diaspora.html", "0.8")]
+    urls = [("/", "1.0"), ("/instituciones.html", "0.8"), ("/diaspora.html", "0.8"),
+            ("/preguntas.html", "0.7"), ("/rastreo.html", "0.5")]
     urls += [(f"/servicio.html?id={k}", "0.6") for k in cat["servicios"]]
     cuerpo = "\n".join(f"  <url><loc>{sitio}{u.replace('&', '&amp;')}</loc><priority>{p}</priority></url>" for u, p in urls)
     (calculos.BASE_DIR / "sitemap.xml").write_text(

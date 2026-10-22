@@ -9,7 +9,7 @@
     const TF = window.TF; if (!TF) return;
     const { D, C, PAISES, SERV, SYM, state, $, $$, esc, t, tc, money, waLink, saludo, toast, restart, normal, goTo, flagOf, countryName } = TF;
 
-    const ui = { cat: 'todos', catPais: 'mio', catQuery: '', quizKey: null, checklistKey: null, faqQuery: '', lastTrack: null };
+    const ui = { cat: 'todos', catPais: 'mio', catQuery: '', quizKey: null, checklistKey: null };
     const servUrl = k => `servicio.html?id=${encodeURIComponent(k)}`;
     const flagsOf = k => SERV[k].paises.map(p => PAISES[p].bandera).join(' ');
 
@@ -135,58 +135,6 @@
             if (!row) { restart($('mundoInput'), 'shake'); toast(t('mundo.noencontrado')); return; }
             location.href = `diaspora.html?c=${row[0]}`;
         });
-    }
-
-    // ============================================================
-    // INSTITUCIONES
-    // ============================================================
-    function renderInstituciones() {
-        const ids = Object.keys(D.instituciones);
-        const count = tipo => ids.filter(i => D.instituciones[i].tipo === tipo).length;
-        $('instCountPub').textContent = count('publica');
-        $('instCountPriv').textContent = count('privada');
-        $('instCountInt').textContent = count('internacional');
-        $('instWall').innerHTML = ids.map((id, i) => {
-            const inst = tc('instituciones', id), n = Object.values(SERV).filter(s => s.inst.includes(id)).length;
-            return `<a href="instituciones.html#${id}" class="inst-card" style="animation-delay:${i * 25}ms" title="${esc(inst.nombre)}">
-                ${TF.instBadge(id)}<span class="inst-name">${esc(inst.nombre)}</span>
-                <span class="inst-meta">${esc(t(n === 1 ? 'inst.ntramites1' : 'inst.ntramites', { n }))}</span></a>`;
-        }).join('');
-    }
-
-    /** Carrusel: flechas, teclado y avance automático que se pausa al pasar el mouse, tocar o enfocar. */
-    function initInstCarrusel() {
-        const track = $('instWall'), wrap = $('instCarousel');
-        const paso = () => {
-            const card = track.querySelector('.inst-card');
-            return card ? card.getBoundingClientRect().width + (parseFloat(getComputedStyle(track).columnGap) || 12) : 180;
-        };
-        const mover = dir => {
-            const max = track.scrollWidth - track.clientWidth;
-            if (dir > 0 && track.scrollLeft >= max - 4) track.scrollTo({ left: 0 });          // al final, vuelve al inicio
-            else if (dir < 0 && track.scrollLeft <= 4) track.scrollTo({ left: max });         // al inicio, salta al final
-            else track.scrollBy({ left: dir * paso() });
-        };
-        $('instPrev').addEventListener('click', () => mover(-1));
-        $('instNext').addEventListener('click', () => mover(1));
-        track.addEventListener('keydown', e => {
-            if (e.key === 'ArrowRight') { e.preventDefault(); mover(1); }
-            if (e.key === 'ArrowLeft') { e.preventDefault(); mover(-1); }
-        });
-
-        if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        let pausa = false, visible = false, reanudar;
-        const parar = () => { pausa = true; clearTimeout(reanudar); };
-        const seguir = (ms = 0) => { clearTimeout(reanudar); reanudar = setTimeout(() => { pausa = false; }, ms); };
-        wrap.addEventListener('mouseenter', parar);
-        wrap.addEventListener('mouseleave', () => seguir());
-        wrap.addEventListener('focusin', parar);
-        wrap.addEventListener('focusout', () => seguir());
-        wrap.addEventListener('touchstart', parar, { passive: true });
-        wrap.addEventListener('touchend', () => seguir(5000), { passive: true });
-        if ('IntersectionObserver' in window) new IntersectionObserver(es => { visible = es[0].isIntersecting; }, { threshold: 0.3 }).observe(wrap);
-        else visible = true;
-        setInterval(() => { if (!pausa && visible && !document.hidden) mover(1); }, 3200);
     }
 
     // ============================================================
@@ -384,42 +332,6 @@
     }
 
     // ============================================================
-    // RASTREO
-    // ============================================================
-    const TONOS = { amber: 'bg-amber-100 text-amber-800', emerald: 'bg-emerald-100 text-emerald-800', sky: 'bg-sky-100 text-sky-800' };
-    async function trackStatus() {
-        const input = $('trackInput'), code = input.value.trim().toUpperCase();
-        if (!code) { input.focus(); restart(input, 'shake'); return; }
-        const btn = $('trackBtn');
-        btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${esc(t('track.cargando'))}`;
-        let data = null;
-        try {
-            if (state.api) { try { data = await TF.api('/rastreo/' + encodeURIComponent(code)); } catch (e) { if (e.status !== 404) data = D.rastreo_demo[code] || null; } }
-            else { await new Promise(r => setTimeout(r, 450)); data = D.rastreo_demo[code] || null; }
-        } finally { btn.disabled = false; btn.textContent = t('track.btn'); }
-        ui.lastTrack = { code, data };
-        renderTrack(code, data);
-    }
-    function renderTrack(code, data) {
-        $('trackResultContainer').classList.remove('hidden');
-        if (!data) { $('trackSuccess').classList.add('hidden'); $('trackError').classList.remove('hidden'); restart($('trackError'), 'shake'); return; }
-        $('trackError').classList.add('hidden'); $('trackSuccess').classList.remove('hidden');
-        $('trackCodeDisplay').textContent = code;
-        $('trackServiceDisplay').textContent = data.service;
-        $('trackClientDisplay').textContent = `${t('track.cliente')}: ${data.client}`;
-        $('trackBadge').textContent = data.statusText;
-        $('trackBadge').className = `text-xs font-bold px-3 py-1 rounded-full ${TONOS[data.tone] || TONOS.sky}`;
-        $('trackDetailDisplay').textContent = data.detail;
-        $('trackLineFill').style.width = '0%';
-        requestAnimationFrame(() => $('trackLineFill').style.width = ((data.step - 1) / 3 * 100) + '%');
-        for (let i = 1; i <= 4; i++) {
-            const st = $(`step${i}`), on = i <= data.step, dot = st.querySelector('div');
-            st.classList.toggle('is-done', on); dot.innerHTML = on ? '<i class="fa-solid fa-check"></i>' : i;
-            if (on) setTimeout(() => restart(dot, 'pop'), i * 150);
-        }
-    }
-
-    // ============================================================
     // SOLICITUD
     // ============================================================
     function datosForm() {
@@ -475,7 +387,7 @@
         ok.innerHTML = codigo
             ? `<div class="font-bold text-base">✅ ${esc(t('ok.t'))}</div>
                <p class="mt-1">${esc(t('ok.codigo'))} <strong class="font-mono text-lg">${esc(codigo)}</strong>. ${esc(t('ok.guarda'))}</p>
-               <div class="flex flex-wrap gap-2 mt-3"><button class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" data-track-code="${esc(codigo)}">${esc(t('ok.estado'))}</button>
+               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo.html?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
                <button class="border border-emerald-300 text-xs font-bold px-4 py-2 rounded-lg" data-copy="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
                <a class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg" target="_blank" rel="noopener" href="${waLink(mensajeSolicitud(d, codigo))}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('ok.confirmar'))}</a></div>`
             : `<div class="font-bold">✅ ${esc(t('ok.wa.t'))}</div><p class="mt-1">${esc(t('ok.wa.d'))}</p>`;
@@ -520,35 +432,14 @@
     }
 
     // ============================================================
-    // FAQ
+    // DATOS ESTRUCTURADOS (Google)
     // ============================================================
-    function renderFaqs() {
-        const q = normal(ui.faqQuery.trim());
-        const list = D.faq.map((f, i) => ({ ...tc('faq', i), tags: f.tags, i }))
-            .filter(f => !q || normal(f.q + ' ' + f.a).includes(q))
-            .sort((a, b) => (b.tags.includes(state.pais) - a.tags.includes(state.pais)) || a.i - b.i);
-        const hl = s => { const tx = esc(s); if (!q) return tx; const idx = normal(tx).indexOf(q); return idx < 0 ? tx : tx.slice(0, idx) + '<mark>' + tx.slice(idx, idx + q.length) + '</mark>' + tx.slice(idx + q.length); };
-        $('faqContainer').innerHTML = list.length ? list.map(f => `
-            <div class="border border-slate-200 rounded-2xl bg-white overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                <button id="faqBtn-${f.i}" aria-expanded="${q ? 'true' : 'false'}" aria-controls="faqAns-${f.i}" data-faq="${f.i}" class="w-full p-4 sm:p-5 text-left font-bold text-slate-800 flex justify-between items-center gap-3 hover:bg-slate-50 text-sm">
-                    <span>${f.tags.includes(state.pais) ? `<span class="mr-1">${PAISES[state.pais].bandera}</span>` : ''}${hl(f.q)}</span>
-                    <i id="faqIcon-${f.i}" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200 ${q ? 'rotate-180' : ''}"></i></button>
-                <div id="faqAns-${f.i}" class="${q ? '' : 'hidden'} p-4 sm:p-5 pt-0 text-slate-600 text-xs sm:text-sm border-t border-slate-100">${hl(f.a)}</div>
-            </div>`).join('')
-            : `<p class="text-center text-sm text-slate-500 py-6">${esc(t('faq.vacio'))} <a class="text-emerald-700 font-bold underline" target="_blank" rel="noopener" href="${waLink(saludo(t('wa.pregunta', { q: ui.faqQuery })))}">${esc(t('cat.preguntar'))}</a></p>`;
-    }
-    function toggleFaq(i) {
-        const ans = $(`faqAns-${i}`), open = ans.classList.toggle('hidden') === false;
-        ans.classList.toggle('faq-open', open);
-        $(`faqIcon-${i}`).classList.toggle('rotate-180', open);
-        $(`faqBtn-${i}`).setAttribute('aria-expanded', open);
-    }
-    function faqSchema() {
-        const add = obj => { const s = document.createElement('script'); s.type = 'application/ld+json'; s.textContent = JSON.stringify(obj); document.head.appendChild(s); };
-        add({ '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: D.faq.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) });
-        add({ '@context': 'https://schema.org', '@type': 'ProfessionalService', name: 'TramitaFácil RD', telephone: '+' + C.whatsapp, email: C.email,
+    function empresaSchema() {
+        const s = document.createElement('script'); s.type = 'application/ld+json';
+        s.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'ProfessionalService', name: 'TramitaFácil RD', telephone: '+' + C.whatsapp, email: C.email,
             availableLanguage: ['es', 'en', 'fr'], areaServed: D.paises_mundo.map(r => r[0]),
             address: { '@type': 'PostalAddress', addressLocality: 'Santo Domingo', addressCountry: 'DO' } });
+        document.head.appendChild(s);
     }
 
     // ============================================================
@@ -573,9 +464,6 @@
             const q = e.target.closest('[data-quick]'); if (q) { e.preventDefault(); quickSelect(q.dataset.quick); return; }
             const r = e.target.closest('[data-req]'); if (r) { openChecklist(r.dataset.req); return; }
             const s = e.target.closest('[data-solicitar]'); if (s) { irASolicitud(s.dataset.solicitar); return; }
-            const f = e.target.closest('[data-faq]'); if (f) { toggleFaq(f.dataset.faq); return; }
-            const tr = e.target.closest('[data-track-code],[data-demo-code]');
-            if (tr) { $('trackInput').value = tr.dataset.trackCode || tr.dataset.demoCode; goTo('rastreo'); trackStatus(); return; }
             const c = e.target.closest('[data-copy]'); if (c) { navigator.clipboard?.writeText(c.dataset.copy).then(() => toast(t('toast.copiado'))); return; }
             if (e.target.closest('[data-ver-catalogo]')) { ui.catPais = 'mio'; ui.cat = 'todos'; renderCatalogo(); goTo('servicios'); return; }
             if (e.target.closest('[data-reset-cat]')) { ui.cat = 'todos'; ui.catPais = 'todos'; ui.catQuery = ''; $('catSearch').value = ''; renderCatalogo(); }
@@ -594,7 +482,6 @@
     function renderTodo(animate = false) {
         renderPais(animate);
         renderMundo();
-        renderInstituciones();
         renderCatalogo();
         renderQuizCats();
         if (ui.quizKey && !$('quizStep3').classList.contains('hidden')) showQuizResult(ui.quizKey);
@@ -602,21 +489,17 @@
         buildFormServicios();
         renderChecklistTabs();
         loadChecklist(ui.checklistKey);
-        renderFaqs();
         calculateIPI(); calculateVehicleTransfer();
-        if (ui.lastTrack) renderTrack(ui.lastTrack.code, ui.lastTrack.data);
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         ui.checklistKey = PAISES[state.pais].destacados.find(k => D.checklists[k]) || Object.keys(D.checklists)[0];
-        initPresencia(); initMundo(); initInstCarrusel(); initCatalogo(); initQuiz(); initCotizador(); initSolicitud(); initDelegacion();
+        initPresencia(); initMundo(); initCatalogo(); initQuiz(); initCotizador(); initSolicitud(); initDelegacion();
         $('checklistTabs').addEventListener('click', e => { const b = e.target.closest('[data-key]'); if (b) loadChecklist(b.dataset.key); });
-        $('trackForm').addEventListener('submit', e => { e.preventDefault(); trackStatus(); });
         $('ipiForm').addEventListener('submit', calculateIPI);
         $('vehForm').addEventListener('submit', calculateVehicleTransfer);
-        $('faqSearch').addEventListener('input', e => { ui.faqQuery = e.target.value; renderFaqs(); });
         renderTodo(false);
-        faqSchema();
+        empresaSchema();
 
         TF.on('lang', () => renderTodo(false));
         TF.on('pais', d => renderTodo(d.animate !== false));

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rastrear mi trámite | TramitaFácil RD</title>
+    <meta name="description" content="Consulta en línea el estado de tu expediente con tu código de seguimiento, desde cualquier país.">
+    <meta name="theme-color" content="#002D62">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="rastreo" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<div id="tf-header"></div>
+<main id="main">
+    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white pt-10 pb-24 relative overflow-hidden">
+        <div class="hero-grid absolute inset-0 pointer-events-none"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 relative text-center">
+            <nav class="breadcrumb justify-center" aria-label="breadcrumb"><a href="index.html" data-i18n="foot.inicio">Inicio</a><span>›</span><span data-i18n="nav.rastrear">Rastrear</span></nav>
+            <span class="eyebrow bg-white/15 text-white mt-6" data-i18n="track.eyebrow">Consulta de expediente</span>
+            <h1 class="font-display text-3xl sm:text-5xl font-extrabold mt-3" data-i18n="track.t">Rastrear estado de mi trámite</h1>
+            <p class="text-slate-300 mt-4 max-w-2xl mx-auto" data-i18n="trackp.sub">Escribe el código que recibiste al enviar tu solicitud y mira en qué paso va tu expediente.</p>
+        </div>
+    </section>
+
+    <section class="-mt-16 pb-16 relative z-10">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-8">
+                <p class="text-slate-500 text-xs sm:text-sm text-center mb-5"><span data-i18n="track.sub">Ingresa tu código. Códigos de demostración:</span>
+                    <button type="button" class="text-domBlue font-bold underline" data-demo-code="RD-8492">RD-8492</button> ·
+                    <button type="button" class="text-domBlue font-bold underline" data-demo-code="RD-1024">RD-1024</button></p>
+                <form id="trackForm" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                    <input type="text" id="trackInput" data-i18n-aria="track.aria" placeholder="RD-8492" autocomplete="off" class="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-domBlue text-sm font-mono uppercase tracking-wider">
+                    <button id="trackBtn" class="bg-domBlue hover:bg-domBlueHover text-white font-bold px-6 py-3 rounded-xl shadow-md text-sm" data-i18n="track.btn">Consultar</button>
+                </form>
+                <div id="trackResultContainer" class="hidden mt-8 border-t border-slate-100 pt-6" aria-live="polite">
+                    <div id="trackSuccess" class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                            <div><span id="trackCodeDisplay" class="text-xs font-mono font-bold text-domBlue uppercase"></span>
+                                <h2 id="trackServiceDisplay" class="text-lg font-bold text-slate-900"></h2>
+                                <p id="trackClientDisplay" class="text-xs text-slate-500"></p></div>
+                            <span id="trackBadge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
+                        </div>
+                        <div class="track-steps my-6">
+                            <div class="track-line"><div id="trackLineFill"></div></div>
+                            <div class="grid grid-cols-4 text-center relative">
+                                <div id="step1" class="track-step"><div>1</div><span data-i18n="track.s1">Recibido</span></div>
+                                <div id="step2" class="track-step"><div>2</div><span data-i18n="track.s2">Verificado</span></div>
+                                <div id="step3" class="track-step"><div>3</div><span data-i18n="track.s3">En entidad</span></div>
+                                <div id="step4" class="track-step"><div>4</div><span data-i18n="track.s4">Listo</span></div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-600"><strong class="text-slate-800" data-i18n="track.ultima">Última actualización:</strong> <span id="trackDetailDisplay"></span></div>
+                    </div>
+                    <div id="trackError" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 text-center text-red-700 text-xs" data-i18n="track.error">No encontramos ningún expediente con ese código. Verifica e intenta de nuevo.</div>
+                </div>
+            </div>
+
+            <div class="grid sm:grid-cols-2 gap-4 mt-6">
+                <a href="index.html#solicitud" class="tool-card hover:border-domBlue transition-colors">
+                    <div class="flex items-center gap-3"><div class="tool-icon bg-sky-100 text-domBlue"><i class="fa-solid fa-file-pen"></i></div>
+                        <div><h2 class="font-extrabold text-slate-900 text-sm" data-i18n="trackp.sin.t">¿Aún no tienes código?</h2><p class="text-xs text-slate-500" data-i18n="trackp.sin.d">Inicia tu trámite y lo recibes al instante.</p></div></div>
+                </a>
+                <a id="trackWa" href="#" target="_blank" rel="noopener" class="tool-card hover:border-domBlue transition-colors">
+                    <div class="flex items-center gap-3"><div class="tool-icon bg-emerald-100 text-emerald-700"><i class="fa-brands fa-whatsapp"></i></div>
+                        <div><h2 class="font-extrabold text-slate-900 text-sm" data-i18n="trackp.ayuda.t">¿Dudas sobre tu expediente?</h2><p class="text-xs text-slate-500" data-i18n="trackp.ayuda.d">Escríbenos por WhatsApp con tu código.</p></div></div>
+                </a>
+            </div>
+        </div>
+    </section>
+</main>
+<div id="tf-footer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/rastreo.js"></script>
+</body>
+</html>
