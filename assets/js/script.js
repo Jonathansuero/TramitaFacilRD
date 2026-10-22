@@ -282,11 +282,17 @@
     }
     function mensajeCotizacion() {
         const k = $('calcServiceSelect').value, { express, envio } = opciones();
-        const extras = [express && t('wa.express'), envio && t('wa.envio')].filter(Boolean);
-        return [t('wa.cot.hola'), '', t('wa.cot.desde', { lugar: TF.lugar() }), '', `📋 *${t('wa.cot.detalles')}*`, '──────────────',
-            `📌 *${t('wa.cot.servicio')}:* ${tc('servicios', k).title}`, `💡 *${t('wa.cot.categoria')}:* ${tc('categorias', SERV[k].category).label}`, '',
-            `⚡ *${t('wa.cot.extras')}:*`, ...(extras.length ? extras : [t('wa.estandar')]).map(x => `   • ${x}`), '',
-            `💰 *${t('wa.cot.total')} (${state.moneda}):* ${$('resTotal').textContent}`, '──────────────', '', t('wa.cot.cierre')].join('\n');
+        return [
+            t('wa.cot.hola'),
+            t('wa.cot.desde', { lugar: TF.lugar() }),
+            '',
+            `${t('wa.cot.servicio')}: *${tc('servicios', k).title}*`,
+            express && t('wa.express'),
+            envio && t('wa.envio'),
+            `${t('wa.cot.total')}: *${$('resTotal').textContent}*`,
+            '',
+            t('wa.cot.cierre')
+        ].filter(x => x !== false).join('\n');
     }
     function initCotizador() {
         $('calcServiceSearch').addEventListener('input', e => buildServiceSelect(e.target.value));
@@ -396,8 +402,16 @@
         return err.length ? t('sol.e.falta', { lista: err.join(', ') }) : '';
     }
     function mensajeSolicitud(d, codigo) {
-        return [t('wa.cot.hola'), codigo ? `${t('wa.sol.codigo')}: *${codigo}*` : '', `${t('sol.nombre')}: ${d.nombre}`, `${t('wa.sol.reside')}: ${TF.lugar()}`,
-            `${t('sol.servicio')}: ${tc('servicios', d.servicio).title}`, `${t('wa.sol.contacto')}: ${d.contacto}`, d.mensaje ? `${t('wa.sol.detalles')}: ${d.mensaje}` : ''].filter(Boolean).join('\n');
+        return [
+            t('wa.cot.hola'),
+            '',
+            codigo ? `${t('wa.sol.codigo')}: *${codigo}*` : null,
+            `${t('wa.cot.servicio')}: *${tc('servicios', d.servicio).title}*`,
+            `${t('wa.sol.nombre')}: ${d.nombre}`,
+            `${t('wa.sol.reside')}: ${TF.lugar()}`,
+            `${t('wa.sol.contacto')}: ${d.contacto}`,
+            d.mensaje ? `${t('wa.sol.detalles')}: ${d.mensaje}` : null
+        ].filter(x => x !== null).join('\n');
     }
     function initSolicitud() {
         const form = $('solicitudForm'), errBox = $('formError');

@@ -1437,134 +1437,119 @@
       "Lien copié 🔗"
     ],
     "wa.saludo": [
-      "Hola, TramitaFácil RD 👋 Les escribo desde {lugar}. {extra}",
-      "Hello TramitaFácil RD 👋 I'm writing from {lugar}. {extra}",
-      "Bonjour TramitaFácil RD 👋 Je vous écris depuis {lugar}. {extra}"
+      "👋 ¡Hola, TramitaFácil RD!\n📍 Escribo desde {lugar}.\n{extra}",
+      "👋 Hi, TramitaFácil RD!\n📍 Writing from {lugar}.\n{extra}",
+      "👋 Bonjour, TramitaFácil RD !\n📍 Je vous écris depuis {lugar}.\n{extra}"
     ],
     "wa.saludo.ext": [
-      "Hello TramitaFácil RD! I'm a foreigner interested in your services in the Dominican Republic.",
-      "Hello TramitaFácil RD! I'm a foreigner interested in your services in the Dominican Republic.",
-      "Bonjour TramitaFácil RD ! Je suis étranger et vos services en République dominicaine m'intéressent."
+      "👋 Hi, TramitaFácil RD!\n🌍 I'm a foreigner and I'd like help with a procedure in the Dominican Republic.",
+      "👋 Hi, TramitaFácil RD!\n🌍 I'm a foreigner and I'd like help with a procedure in the Dominican Republic.",
+      "👋 Bonjour, TramitaFácil RD !\n🌍 Je suis étranger et j'aimerais de l'aide pour une démarche en République dominicaine."
     ],
     "wa.otro": [
-      "Hola, TramitaFácil RD 👋 Soy dominicano/a y vivo en otro país. Quisiera información sobre un trámite.",
-      "Hello TramitaFácil RD 👋 I'm Dominican and live abroad. I'd like information about a service.",
-      "Bonjour TramitaFácil RD 👋 Je suis Dominicain(e) et je vis à l'étranger. J'aimerais des informations sur une démarche."
+      "👋 ¡Hola, TramitaFácil RD!\n🌎 Soy dominicano/a y vivo fuera de RD.\n❓ Quiero información sobre un trámite.",
+      "👋 Hi, TramitaFácil RD!\n🌎 I'm Dominican and live abroad.\n❓ I'd like information about a procedure.",
+      "👋 Bonjour, TramitaFácil RD !\n🌎 Je suis dominicain(e) et je vis à l'étranger.\n❓ J'aimerais des informations sur une démarche."
     ],
     "wa.info": [
-      "Quisiera información sobre un trámite.",
-      "I'd like information about a service.",
-      "J'aimerais des informations sur une démarche."
+      "❓ Quiero información sobre un trámite.",
+      "❓ I'd like information about a procedure.",
+      "❓ J'aimerais des informations sur une démarche."
     ],
     "wa.asesoria": [
-      "Me gustaría agendar una asesoría virtual de 15 minutos por Zoom/Meet.",
-      "I'd like to book a 15-minute Zoom/Meet consultation.",
-      "J'aimerais réserver un conseil virtuel de 15 minutes par Zoom/Meet."
+      "📅 Quiero agendar una asesoría virtual de 15 min (Zoom o Meet).",
+      "📅 I'd like to book a 15-min video call (Zoom or Meet).",
+      "📅 J'aimerais réserver un appel vidéo de 15 min (Zoom ou Meet)."
     ],
     "wa.buscar": [
-      "Busco un trámite que no aparece en su catálogo: {q}",
-      "I'm looking for a service not in your catalog: {q}",
-      "Je cherche une démarche absente de votre catalogue : {q}"
+      "🔎 Busco un trámite que no está en el catálogo: {q}",
+      "🔎 I'm looking for a service that isn't in your catalog: {q}",
+      "🔎 Je cherche une démarche absente du catalogue : {q}"
     ],
     "wa.pregunta": [
-      "Tengo una pregunta: {q}",
-      "I have a question: {q}",
-      "J'ai une question : {q}"
+      "❓ Tengo una pregunta: {q}",
+      "❓ I have a question: {q}",
+      "❓ J'ai une question : {q}"
     ],
     "wa.docs": [
-      "Ya tengo todos los documentos para: {s}. ¿Cómo continuamos?",
-      "I have all the documents for: {s}. How do we continue?",
-      "J'ai tous les documents pour : {s}. Comment continuer ?"
+      "✅ Ya tengo todos los documentos para:\n📄 {s}\n¿Cómo seguimos?",
+      "✅ I have all the documents for:\n📄 {s}\nWhat's next?",
+      "✅ J'ai tous les documents pour :\n📄 {s}\nQuelle est la suite ?"
     ],
     "wa.servicio": [
-      "Me interesa: {s}. Total estimado: {total}.",
-      "I'm interested in: {s}. Estimated total: {total}.",
-      "Je suis intéressé(e) par : {s}. Total estimé : {total}."
+      "📄 Me interesa: *{s}*\n💰 Total estimado: *{total}*",
+      "📄 I'm interested in: *{s}*\n💰 Estimated total: *{total}*",
+      "📄 Ça m'intéresse : *{s}*\n💰 Total estimé : *{total}*"
     ],
     "wa.inst": [
-      "Tengo una consulta sobre un trámite ante {inst}.",
-      "I have a question about a procedure at {inst}.",
-      "J'ai une question sur une démarche auprès de {inst}."
+      "🏛️ Tengo una consulta sobre un trámite en: {inst}",
+      "🏛️ I have a question about a procedure at: {inst}",
+      "🏛️ J'ai une question sur une démarche auprès de : {inst}"
     ],
     "wa.express": [
-      "🔥 Servicio Express / Prioritario",
-      "🔥 Express / Priority service",
-      "🔥 Service express / prioritaire"
+      "⚡ Servicio Express",
+      "⚡ Express service",
+      "⚡ Service express"
     ],
     "wa.envio": [
-      "🚚 Envío a domicilio / courier",
-      "🚚 Courier delivery",
-      "🚚 Livraison par coursier"
-    ],
-    "wa.estandar": [
-      "Ninguno (procesamiento estándar)",
-      "None (standard processing)",
-      "Aucun (traitement standard)"
+      "🚚 Envío a domicilio",
+      "🚚 Home delivery",
+      "🚚 Livraison à domicile"
     ],
     "wa.cot.hola": [
-      "¡Hola, TramitaFácil RD! 🇩🇴✨",
-      "Hello, TramitaFácil RD! 🇩🇴✨",
-      "Bonjour, TramitaFácil RD ! 🇩🇴✨"
+      "👋 ¡Hola, TramitaFácil RD!",
+      "👋 Hi, TramitaFácil RD!",
+      "👋 Bonjour, TramitaFácil RD !"
     ],
     "wa.cot.desde": [
-      "Les escribo desde *{lugar}* y quiero iniciar este trámite:",
-      "I'm writing from *{lugar}* and want to start this service:",
-      "Je vous écris depuis *{lugar}* et je souhaite commencer cette démarche :"
-    ],
-    "wa.cot.detalles": [
-      "DETALLES DE MI SOLICITUD",
-      "MY REQUEST DETAILS",
-      "DÉTAILS DE MA DEMANDE"
+      "📍 Escribo desde {lugar}.",
+      "📍 Writing from {lugar}.",
+      "📍 Je vous écris depuis {lugar}."
     ],
     "wa.cot.servicio": [
-      "Servicio",
-      "Service",
-      "Service"
-    ],
-    "wa.cot.categoria": [
-      "Categoría",
-      "Category",
-      "Catégorie"
-    ],
-    "wa.cot.extras": [
-      "Modalidad y extras",
-      "Options and extras",
-      "Options et suppléments"
+      "📄 Trámite",
+      "📄 Service",
+      "📄 Démarche"
     ],
     "wa.cot.total": [
-      "Cotización estimada",
-      "Estimated quote",
-      "Devis estimé"
+      "💰 Total estimado",
+      "💰 Estimated total",
+      "💰 Total estimé"
     ],
     "wa.cot.cierre": [
-      "¿Cuáles son los pasos y requisitos para comenzar? ¡Gracias! 🙌",
-      "What are the steps and requirements to start? Thank you! 🙌",
-      "Quelles sont les étapes et pièces pour commencer ? Merci ! 🙌"
+      "🙏 ¿Qué necesito para empezar?",
+      "🙏 What do I need to get started?",
+      "🙏 Que me faut-il pour commencer ?"
     ],
     "wa.sol.codigo": [
-      "Código de solicitud",
-      "Request code",
-      "Code de demande"
+      "🔖 Código",
+      "🔖 Code",
+      "🔖 Code"
     ],
     "wa.sol.reside": [
-      "Resido en",
-      "I live in",
-      "Je réside en/au"
+      "📍 Vivo en",
+      "📍 I live in",
+      "📍 Lieu de résidence"
     ],
     "wa.sol.contacto": [
-      "Contacto",
-      "Contact",
-      "Contact"
+      "📞 Contacto",
+      "📞 Contact",
+      "📞 Contact"
     ],
     "wa.sol.detalles": [
-      "Detalles",
-      "Details",
-      "Détails"
+      "📝 Detalles",
+      "📝 Details",
+      "📝 Détails"
     ],
     "inst.ntramites1": [
       "{n} trámite",
       "{n} service",
       "{n} démarche"
+    ],
+    "wa.sol.nombre": [
+      "👤 Nombre",
+      "👤 Name",
+      "👤 Nom"
     ]
   },
   "contenido": {

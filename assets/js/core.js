@@ -104,7 +104,8 @@
         const v = dop * (state.rates[cur] || 1), dec = cur === 'DOP' ? 0 : 2;
         return `${SYM[cur]} ${v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec })}`;
     }
-    const waLink = text => `https://wa.me/${C.whatsapp}?text=${encodeURIComponent(text)}`;
+    // api.whatsapp.com conserva los emojis; la redirección de wa.me los daña en algunos navegadores y en WhatsApp Web.
+    const waLink = text => `https://api.whatsapp.com/send?phone=${C.whatsapp}&text=${encodeURIComponent(String(text).normalize('NFC'))}`;
     /** Nombre del lugar desde donde escribe el visitante (país exacto si lo eligió). */
     function lugar() {
         if (state.detalle && state.detalle !== 'DO') return `${countryName(state.detalle)} ${flagOf(state.detalle)}`;
