@@ -561,7 +561,8 @@
         requestAnimationFrame(step);
     }
     function initScrollSpy() {
-        const links = $$('nav a.nav-link').filter(a => a.getAttribute('href').startsWith('#')), map = {};
+        // incluye el menú móvil: al abrirlo, queda sombreada la sección que se está viendo
+        const links = $$('nav a.nav-link, nav a.mobile-link').filter(a => a.getAttribute('href').startsWith('#')), map = {};
         links.forEach(a => (map[a.getAttribute('href').slice(1)] ||= []).push(a));
         if (!('IntersectionObserver' in window)) return;
         const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { links.forEach(l => l.classList.remove('nav-active')); (map[e.target.id] || []).forEach(l => l.classList.add('nav-active')); } }), { rootMargin: '-45% 0px -50% 0px' });

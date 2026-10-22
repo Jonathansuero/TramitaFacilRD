@@ -213,10 +213,13 @@
         { href: homeLink('faq'), key: 'nav.faq', id: 'faq' }
     ];
     const MOBILE = [
-        ['presencia', '🌎', 'm.presencia'], ['cotizador', '🧮', 'm.cotizador'], ['servicios', '📚', 'm.servicios'],
-        ['asistente', '✨', 'm.asistente'], ['requisitos', '✅', 'm.requisitos'], ['rastreo', '📍', 'm.rastreo'],
-        ['solicitud', '📝', 'm.solicitud'], ['herramientas-dgii', '🏛️', 'm.dgii'], ['faq', '❓', 'm.faq']
+        ['presencia', 'fa-earth-americas', 'm.presencia'], ['cotizador', 'fa-calculator', 'm.cotizador'], ['servicios', 'fa-layer-group', 'm.servicios'],
+        ['asistente', 'fa-wand-magic-sparkles', 'm.asistente'], ['requisitos', 'fa-list-check', 'm.requisitos'], ['rastreo', 'fa-location-crosshairs', 'm.rastreo'],
+        ['solicitud', 'fa-file-pen', 'm.solicitud'], ['herramientas-dgii', 'fa-file-invoice-dollar', 'm.dgii'], ['faq', 'fa-circle-question', 'm.faq']
     ];
+    /** Enlace del menú móvil: ícono sobrio + texto + flecha que aparece al pasar o tocar. */
+    const mobileLink = (href, icono, key, extra = '') =>
+        `<a href="${href}" class="mobile-link${extra}"><span class="ml-ico" aria-hidden="true"><i class="fa-solid ${icono}"></i></span><span class="ml-txt" data-i18n="${key}"></span><i class="fa-solid fa-chevron-right ml-go" aria-hidden="true"></i></a>`;
 
     function renderHeader() {
         const host = $('tf-header'); if (!host) return;
@@ -260,10 +263,11 @@
       <button id="mobileMenuBtn" class="xl:hidden text-slate-700 p-2 text-xl" data-i18n-aria="nav.menu" aria-expanded="false" aria-controls="mobileMenu"><i class="fa-solid fa-bars"></i></button>
     </div>
   </div>
-  <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-2 pb-4 space-y-1 font-medium text-slate-700 text-sm max-h-[75vh] overflow-y-auto">
-    <a href="instituciones.html" class="mobile-link font-bold text-domBlue">🏛️ <span data-i18n="nav.instituciones"></span></a>
-    <a href="diaspora.html" class="mobile-link font-bold text-domBlue">🌍 <span data-i18n="nav.diaspora"></span></a>
-    ${MOBILE.map(([id, ico, key]) => `<a href="${homeLink(id)}" class="mobile-link">${ico} <span data-i18n="${key}"></span></a>`).join('')}
+  <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-4 text-sm max-h-[75vh] overflow-y-auto">
+    ${mobileLink('instituciones.html', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
+    ${mobileLink('diaspora.html', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
+    <div class="ml-sep" role="presentation"></div>
+    ${MOBILE.map(([id, ico, key]) => mobileLink(homeLink(id), ico, key)).join('')}
   </div>
 </nav>`;
     }
