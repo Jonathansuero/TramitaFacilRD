@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instituciones donde gestionamos | TramitaFácil RD</title>
+    <meta name="description" content="Directorio de instituciones públicas, privadas e internacionales ante las que TramitaFácil RD gestiona trámites: DGM, JCE, DGII, INTRANT, MESCYT, MIREX y más.">
+    <meta name="theme-color" content="#002D62">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="instituciones" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<div id="tf-header"></div>
+<main id="main">
+    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-slate-900 text-white py-14 md:py-20 relative overflow-hidden">
+        <div class="hero-grid absolute inset-0 pointer-events-none"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 relative text-center">
+            <nav class="breadcrumb justify-center" aria-label="breadcrumb"><a href="index.html" data-i18n="foot.inicio">Inicio</a><span>›</span><span data-i18n="nav.instituciones">Instituciones</span></nav>
+            <h1 class="font-display text-3xl sm:text-5xl font-extrabold mt-5" data-i18n="inst.t">Instituciones donde gestionamos tus trámites</h1>
+            <p class="text-slate-300 mt-4 max-w-2xl mx-auto" data-i18n="instp.sub">Te acompañamos ante cada entidad: sabemos qué pide, cómo se deposita el expediente y cómo darle seguimiento.</p>
+            <div class="grid grid-cols-3 gap-3 max-w-xl mx-auto mt-8">
+                <div class="stat-dark"><strong id="cPub"></strong><span data-i18n="inst.publicas">públicas</span></div>
+                <div class="stat-dark"><strong id="cPriv"></strong><span data-i18n="inst.privadas">privadas</span></div>
+                <div class="stat-dark"><strong id="cInt"></strong><span data-i18n="inst.internacionales">internacionales</span></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex flex-col md:flex-row gap-3 mb-6">
+                <input type="search" id="iSearch" data-i18n-ph="instp.ph" data-i18n-aria="instp.ph" class="flex-1 bg-white border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
+                <div id="iFiltros" class="flex gap-2 overflow-x-auto"></div>
+            </div>
+            <div id="iGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            <p class="text-[11px] text-slate-400 mt-8 text-center max-w-3xl mx-auto" data-i18n="inst.aviso">Somos gestores independientes. Los nombres se muestran solo para indicar ante qué entidad realizamos cada trámite.</p>
+        </div>
+    </section>
+
+    <!-- Panel de detalle -->
+    <div id="iDrawer" class="drawer" aria-hidden="true">
+        <div class="drawer-backdrop" data-close></div>
+        <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+            <button class="drawer-close" data-close data-i18n-aria="a11y.cerrar"><i class="fa-solid fa-xmark"></i></button>
+            <div id="dBody"></div>
+        </aside>
+    </div>
+</main>
+<div id="tf-footer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/instituciones.js"></script>
+</body>
+</html>

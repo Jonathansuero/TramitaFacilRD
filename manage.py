@@ -1,0 +1,156 @@
+"""
+manage.py — Herramientas de administración de TramitaFácil RD.
+
+    python manage.py build                       Genera assets/js/data.js (catálogo + traducciones) y sitemap.xml
+    python manage.py i18n                        Verifica que todo esté traducido en español, inglés y francés
+    python manage.py solicitudes                 Lista las últimas solicitudes recibidas
+    python manage.py exportar solicitudes.csv    Exporta todas las solicitudes a CSV (Excel)
+    python manage.py estado RD-7KQ4MX 3 "Expediente depositado en la DGM"
+                                                 Actualiza el paso (1-4) que ve el cliente al rastrear
+    python manage.py precio residencia_dominicana --tasa 15000 --honorario 10000
+                                                 Cambia precios sin tocar el código
+
+Después de editar data/catalogo.json (a mano o con `precio`), corre `build`
+para que la versión estática (sin servidor) también tenga los cambios.
+"""
+from __future__ import annotations
+
+import argparse
+import csv
+import json
+import sqlite3
+import sys
+
+import calculos
+import traducciones
+from app import DB_PATH, PASOS, SCHEMA, ahora, migrar
+
+DATA_JS = calculos.BASE_DIR / "assets" / "js" / "data.js"
+
+
+def conectar() -> sqlite3.Connection:
+    DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+    db = sqlite3.connect(DB_PATH)
+    db.row_factory = sqlite3.Row
+    db.executescript(SCHEMA)
+    migrar(db)
+    return db
+
+
+def cmd_build(_args):
+    cat = calculos.cargar_catalogo()
+    faltan = [k for k in cat["checklists"] if k not in cat["servicios"]]
+    faltan += [k for p in cat["paises"].values() for k in p["destacados"] if k not in cat["servicios"]]
+    faltan += [i for s in cat["servicios"].values() for i in s.get("inst", []) if i not in cat["instituciones"]]
+    if faltan:
+        sys.exit(f"Error: claves inexistentes en el catálogo: {faltan}")
+    problemas = traducciones.verificar(cat, traducciones.cargar())
+    if problemas:
+        print(f"⚠ {len(problemas)} traducciones pendientes (se mostrará el español). Detalle: python manage.py i18n")
+    datos = {**cat, "i18n": traducciones.cargar()}
+    datos["i18n"].pop("_formato", None)
+    DATA_JS.parent.mkdir(parents=True, exist_ok=True)
+    DATA_JS.write_text(
+        "/* Archivo generado por `python manage.py build` desde data/catalogo.json y data/i18n.json — no editar a mano. */\n"
+        f"window.TF_DATA = {json.dumps(datos, ensure_ascii=False, separators=(',', ':'))};\n",
+        encoding="utf-8")
+    print(f"✓ {DATA_JS.relative_to(calculos.BASE_DIR)} generado ({len(cat['servicios'])} servicios, "
+          f"{len(cat['instituciones'])} instituciones, {len(datos['i18n']['ui'])} textos × 3 idiomas).")
+    cmd_sitemap(_args)
+
+
+def cmd_i18n(_args):
+    problemas = traducciones.verificar(calculos.cargar_catalogo(), traducciones.cargar())
+    if not problemas:
+        print("✓ Todo traducido en español, inglés y francés.")
+        return
+    print("\n".join(f"  • {p}" for p in problemas))
+    sys.exit(f"✗ {len(problemas)} problemas de traducción.")
+
+
+def cmd_sitemap(_args):
+    """sitemap.xml con la portada, las páginas fijas y una página por servicio."""
+    cat = calculos.cargar_catalogo()
+    sitio = cat["config"]["sitio"].rstrip("/")
+    urls = [("/", "1.0"), ("/instituciones.html", "0.8"), ("/diaspora.html", "0.8")]
+    urls += [(f"/servicio.html?id={k}", "0.6") for k in cat["servicios"]]
+    cuerpo = "\n".join(f"  <url><loc>{sitio}{u.replace('&', '&amp;')}</loc><priority>{p}</priority></url>" for u, p in urls)
+    (calculos.BASE_DIR / "sitemap.xml").write_text(
+        f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{cuerpo}\n</urlset>\n',
+        encoding="utf-8")
+    print(f"✓ sitemap.xml ({len(urls)} páginas)")
+
+
+def cmd_solicitudes(args):
+    rows = conectar().execute("SELECT * FROM solicitudes ORDER BY id DESC LIMIT ?", (args.limite,)).fetchall()
+    if not rows:
+        print("Aún no hay solicitudes.")
+    for r in rows:
+        lugar = r['pais'] + (f"/{r['pais_detalle']}" if r['pais_detalle'] else "")
+        print(f"{r['creado'][:16]}  {r['codigo']}  [{lugar}] [{(r['idioma'] or 'es').upper()}]  {r['nombre']}  ·  {r['servicio']}  ·  {r['contacto']}")
+
+
+def cmd_exportar(args):
+    rows = conectar().execute("SELECT * FROM solicitudes ORDER BY id").fetchall()
+    with open(args.archivo, "w", newline="", encoding="utf-8-sig") as f:  # utf-8-sig: Excel abre bien los acentos
+        w = csv.writer(f)
+        w.writerow(rows[0].keys() if rows else ["sin datos"])
+        w.writerows([tuple(r) for r in rows])
+    print(f"✓ {len(rows)} solicitudes exportadas a {args.archivo}")
+
+
+def cmd_estado(args):
+    codigo = args.codigo.upper()
+    if args.paso not in PASOS:
+        sys.exit("El paso debe ser 1 (Recibido), 2 (Verificado), 3 (En Entidad) o 4 (Listo).")
+    db = conectar()
+    row = db.execute("SELECT 1 FROM seguimiento WHERE codigo=?", (codigo,)).fetchone()
+    estado = args.estado or PASOS[args.paso]
+    if row:
+        db.execute("UPDATE seguimiento SET paso=?, estado=?, detalle=?, actualizado=? WHERE codigo=?",
+                   (args.paso, estado, args.detalle, ahora(), codigo))
+    else:
+        if not args.servicio or not args.cliente:
+            sys.exit("Código nuevo: indica también --servicio y --cliente.")
+        db.execute("INSERT INTO seguimiento VALUES (?,?,?,?,?,?,?)",
+                   (codigo, args.servicio, calculos.nombre_publico(args.cliente), args.paso, estado,
+                    args.detalle, ahora()))
+    db.commit()
+    print(f"✓ {codigo}: paso {args.paso} ({estado}) — {args.detalle}")
+
+
+def cmd_precio(args):
+    cat = calculos.cargar_catalogo()
+    s = cat["servicios"].get(args.servicio)
+    if not s:
+        sys.exit(f"No existe el servicio '{args.servicio}'.")
+    if args.tasa is not None:
+        s["tax"] = args.tasa
+    if args.honorario is not None:
+        s["fee"] = args.honorario
+    calculos.CATALOGO_PATH.write_text(json.dumps(cat, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"✓ {s['title']}: tasas RD$ {s['tax']:,} · honorarios RD$ {s['fee']:,}")
+    cmd_build(args)
+
+
+def main():
+    p = argparse.ArgumentParser(description="Administración de TramitaFácil RD")
+    sub = p.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("build").set_defaults(fn=cmd_build)
+    sub.add_parser("i18n").set_defaults(fn=cmd_i18n)
+    sub.add_parser("sitemap").set_defaults(fn=cmd_sitemap)
+    s = sub.add_parser("solicitudes"); s.add_argument("--limite", type=int, default=20); s.set_defaults(fn=cmd_solicitudes)
+    s = sub.add_parser("exportar"); s.add_argument("archivo", nargs="?", default="solicitudes.csv"); s.set_defaults(fn=cmd_exportar)
+    s = sub.add_parser("estado")
+    s.add_argument("codigo"); s.add_argument("paso", type=int); s.add_argument("detalle")
+    s.add_argument("--estado"); s.add_argument("--servicio"); s.add_argument("--cliente")
+    s.set_defaults(fn=cmd_estado)
+    s = sub.add_parser("precio")
+    s.add_argument("servicio"); s.add_argument("--tasa", type=int); s.add_argument("--honorario", type=int)
+    s.set_defaults(fn=cmd_precio)
+    args = p.parse_args()
+    args.fn(args)
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,16 @@
+/* Fuente de Tailwind CSS v4 para TramitaFácil RD.
+   Genera assets/css/tailwind.css con:  node tools/build-css.mjs
+   (o con el CLI oficial: npx @tailwindcss/cli -i assets/css/tailwind.src.css -o assets/css/tailwind.css --minify) */
+@import "tailwindcss";
+
+@source "../../*.html";
+@source "../js/*.js";
+
+@theme {
+    --color-domBlue: #002D62;
+    --color-domBlueHover: #001F44;
+    --color-domRed: #CE1126;
+    --color-domGold: #D4AF37;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, sans-serif;
+}

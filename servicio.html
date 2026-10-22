@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Servicio | TramitaFácil RD</title>
+    <meta name="description" content="Detalle del trámite: qué incluye, requisitos, institución, precio en tu moneda y cómo iniciarlo desde cualquier país.">
+    <meta name="theme-color" content="#002D62">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="servicio" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<div id="tf-header"></div>
+<main id="main">
+    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white pt-10 pb-24 relative overflow-hidden">
+        <div class="hero-grid absolute inset-0 pointer-events-none"></div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 relative">
+            <nav class="breadcrumb" aria-label="breadcrumb"><a href="index.html" data-i18n="foot.inicio">Inicio</a><span>›</span><a href="index.html#servicios" data-i18n="nav.servicios">Servicios</a><span>›</span><span id="bcCat"></span></nav>
+            <div class="flex flex-wrap items-center gap-2 mt-6"><span id="sCat" class="eyebrow bg-white/15 text-white"></span><span id="sFlags" class="text-lg tracking-widest"></span></div>
+            <h1 id="sTitle" class="font-display text-3xl sm:text-5xl font-extrabold tracking-tight mt-3 max-w-4xl"></h1>
+            <p id="sDesc" class="text-slate-300 text-base sm:text-lg mt-4 max-w-3xl"></p>
+            <div class="flex flex-wrap gap-2 mt-6" id="sInstHero"></div>
+        </div>
+    </section>
+
+    <section class="-mt-16 pb-16 relative z-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-12 gap-6 items-start">
+            <div class="lg:col-span-7 space-y-6">
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-8">
+                    <h2 class="text-lg font-extrabold text-slate-900" data-i18n="serv.incluye">¿Qué incluye?</h2>
+                    <ol class="serv-steps mt-5" id="sSteps"></ol>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8" id="sReqBox">
+                    <div class="flex items-center justify-between gap-3">
+                        <h2 class="text-lg font-extrabold text-slate-900" data-i18n="req.t">Requisitos por trámite</h2>
+                        <span id="sReqPct" class="text-xs font-bold text-domBlue"></span>
+                    </div>
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-3 mb-5"><div id="sReqBar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div></div>
+                    <div id="sReq" class="space-y-2.5"></div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8">
+                    <h2 class="text-lg font-extrabold text-slate-900" data-i18n="serv.ante.t">Institución donde lo gestionamos</h2>
+                    <div id="sInst" class="grid sm:grid-cols-2 gap-3 mt-4"></div>
+                </div>
+            </div>
+
+            <aside class="lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+                <div id="sPrecioBox" class="bg-gradient-to-br from-domBlue to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <h2 class="font-bold" data-i18n="calc.resumen">Resumen</h2>
+                        <div class="flex rounded-lg bg-white/10 p-1 text-[11px] font-bold" id="monedaToggle"><button data-moneda="DOP">RD$</button><button data-moneda="USD">US$</button><button data-moneda="EUR">€</button></div>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales</span><strong id="pTax" class="text-white whitespace-nowrap"></strong></div>
+                        <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios</span><strong id="pFee" class="text-white whitespace-nowrap"></strong></div>
+                        <label class="flex items-center justify-between gap-3 text-slate-300 cursor-pointer"><span><input type="checkbox" id="pExp" class="mr-2 rounded"><span data-i18n="calc.exp">Express</span> 🔥</span><strong id="pExpV" class="whitespace-nowrap"></strong></label>
+                        <label class="flex items-center justify-between gap-3 text-slate-300 cursor-pointer"><span><input type="checkbox" id="pEnv" class="mr-2 rounded"><span data-i18n="calc.envio">Envío por courier</span></span><strong id="pEnvV" class="whitespace-nowrap"></strong></label>
+                    </div>
+                    <div class="border-t border-white/20 mt-4 pt-4">
+                        <div class="text-xs uppercase font-bold tracking-wider text-slate-400" data-i18n="calc.total">Total estimado</div>
+                        <div id="pTotal" class="text-3xl font-black text-domGold tabular-nums"></div>
+                        <p class="text-[11px] text-slate-400 italic" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
+                    </div>
+                    <div class="grid gap-2 mt-5">
+                        <a id="sSolicitar" href="#" class="bg-domRed hover:bg-red-700 text-center font-bold py-3 rounded-xl text-sm" data-i18n="serv.solicitar">Solicitar este trámite</a>
+                        <a id="sWa" href="#" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-600 text-center font-bold py-3 rounded-xl text-sm"><i class="fa-brands fa-whatsapp mr-1"></i> <span data-i18n="serv.wa">Consultar por WhatsApp</span></a>
+                        <button id="sShare" class="bg-white/10 hover:bg-white/20 border border-white/20 font-bold py-2.5 rounded-xl text-xs"><i class="fa-solid fa-share-nodes mr-1"></i> <span data-i18n="serv.compartir">Compartir este trámite</span></button>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-200 p-5 text-xs text-slate-600 space-y-2">
+                    <div class="font-bold text-slate-900 text-sm" data-i18n="serv.exterior.t">¿Vives fuera de RD?</div>
+                    <p data-i18n="serv.exterior.d">Podemos representarte con un poder firmado en el consulado dominicano o ante notario con apostilla en tu país.</p>
+                    <a href="diaspora.html" class="font-bold text-domBlue hover:underline" data-i18n="pres.guia">Ver la guía para la diáspora</a>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <section class="pb-16">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="flex items-center justify-between gap-3 mb-5">
+                <h2 class="text-xl font-extrabold text-domBlue" data-i18n="serv.relacionados">Trámites relacionados</h2>
+                <div class="flex gap-2"><a id="sPrev" class="pager" href="#"><i class="fa-solid fa-arrow-left"></i></a><a id="sNext" class="pager" href="#"><i class="fa-solid fa-arrow-right"></i></a></div>
+            </div>
+            <div id="sRel" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        </div>
+    </section>
+</main>
+<div id="tf-footer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/servicio.js"></script>
+</body>
+</html>

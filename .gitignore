@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+instance/
+*.db
+solicitudes.csv
+node_modules/
+.pytest_cache/

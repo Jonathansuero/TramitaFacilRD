@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TramitaFácil RD | Trámites en República Dominicana desde cualquier parte del mundo</title>
+    <meta name="description" content="Gestoría digital dominicana: trámites en RD sin filas para quienes viven en República Dominicana, dominicanos en cualquier país y extranjeros. Cotiza en RD$, US$ o € y rastrea tu expediente en línea.">
+    <meta name="theme-color" content="#002D62">
+    <meta property="og:title" content="TramitaFácil RD | Tus trámites en RD, estés donde estés">
+    <meta property="og:description" content="Residencias, poderes, apostillas, propiedades, licencias y más. Atención en español, inglés y francés.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="home" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen selection:bg-domBlue selection:text-white">
+<div id="tf-header"></div>
+
+<main id="main">
+<!-- HERO -->
+<section id="inicio" class="relative bg-gradient-to-b from-slate-900 via-domBlue to-slate-900 text-white py-16 md:py-24 overflow-hidden">
+    <div class="absolute inset-0 pointer-events-none">
+        <div class="float-slow absolute top-10 left-10 w-72 h-72 bg-sky-500/20 rounded-full blur-3xl"></div>
+        <div class="float-slower absolute bottom-0 right-10 w-96 h-96 bg-domRed/20 rounded-full blur-3xl"></div>
+        <div class="hero-grid absolute inset-0"></div>
+    </div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid md:grid-cols-12 gap-12 items-center">
+        <div class="hero-in md:col-span-7 space-y-6 text-center md:text-left">
+            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-domGold text-xs font-semibold px-3.5 py-1.5 rounded-full">
+                <span id="heroFlag">🇩🇴</span> <span id="heroEyebrow">Atención en todo el país</span>
+            </div>
+            <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                <span data-i18n="hero.t1">Tus trámites en RD,</span><br class="hidden sm:inline">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-white to-domGold" data-i18n="hero.t2">estés donde estés.</span>
+            </h1>
+            <p id="heroPitch" class="text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed mx-auto md:mx-0"></p>
+            <div class="flex flex-wrap justify-center md:justify-start gap-2" id="heroPaises"></div>
+            <div class="flex flex-col sm:flex-row items-center gap-4 pt-1">
+                <a href="#cotizador" class="w-full sm:w-auto bg-domRed hover:bg-red-700 text-white font-bold px-7 py-3.5 rounded-xl shadow-lg transition-all text-center"><i class="fa-solid fa-calculator mr-2"></i> <span data-i18n="hero.cta1">Cotizar mi trámite</span></a>
+                <a href="#asistente" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-xl border border-white/20 transition-all text-center"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-domGold"></i> <span data-i18n="hero.cta2">¿Qué trámite necesito?</span></a>
+            </div>
+            <div class="pt-8 border-t border-white/10 grid grid-cols-3 gap-4 text-center md:text-left">
+                <div><div class="text-2xl sm:text-3xl font-extrabold" data-count="5000" data-prefix="+">+5,000</div><div class="text-xs text-slate-400 font-medium" data-i18n="hero.s1">Trámites exitosos</div></div>
+                <div><div class="text-2xl sm:text-3xl font-extrabold" data-count="100" data-suffix="%">100%</div><div class="text-xs text-slate-400 font-medium" data-i18n="hero.s2">Digital y confidencial</div></div>
+                <div><div class="text-2xl sm:text-3xl font-extrabold" data-count="4.9" data-decimals="1" data-suffix=" ★">4.9 ★</div><div class="text-xs text-slate-400 font-medium" data-i18n="hero.s3">Satisfacción diáspora</div></div>
+            </div>
+        </div>
+        <div class="hero-in-delay md:col-span-5 bg-white text-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-100">
+            <div class="flex items-center justify-between mb-1">
+                <h2 class="text-lg font-bold text-domBlue" data-i18n="quick.t">Trámites frecuentes</h2>
+                <span id="heroQuickBadge" class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">🇩🇴 RD</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-5" data-i18n="quick.sub">Elegidos para ti · clic para ver detalles</p>
+            <div id="heroQuick" class="space-y-3"></div>
+            <a href="#servicios" class="mt-4 block text-center text-xs font-bold text-domBlue hover:text-domRed" id="verTodos"></a>
+        </div>
+    </div>
+</section>
+
+<!-- PRESENCIA -->
+<section id="presencia" class="py-16 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-10">
+            <span class="eyebrow bg-sky-100 text-domBlue" data-i18n="pres.eyebrow">RD · EE.UU. · España · Todo el mundo</span>
+            <h2 class="section-title" data-i18n="pres.t">Atendemos donde estés</h2>
+            <p class="text-slate-600 text-sm mt-1" data-i18n="pres.sub">Elige tu ubicación y adaptamos la moneda, los trámites recomendados y el horario.</p>
+        </div>
+        <div id="paisTabs" role="tablist" class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-8"></div>
+        <div class="grid lg:grid-cols-12 gap-8 items-stretch">
+            <div class="lg:col-span-7 rounded-3xl bg-gradient-to-br from-slate-900 to-domBlue p-4 sm:p-6 relative overflow-hidden">
+                <svg id="mapa" viewBox="0 0 600 340" class="w-full h-auto" role="img" aria-labelledby="mapaTitulo">
+                    <title id="mapaTitulo">TramitaFácil RD: República Dominicana, Estados Unidos, España y el mundo</title>
+                    <defs>
+                        <pattern id="dots" width="14" height="14" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="#ffffff" opacity=".12"/></pattern>
+                        <radialGradient id="glow"><stop offset="0" stop-color="#D4AF37" stop-opacity=".55"/><stop offset="1" stop-color="#D4AF37" stop-opacity="0"/></radialGradient>
+                    </defs>
+                    <rect width="600" height="340" fill="url(#dots)"/>
+                    <path d="M40 60 Q120 30 210 55 Q245 90 215 130 Q190 160 150 170 Q95 165 70 135 Q35 100 40 60Z" fill="#ffffff" opacity=".07"/>
+                    <path d="M440 50 Q500 35 560 60 Q575 95 545 120 Q500 140 460 125 Q430 95 440 50Z" fill="#ffffff" opacity=".07"/>
+                    <path d="M225 228 Q250 214 285 222 Q300 234 282 244 Q250 250 230 242Z" fill="#ffffff" opacity=".12"/>
+                    <text x="300" y="322" text-anchor="middle" fill="#ffffff" opacity=".25" font-size="11" letter-spacing="6">ATLÁNTICO</text>
+                    <path id="ruta-us" class="ruta" d="M255 232 Q190 170 150 110"/>
+                    <path id="ruta-es" class="ruta" d="M262 228 Q380 40 500 92"/>
+                    <path id="ruta-mundo" class="ruta" d="M266 238 Q420 300 545 228"/>
+                    <circle id="avion" r="5" fill="#D4AF37"><animateMotion dur="3.2s" repeatCount="indefinite" rotate="auto"><mpath href="#ruta-us"/></animateMotion></circle>
+                    <g class="nodo" data-pais="us" tabindex="0" role="button" aria-label="Estados Unidos">
+                        <circle cx="150" cy="110" r="26" fill="url(#glow)" class="nodo-glow"/><circle cx="150" cy="110" r="8" class="nodo-punto"/>
+                        <text x="150" y="82" text-anchor="middle" class="nodo-label">🇺🇸 New York · Miami</text></g>
+                    <g class="nodo" data-pais="es" tabindex="0" role="button" aria-label="España y Europa">
+                        <circle cx="500" cy="92" r="26" fill="url(#glow)" class="nodo-glow"/><circle cx="500" cy="92" r="8" class="nodo-punto"/>
+                        <text x="500" y="64" text-anchor="middle" class="nodo-label">🇪🇸 Madrid · Europa</text></g>
+                    <g class="nodo" data-pais="mundo" tabindex="0" role="button" aria-label="Otros países">
+                        <circle cx="548" cy="226" r="26" fill="url(#glow)" class="nodo-glow"/><circle cx="548" cy="226" r="8" class="nodo-punto"/>
+                        <text x="548" y="200" text-anchor="middle" class="nodo-label">🌐 🇨🇦 🇮🇹 🇵🇷 🇨🇭</text></g>
+                    <g class="nodo" data-pais="rd" tabindex="0" role="button" aria-label="República Dominicana">
+                        <circle cx="258" cy="232" r="34" fill="url(#glow)" class="nodo-glow"/>
+                        <circle id="anilloExt" cx="258" cy="232" r="22" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-dasharray="3 4" opacity="0"/>
+                        <circle cx="258" cy="232" r="10" class="nodo-punto nodo-hq"/>
+                        <text x="258" y="272" text-anchor="middle" class="nodo-label">🇩🇴 Santo Domingo</text></g>
+                    <g class="nodo" data-pais="ext" tabindex="0" role="button" aria-label="Extranjeros">
+                        <circle cx="390" cy="180" r="7" class="nodo-punto"/>
+                        <text x="390" y="164" text-anchor="middle" class="nodo-label">🌍 Expats</text>
+                        <path class="ruta ruta-fina" d="M384 184 Q320 200 268 228"/></g>
+                </svg>
+                <div id="relojes" class="grid grid-cols-3 gap-2 mt-3"></div>
+            </div>
+            <div id="paisPanel" class="lg:col-span-5 rounded-3xl border border-slate-200 bg-slate-50 p-6 sm:p-8 flex flex-col" aria-live="polite"></div>
+        </div>
+    </div>
+</section>
+
+<!-- DOMINICANOS EN CUALQUIER PAÍS -->
+<section id="mundo" class="py-16 bg-gradient-to-r from-domRed via-[#8a0c1b] to-domBlue text-white overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-10 items-center">
+        <div class="lg:col-span-6 space-y-4">
+            <span class="eyebrow bg-white/15 text-white" data-i18n="mundo.eyebrow">Diáspora dominicana</span>
+            <h2 class="font-display text-3xl sm:text-4xl font-extrabold leading-tight" data-i18n="mundo.t">Trabajamos con dominicanos en cualquier parte del mundo</h2>
+            <p class="text-white/85 text-sm sm:text-base" data-i18n="mundo.sub">No importa si vives en Nueva York, Madrid, Milán, Toronto, Zúrich o San Juan: te representamos en RD y te mantenemos al día en línea.</p>
+            <form id="mundoForm" class="relative max-w-md" autocomplete="off">
+                <label for="mundoInput" class="sr-only" data-i18n="mundo.label">¿En qué país vives?</label>
+                <input id="mundoInput" list="mundoList" class="w-full bg-white rounded-xl px-4 py-3.5 pr-36 text-slate-900 text-sm outline-none focus:ring-4 focus:ring-domGold/50" data-i18n-ph="mundo.ph" placeholder="¿En qué país vives? Ej. Italia">
+                <datalist id="mundoList"></datalist>
+                <button class="absolute right-1.5 top-1.5 bottom-1.5 bg-domGold hover:bg-amber-400 text-slate-900 text-xs font-extrabold px-4 rounded-lg" data-i18n="mundo.btn">Ver mi guía →</button>
+            </form>
+        </div>
+        <div class="lg:col-span-6">
+            <div class="marquee" aria-hidden="true"><div class="marquee-track" id="mundoMarquee"></div></div>
+            <div class="marquee mt-3" aria-hidden="true"><div class="marquee-track marquee-rev" id="mundoMarquee2"></div></div>
+            <p class="text-center text-xs text-white/70 mt-4"><span id="mundoCount">32</span> <span data-i18n="mundo.count">países y contando —</span> <a href="diaspora.html" class="underline font-bold text-white" data-i18n="mundo.link">ver la guía para la diáspora</a></p>
+        </div>
+    </div>
+</section>
+
+<!-- INSTITUCIONES -->
+<section id="instituciones" class="py-16 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-10">
+            <span class="eyebrow bg-amber-100 text-amber-800" data-i18n="inst.eyebrow">Gestión profesional</span>
+            <h2 class="section-title" data-i18n="inst.t">Instituciones donde gestionamos tus trámites</h2>
+            <p class="text-slate-600 text-sm mt-1" data-i18n="inst.sub">Conocemos los procesos de cada entidad pública, privada e internacional. Toca una para ver sus trámites.</p>
+        </div>
+        <div class="grid grid-cols-3 gap-3 max-w-xl mx-auto mb-8 text-center">
+            <div class="stat-pill"><strong id="instCountPub">14</strong><span data-i18n="inst.publicas">públicas</span></div>
+            <div class="stat-pill"><strong id="instCountPriv">5</strong><span data-i18n="inst.privadas">privadas</span></div>
+            <div class="stat-pill"><strong id="instCountInt">4</strong><span data-i18n="inst.internacionales">internacionales</span></div>
+        </div>
+        <div class="inst-wall" id="instWall"></div>
+        <div class="text-center mt-8">
+            <a href="instituciones.html" class="inline-flex items-center gap-2 bg-domBlue hover:bg-domRed text-white text-sm font-bold px-6 py-3 rounded-xl transition-colors"><span data-i18n="inst.cta">Ver todas las instituciones</span> <i class="fa-solid fa-arrow-right"></i></a>
+            <p class="text-[11px] text-slate-400 mt-3 max-w-2xl mx-auto" data-i18n="inst.aviso">Somos gestores independientes. Los nombres se muestran solo para indicar ante qué entidad realizamos cada trámite.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section id="como-funciona" class="py-16 bg-slate-50 border-y border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-10">
+            <span class="eyebrow bg-red-100 text-domRed" data-i18n="como.eyebrow">100% en línea</span>
+            <h2 class="section-title" data-i18n="como.t">Así de fácil, desde cualquier país</h2>
+        </div>
+        <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <li class="paso"><span class="paso-n">1</span><i class="fa-solid fa-magnifying-glass paso-i"></i><h3 data-i18n="como.p1.t">Elige tu trámite</h3><p data-i18n="como.p1.d">Usa el asistente o el catálogo y revisa los requisitos.</p><a href="#asistente" data-i18n="como.p1.a">Abrir asistente →</a></li>
+            <li class="paso"><span class="paso-n">2</span><i class="fa-solid fa-calculator paso-i"></i><h3 data-i18n="como.p2.t">Cotiza en tu moneda</h3><p data-i18n="como.p2.d">Precio desglosado en RD$, US$ o € — sin sorpresas.</p><a href="#cotizador" data-i18n="como.p2.a">Cotizar →</a></li>
+            <li class="paso"><span class="paso-n">3</span><i class="fa-solid fa-paper-plane paso-i"></i><h3 data-i18n="como.p3.t">Envía tu solicitud</h3><p data-i18n="como.p3.d">Recibes un código de seguimiento al instante.</p><a href="#solicitud" data-i18n="como.p3.a">Iniciar →</a></li>
+            <li class="paso"><span class="paso-n">4</span><i class="fa-solid fa-location-dot paso-i"></i><h3 data-i18n="como.p4.t">Sigue tu expediente</h3><p data-i18n="como.p4.d">Consulta el estado en línea, desde donde estés.</p><a href="#rastreo" data-i18n="como.p4.a">Rastrear →</a></li>
+        </ol>
+    </div>
+</section>
+
+<!-- CATÁLOGO -->
+<section id="servicios" class="py-16 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-8">
+            <span class="eyebrow bg-sky-100 text-domBlue" data-i18n="cat.eyebrow">Catálogo completo</span>
+            <h2 class="section-title" data-i18n="cat.t">Todos nuestros servicios</h2>
+            <p class="text-slate-600 text-sm mt-1"><span data-i18n="cat.sub">Filtra por área o por tu ubicación. Toca un servicio para ver su página completa. Precios en</span> <strong id="catMonedaLabel">RD$</strong>.</p>
+        </div>
+        <div class="flex flex-col md:flex-row gap-3 mb-4">
+            <input type="search" id="catSearch" data-i18n-ph="cat.ph" data-i18n-aria="cat.ph" class="flex-1 bg-slate-50 border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
+            <div id="catPaisFilter" class="flex gap-2 overflow-x-auto"></div>
+        </div>
+        <div id="catChips" class="flex gap-2 overflow-x-auto pb-3 mb-4"></div>
+        <p id="catCount" class="text-xs text-slate-500 mb-3"></p>
+        <div id="catGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </div>
+</section>
+
+<!-- ASISTENTE -->
+<section id="asistente" class="py-16 bg-slate-50 border-y border-slate-200">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-10">
+            <span class="eyebrow bg-blue-100 text-domBlue" data-i18n="quiz.eyebrow">Guía paso a paso</span>
+            <h2 class="section-title" data-i18n="quiz.t">Asistente virtual de trámites</h2>
+            <p class="text-slate-600 text-sm mt-1" data-i18n="quiz.sub">Selecciona el área de tu trámite para obtener asesoría instantánea:</p>
+        </div>
+        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div class="flex items-center gap-2 mb-6" aria-hidden="true">
+                <span class="quiz-dot is-on" data-dot="1"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="2"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="3"></span>
+            </div>
+            <div id="quizStep1">
+                <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4" data-i18n="quiz.p1">Paso 1: ¿Qué tipo de gestión necesitas?</h3>
+                <div id="quizCats" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+            </div>
+            <div id="quizStep2" class="hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider" data-i18n="quiz.p2">Paso 2: Selecciona el servicio</h3>
+                    <button id="quizBack" class="text-xs text-domBlue font-semibold hover:underline" data-i18n="quiz.volver">← Volver</button>
+                </div>
+                <div id="quizOptionsContainer" class="grid sm:grid-cols-2 gap-3"></div>
+            </div>
+            <div id="quizStep3" class="hidden space-y-4">
+                <div id="quizResultBox" class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"></div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <button id="quizReset" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100" data-i18n="quiz.reiniciar">Reiniciar</button>
+                    <a id="quizPageBtn" href="#" class="px-4 py-2.5 rounded-xl border border-domBlue text-domBlue text-xs font-semibold hover:bg-sky-50 text-center" data-i18n="quiz.pagina">Ver página del servicio</a>
+                    <button id="quizCalcBtn" class="flex-1 bg-domBlue hover:bg-domBlueHover text-white px-4 py-2.5 rounded-xl text-xs font-bold" data-i18n="quiz.calc">Ver cotización en calculadora →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- COTIZADOR -->
+<section id="cotizador" class="py-16 md:py-20 bg-slate-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <span class="eyebrow bg-red-100 text-domRed" data-i18n="calc.eyebrow">Transparencia garantizada</span>
+            <h2 class="section-title" data-i18n="calc.t">Calculadora desglosada de costos</h2>
+            <p class="text-slate-600 text-sm mt-1" data-i18n="calc.sub">Tasas oficiales separadas de nuestros honorarios, en la moneda de tu país.</p>
+        </div>
+        <div class="grid lg:grid-cols-12 gap-8 items-start">
+            <div class="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
+                <div>
+                    <label for="calcServiceSelect" class="form-label" data-i18n="calc.l1">1. Servicio a cotizar</label>
+                    <input type="search" id="calcServiceSearch" data-i18n-ph="calc.ph" data-i18n-aria="calc.ph" class="w-full mb-2 bg-white border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
+                    <select id="calcServiceSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl p-3.5 focus:ring-2 focus:ring-domBlue font-semibold outline-none"></select>
+                </div>
+                <div><span class="form-label" data-i18n="calc.l2">2. ¿Desde dónde nos escribes?</span><div id="calcPais" class="grid grid-cols-2 sm:grid-cols-5 gap-2"></div></div>
+                <div>
+                    <span class="form-label" data-i18n="calc.l3">3. Prioridad de gestión</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="opcion"><input type="radio" name="speed" value="standard" checked><div><span class="block text-xs font-bold text-slate-800" data-i18n="calc.std">Estándar</span><span class="block text-[11px] text-slate-500" data-i18n="calc.std.d">Tiempo regular</span></div></label>
+                        <label class="opcion"><input type="radio" name="speed" value="express"><div><span class="block text-xs font-bold text-slate-800"><span data-i18n="calc.exp">Express</span> 🔥</span><span class="block text-[11px] text-slate-500">+ <span data-express-fee></span></span></div></label>
+                    </div>
+                </div>
+                <div>
+                    <span class="form-label" data-i18n="calc.l4">4. Entrega</span>
+                    <label class="opcion bg-slate-50"><input type="checkbox" id="calcDelivery"><span class="text-xs font-semibold text-slate-700"><span data-i18n="calc.envio">Envío físico por mensajería / courier</span> (+ <span data-delivery-fee></span>)</span></label>
+                </div>
+            </div>
+            <div id="quoteSummary" class="lg:col-span-5 lg:sticky lg:top-24 bg-gradient-to-br from-domBlue to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-lg">
+                <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4 gap-3">
+                    <h3 class="text-lg font-bold" data-i18n="calc.resumen">Resumen</h3>
+                    <div class="flex rounded-lg bg-white/10 p-1 text-[11px] font-bold" role="radiogroup" data-i18n-aria="calc.moneda" id="monedaToggle">
+                        <button data-moneda="DOP">RD$</button><button data-moneda="USD">US$</button><button data-moneda="EUR">€</button>
+                    </div>
+                </div>
+                <p id="resTitulo" class="text-sm font-semibold text-sky-200 mb-3"></p>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales / consulares</span><span id="resTax" class="font-bold text-white whitespace-nowrap">—</span></div>
+                    <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios de gestoría</span><span id="resFee" class="font-bold text-white whitespace-nowrap">—</span></div>
+                    <div id="resExtrasRow" class="hidden flex justify-between gap-3 text-sky-300"><span data-i18n="calc.recargos">Recargos (Express/Envío)</span><span id="resExtras" class="font-bold whitespace-nowrap">—</span></div>
+                </div>
+                <div class="mt-6 pt-4 border-t border-white/20">
+                    <div class="text-xs text-slate-400 uppercase font-bold tracking-wider" data-i18n="calc.total">Total estimado</div>
+                    <div id="resTotal" class="text-3xl font-black text-domGold my-1 tabular-nums">—</div>
+                    <p class="text-[11px] text-slate-400 italic" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
+                    <p id="rateNote" class="text-[11px] text-slate-400 mt-1"></p>
+                </div>
+                <div class="grid sm:grid-cols-2 gap-2 mt-6">
+                    <button id="quoteWaBtn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</button>
+                    <button id="quoteFormBtn" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-sm" data-i18n="calc.iniciar">Iniciar solicitud →</button>
+                </div>
+                <a id="quotePageLink" href="#" class="block text-center text-xs text-sky-200 hover:text-white mt-3 underline" data-i18n="calc.detalle">Ver detalles y requisitos del servicio</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- REQUISITOS -->
+<section id="requisitos" class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-10">
+            <span class="eyebrow bg-sky-100 text-domBlue" data-i18n="req.eyebrow">Lista de verificación</span>
+            <h2 class="section-title" data-i18n="req.t">Requisitos por trámite</h2>
+            <p class="text-slate-600 text-sm mt-1" data-i18n="req.sub">Marca los documentos que ya tienes. Tu progreso se guarda en este dispositivo.</p>
+        </div>
+        <div id="checklistTabs" role="tablist" class="relative flex overflow-x-auto gap-2 pb-4 mb-6 border-b border-slate-200"></div>
+        <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold text-slate-600" data-i18n="req.progreso">Progreso de tus documentos</span>
+                <span id="checklistPercentage" class="text-xs font-bold text-domBlue">0%</span>
+            </div>
+            <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden mb-6"><div id="checklistBar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div></div>
+            <div id="checklistItemsContainer" class="space-y-3"></div>
+            <div id="checklistDone" class="hidden"></div>
+        </div>
+    </div>
+</section>
+
+<!-- RASTREO -->
+<section id="rastreo" class="py-16 bg-slate-50 border-y border-slate-200">
+    <div class="max-w-4xl mx-auto px-4">
+        <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-8">
+            <div class="text-center max-w-xl mx-auto mb-6">
+                <span class="eyebrow bg-sky-100 text-domBlue" data-i18n="track.eyebrow">Consulta de expediente</span>
+                <h2 class="text-2xl font-extrabold text-slate-900 mt-2" data-i18n="track.t">Rastrear estado de mi trámite</h2>
+                <p class="text-slate-500 text-xs sm:text-sm mt-1"><span data-i18n="track.sub">Ingresa tu código. Códigos de demostración:</span>
+                    <button class="text-domBlue font-bold underline" data-demo-code="RD-8492">RD-8492</button> ·
+                    <button class="text-domBlue font-bold underline" data-demo-code="RD-1024">RD-1024</button></p>
+            </div>
+            <form id="trackForm" class="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+                <input type="text" id="trackInput" data-i18n-aria="track.aria" placeholder="RD-8492" autocomplete="off" class="flex-1 px-4 py-3 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-domBlue text-sm font-mono uppercase tracking-wider">
+                <button id="trackBtn" class="bg-domBlue hover:bg-domBlueHover text-white font-bold px-6 py-3 rounded-xl shadow-md text-sm" data-i18n="track.btn">Consultar</button>
+            </form>
+            <div id="trackResultContainer" class="hidden mt-8 border-t border-slate-100 pt-6" aria-live="polite">
+                <div id="trackSuccess" class="bg-slate-50 border border-slate-200 rounded-2xl p-6">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                        <div><span id="trackCodeDisplay" class="text-xs font-mono font-bold text-domBlue uppercase"></span>
+                            <h3 id="trackServiceDisplay" class="text-lg font-bold text-slate-900"></h3>
+                            <p id="trackClientDisplay" class="text-xs text-slate-500"></p></div>
+                        <span id="trackBadge" class="text-xs font-bold px-3 py-1 rounded-full"></span>
+                    </div>
+                    <div class="track-steps my-6">
+                        <div class="track-line"><div id="trackLineFill"></div></div>
+                        <div class="grid grid-cols-4 text-center relative">
+                            <div id="step1" class="track-step"><div>1</div><span data-i18n="track.s1">Recibido</span></div>
+                            <div id="step2" class="track-step"><div>2</div><span data-i18n="track.s2">Verificado</span></div>
+                            <div id="step3" class="track-step"><div>3</div><span data-i18n="track.s3">En entidad</span></div>
+                            <div id="step4" class="track-step"><div>4</div><span data-i18n="track.s4">Listo</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-600"><strong class="text-slate-800" data-i18n="track.ultima">Última actualización:</strong> <span id="trackDetailDisplay"></span></div>
+                </div>
+                <div id="trackError" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 text-center text-red-700 text-xs" data-i18n="track.error">No encontramos ningún expediente con ese código. Verifica e intenta de nuevo.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SOLICITUD -->
+<section id="solicitud" class="py-16 md:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-8">
+        <div class="lg:col-span-5 space-y-5">
+            <span class="eyebrow bg-emerald-100 text-emerald-800" data-i18n="sol.eyebrow">Empieza hoy</span>
+            <h2 class="section-title text-left" data-i18n="sol.t">Inicia tu trámite</h2>
+            <p class="text-slate-600 text-sm" data-i18n-html="sol.sub">Déjanos tus datos y recibirás un <strong>código de seguimiento</strong>. Un gestor te contacta para validar documentos y forma de pago.</p>
+            <div id="asesoria" class="rounded-3xl bg-gradient-to-br from-domBlue to-slate-900 text-white p-6 space-y-3">
+                <div class="flex items-center gap-2 text-sm font-bold text-domGold"><i class="fa-solid fa-video"></i> <span data-i18n="ase.tag">Asesoría virtual · 15 min</span></div>
+                <h3 class="text-lg font-bold" data-i18n="ase.t">¿Prefieres hablarlo primero?</h3>
+                <p class="text-xs text-slate-300" data-i18n="ase.d">Coordinamos una llamada por Zoom o Google Meet antes de que envíes documentos o pagos desde el exterior.</p>
+                <p class="text-xs text-slate-300"><span data-i18n="ase.tuhora">Tu hora:</span> <strong id="tuHora" class="text-white">--:--</strong> · <span data-i18n="ase.rdhora">Hora RD:</span> <strong id="rdHora2" class="text-white">--:--</strong></p>
+                <a id="asesoriaWa" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-5 py-3 rounded-xl"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="ase.btn">Agendar por WhatsApp</span></a>
+            </div>
+            <div id="foreignCard" class="hidden rounded-3xl border border-domGold/40 bg-amber-50 p-6 space-y-2" lang="en">
+                <div class="text-sm font-bold text-slate-900">🌍 Foreigners in the Dominican Republic</div>
+                <p id="foreignText" class="text-xs text-slate-700"></p>
+                <a id="foreignWa" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 hover:underline"><i class="fa-brands fa-whatsapp"></i> Message us in English</a>
+            </div>
+        </div>
+        <form id="solicitudForm" class="lg:col-span-7 bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4" novalidate>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div><label for="fNombre" class="form-label" data-i18n="sol.nombre">Nombre completo</label><input id="fNombre" name="nombre" required maxlength="80" autocomplete="name" class="input"></div>
+                <div><label for="fContacto" class="form-label" data-i18n="sol.contacto">WhatsApp o correo</label><input id="fContacto" name="contacto" required maxlength="120" autocomplete="tel" placeholder="+1 / +34 / +39 / +1 809..." class="input"></div>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-4">
+                <div><label for="fPais" class="form-label" data-i18n="sol.pais">¿Dónde resides?</label><select id="fPais" name="pais" class="input"></select></div>
+                <div><label for="fServicio" class="form-label" data-i18n="sol.servicio">Trámite</label><select id="fServicio" name="servicio" class="input"></select></div>
+            </div>
+            <div><label for="fMensaje" class="form-label" data-i18n="sol.detalles">Detalles (opcional)</label><textarea id="fMensaje" name="mensaje" rows="3" maxlength="1000" class="input" data-i18n-ph="sol.ph"></textarea></div>
+            <input type="text" name="web" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+            <label class="flex items-start gap-2 text-xs text-slate-600"><input type="checkbox" name="acepta" id="fAcepta" class="mt-0.5 rounded text-domBlue"> <span data-i18n="sol.acepto">Acepto que TramitaFácil RD use estos datos solo para contactarme y gestionar mi trámite.</span></label>
+            <p id="formError" class="hidden text-xs font-semibold text-red-600" role="alert"></p>
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button id="formSubmit" type="submit" class="flex-1 bg-domRed hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-md text-sm" data-i18n="sol.enviar">Enviar solicitud</button>
+                <button id="formWa" type="button" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm"><i class="fa-brands fa-whatsapp mr-1"></i> <span data-i18n="sol.wa">Enviar por WhatsApp</span></button>
+            </div>
+            <div id="formOk" class="hidden rounded-2xl bg-emerald-50 border border-emerald-200 p-5 text-sm text-emerald-900" aria-live="polite"></div>
+        </form>
+    </div>
+</section>
+
+<!-- DGII -->
+<section id="herramientas-dgii" class="py-16 bg-slate-100 border-y border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <span class="eyebrow bg-blue-100 text-domBlue" data-i18n="dgii.eyebrow">Herramientas gratuitas</span>
+            <h2 class="section-title" data-i18n="dgii.t">Calculadoras de impuestos DGII</h2>
+            <p class="text-slate-600 text-sm mt-1" data-i18n="dgii.sub">Ideal si tienes una propiedad o vehículo en RD y vives fuera.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8">
+            <form id="ipiForm" class="tool-card">
+                <div class="flex items-center gap-3"><div class="tool-icon bg-sky-100 text-domBlue"><i class="fa-solid fa-building-columns"></i></div><div><h3 class="font-extrabold text-slate-900" data-i18n="ipi.t">Calculadora de IPI</h3><p class="text-xs text-slate-500" data-i18n="ipi.d">Impuesto a la Propiedad Inmobiliaria</p></div></div>
+                <label for="ipiInputValue" class="form-label" data-i18n="ipi.l">Valor total del inmueble (RD$)</label>
+                <input type="number" id="ipiInputValue" min="1" placeholder="10500000" class="input">
+                <button class="tool-btn" data-i18n="ipi.btn">Calcular IPI</button>
+                <div id="ipiResultBox" class="hidden result-box" aria-live="polite"></div>
+            </form>
+            <form id="vehForm" class="tool-card">
+                <div class="flex items-center gap-3"><div class="tool-icon bg-amber-100 text-amber-800"><i class="fa-solid fa-car"></i></div><div><h3 class="font-extrabold text-slate-900" data-i18n="veh.t">Traspaso vehicular</h3><p class="text-xs text-slate-500" data-i18n="veh.d">2% del valor según tabla DGII</p></div></div>
+                <label for="vehicleInputValue" class="form-label" data-i18n="veh.l">Valor estimado del vehículo (RD$)</label>
+                <input type="number" id="vehicleInputValue" min="1" placeholder="850000" class="input">
+                <button class="tool-btn" data-i18n="veh.btn">Calcular traspaso</button>
+                <div id="vehicleResultBox" class="hidden result-box" aria-live="polite"></div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6">
+        <div class="text-center mb-8">
+            <span class="eyebrow bg-sky-100 text-domBlue" data-i18n="faq.eyebrow">Dudas recurrentes</span>
+            <h2 class="section-title" data-i18n="faq.t">Preguntas frecuentes</h2>
+        </div>
+        <input type="search" id="faqSearch" data-i18n-ph="faq.ph" data-i18n-aria="faq.ph" class="w-full mb-5 bg-slate-50 border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
+        <div id="faqContainer" class="space-y-3"></div>
+    </div>
+</section>
+</main>
+
+<div id="tf-footer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/script.js"></script>
+</body>
+</html>

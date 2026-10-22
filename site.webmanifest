@@ -1,0 +1,11 @@
+{
+  "name": "TramitaFácil RD",
+  "short_name": "TramitaFácil",
+  "description": "Gestoría digital dominicana para RD, EE.UU., España y extranjeros.",
+  "lang": "es",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#002D62",
+  "icons": [{ "src": "assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
