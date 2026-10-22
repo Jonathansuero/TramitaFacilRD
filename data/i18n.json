@@ -96,11 +96,6 @@
       "Services",
       "Services"
     ],
-    "nav.cotizar": [
-      "Cotizar",
-      "Get a quote",
-      "Devis"
-    ],
     "nav.instituciones": [
       "Instituciones",
       "Institutions",
@@ -1620,6 +1615,51 @@
       "🔖 Quiero saber el estado de mi expediente.",
       "🔖 I'd like an update on my file.",
       "🔖 J'aimerais connaître l'état de mon dossier."
+    ],
+    "nav.calculadoras": [
+      "Calculadoras",
+      "Calculators",
+      "Calculateurs"
+    ],
+    "meta.calculadora.title": [
+      "Calculadoras | TramitaFácil RD",
+      "Calculators | TramitaFácil RD",
+      "Calculateurs | TramitaFácil RD"
+    ],
+    "meta.calculadora.desc": [
+      "Calcula el costo de tu trámite en RD$, US$ o €, el IPI de tu inmueble y el traspaso de tu vehículo según la DGII.",
+      "Estimate your service cost in RD$, US$ or €, your property IPI tax and your vehicle transfer per DGII rules.",
+      "Estimez le coût de votre démarche en RD$, US$ ou €, l'IPI de votre bien et le transfert de votre véhicule selon la DGII."
+    ],
+    "calcp.t": [
+      "Calculadoras",
+      "Calculators",
+      "Calculateurs"
+    ],
+    "calcp.sub": [
+      "Cotiza tu trámite y calcula el IPI o el traspaso de tu vehículo antes de empezar.",
+      "Quote your service and estimate the IPI or your vehicle transfer before you start.",
+      "Chiffrez votre démarche et estimez l'IPI ou le transfert de votre véhicule avant de commencer."
+    ],
+    "cat.pagina": [
+      "Página {n}",
+      "Page {n}",
+      "Page {n}"
+    ],
+    "cat.anterior": [
+      "Página anterior",
+      "Previous page",
+      "Page précédente"
+    ],
+    "cat.siguiente": [
+      "Página siguiente",
+      "Next page",
+      "Page suivante"
+    ],
+    "cat.paginas": [
+      "Páginas del catálogo",
+      "Catalog pages",
+      "Pages du catalogue"
     ]
   },
   "contenido": {

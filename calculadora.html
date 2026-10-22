@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadoras | TramitaFácil RD</title>
+    <meta name="description" content="Calcula el costo de tu trámite en RD$, US$ o €, el IPI de tu inmueble y el traspaso de tu vehículo según la DGII.">
+    <meta name="theme-color" content="#002D62">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="calculadora" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<div id="tf-header"></div>
+<main id="main">
+    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white py-14 relative overflow-hidden">
+        <div class="hero-grid absolute inset-0 pointer-events-none"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 relative text-center">
+            <nav class="breadcrumb justify-center" aria-label="breadcrumb"><a href="index.html" data-i18n="foot.inicio">Inicio</a><span>›</span><span data-i18n="nav.calculadoras">Calculadoras</span></nav>
+            <span class="eyebrow bg-white/15 text-white mt-6" data-i18n="dgii.eyebrow">Herramientas gratuitas</span>
+            <h1 class="font-display text-3xl sm:text-5xl font-extrabold mt-3" data-i18n="calcp.t">Calculadoras</h1>
+            <p class="text-slate-300 mt-4 max-w-2xl mx-auto" data-i18n="calcp.sub">Cotiza tu trámite y calcula el IPI o el traspaso de tu vehículo antes de empezar.</p>
+            <div class="flex flex-wrap justify-center gap-2 mt-6">
+                <a href="#cotizador" class="hero-chip"><i class="fa-solid fa-calculator"></i> <span data-i18n="calc.t">Calculadora desglosada de costos</span></a>
+                <a href="#herramientas-dgii" class="hero-chip"><i class="fa-solid fa-file-invoice-dollar"></i> <span data-i18n="dgii.t">Calculadoras de impuestos DGII</span></a>
+            </div>
+        </div>
+    </section>
+
+    <section id="cotizador" class="py-16 bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="eyebrow bg-red-100 text-domRed" data-i18n="calc.eyebrow">Transparencia garantizada</span>
+                <h2 class="section-title" data-i18n="calc.t">Calculadora desglosada de costos</h2>
+                <p class="text-slate-600 text-sm mt-1" data-i18n="calc.sub">Tasas oficiales separadas de nuestros honorarios, en la moneda de tu país.</p>
+            </div>
+            <div id="cotizadorApp"></div>
+        </div>
+    </section>
+
+<section id="herramientas-dgii" class="py-16 bg-white border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-12">
+            <span class="eyebrow bg-blue-100 text-domBlue" data-i18n="dgii.eyebrow">Herramientas gratuitas</span>
+            <h2 class="section-title" data-i18n="dgii.t">Calculadoras de impuestos DGII</h2>
+            <p class="text-slate-600 text-sm mt-1" data-i18n="dgii.sub">Ideal si tienes una propiedad o vehículo en RD y vives fuera.</p>
+        </div>
+        <div class="grid md:grid-cols-2 gap-8">
+            <form id="ipiForm" class="tool-card">
+                <div class="flex items-center gap-3"><div class="tool-icon bg-sky-100 text-domBlue"><i class="fa-solid fa-building-columns"></i></div><div><h3 class="font-extrabold text-slate-900" data-i18n="ipi.t">Calculadora de IPI</h3><p class="text-xs text-slate-500" data-i18n="ipi.d">Impuesto a la Propiedad Inmobiliaria</p></div></div>
+                <label for="ipiInputValue" class="form-label" data-i18n="ipi.l">Valor total del inmueble (RD$)</label>
+                <input type="number" id="ipiInputValue" min="1" placeholder="10500000" class="input">
+                <button class="tool-btn" data-i18n="ipi.btn">Calcular IPI</button>
+                <div id="ipiResultBox" class="hidden result-box" aria-live="polite"></div>
+            </form>
+            <form id="vehForm" class="tool-card">
+                <div class="flex items-center gap-3"><div class="tool-icon bg-amber-100 text-amber-800"><i class="fa-solid fa-car"></i></div><div><h3 class="font-extrabold text-slate-900" data-i18n="veh.t">Traspaso vehicular</h3><p class="text-xs text-slate-500" data-i18n="veh.d">2% del valor según tabla DGII</p></div></div>
+                <label for="vehicleInputValue" class="form-label" data-i18n="veh.l">Valor estimado del vehículo (RD$)</label>
+                <input type="number" id="vehicleInputValue" min="1" placeholder="850000" class="input">
+                <button class="tool-btn" data-i18n="veh.btn">Calcular traspaso</button>
+                <div id="vehicleResultBox" class="hidden result-box" aria-live="polite"></div>
+            </form>
+        </div>
+    </div>
+</section>
+</main>
+<div id="tf-footer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/cotizador.js"></script>
+<script src="assets/js/calculadora.js"></script>
+</body>
+</html>

@@ -159,52 +159,7 @@
             <h2 class="section-title" data-i18n="calc.t">Calculadora desglosada de costos</h2>
             <p class="text-slate-600 text-sm mt-1" data-i18n="calc.sub">Tasas oficiales separadas de nuestros honorarios, en la moneda de tu país.</p>
         </div>
-        <div class="grid lg:grid-cols-12 gap-8 items-start">
-            <div class="lg:col-span-7 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-sm space-y-6">
-                <div>
-                    <label for="calcServiceSelect" class="form-label" data-i18n="calc.l1">1. Servicio a cotizar</label>
-                    <input type="search" id="calcServiceSearch" data-i18n-ph="calc.ph" data-i18n-aria="calc.ph" class="w-full mb-2 bg-white border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
-                    <select id="calcServiceSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl p-3.5 focus:ring-2 focus:ring-domBlue font-semibold outline-none"></select>
-                </div>
-                <div><span class="form-label" data-i18n="calc.l2">2. ¿Desde dónde nos escribes?</span><div id="calcPais" class="grid grid-cols-2 sm:grid-cols-5 gap-2"></div></div>
-                <div>
-                    <span class="form-label" data-i18n="calc.l3">3. Prioridad de gestión</span>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="opcion"><input type="radio" name="speed" value="standard" checked><div><span class="block text-xs font-bold text-slate-800" data-i18n="calc.std">Estándar</span><span class="block text-[11px] text-slate-500" data-i18n="calc.std.d">Tiempo regular</span></div></label>
-                        <label class="opcion"><input type="radio" name="speed" value="express"><div><span class="block text-xs font-bold text-slate-800"><span data-i18n="calc.exp">Express</span> 🔥</span><span class="block text-[11px] text-slate-500">+ <span data-express-fee></span></span></div></label>
-                    </div>
-                </div>
-                <div>
-                    <span class="form-label" data-i18n="calc.l4">4. Entrega</span>
-                    <label class="opcion bg-slate-50"><input type="checkbox" id="calcDelivery"><span class="text-xs font-semibold text-slate-700"><span data-i18n="calc.envio">Envío físico por mensajería / courier</span> (+ <span data-delivery-fee></span>)</span></label>
-                </div>
-            </div>
-            <div id="quoteSummary" class="lg:col-span-5 lg:sticky lg:top-24 bg-gradient-to-br from-domBlue to-slate-900 text-white p-6 sm:p-8 rounded-3xl shadow-lg">
-                <div class="flex items-center justify-between border-b border-white/10 pb-4 mb-4 gap-3">
-                    <h3 class="text-lg font-bold" data-i18n="calc.resumen">Resumen</h3>
-                    <div class="flex rounded-lg bg-white/10 p-1 text-[11px] font-bold" role="radiogroup" data-i18n-aria="calc.moneda" id="monedaToggle">
-                        <button data-moneda="DOP">RD$</button><button data-moneda="USD">US$</button><button data-moneda="EUR">€</button>
-                    </div>
-                </div>
-                <p id="resTitulo" class="text-sm font-semibold text-sky-200 mb-3"></p>
-                <div class="space-y-3 text-sm">
-                    <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales / consulares</span><span id="resTax" class="font-bold text-white whitespace-nowrap">—</span></div>
-                    <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios de gestoría</span><span id="resFee" class="font-bold text-white whitespace-nowrap">—</span></div>
-                    <div id="resExtrasRow" class="hidden flex justify-between gap-3 text-sky-300"><span data-i18n="calc.recargos">Recargos (Express/Envío)</span><span id="resExtras" class="font-bold whitespace-nowrap">—</span></div>
-                </div>
-                <div class="mt-6 pt-4 border-t border-white/20">
-                    <div class="text-xs text-slate-400 uppercase font-bold tracking-wider" data-i18n="calc.total">Total estimado</div>
-                    <div id="resTotal" class="text-3xl font-black text-domGold my-1 tabular-nums">—</div>
-                    <p class="text-[11px] text-slate-400 italic" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
-                    <p id="rateNote" class="text-[11px] text-slate-400 mt-1"></p>
-                </div>
-                <div class="grid sm:grid-cols-2 gap-2 mt-6">
-                    <button id="quoteWaBtn" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</button>
-                    <button id="quoteFormBtn" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-sm" data-i18n="calc.iniciar">Iniciar solicitud →</button>
-                </div>
-                <a id="quotePageLink" href="#" class="block text-center text-xs text-sky-200 hover:text-white mt-3 underline" data-i18n="calc.detalle">Ver detalles y requisitos del servicio</a>
-            </div>
-        </div>
+        <div id="cotizadorApp"></div>
     </div>
 </section>
 
@@ -222,7 +177,8 @@
         </div>
         <div id="catChips" class="flex gap-2 overflow-x-auto pb-3 mb-4"></div>
         <p id="catCount" class="text-xs text-slate-500 mb-3"></p>
-        <div id="catGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+        <div class="cat-viewport" id="catViewport" aria-live="polite"><div class="cat-track" id="catGrid"></div></div>
+        <nav class="cat-pager" id="catPager" data-i18n-aria="cat.paginas"></nav>
     </div>
 </section>
 
@@ -324,38 +280,12 @@
     </div>
 </section>
 
-<!-- DGII -->
-<section id="herramientas-dgii" class="py-16 bg-slate-100 border-y border-slate-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto mb-12">
-            <span class="eyebrow bg-blue-100 text-domBlue" data-i18n="dgii.eyebrow">Herramientas gratuitas</span>
-            <h2 class="section-title" data-i18n="dgii.t">Calculadoras de impuestos DGII</h2>
-            <p class="text-slate-600 text-sm mt-1" data-i18n="dgii.sub">Ideal si tienes una propiedad o vehículo en RD y vives fuera.</p>
-        </div>
-        <div class="grid md:grid-cols-2 gap-8">
-            <form id="ipiForm" class="tool-card">
-                <div class="flex items-center gap-3"><div class="tool-icon bg-sky-100 text-domBlue"><i class="fa-solid fa-building-columns"></i></div><div><h3 class="font-extrabold text-slate-900" data-i18n="ipi.t">Calculadora de IPI</h3><p class="text-xs text-slate-500" data-i18n="ipi.d">Impuesto a la Propiedad Inmobiliaria</p></div></div>
-                <label for="ipiInputValue" class="form-label" data-i18n="ipi.l">Valor total del inmueble (RD$)</label>
-                <input type="number" id="ipiInputValue" min="1" placeholder="10500000" class="input">
-                <button class="tool-btn" data-i18n="ipi.btn">Calcular IPI</button>
-                <div id="ipiResultBox" class="hidden result-box" aria-live="polite"></div>
-            </form>
-            <form id="vehForm" class="tool-card">
-                <div class="flex items-center gap-3"><div class="tool-icon bg-amber-100 text-amber-800"><i class="fa-solid fa-car"></i></div><div><h3 class="font-extrabold text-slate-900" data-i18n="veh.t">Traspaso vehicular</h3><p class="text-xs text-slate-500" data-i18n="veh.d">2% del valor según tabla DGII</p></div></div>
-                <label for="vehicleInputValue" class="form-label" data-i18n="veh.l">Valor estimado del vehículo (RD$)</label>
-                <input type="number" id="vehicleInputValue" min="1" placeholder="850000" class="input">
-                <button class="tool-btn" data-i18n="veh.btn">Calcular traspaso</button>
-                <div id="vehicleResultBox" class="hidden result-box" aria-live="polite"></div>
-            </form>
-        </div>
-    </div>
-</section>
-
 </main>
 
 <div id="tf-footer"></div>
 <script src="assets/js/data.js"></script>
 <script src="assets/js/core.js"></script>
+<script src="assets/js/cotizador.js"></script>
 <script src="assets/js/script.js"></script>
 </body>
 </html>
