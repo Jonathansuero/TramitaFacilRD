@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formas de pago (prueba) | TramitaFácil RD</title>
+    <meta name="description" content="Espacio de prueba de los métodos de pago de TramitaFácil RD. Ningún cobro es real.">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#002D62">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <style>
+        /* Estilos propios de la página de pagos (prueba) */
+        .demo-banner { display: flex; align-items: center; gap: .6rem; justify-content: center; flex-wrap: wrap; background: #fef3c7; color: #78350f; border-bottom: 1px solid #fcd34d; font-size: .78rem; font-weight: 700; padding: .55rem 1rem; text-align: center; }
+        .demo-banner code { background: #fde68a; border-radius: .35rem; padding: 0 .35rem; font-weight: 800; }
+        .pay-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .5rem; }
+        .pay-step { display: flex; align-items: center; gap: .5rem; font-size: .72rem; font-weight: 700; color: #94a3b8; }
+        .pay-step b { width: 1.6rem; height: 1.6rem; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; background: #e2e8f0; color: #475569; font-size: .72rem; flex-shrink: 0; }
+        .pay-step.is-on { color: var(--azul); }
+        .pay-step.is-on b { background: var(--azul); color: #fff; }
+        .pay-step.is-done b { background: #10b981; color: #fff; }
+        .metodo { position: relative; display: flex; align-items: flex-start; gap: .85rem; width: 100%; text-align: left; padding: 1rem; border-radius: 1.1rem; background: #fff; border: 1.5px solid var(--borde); transition: border-color .2s, box-shadow .2s, transform .2s; }
+        .metodo:hover { border-color: #93c5fd; transform: translateY(-2px); box-shadow: 0 12px 24px -16px rgba(0,45,98,.45); }
+        .metodo[aria-checked="true"] { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,45,98,.12); }
+        .metodo-ico { width: 2.6rem; height: 2.6rem; border-radius: .8rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.05rem; background: #f1f5f9; color: #475569; transition: background .2s, color .2s; }
+        .metodo[aria-checked="true"] .metodo-ico { background: var(--azul); color: #fff; }
+        .metodo-tag { display: inline-block; font-size: .6rem; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; padding: .1rem .45rem; border-radius: 999px; margin-left: .35rem; vertical-align: middle; }
+        .tag-reco { background: #d1fae5; color: #065f46; }
+        .tag-pronto { background: #e2e8f0; color: #475569; }
+        .dato { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .7rem .85rem; border-radius: .8rem; background: #f8fafc; border: 1px solid var(--borde); }
+        .dato span { font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: #64748b; }
+        .dato strong { display: block; font-size: .85rem; color: #0f172a; word-break: break-word; }
+        .copiar { flex-shrink: 0; font-size: .7rem; font-weight: 800; color: var(--azul); padding: .4rem .65rem; border-radius: .6rem; border: 1px solid #cbd5e1; background: #fff; transition: all .2s; }
+        .copiar:hover { background: var(--azul); color: #fff; border-color: var(--azul); }
+        .ok-box { border-radius: 1rem; background: #ecfdf5; border: 1px solid #a7f3d0; padding: 1rem; color: #065f46; font-size: .8rem; }
+        .pay-btn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; font-weight: 800; font-size: .9rem; padding: .9rem 1rem; border-radius: .9rem; transition: background .2s, transform .2s; }
+        .pay-btn:active { transform: scale(.98); }
+        .pay-btn:disabled { opacity: .6; cursor: progress; }
+        @media (max-width: 1023px) { .pago-resumen { order: -1; } }
+        #pServicio option, #pServicio optgroup { color: #0f172a; background: #fff; }
+        @media (max-width: 640px) { .pay-step { font-size: .62rem; } }
+    </style>
+</head>
+<body data-page="pagos" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<div class="demo-banner" role="note"><i class="fa-solid fa-flask"></i> MODO DE PRUEBA · Ningún cobro es real · Los datos bancarios son de ejemplo <code>EJEMPLO</code></div>
+<div id="tf-header"></div>
+<main id="main">
+    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white pt-10 pb-24 relative overflow-hidden">
+        <div class="hero-grid absolute inset-0 pointer-events-none"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 relative text-center">
+            <nav class="breadcrumb justify-center" aria-label="breadcrumb"><a href="index.html">Inicio</a><span>›</span><span>Formas de pago</span></nav>
+            <span class="eyebrow bg-white/15 text-white mt-6">Pago seguro</span>
+            <h1 class="font-display text-3xl sm:text-5xl font-extrabold mt-3">Paga tu trámite desde cualquier país</h1>
+            <p class="text-slate-300 mt-4 max-w-2xl mx-auto">Elige cómo pagar. Cobramos solo después de confirmar contigo la cotización, y nunca te pediremos datos de tu tarjeta por WhatsApp.</p>
+        </div>
+    </section>
+
+    <section class="-mt-16 pb-16 relative z-10">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-12 gap-6 items-start">
+
+            <!-- Columna izquierda: pasos y métodos -->
+            <div class="lg:col-span-7 space-y-6">
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-xl p-5 sm:p-8">
+                    <div class="pay-steps mb-6" aria-hidden="true">
+                        <div class="pay-step is-done" id="paso1"><b>1</b>Trámite y monto</div>
+                        <div class="pay-step is-on" id="paso2"><b>2</b>Método de pago</div>
+                        <div class="pay-step" id="paso3"><b>3</b>Confirmación</div>
+                    </div>
+                    <h2 class="text-lg font-extrabold text-slate-900">¿Cómo quieres pagar?</h2>
+                    <p class="text-xs text-slate-500 mt-1 mb-4">Toca una opción para ver los pasos.</p>
+                    <div id="metodos" role="radiogroup" aria-label="Método de pago" class="grid sm:grid-cols-2 gap-3"></div>
+                </div>
+
+                <div id="panel" class="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8" aria-live="polite"></div>
+            </div>
+
+            <!-- Columna derecha: resumen -->
+            <aside class="pago-resumen lg:col-span-5 lg:sticky lg:top-24 space-y-4">
+                <div class="bg-gradient-to-br from-domBlue to-slate-900 text-white rounded-3xl p-6 sm:p-8 shadow-xl">
+                    <div class="flex items-center justify-between gap-3 mb-4">
+                        <h2 class="font-bold">Resumen del pago</h2>
+                        <div class="flex rounded-lg bg-white/10 p-1 text-[11px] font-bold" id="monedaToggle"><button data-moneda="DOP">RD$</button><button data-moneda="USD">US$</button><button data-moneda="EUR">€</button></div>
+                    </div>
+                    <label for="pServicio" class="block text-[11px] uppercase font-bold tracking-wider text-slate-400 mb-1">Trámite</label>
+                    <select id="pServicio" class="w-full bg-white/10 border border-white/20 text-white text-sm rounded-xl p-3 outline-none focus:ring-2 focus:ring-domGold/50"></select>
+                    <div class="space-y-2 text-sm mt-4">
+                        <div class="flex justify-between gap-3 text-slate-300"><span>Código de solicitud</span><strong id="pCodigo" class="text-white font-mono"></strong></div>
+                        <div class="flex justify-between gap-3 text-slate-300"><span>Tasas oficiales</span><strong id="pTax" class="text-white whitespace-nowrap"></strong></div>
+                        <div class="flex justify-between gap-3 text-slate-300"><span>Honorarios</span><strong id="pFee" class="text-white whitespace-nowrap"></strong></div>
+                    </div>
+                    <div class="border-t border-white/20 mt-4 pt-4">
+                        <div class="text-xs uppercase font-bold tracking-wider text-slate-400">Total a pagar</div>
+                        <div id="pTotal" class="text-3xl font-black text-domGold tabular-nums"></div>
+                        <p id="pNota" class="text-[11px] text-slate-400 mt-1"></p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-3xl border border-slate-200 p-5 text-xs text-slate-600 space-y-2">
+                    <div class="font-bold text-slate-900 text-sm"><i class="fa-solid fa-shield-halved text-emerald-600 mr-1"></i> Paga con tranquilidad</div>
+                    <p>Usa siempre el código de tu solicitud como referencia del pago.</p>
+                    <p>Paga únicamente por los canales de esta página. Si alguien te pide pagar por otra vía, escríbenos antes.</p>
+                    <p>Las tarjetas se procesan en la página segura de PayPal o del banco: nosotros nunca vemos tus datos.</p>
+                </div>
+            </aside>
+        </div>
+    </section>
+</main>
+<div id="tf-footer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/pagos.js"></script>
+</body>
+</html>
