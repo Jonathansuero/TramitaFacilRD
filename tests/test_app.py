@@ -127,3 +127,17 @@ def test_solicitud_desde_otro_pais_en_frances(client):
                                             "pais_detalle": "IT", "idioma": "fr", "servicio": "apostilla_documentos",
                                             "acepta": True})
     assert r.status_code == 201
+
+
+def test_app_instalable(client):
+    """La app instalable: service worker, manifiesto con íconos y página sin conexión."""
+    sw = client.get("/sw.js")
+    assert sw.status_code == 200 and b"const PRECACHE" in sw.data
+    assert sw.headers.get("Cache-Control") == "no-cache"
+    man = client.get("/site.webmanifest")
+    assert man.status_code == 200 and "manifest+json" in man.headers.get("Content-Type", "")
+    datos = man.get_json(force=True)
+    assert datos["display"] == "standalone" and {"192x192", "512x512"} <= {i["sizes"] for i in datos["icons"]}
+    for icono in datos["icons"]:
+        assert client.get("/" + icono["src"]).status_code == 200
+    assert client.get("/offline.html").status_code == 200

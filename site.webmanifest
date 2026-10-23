@@ -1,11 +1,46 @@
 {
+  "id": "./?app=tramitafacilrd",
   "name": "TramitaFácil RD",
   "short_name": "TramitaFácil",
-  "description": "Gestoría digital dominicana para RD, EE.UU., España y extranjeros.",
+  "description": "Tus trámites en República Dominicana, estés donde estés: cotiza en RD$, US$ o €, revisa requisitos y rastrea tu expediente.",
   "lang": "es",
-  "start_url": "/",
+  "dir": "ltr",
+  "start_url": "./index.html?fuente=app",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#f8fafc",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#002D62",
   "theme_color": "#002D62",
-  "icons": [{ "src": "assets/img/favicon.svg", "sizes": "any", "type": "image/svg+xml" }]
+  "categories": ["business", "productivity", "utilities"],
+  "icons": [
+    { "src": "assets/img/app/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/img/app/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/img/app/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/img/app/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" },
+    { "src": "assets/img/app/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calculadoras",
+      "short_name": "Cotizar",
+      "description": "Calcula el costo de tu trámite, el IPI o el traspaso",
+      "url": "./calculadora.html?fuente=app",
+      "icons": [{ "src": "assets/img/app/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Rastrear mi trámite",
+      "short_name": "Rastrear",
+      "description": "Consulta el estado de tu expediente con tu código",
+      "url": "./rastreo.html?fuente=app",
+      "icons": [{ "src": "assets/img/app/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Iniciar trámite",
+      "short_name": "Solicitar",
+      "description": "Envía tu solicitud y recibe un código de seguimiento",
+      "url": "./index.html?fuente=app#solicitud",
+      "icons": [{ "src": "assets/img/app/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    }
+  ]
 }

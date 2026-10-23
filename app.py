@@ -321,7 +321,7 @@ def no_encontrado(_e):
 # ---------------------------------------------------------------- sitio estático
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
 ARCHIVOS_RAIZ = {"index.html", "servicio.html", "instituciones.html", "diaspora.html", "rastreo.html", "preguntas.html", "calculadora.html",
-                 "robots.txt", "sitemap.xml", "site.webmanifest"}
+                 "offline.html", "sw.js", "robots.txt", "sitemap.xml", "site.webmanifest"}
 
 
 @app.get("/")
@@ -348,6 +348,12 @@ def cabeceras(resp):
     resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
     if request.path.startswith("/api/"):
         resp.headers["Cache-Control"] = "no-store"
+    elif request.path == "/sw.js":
+        # el navegador debe revisar siempre si hay una versión nueva de la app
+        resp.headers["Cache-Control"] = "no-cache"
+        resp.headers["Service-Worker-Allowed"] = "/"
+    elif request.path == "/site.webmanifest":
+        resp.headers["Content-Type"] = "application/manifest+json"
     return resp
 
 

@@ -259,11 +259,13 @@
         </button>
         <div id="paisMenu" role="listbox" class="hidden absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-2xl shadow-xl p-2 z-50"></div>
       </div>
+      <button id="instalarBtn" type="button" hidden class="install-btn hidden md:inline-flex"><i class="fa-solid fa-mobile-screen-button"></i><span data-i18n="app.instalar"></span></button>
       <a id="navWa" href="#" target="_blank" rel="noopener" class="hidden md:inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-all"><i class="fa-brands fa-whatsapp text-lg"></i><span>WhatsApp</span></a>
       <button id="mobileMenuBtn" class="xl:hidden text-slate-700 p-2 text-xl" data-i18n-aria="nav.menu" aria-expanded="false" aria-controls="mobileMenu"><i class="fa-solid fa-bars"></i></button>
     </div>
   </div>
   <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-4 text-sm max-h-[75vh] overflow-y-auto">
+    <button type="button" id="instalarMenu" hidden class="mobile-link ml-install w-full text-left"><span class="ml-ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="ml-txt"><span class="block" data-i18n="app.instalar"></span><span class="block text-[11px] font-medium text-slate-500" data-i18n="app.menu.d"></span></span><i class="fa-solid fa-chevron-right ml-go" aria-hidden="true"></i></button>
     ${mobileLink('instituciones.html', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
     ${mobileLink('diaspora.html', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
     ${mobileLink('calculadora.html', 'fa-calculator', 'nav.calculadoras', ` ml-page${PAGE === 'calculadora' ? ' nav-active' : ''}`)}
@@ -311,7 +313,8 @@
 </footer>
 <a id="floatWa" href="#" target="_blank" rel="noopener" data-i18n-aria="a11y.wa" class="wa-pulse fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-3xl shadow-xl transition-transform hover:scale-110"><i class="fa-brands fa-whatsapp"></i></a>
 <button id="toTop" data-i18n-aria="a11y.top" class="fixed bottom-24 right-6 z-50 w-10 h-10 rounded-full bg-domBlue text-white shadow-lg opacity-0 pointer-events-none transition-opacity hover:bg-domRed"><i class="fa-solid fa-arrow-up"></i></button>
-<div id="toast" role="status" aria-live="polite" class="toast"></div>`;
+<div id="toast" role="status" aria-live="polite" class="toast"></div>
+${ES_APP ? renderTabbar() : ''}`;
         const p = C.whatsapp;
         $$('[data-wa-display]').forEach(el => el.textContent = `+${p[0]} (${p.slice(1, 4)}) ${p.slice(4, 7)}-${p.slice(7)}`);
     }
@@ -330,7 +333,7 @@
         $$('[data-lang]').forEach(b => { const on = b.dataset.lang === state.lang; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', on); });
         if ($('footFlags')) $('footFlags').innerHTML = Object.keys(PAISES).map(k => `<button class="foot-flag ${k === state.pais ? 'is-active' : ''}" data-set-pais="${k}" title="${esc(tc('paises', k).nombre)}">${PAISES[k].bandera}</button>`).join('');
         const general = waLink(saludo());
-        ['navWa', 'floatWa', 'footWa'].forEach(id => { if ($(id)) $(id).href = general; });
+        ['navWa', 'floatWa', 'footWa', 'tabWa'].forEach(id => { if ($(id)) $(id).href = general; });
         if ($('rdClock')) tickTopbar();
     }
 
@@ -392,13 +395,134 @@
         return `<span class="inst-seal inst-${size} inst-${i.tipo}${i.sigla.length > 7 ? ' inst-long' : ''}" aria-hidden="true"><span>${esc(i.sigla)}</span></span>`;
     }
 
+    // ============================================================
+    // APP INSTALABLE (se instala desde el navegador en Android, iPhone y computadora)
+    // ============================================================
+    const ES_APP = matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: minimal-ui)').matches || navigator.standalone === true;
+    const ES_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const ES_MOVIL = matchMedia('(pointer: coarse)').matches;
+    let avisoInstalar = null;   // evento beforeinstallprompt (Android / Chrome / Edge)
+    if (ES_APP) document.documentElement.classList.add('is-app');
+
+    /** Barra de navegación inferior, como en una app (solo cuando se abre instalada). */
+    function renderTabbar() {
+        const tabs = [
+            ['index.html', 'fa-house', 'tab.inicio', PAGE === 'home'],
+            [homeLink('servicios'), 'fa-layer-group', 'tab.servicios', false],
+            ['calculadora.html', 'fa-calculator', 'tab.calc', PAGE === 'calculadora'],
+            ['rastreo.html', 'fa-location-crosshairs', 'tab.rastrear', PAGE === 'rastreo']
+        ];
+        return `<nav id="tabbar" class="tabbar" data-i18n-aria="nav.menu">
+            ${tabs.map(([href, ico, key, on]) => `<a href="${href}" class="tab ${on ? 'is-active' : ''}" ${on ? 'aria-current="page"' : ''}><i class="fa-solid ${ico}" aria-hidden="true"></i><span data-i18n="${key}"></span></a>`).join('')}
+            <a id="tabWa" href="#" target="_blank" rel="noopener" class="tab tab-wa"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span>WhatsApp</span></a>
+        </nav>`;
+    }
+
+    const puedeInstalar = () => !ES_APP && (avisoInstalar || ES_IOS || ES_MOVIL);
+    function mostrarBotonesInstalar() {
+        if ($('instalarBtn')) $('instalarBtn').hidden = !(avisoInstalar && !ES_APP);
+        if ($('instalarMenu')) $('instalarMenu').hidden = !puedeInstalar();
+    }
+
+    async function instalar() {
+        if (avisoInstalar) {
+            avisoInstalar.prompt();
+            const r = await avisoInstalar.userChoice.catch(() => null);
+            avisoInstalar = null; mostrarBotonesInstalar(); cerrarAvisoApp();
+            if (r && r.outcome === 'accepted') toast(t('app.instalada'));
+            return;
+        }
+        mostrarInstrucciones();
+    }
+
+    /** Hoja con los pasos para instalar cuando el navegador no tiene botón propio (iPhone, Firefox…). */
+    function mostrarInstrucciones() {
+        cerrarAvisoApp();
+        $('appSheet')?.remove();
+        const pasos = ES_IOS
+            ? [['fa-arrow-up-from-bracket', 'app.ios.p1'], ['fa-square-plus', 'app.ios.p2'], ['fa-circle-check', 'app.ios.p3']]
+            : [['fa-ellipsis-vertical', 'app.otro.p1'], ['fa-mobile-screen-button', 'app.otro.p2'], ['fa-circle-check', 'app.ios.p3']];
+        const el = document.createElement('div');
+        el.id = 'appSheet'; el.className = 'app-sheet';
+        el.innerHTML = `<div class="app-sheet-fondo" data-cerrar></div>
+            <div class="app-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="appSheetT">
+                <div class="flex items-center gap-3">
+                    <img src="assets/img/app/icon-192.png" alt="" class="app-sheet-ico">
+                    <div><h2 id="appSheetT" class="font-extrabold text-slate-900" data-i18n="app.ios.t"></h2><p class="text-xs text-slate-500" data-i18n="app.hint.d"></p></div>
+                </div>
+                <ol class="app-pasos">${pasos.map(([ico, key], i) => `<li><span class="app-paso-n">${i + 1}</span><i class="fa-solid ${ico}" aria-hidden="true"></i><span data-i18n="${key}"></span></li>`).join('')}</ol>
+                <button type="button" class="app-sheet-ok" data-cerrar data-i18n="app.entendido"></button>
+            </div>`;
+        applyI18n(el);
+        el.addEventListener('click', e => { if (e.target.closest('[data-cerrar]')) el.remove(); });
+        document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { el.remove(); document.removeEventListener('keydown', esc); } });
+        document.body.appendChild(el);
+        el.querySelector('.app-sheet-ok').focus();
+    }
+
+    /** Aviso discreto en el teléfono (como mucho una vez cada 14 días). */
+    function sugerirApp() {
+        if (ES_APP || !ES_MOVIL || !(avisoInstalar || ES_IOS) || $('appHint') || document.querySelector('.lang-hint')) return;
+        if (Date.now() - store.get('tf_app_aviso', 0) < 14 * 864e5) return;
+        store.set('tf_app_aviso', Date.now());
+        const el = document.createElement('div');
+        el.id = 'appHint'; el.className = 'app-hint'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-labelledby', 'appHintT');
+        el.innerHTML = `<img src="assets/img/app/icon-192.png" alt="" class="app-hint-ico">
+            <div class="min-w-0 flex-1"><strong id="appHintT" class="block text-sm" data-i18n="app.hint.t"></strong><span class="block text-xs text-slate-300" data-i18n="app.hint.d"></span></div>
+            <div class="flex flex-col gap-1.5"><button type="button" class="app-hint-si" data-instalar data-i18n="app.hint.si"></button><button type="button" class="app-hint-no" data-cerrar data-i18n="app.hint.no"></button></div>`;
+        applyI18n(el);
+        el.addEventListener('click', e => { if (e.target.closest('[data-instalar]')) instalar(); else if (e.target.closest('[data-cerrar]')) cerrarAvisoApp(); });
+        document.body.appendChild(el);
+    }
+    const cerrarAvisoApp = () => $('appHint')?.remove();
+
+    /** Registra el service worker y avisa cuando hay una versión nueva. */
+    function iniciarApp() {
+        window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); avisoInstalar = e; mostrarBotonesInstalar(); setTimeout(sugerirApp, 4000); });
+        window.addEventListener('appinstalled', () => { avisoInstalar = null; mostrarBotonesInstalar(); cerrarAvisoApp(); toast(t('app.instalada')); });
+        $('instalarBtn')?.addEventListener('click', instalar);
+        $('instalarMenu')?.addEventListener('click', instalar);
+        mostrarBotonesInstalar();
+        if (ES_IOS) setTimeout(sugerirApp, 4000);
+        if (ES_APP) {
+            window.addEventListener('offline', () => toast(t('app.offline')));
+            window.addEventListener('online', () => toast(t('app.online')));
+        }
+
+        if (!('serviceWorker' in navigator) || !location.protocol.startsWith('http')) return;
+        let recargando = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => { if (!recargando) { recargando = true; location.reload(); } });
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js').then(reg => {
+                const ofrecer = w => {
+                    if (!w || !navigator.serviceWorker.controller) return;   // primera instalación: nada que actualizar
+                    avisoActualizar(() => w.postMessage('actualizar'));
+                };
+                if (reg.waiting) ofrecer(reg.waiting);
+                reg.addEventListener('updatefound', () => {
+                    const w = reg.installing;
+                    w?.addEventListener('statechange', () => { if (w.state === 'installed') ofrecer(w); });
+                });
+            }).catch(() => { /* sin service worker: el sitio funciona igual, solo sin modo sin conexión */ });
+        });
+    }
+    function avisoActualizar(accion) {
+        if ($('appUpdate')) return;
+        const el = document.createElement('div');
+        el.id = 'appUpdate'; el.className = 'app-update'; el.setAttribute('role', 'status');
+        el.innerHTML = `<i class="fa-solid fa-rotate" aria-hidden="true"></i><span data-i18n="app.nueva"></span><button type="button" data-i18n="app.actualizar"></button>`;
+        applyI18n(el);
+        el.querySelector('button').addEventListener('click', () => { el.querySelector('button').disabled = true; accion(); });
+        document.body.appendChild(el);
+    }
+
     // ---------------- API pública
     window.TF = {
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
         t, tc, applyI18n, money, waLink, saludo, lugar, toast, api,
         setLang, setPais, setCountry, setMoneda, on, emit,
-        fmtHora, offsetMin, abierto, observe, reveal, instBadge
+        fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };
 
     // Se dibuja de inmediato (el script va al final del body) para que la página pueda usar los elementos.
@@ -407,6 +531,7 @@
     applyI18n();
     renderHeaderDinamico();
     initHeaderEventos();
+    iniciarApp();
     setInterval(tickTopbar, 15000);
     document.addEventListener('DOMContentLoaded', () => { reveal(); detectarApi(); setTimeout(sugerirIdioma, 1200); });
 })();

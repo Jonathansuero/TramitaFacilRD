@@ -1660,6 +1660,116 @@
       "Páginas del catálogo",
       "Catalog pages",
       "Pages du catalogue"
+    ],
+    "app.instalar": [
+      "Instalar app",
+      "Install app",
+      "Installer l'app"
+    ],
+    "app.menu.d": [
+      "Ábrela desde tu pantalla de inicio",
+      "Open it from your home screen",
+      "Ouvrez-la depuis votre écran d'accueil"
+    ],
+    "app.hint.t": [
+      "Instala TramitaFácil en tu teléfono",
+      "Install TramitaFácil on your phone",
+      "Installez TramitaFácil sur votre téléphone"
+    ],
+    "app.hint.d": [
+      "Cotiza, rastrea y escríbenos con un toque, incluso sin internet.",
+      "Quote, track and message us in one tap, even offline.",
+      "Devis, suivi et contact en un geste, même hors ligne."
+    ],
+    "app.hint.si": [
+      "Instalar",
+      "Install",
+      "Installer"
+    ],
+    "app.hint.no": [
+      "Ahora no",
+      "Not now",
+      "Plus tard"
+    ],
+    "app.ios.t": [
+      "Agrega la app a tu inicio",
+      "Add the app to your home screen",
+      "Ajoutez l'app à l'écran d'accueil"
+    ],
+    "app.ios.p1": [
+      "Toca el botón Compartir de Safari (cuadro con flecha hacia arriba).",
+      "Tap Safari's Share button (square with an up arrow).",
+      "Touchez le bouton Partager de Safari (carré avec une flèche vers le haut)."
+    ],
+    "app.ios.p2": [
+      "Elige «Agregar a inicio».",
+      "Choose “Add to Home Screen”.",
+      "Choisissez « Sur l'écran d'accueil »."
+    ],
+    "app.ios.p3": [
+      "Toca «Agregar». El ícono TF aparece en tu pantalla.",
+      "Tap “Add”. The TF icon appears on your screen.",
+      "Touchez « Ajouter ». L'icône TF apparaît sur votre écran."
+    ],
+    "app.otro.p1": [
+      "Abre el menú del navegador (⋮ o ☰).",
+      "Open the browser menu (⋮ or ☰).",
+      "Ouvrez le menu du navigateur (⋮ ou ☰)."
+    ],
+    "app.otro.p2": [
+      "Elige «Instalar app» o «Agregar a pantalla de inicio».",
+      "Choose “Install app” or “Add to Home screen”.",
+      "Choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil »."
+    ],
+    "app.entendido": [
+      "Entendido",
+      "Got it",
+      "Compris"
+    ],
+    "app.instalada": [
+      "¡Listo! TramitaFácil ya está en tu pantalla de inicio 📲",
+      "Done! TramitaFácil is on your home screen 📲",
+      "C'est fait ! TramitaFácil est sur votre écran d'accueil 📲"
+    ],
+    "app.nueva": [
+      "Hay una versión nueva de la app",
+      "A new version of the app is available",
+      "Une nouvelle version de l'app est disponible"
+    ],
+    "app.actualizar": [
+      "Actualizar",
+      "Update",
+      "Mettre à jour"
+    ],
+    "app.offline": [
+      "Sin conexión: verás lo que ya está guardado",
+      "Offline: you'll see what's already saved",
+      "Hors ligne : vous verrez ce qui est déjà enregistré"
+    ],
+    "app.online": [
+      "Conexión restablecida",
+      "Back online",
+      "Connexion rétablie"
+    ],
+    "tab.inicio": [
+      "Inicio",
+      "Home",
+      "Accueil"
+    ],
+    "tab.servicios": [
+      "Servicios",
+      "Services",
+      "Services"
+    ],
+    "tab.calc": [
+      "Cotizar",
+      "Quote",
+      "Devis"
+    ],
+    "tab.rastrear": [
+      "Rastrear",
+      "Track",
+      "Suivi"
     ]
   },
   "contenido": {

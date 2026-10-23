@@ -217,6 +217,7 @@ mark { background: #fef08a; padding: 0 .1em; border-radius: 2px; }
 
 /* ---------- Toast ---------- */
 .toast { position: fixed; left: 50%; bottom: 1.5rem; transform: translate(-50%, 140%); background: #0f172a; color: #fff; font-size: .8rem; font-weight: 600; padding: .75rem 1.1rem; border-radius: .9rem; box-shadow: 0 12px 30px -10px rgba(0,0,0,.5); z-index: 70; transition: transform .35s cubic-bezier(.2,.9,.3,1.2); max-width: calc(100vw - 2rem); text-align: center; }
+.toast:not(.show) { visibility: hidden; transition: transform .35s cubic-bezier(.2,.9,.3,1), visibility 0s .35s; }
 .toast.show { transform: translate(-50%, 0); }
 
 /* ---------- Animaciones utilitarias ---------- */
@@ -343,3 +344,54 @@ mark { background: #fef08a; padding: 0 .1em; border-radius: 2px; }
 .lang-hint-no { color: #cbd5e1; }
 .lang-hint-no:hover { color: #fff; }
 .inst-seal.inst-long { font-size: .5rem; letter-spacing: 0; } .inst-sm.inst-long { font-size: .42rem; } .inst-lg.inst-long { font-size: .6rem; }
+
+/* ==========================================================
+   App instalable: botón, aviso, instrucciones, barra inferior
+   ========================================================== */
+.install-btn { align-items: center; gap: .45rem; font-size: .8rem; font-weight: 700; color: var(--azul); border: 1px solid #cbd5e1; background: #fff; padding: .6rem .85rem; border-radius: .75rem; transition: border-color .2s, background .2s, color .2s; }
+.install-btn:hover { border-color: var(--azul); background: #eff6ff; }
+.ml-install { border: 1px dashed #93c5fd; background: #f8fbff; margin-bottom: .25rem; }
+
+/* Aviso "Instala la app" (teléfono) */
+.app-hint { position: fixed; z-index: 66; left: max(12px, env(safe-area-inset-left)); right: max(12px, env(safe-area-inset-right)); bottom: calc(12px + env(safe-area-inset-bottom)); display: flex; align-items: center; gap: .75rem; padding: .8rem; border-radius: 1.1rem; background: #0f172a; color: #fff; box-shadow: 0 18px 40px -14px rgba(0,0,0,.6); animation: heroIn .4s ease both; }
+.app-hint-ico { width: 2.75rem; height: 2.75rem; border-radius: .7rem; flex-shrink: 0; }
+.app-hint-si { background: var(--oro); color: #0f172a; font-size: .75rem; font-weight: 800; padding: .45rem .8rem; border-radius: .6rem; white-space: nowrap; }
+.app-hint-no { color: #cbd5e1; font-size: .7rem; font-weight: 700; }
+.app-hint-no:hover { color: #fff; }
+
+/* Hoja de instrucciones (iPhone y navegadores sin botón propio) */
+.app-sheet { position: fixed; inset: 0; z-index: 90; display: flex; align-items: flex-end; justify-content: center; }
+.app-sheet-fondo { position: absolute; inset: 0; background: rgba(15,23,42,.55); animation: fadeIn .25s ease both; }
+.app-sheet-panel { position: relative; width: min(440px, 100%); background: #fff; border-radius: 1.5rem 1.5rem 0 0; padding: 1.4rem max(1.25rem, env(safe-area-inset-right)) calc(1.25rem + env(safe-area-inset-bottom)) max(1.25rem, env(safe-area-inset-left)); animation: sheetUp .35s cubic-bezier(.2,.9,.3,1) both; }
+@media (min-width: 640px) { .app-sheet { align-items: center; } .app-sheet-panel { border-radius: 1.5rem; } }
+.app-sheet-ico { width: 3rem; height: 3rem; border-radius: .8rem; }
+.app-pasos { display: grid; gap: .6rem; margin: 1.1rem 0; }
+.app-pasos li { display: flex; align-items: center; gap: .75rem; padding: .75rem .85rem; border-radius: .9rem; background: #f8fafc; border: 1px solid var(--borde); font-size: .85rem; color: #334155; }
+.app-pasos li > i { width: 1.25rem; text-align: center; color: var(--azul); }
+.app-paso-n { width: 1.5rem; height: 1.5rem; border-radius: 999px; background: var(--azul); color: #fff; font-size: .7rem; font-weight: 800; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.app-sheet-ok { width: 100%; background: var(--azul); color: #fff; font-weight: 800; padding: .85rem; border-radius: .9rem; }
+@keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes sheetUp { from { transform: translateY(100%) } to { transform: none } }
+
+/* Aviso "Hay una versión nueva" */
+.app-update { position: fixed; z-index: 75; left: 0; right: 0; margin-inline: auto; width: max-content; top: calc(12px + env(safe-area-inset-top)); display: flex; align-items: center; gap: .6rem; max-width: calc(100vw - 24px); background: #0f172a; color: #fff; font-size: .8rem; font-weight: 600; padding: .55rem .6rem .55rem .9rem; border-radius: 999px; box-shadow: 0 14px 30px -12px rgba(0,0,0,.55); animation: heroIn .35s ease both; }
+.app-update button { background: var(--oro); color: #0f172a; font-weight: 800; font-size: .75rem; padding: .35rem .8rem; border-radius: 999px; }
+
+/* Barra de navegación inferior (solo cuando se abre como app) */
+.tabbar { position: fixed; z-index: 55; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); background: rgba(255,255,255,.97); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-top: 1px solid var(--borde); padding: .3rem max(.25rem, env(safe-area-inset-right)) calc(.3rem + env(safe-area-inset-bottom)) max(.25rem, env(safe-area-inset-left)); }
+.tab { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .2rem; min-height: 3.1rem; font-size: .62rem; font-weight: 700; color: #64748b; border-radius: .8rem; -webkit-tap-highlight-color: transparent; transition: color .2s; }
+.tab i { font-size: 1.15rem; transition: transform .2s; }
+.tab span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.tab.is-active { color: var(--azul); }
+.tab.is-active::before { content: ''; position: absolute; top: -.3rem; width: 1.75rem; height: 3px; border-radius: 0 0 3px 3px; background: var(--rojo); }
+.tab:active i { transform: scale(.88); }
+.tab-wa { color: #059669; }
+html.is-app body { padding-bottom: calc(3.8rem + env(safe-area-inset-bottom)); }
+html.is-app #floatWa { display: none; }
+html.is-app #toTop { bottom: calc(4.6rem + env(safe-area-inset-bottom)); right: 1rem; }
+html.is-app .toast { bottom: calc(4.8rem + env(safe-area-inset-bottom)); }
+html.is-app .lang-hint { bottom: calc(4.6rem + env(safe-area-inset-bottom)); }
+html.is-app body { -webkit-user-select: none; user-select: none; }
+html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-app p, html.is-app li, html.is-app strong { -webkit-user-select: text; user-select: text; }
+@media (min-width: 1024px) { .tabbar { display: none; } html.is-app body { padding-bottom: 0; } html.is-app #floatWa { display: flex; } }
+@media (prefers-reduced-motion: reduce) { .app-hint, .app-sheet-panel, .app-sheet-fondo, .app-update { animation: none; } }

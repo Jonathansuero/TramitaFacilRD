@@ -1,7 +1,7 @@
 """
 manage.py — Herramientas de administración de TramitaFácil RD.
 
-    python manage.py build                       Genera assets/js/data.js (catálogo + traducciones) y sitemap.xml
+    python manage.py build                       Genera assets/js/data.js (catálogo + traducciones), sitemap.xml y la versión de la app (sw.js)
     python manage.py i18n                        Verifica que todo esté traducido en español, inglés y francés
     python manage.py solicitudes                 Lista las últimas solicitudes recibidas
     python manage.py exportar solicitudes.csv    Exporta todas las solicitudes a CSV (Excel)
@@ -57,6 +57,7 @@ def cmd_build(_args):
     print(f"✓ {DATA_JS.relative_to(calculos.BASE_DIR)} generado ({len(cat['servicios'])} servicios, "
           f"{len(cat['instituciones'])} instituciones, {len(datos['i18n']['ui'])} textos × 3 idiomas).")
     cmd_sitemap(_args)
+    cmd_app(_args)
 
 
 def cmd_i18n(_args):
@@ -80,6 +81,21 @@ def cmd_sitemap(_args):
         f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{cuerpo}\n</urlset>\n',
         encoding="utf-8")
     print(f"✓ sitemap.xml ({len(urls)} páginas)")
+
+
+def cmd_app(_args):
+    """Pone en sw.js una versión nueva (huella de los archivos guardados) para que la app instalada se actualice."""
+    import hashlib, re
+    sw = calculos.BASE_DIR / "sw.js"
+    texto = sw.read_text(encoding="utf-8")
+    lista = re.search(r"const PRECACHE = \[(.*?)\];", texto, re.S).group(1)
+    huella = hashlib.sha256()
+    for ruta in re.findall(r"'\./([^']*)'", lista):
+        archivo = calculos.BASE_DIR / (ruta or "index.html")
+        huella.update(archivo.read_bytes() if archivo.is_file() else ruta.encode())
+    version = huella.hexdigest()[:10]
+    sw.write_text(re.sub(r"const VERSION = '[^']*';", f"const VERSION = '{version}';", texto, count=1), encoding="utf-8")
+    print(f"✓ sw.js versión {version} (la app instalada se actualizará sola)")
 
 
 def cmd_solicitudes(args):
@@ -140,6 +156,7 @@ def main():
     sub.add_parser("build").set_defaults(fn=cmd_build)
     sub.add_parser("i18n").set_defaults(fn=cmd_i18n)
     sub.add_parser("sitemap").set_defaults(fn=cmd_sitemap)
+    sub.add_parser("app").set_defaults(fn=cmd_app)
     s = sub.add_parser("solicitudes"); s.add_argument("--limite", type=int, default=20); s.set_defaults(fn=cmd_solicitudes)
     s = sub.add_parser("exportar"); s.add_argument("archivo", nargs="?", default="solicitudes.csv"); s.set_defaults(fn=cmd_exportar)
     s = sub.add_parser("estado")

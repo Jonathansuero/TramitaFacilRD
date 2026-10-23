@@ -2,6 +2,20 @@
 
 Gestoría digital dominicana para **quienes viven en RD**, **dominicanos en EE.UU.**, **dominicanos en España y Europa** y **extranjeros**.
 
+## App instalable (Android, iPhone y computadora)
+
+El sitio se instala como una app desde el navegador, sin Play Store ni App Store:
+
+| Qué | Cómo funciona |
+|---|---|
+| **Instalar** | Android / Chrome / Edge: botón **"Instalar app"** (encabezado y menú) y un aviso en el teléfono. iPhone: el aviso muestra los pasos (Compartir → *Agregar a inicio*). |
+| **Modo app** | Al abrirla desde el ícono se ve a pantalla completa con una **barra inferior**: Inicio, Servicios, Cotizar, Rastrear y WhatsApp. Al mantener presionado el ícono aparecen accesos directos a Calculadoras, Rastrear e Iniciar trámite. |
+| **Sin internet** | Las páginas, el catálogo y las calculadoras funcionan sin conexión (`sw.js`). Si se pide algo no guardado, aparece `offline.html`. Solicitudes y rastreo (`/api/`) siempre van en vivo. |
+| **Actualizaciones** | `python manage.py build` pone una versión nueva en `sw.js`; los teléfonos muestran **"Hay una versión nueva · Actualizar"**. |
+
+Archivos: `site.webmanifest`, `sw.js`, `offline.html`, `assets/img/app/` (íconos 192/512, adaptables y de iPhone).
+**Requisito:** el sitio debe estar publicado con **HTTPS** (o en `localhost` para pruebas); sin HTTPS los navegadores no permiten instalarlo.
+
 ## Novedades v3
 
 | Área | Qué hace |
@@ -49,6 +63,9 @@ servicio.html · instituciones.html · diaspora.html
 calculadora.html           Calculadora desglosada + IPI + traspaso vehicular (calculadora.html?s=<servicio>)
 rastreo.html               Rastreo de expedientes (rastreo.html?c=RD-XXXX)
 preguntas.html             Preguntas frecuentes
+site.webmanifest           Datos de la app instalable (nombre, íconos, accesos directos)
+sw.js                      Service worker: modo sin conexión y actualizaciones de la app
+offline.html               Página que se muestra sin internet
 assets/js/cotizador.js     Calculadora desglosada (la usan la portada y calculadora.html)
 assets/js/calculadora.js   Pestaña de calculadoras (IPI y traspaso)
 assets/js/rastreo.js       Lógica del rastreo
