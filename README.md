@@ -95,6 +95,14 @@ python app.py                      # http://localhost:5000
 gunicorn app:app --bind 0.0.0.0:$PORT
 ```
 
+**VPS con Ubuntu (Hostinger u otro) en un solo paso** — instala la página, Nginx, HTTPS, firewall, respaldos diarios y el comando `tramita`:
+
+```bash
+git clone https://github.com/Jonathansuero/TramitaFacilRD.git /opt/tramitafacil
+cd /opt/tramitafacil && bash tools/instalar_vps.sh tudominio.com tucorreo@ejemplo.com
+tramita ayuda
+```
+
 ## Tareas del día a día
 
 ```bash
