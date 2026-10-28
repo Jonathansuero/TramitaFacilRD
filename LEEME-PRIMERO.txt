@@ -1,0 +1,40 @@
+TRAMITAFÁCIL RD — CÓMO CORRERLO EN TU COMPUTADORA
+==================================================
+
+1) INSTALA PYTHON (solo una vez)
+   - Descárgalo de https://www.python.org/downloads/ (versión 3.9 o más nueva).
+   - En Windows, al instalar, marca la casilla "Add Python to PATH".
+
+2) ABRE LA PÁGINA
+   - Windows: doble clic en  INICIAR-WINDOWS.bat
+   - Mac:     doble clic en  INICIAR-MAC.command
+              (si Mac no te deja: clic derecho > Abrir > Abrir)
+   - La primera vez instala lo necesario (necesitas internet) y te pide
+     crear la contraseña del panel.
+   - Se abre sola en tu navegador:  http://localhost:5000
+
+3) TU PANEL DE ADMINISTRACIÓN
+   - http://localhost:5000/admin.html  (con la contraseña que creaste)
+   - Ves las solicitudes, mueves cada trámite paso a paso, creas
+     expedientes para clientes de WhatsApp y descargas el Excel.
+
+4) DESDE TU CELULAR (misma red WiFi)
+   - Abre el iniciador con la opción --red:
+       Windows: en la carpeta, escribe en la barra de dirección  cmd  y luego:
+                py iniciar_local.py --red
+       Mac:     python3 iniciar_local.py --red
+   - La ventana te muestra la dirección, por ejemplo http://192.168.1.20:5000
+
+5) CAMBIAR LA CONTRASEÑA DEL PANEL
+   - py iniciar_local.py --clave   (Windows)   ·   python3 iniciar_local.py --clave   (Mac)
+
+6) TUS DATOS
+   - Todo se guarda en la carpeta  instance  (archivo tramitafacil.db).
+   - Haz una copia de esa carpeta de vez en cuando.
+
+IMPORTANTE
+   - La página solo funciona mientras la ventana negra esté abierta y la
+     computadora encendida. Tus clientes en internet NO pueden verla: es
+     para uso interno y pruebas. Para publicarla en internet, usa el VPS
+     (instrucciones en README.md, sección "VPS con Ubuntu").
+   - El aviso por correo no está activo en este modo.

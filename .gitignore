@@ -6,3 +6,4 @@ instance/
 solicitudes.csv
 node_modules/
 .pytest_cache/
+.venv/
