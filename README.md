@@ -138,3 +138,11 @@ npx @tailwindcss/cli -i assets/css/tailwind.src.css -o assets/css/tailwind.css -
 - Dominio configurado: `tramitafacilrd.com` (`config.sitio`). Direcciones limpias sin `.html`; los enlaces viejos `.html` redirigen solos.
 - Google Analytics (G-YH24Q9XVZQ) va en el `<head>` de todas las páginas públicas (no en el panel).
 - Tasas de respaldo USD/EUR (`config.tasas_respaldo`).
+
+## Instalar en un VPS que ya usa Docker (nginx-proxy + acme-companion)
+Si el servidor ya tiene otras aplicaciones con nginx-proxy, no uses `instalar_vps.sh` (chocaría con los puertos 80/443).
+Usa la versión Docker, que agrega TramitaFácil como un contenedor más y nginx-proxy le pone el dominio y el HTTPS:
+```
+curl -fsSL https://raw.githubusercontent.com/Jonathansuero/TramitaFacilRD/main/tools/instalar_docker.sh | bash
+```
+Después: `tramita actualizar`, `tramita clave`, `tramita respaldo`, `tramita logs`.
