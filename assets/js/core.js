@@ -152,6 +152,34 @@
     }
     function setMoneda(cur) { state.moneda = cur; store.set('tf_moneda', cur); emit('moneda', cur); }
 
+    // ---------------- Contacto: WhatsApp con código de país + correo (formularios de solicitud)
+    const PREFIJOS = [['DO', '1'], ['US', '1'], ['PR', '1'], ['CA', '1'], ['ES', '34'], ['IT', '39'], ['FR', '33'], ['DE', '49'],
+        ['CH', '41'], ['NL', '31'], ['BE', '32'], ['PT', '351'], ['GB', '44'], ['IE', '353'], ['AT', '43'], ['SE', '46'], ['NO', '47'],
+        ['MX', '52'], ['PA', '507'], ['CO', '57'], ['VE', '58'], ['EC', '593'], ['PE', '51'], ['CL', '56'], ['AR', '54'], ['BR', '55'],
+        ['CU', '53'], ['HT', '509'], ['CR', '506'], ['GT', '502'], ['HN', '504'], ['SV', '503'], ['NI', '505'], ['UY', '598'], ['PY', '595'], ['BO', '591']];
+    const contacto = {
+        prefijoInicial() {
+            if (state.detalle && PREFIJOS.some(([iso]) => iso === state.detalle)) return state.detalle;
+            return { rd: 'DO', us: 'US', es: 'ES', ext: 'US', mundo: 'US' }[state.pais] || 'DO';
+        },
+        /** Llena el selector de código de país y ajusta el ejemplo del número. */
+        llenar(sel, tel, iso) {
+            sel.innerHTML = PREFIJOS.map(([i, c]) => `<option value="${i}">${flagOf(i)} +${c} · ${esc(countryName(i))}</option>`).join('');
+            sel.value = iso;
+            if (tel) tel.placeholder = { DO: '809 555 1234', US: '305 555 1234', ES: '612 345 678', IT: '312 345 6789' }[iso] || '600 000 000';
+        },
+        /** "+1 8095551234": si escribe el número con + o 00, se respeta tal cual. */
+        whatsapp(iso, crudo) {
+            crudo = String(crudo || '').trim();
+            const dig = crudo.replace(/\D/g, '');
+            if (!dig) return '';
+            if (crudo.startsWith('+') || crudo.startsWith('00')) return '+' + dig.replace(/^00/, '');
+            return `+${(PREFIJOS.find(([i]) => i === iso) || ['DO', '1'])[1]} ${dig}`;
+        },
+        waValido: wa => { const n = wa.replace(/\D/g, '').length; return n >= 8 && n <= 15; },
+        correoValido: e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)
+    };
+
     // ---------------- API (opcional, solo con app.py)
     async function api(path, opts = {}) {
         if (!state.api) throw new Error('offline');
@@ -525,7 +553,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     window.TF = {
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
-        t, tc, applyI18n, money, waLink, saludo, lugar, toast, api, apiLista,
+        t, tc, applyI18n, money, waLink, saludo, lugar, toast, api, apiLista, contacto,
         setLang, setPais, setCountry, setMoneda, on, emit,
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };

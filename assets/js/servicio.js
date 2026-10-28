@@ -3,6 +3,7 @@
     'use strict';
     const TF = window.TF; if (!TF) return;
     const { D, C, PAISES, SERV, state, $, $$, esc, t, tc, money, waLink, saludo, toast, restart } = TF;
+    const ct = TF.contacto;
 
     const keys = Object.keys(SERV);
     let id = new URLSearchParams(location.search).get('id');
@@ -39,7 +40,7 @@
             : `<p class="text-sm text-slate-500">${esc(t('serv.sininst'))}</p>`;
 
         precio();
-        $('sSolicitar').href = `index.html#solicitar=${id}`;
+        $('cTitulo').textContent = tr.title;
 
         // relacionados y navegación anterior/siguiente
         renderRelacionados();
@@ -87,7 +88,7 @@
                 </div>
             </div>
             <div class="rel-acciones">
-                <a class="rel-btn rel-btn-rojo" href="index.html#solicitar=${encodeURIComponent(k)}">${esc(t('serv.solicitar'))}</a>
+                <button type="button" class="rel-btn rel-btn-rojo" data-rel-solicitar="${k}">${esc(t('serv.solicitar'))}</button>
                 <a class="rel-btn rel-btn-verde" target="_blank" rel="noopener" href="${waLink(saludo(t('wa.servicio', { s: tr.title, total })))}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
                 <a class="rel-btn rel-btn-borde" href="index.html#cotizar=${encodeURIComponent(k)}">${esc(t('cat.cotizar'))}</a>
                 <button type="button" class="rel-btn rel-btn-azul" data-rel-ficha="${k}">${esc(t('serv.rel.ficha'))} <i class="fa-solid fa-arrow-right"></i></button>
@@ -114,6 +115,92 @@
         if (abierto) colocarDetalle(true); else $$('#sRel .rel-detalle').forEach(n => n.remove());
     }
 
+    // ---------------- Confirmar la solicitud sin salir de la ficha
+    let prefijoTocado = false;
+    function irAConfirmar(suave = true) {
+        $('confirmar').scrollIntoView({ behavior: suave ? 'smooth' : 'instant', block: 'start' });
+        setTimeout(() => $('cNombre').focus({ preventScroll: true }), suave ? 450 : 0);
+    }
+    function renderConfirmar() {
+        ct.llenar($('cPrefijo'), $('cTel'), prefijoTocado ? $('cPrefijo').value : ct.prefijoInicial());
+        const actual = $('cPais').value || state.pais;
+        $('cPais').innerHTML = Object.keys(PAISES).map(k => `<option value="${k}">${PAISES[k].bandera} ${esc(tc('paises', k).nombre)}</option>`).join('');
+        $('cPais').value = PAISES[actual] ? actual : state.pais;
+    }
+    function datosConfirmar() {
+        const wa = ct.whatsapp($('cPrefijo').value, $('cTel').value), email = $('cEmail').value.trim();
+        return { nombre: $('cNombre').value.trim(), whatsapp: wa, email, contacto: [wa, email].filter(Boolean).join(' · '),
+            pais: $('cPais').value, servicio: id, mensaje: $('cMensaje').value.trim(), acepta: $('cAcepta').checked, web: $('cWeb').value,
+            express: $('pExp').checked, envio: $('pEnv').checked, moneda: state.moneda, idioma: state.lang, pais_detalle: state.detalle || '' };
+    }
+    function validarConfirmar(d) {
+        const err = [];
+        $$('#cForm .input').forEach(i => i.classList.remove('is-invalid'));
+        if (d.nombre.length < 2) { err.push(t('sol.e.nombre')); $('cNombre').classList.add('is-invalid'); }
+        if (!d.whatsapp && !d.email) { err.push(t('sol.e.contacto')); $('cTel').classList.add('is-invalid'); $('cEmail').classList.add('is-invalid'); }
+        else {
+            if (d.whatsapp && !ct.waValido(d.whatsapp)) { err.push(t('sol.e.wa')); $('cTel').classList.add('is-invalid'); }
+            if (d.email && !ct.correoValido(d.email)) { err.push(t('sol.e.email')); $('cEmail').classList.add('is-invalid'); }
+        }
+        if (!d.acepta) err.push(t('sol.e.acepta'));
+        return err.length ? t('sol.e.falta', { lista: err.join(', ') }) : '';
+    }
+    function mensajeConfirmar(d, codigo) {
+        return [t('wa.cot.hola'), '',
+            codigo ? `${t('wa.sol.codigo')}: *${codigo}*` : null,
+            `${t('wa.cot.servicio')}: *${tc('servicios', d.servicio).title}*`,
+            `${t('calc.total')}: ${$('pTotal').textContent}${(d.express || d.envio) ? ` (${[d.express && t('calc.exp'), d.envio && t('calc.envio')].filter(Boolean).join(' + ')})` : ''}`,
+            `${t('wa.sol.nombre')}: ${d.nombre}`,
+            `${t('wa.sol.reside')}: ${TF.lugar()}`,
+            d.whatsapp ? `${t('wa.sol.whatsapp')}: ${d.whatsapp}` : null,
+            d.email ? `${t('wa.sol.email')}: ${d.email}` : null,
+            d.mensaje ? `${t('wa.sol.detalles')}: ${d.mensaje}` : null].filter(x => x !== null).join('\n');
+    }
+    function mostrarError(msg) { const e = $('cError'); e.textContent = msg; e.classList.toggle('hidden', !msg); if (msg) restart(e, 'shake'); }
+    function mostrarCodigo(codigo, d) {
+        const ok = $('cOk'); ok.classList.remove('hidden');
+        ok.innerHTML = codigo
+            ? `<div class="font-bold text-base">✅ ${esc(t('ok.t'))}</div>
+               <p class="mt-1">${esc(t('ok.codigo'))}</p>
+               <div class="conf-codigo">${esc(codigo)}</div>
+               <p class="text-xs text-emerald-800">${esc(t('ok.guarda'))}</p>
+               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo.html?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
+               <button type="button" class="border border-emerald-300 bg-white text-xs font-bold px-4 py-2 rounded-lg" data-copiar-codigo="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
+               <a class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg" target="_blank" rel="noopener" href="${waLink(mensajeConfirmar(d, codigo))}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('ok.confirmar'))}</a></div>`
+            : `<div class="font-bold">✅ ${esc(t('ok.wa.t'))}</div><p class="mt-1">${esc(t('ok.wa.d'))}</p>`;
+        restart(ok, 'pop');
+        ['cNombre', 'cTel', 'cEmail', 'cMensaje'].forEach(i => { $(i).value = ''; }); $('cAcepta').checked = false;
+        mostrarError(''); ok.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function initConfirmar() {
+        renderConfirmar();
+        $('sSolicitar').addEventListener('click', e => { e.preventDefault(); irAConfirmar(); });
+        $('cPrefijo').addEventListener('change', () => { prefijoTocado = true; renderConfirmar(); $('cTel').focus(); });
+        $('cPais').addEventListener('change', e => TF.setPais(e.target.value, { animate: false }));
+        $('cForm').addEventListener('input', e => { if (e.target.classList.contains('is-invalid')) { e.target.classList.remove('is-invalid'); if (!$('cForm').querySelector('.is-invalid')) mostrarError(''); } });
+        $('cForm').addEventListener('click', async e => {
+            const b = e.target.closest('[data-copiar-codigo]'); if (!b) return;
+            try { await navigator.clipboard.writeText(b.dataset.copiarCodigo); toast(t('toast.copiado')); } catch (err) { toast(b.dataset.copiarCodigo); }
+        });
+        $('cForm').addEventListener('submit', async e => {
+            e.preventDefault();
+            const d = datosConfirmar(), msg = validarConfirmar(d);
+            mostrarError(msg); if (msg) return;
+            const btn = $('cEnviar'); btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${esc(t('sol.enviando'))}`;
+            try {
+                if (!state.api) { window.open(waLink(mensajeConfirmar(d)), '_blank', 'noopener'); mostrarCodigo(null, d); return; }
+                const r = await TF.api('/solicitud', { method: 'POST', body: JSON.stringify(d) });
+                mostrarCodigo(r.codigo, d);
+            } catch (err) { mostrarError(err.message === 'offline' ? t('sol.e.offline') : err.message); }
+            finally { btn.disabled = false; btn.textContent = t('conf.enviar'); }
+        });
+        $('cWa').addEventListener('click', () => {
+            const d = datosConfirmar(), msg = validarConfirmar({ ...d, acepta: true });
+            mostrarError(msg); if (msg) return;
+            window.open(waLink(mensajeConfirmar(d)), '_blank', 'noopener');
+        });
+    }
+
     function progreso() {
         const boxes = $$('.s-check'), c = boxes.filter(b => b.checked).length, pct = boxes.length ? Math.round(c / boxes.length * 100) : 0;
         $('sReqBar').style.width = pct + '%'; $('sReqPct').textContent = t('req.listo', { pct });
@@ -129,6 +216,10 @@
         $('pTotal').textContent = money(s.tax + s.fee + (exp ? C.express_fee : 0) + (env ? C.delivery_fee : 0));
         restart($('pTotal'), 'bump');
         $('sWa').href = waLink(saludo(t('wa.servicio', { s: tc('servicios', id).title, total: $('pTotal').textContent })));
+        // resumen del bloque "Confirma tu solicitud"
+        $('cTotal').textContent = $('pTotal').textContent;
+        const extras = [exp && t('calc.exp'), env && t('calc.envio')].filter(Boolean);
+        $('cExtras').textContent = extras.length ? t('conf.extras', { lista: extras.join(' + ') }) : t('conf.sinextras');
     }
 
     /** Cambia de servicio sin recargar la página (relacionados, anterior/siguiente y botón atrás). */
@@ -143,9 +234,12 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         render();
+        initConfirmar();
+        precio();
         history.replaceState({ id }, '', location.href);
         $('sRel').addEventListener('click', e => {
             const f = e.target.closest('[data-rel-ficha]'); if (f) { abierto = null; irA(f.dataset.relFicha); return; }
+            const so = e.target.closest('[data-rel-solicitar]'); if (so) { abierto = null; irA(so.dataset.relSolicitar); irAConfirmar(false); return; }
             if (e.target.closest('[data-rel-cerrar]')) { abrirRelacionado(abierto); return; }
             const c = e.target.closest('[data-rel]'); if (c) abrirRelacionado(c.dataset.rel);
         });
@@ -165,6 +259,7 @@
             const title = tc('servicios', id).title;
             try { if (navigator.share) await navigator.share({ title, url }); else { await navigator.clipboard.writeText(url); toast(t('toast.enlace')); } } catch (e) { /* cancelado */ }
         });
-        TF.on('lang', render); TF.on('pais', render); TF.on('moneda', precio);
+        TF.on('lang', () => { render(); renderConfirmar(); }); TF.on('pais', () => { render(); renderConfirmar(); }); TF.on('moneda', precio);
+        if (location.hash === '#confirmar') setTimeout(() => irAConfirmar(false), 50);
     });
 })();

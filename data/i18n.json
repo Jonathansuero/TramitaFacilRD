@@ -1311,6 +1311,56 @@
       "Close",
       "Fermer"
     ],
+    "conf.eyebrow": [
+      "Último paso",
+      "Last step",
+      "Dernière étape"
+    ],
+    "conf.t": [
+      "Confirma tu solicitud aquí mismo",
+      "Confirm your request right here",
+      "Confirmez votre demande ici même"
+    ],
+    "conf.sub": [
+      "Llena tus datos y recibe al instante tu código para darle seguimiento a tu trámite.",
+      "Fill in your details and instantly get your code to track your request.",
+      "Remplissez vos coordonnées et recevez immédiatement votre code de suivi."
+    ],
+    "conf.tramite": [
+      "Trámite",
+      "Service",
+      "Démarche"
+    ],
+    "conf.extras": [
+      "Incluye: {lista}",
+      "Includes: {lista}",
+      "Inclut : {lista}"
+    ],
+    "conf.sinextras": [
+      "Sin servicio express ni envío (puedes marcarlos en el resumen).",
+      "No express or delivery (you can add them in the summary).",
+      "Sans express ni envoi (vous pouvez les ajouter dans le résumé)."
+    ],
+    "conf.p1": [
+      "Recibes tu código de seguimiento al instante.",
+      "You get your tracking code instantly.",
+      "Vous recevez votre code de suivi immédiatement."
+    ],
+    "conf.p2": [
+      "Un gestor te escribe para validar documentos y pago.",
+      "An agent contacts you to confirm documents and payment.",
+      "Un gestionnaire vous contacte pour valider documents et paiement."
+    ],
+    "conf.p3": [
+      "Sigues cada avance en Rastrear con tu código.",
+      "Follow every step in Track with your code.",
+      "Suivez chaque étape dans Suivi avec votre code."
+    ],
+    "conf.enviar": [
+      "Confirmar y recibir mi código",
+      "Confirm and get my code",
+      "Confirmer et recevoir mon code"
+    ],
     "serv.anterior": [
       "Servicio anterior",
       "Previous service",

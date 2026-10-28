@@ -75,7 +75,7 @@
                         <p class="text-[11px] text-slate-400 italic" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
                     </div>
                     <div class="grid gap-2 mt-5">
-                        <a id="sSolicitar" href="#" class="bg-domRed hover:bg-red-700 text-center font-bold py-3 rounded-xl text-sm" data-i18n="serv.solicitar">Solicitar este trámite</a>
+                        <a id="sSolicitar" href="#confirmar" class="bg-domRed hover:bg-red-700 text-center font-bold py-3 rounded-xl text-sm" data-i18n="serv.solicitar">Solicitar este trámite</a>
                         <a id="sWa" href="#" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-600 text-center font-bold py-3 rounded-xl text-sm"><i class="fa-brands fa-whatsapp mr-1"></i> <span data-i18n="serv.wa">Consultar por WhatsApp</span></a>
                         <button id="sShare" class="bg-white/10 hover:bg-white/20 border border-white/20 font-bold py-2.5 rounded-xl text-xs"><i class="fa-solid fa-share-nodes mr-1"></i> <span data-i18n="serv.compartir">Compartir este trámite</span></button>
                     </div>
@@ -86,6 +86,56 @@
                     <a href="diaspora.html" class="font-bold text-domBlue hover:underline" data-i18n="pres.guia">Ver la guía para la diáspora</a>
                 </div>
             </aside>
+        </div>
+    </section>
+
+    <section id="confirmar" class="pb-14 scroll-mt-24">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6">
+            <div class="conf-card">
+                <div class="conf-lado">
+                    <span class="eyebrow bg-white/15 text-white" data-i18n="conf.eyebrow">Último paso</span>
+                    <h2 class="font-display text-2xl sm:text-3xl font-extrabold mt-3" data-i18n="conf.t">Confirma tu solicitud aquí mismo</h2>
+                    <p class="text-slate-300 text-sm mt-2" data-i18n="conf.sub">Llena tus datos y recibe al instante tu código para darle seguimiento a tu trámite.</p>
+                    <div class="conf-resumen">
+                        <p class="conf-rt" data-i18n="conf.tramite">Trámite</p>
+                        <p id="cTitulo" class="font-bold text-white leading-snug"></p>
+                        <p id="cExtras" class="text-xs text-slate-300 mt-1"></p>
+                        <div class="flex items-baseline justify-between gap-3 border-t border-white/15 mt-3 pt-3">
+                            <span class="text-xs uppercase font-bold tracking-wider text-slate-400" data-i18n="calc.total">Total estimado</span>
+                            <strong id="cTotal" class="text-2xl font-black text-domGold tabular-nums"></strong>
+                        </div>
+                    </div>
+                    <ul class="conf-pasos">
+                        <li><i class="fa-solid fa-hashtag" aria-hidden="true"></i><span data-i18n="conf.p1">Recibes tu código de seguimiento al instante.</span></li>
+                        <li><i class="fa-brands fa-whatsapp" aria-hidden="true"></i><span data-i18n="conf.p2">Un gestor te escribe para validar documentos y pago.</span></li>
+                        <li><i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i><span data-i18n="conf.p3">Sigues cada avance en Rastrear con tu código.</span></li>
+                    </ul>
+                </div>
+                <form id="cForm" class="conf-form" novalidate>
+                    <div><label for="cNombre" class="form-label" data-i18n="sol.nombre">Nombre completo</label><input id="cNombre" name="nombre" required maxlength="80" autocomplete="name" class="input"></div>
+                    <div class="grid sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="cTel" class="form-label"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i><span data-i18n="sol.whatsapp">WhatsApp</span></label>
+                            <div class="tel-grupo">
+                                <select id="cPrefijo" class="input tel-prefijo" data-i18n-aria="sol.prefijo"></select>
+                                <input id="cTel" type="tel" inputmode="tel" maxlength="20" autocomplete="tel-national" class="input">
+                            </div>
+                        </div>
+                        <div><label for="cEmail" class="form-label"><i class="fa-regular fa-envelope text-domBlue mr-1" aria-hidden="true"></i><span data-i18n="sol.email">Correo electrónico</span></label><input id="cEmail" type="email" inputmode="email" maxlength="80" autocomplete="email" placeholder="nombre@correo.com" class="input"></div>
+                    </div>
+                    <p class="text-[11px] text-slate-500 -mt-2" data-i18n="sol.contacto.ayuda">Déjanos tu WhatsApp, tu correo o ambos.</p>
+                    <div><label for="cPais" class="form-label" data-i18n="sol.pais">¿Dónde resides?</label><select id="cPais" class="input"></select></div>
+                    <div><label for="cMensaje" class="form-label" data-i18n="sol.detalles">Detalles (opcional)</label><textarea id="cMensaje" rows="3" maxlength="1000" class="input" data-i18n-ph="sol.ph"></textarea></div>
+                    <input type="text" id="cWeb" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">
+                    <label class="flex items-start gap-2 text-xs text-slate-600"><input type="checkbox" id="cAcepta" class="mt-0.5 rounded text-domBlue"> <span data-i18n="sol.acepto">Acepto que TramitaFácil RD use estos datos solo para contactarme y gestionar mi trámite.</span></label>
+                    <p id="cError" class="hidden text-xs font-semibold text-red-600" role="alert"></p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button id="cEnviar" type="submit" class="flex-1 bg-domRed hover:bg-red-700 text-white font-bold py-3.5 rounded-xl shadow-md text-sm" data-i18n="conf.enviar">Confirmar y recibir mi código</button>
+                        <button id="cWa" type="button" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl text-sm"><i class="fa-brands fa-whatsapp mr-1"></i> <span data-i18n="sol.wa">Enviar por WhatsApp</span></button>
+                    </div>
+                    <div id="cOk" class="hidden rounded-2xl bg-emerald-50 border border-emerald-200 p-5 text-sm text-emerald-900" aria-live="polite"></div>
+                </form>
+            </div>
         </div>
     </section>
 

@@ -248,33 +248,14 @@
     // ============================================================
     // SOLICITUD
     // ============================================================
-    // ---------------- WhatsApp con código de país + correo
-    const PREFIJOS = [['DO', '1'], ['US', '1'], ['PR', '1'], ['CA', '1'], ['ES', '34'], ['IT', '39'], ['FR', '33'], ['DE', '49'],
-        ['CH', '41'], ['NL', '31'], ['BE', '32'], ['PT', '351'], ['GB', '44'], ['IE', '353'], ['AT', '43'], ['SE', '46'], ['NO', '47'],
-        ['MX', '52'], ['PA', '507'], ['CO', '57'], ['VE', '58'], ['EC', '593'], ['PE', '51'], ['CL', '56'], ['AR', '54'], ['BR', '55'],
-        ['CU', '53'], ['HT', '509'], ['CR', '506'], ['GT', '502'], ['HN', '504'], ['SV', '503'], ['NI', '505'], ['UY', '598'], ['PY', '595'], ['BO', '591']];
-    const PREFIJO_POR_PAIS = { rd: 'DO', us: 'US', es: 'ES', ext: 'US', mundo: 'US' };
+    // ---------------- WhatsApp con código de país + correo (utilidades en core.js)
     let prefijoTocado = false;
-    function prefijoInicial() {
-        const det = state.detalle && PREFIJOS.some(([iso]) => iso === state.detalle) ? state.detalle : null;
-        return det || PREFIJO_POR_PAIS[state.pais] || 'DO';
-    }
     function renderPrefijos() {
-        const sel = $('fPrefijo'), actual = prefijoTocado ? sel.value : prefijoInicial();
-        sel.innerHTML = PREFIJOS.map(([iso, c]) => `<option value="${iso}">${flagOf(iso)} +${c} · ${esc(countryName(iso))}</option>`).join('');
-        sel.value = actual;
-        $('fTel').placeholder = { DO: '809 555 1234', US: '305 555 1234', ES: '612 345 678', IT: '312 345 6789' }[actual] || '600 000 000';
+        const sel = $('fPrefijo');
+        TF.contacto.llenar(sel, $('fTel'), prefijoTocado ? sel.value : TF.contacto.prefijoInicial());
     }
-    /** "+1 8095551234": si escribe el número con +, se respeta tal cual. */
-    function whatsapp() {
-        const crudo = $('fTel').value.trim();
-        const dig = crudo.replace(/\D/g, '');
-        if (!dig) return '';
-        if (crudo.startsWith('+') || crudo.startsWith('00')) return '+' + dig.replace(/^00/, '');
-        const code = (PREFIJOS.find(([iso]) => iso === $('fPrefijo').value) || ['DO', '1'])[1];
-        return `+${code} ${dig}`;
-    }
-    const correoValido = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+    const whatsapp = () => TF.contacto.whatsapp($('fPrefijo').value, $('fTel').value);
+    const correoValido = TF.contacto.correoValido;
 
     function datosForm() {
         const f = $('solicitudForm');

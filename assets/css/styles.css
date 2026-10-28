@@ -470,3 +470,17 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .rel-btn-borde { border: 1px solid var(--borde); color: var(--azul); background: #fff; } .rel-btn-borde:hover { border-color: var(--azul); }
 .rel-btn-azul { margin-left: auto; color: var(--azul); } .rel-btn-azul:hover { color: var(--rojo); }
 @media (max-width: 639px) { .rel-btn { flex: 1 1 calc(50% - 8px); } .rel-btn-azul { margin-left: 0; flex-basis: 100%; } }
+
+/* ---------- Ficha de servicio: confirmar la solicitud aquí mismo */
+.conf-card { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); background: #fff; border: 1px solid var(--borde); border-radius: 1.75rem; overflow: hidden; box-shadow: 0 24px 50px -32px rgba(0,45,98,.55); }
+@media (max-width: 1023px) { .conf-card { grid-template-columns: minmax(0, 1fr); } }
+.conf-lado { background: linear-gradient(150deg, #002D62 0%, #0b2347 60%, #0f172a 100%); color: #fff; padding: 2rem; }
+.conf-resumen { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 1rem; padding: 1rem 1.1rem; margin-top: 1.4rem; }
+.conf-rt { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #94a3b8; margin-bottom: 4px; }
+.conf-pasos { display: grid; gap: 10px; margin-top: 1.4rem; font-size: 13px; color: #cbd5e1; }
+.conf-pasos li { display: flex; gap: 10px; align-items: flex-start; }
+.conf-pasos i { width: 26px; height: 26px; flex-shrink: 0; border-radius: 8px; background: rgba(212,175,55,.18); color: #D4AF37; display: grid; place-items: center; font-size: 12px; }
+.conf-form { padding: 2rem; display: grid; gap: 1rem; align-content: start; background: #f8fafc; }
+@media (max-width: 639px) { .conf-lado, .conf-form { padding: 1.4rem; } }
+.conf-codigo { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 28px; font-weight: 800; letter-spacing: .06em; color: #002D62; background: #fff; border: 2px dashed #6ee7b7; border-radius: 14px; padding: 10px 16px; margin: 10px 0 6px; text-align: center; }
+#confirmar { scroll-margin-top: 88px; }
