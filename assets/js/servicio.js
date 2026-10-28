@@ -68,27 +68,13 @@
     }
 
     /** Cambia de servicio sin recargar la página (relacionados, anterior/siguiente y botón atrás). */
-    let cambiando = false;
-    async function irA(nuevo, { guardar = true } = {}) {
-        if (!SERV[nuevo] || nuevo === id || cambiando) return;
-        cambiando = true;
-        const main = $('main'), quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        const aplicar = () => {
-            id = nuevo;
-            $('pExp').checked = false; $('pEnv').checked = false;
-            render();
-            if (guardar) history.pushState({ id }, '', `servicio.html?id=${encodeURIComponent(id)}`);
-            window.scrollTo({ top: 0, behavior: 'instant' });
-        };
-        if (document.startViewTransition && !quieto) {
-            await document.startViewTransition(aplicar).finished.catch(() => {});
-        } else if (!quieto) {
-            main.classList.add('tf-sale');
-            await new Promise(r => setTimeout(r, 180));
-            aplicar();
-            main.classList.remove('tf-sale'); restart(main, 'tf-entra');
-        } else aplicar();
-        cambiando = false;
+    function irA(nuevo, { guardar = true } = {}) {
+        if (!SERV[nuevo] || nuevo === id) return;
+        id = nuevo;
+        $('pExp').checked = false; $('pEnv').checked = false;
+        render();
+        if (guardar) history.pushState({ id }, '', `servicio.html?id=${encodeURIComponent(id)}`);
+        window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
     document.addEventListener('DOMContentLoaded', () => {

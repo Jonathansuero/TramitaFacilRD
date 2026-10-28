@@ -530,11 +530,9 @@ ${ES_APP ? renderTabbar() : ''}`;
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };
 
-    /** Cambio de página rápido:
-        1) Precarga: al pasar el dedo o el mouse sobre un enlace, la página siguiente se prepara antes del clic
-           (Chrome/Edge la dejan lista por completo con Speculation Rules; los demás la descargan con prefetch).
-        2) Transición corta: View Transitions en navegadores modernos (CSS) o una entrada suave de 0,2 s en los demás. */
-    function transicionesSuaves() {
+    /** Cambio de página rápido: al pasar el dedo o el mouse sobre un enlace, la página siguiente se prepara antes del clic
+        (Chrome/Edge la dejan lista con Speculation Rules; los demás la descargan con prefetch). Sin animación de transición. */
+    function precargarPaginas() {
         const internas = a => {
             if (!a || a.target === '_blank' || a.hasAttribute('download')) return null;
             const url = new URL(a.href, location.href);
@@ -560,8 +558,6 @@ ${ES_APP ? renderTabbar() : ''}`;
             };
             ['pointerover', 'touchstart', 'focusin'].forEach(ev => document.addEventListener(ev, precargar, { passive: true }));
         }
-        if ('onpagereveal' in window || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;  // el CSS ya hace la transición
-        const main = $('main'); if (main) main.classList.add('tf-entra');
     }
 
     // Se dibuja de inmediato (el script va al final del body) para que la página pueda usar los elementos.
@@ -573,5 +569,5 @@ ${ES_APP ? renderTabbar() : ''}`;
     iniciarApp();
     setInterval(tickTopbar, 15000);
     document.addEventListener('DOMContentLoaded', () => { reveal(); detectarApi(); setTimeout(sugerirIdioma, 1200); });
-    transicionesSuaves();
+    precargarPaginas();
 })();
