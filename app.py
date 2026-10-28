@@ -663,6 +663,23 @@ def archivo_raiz(nombre: str):
     abort(404)
 
 
+# Pausa (mantenimiento): con TF_PAUSA=1 los visitantes ven "Volvemos pronto"; el panel /admin sigue funcionando.
+@app.before_request
+def pausa():
+    if os.environ.get("TF_PAUSA") != "1":
+        return None
+    ruta = request.path
+    if ruta == "/admin" or ruta.startswith(("/api/admin", "/assets/")) or ruta in ("/robots.txt", "/sw.js"):
+        return None
+    if ruta.startswith("/api/"):
+        return error("Estamos en mantenimiento. Escríbenos por WhatsApp: +1 (849) 270-1295.", 503)
+    resp = send_from_directory(BASE_DIR, "pausa.html")
+    resp.status_code = 503
+    resp.headers["Retry-After"] = "1800"
+    resp.headers["Cache-Control"] = "no-store"
+    return resp
+
+
 @app.after_request
 def cabeceras(resp):
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")

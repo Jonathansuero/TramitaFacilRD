@@ -158,6 +158,8 @@ case "${1:-ayuda}" in
   precio) shift; py precio "$@" && systemctl restart tramitafacil ;;
   correo) ${EDITOR:-nano} /etc/tramitafacil.env && systemctl restart tramitafacil && echo "Listo, servicio reiniciado." ;;
   reiniciar) systemctl restart tramitafacil && echo "Servicio reiniciado." ;;
+  pausar) sed -i '/^TF_PAUSA=/d' /etc/tramitafacil.env && echo "TF_PAUSA=1" >> /etc/tramitafacil.env && systemctl restart tramitafacil && echo "Página en pausa. Para volver: tramita reanudar" ;;
+  reanudar) sed -i '/^TF_PAUSA=/d' /etc/tramitafacil.env && systemctl restart tramitafacil && echo "Página de nuevo en servicio." ;;
   estado-servidor) systemctl --no-pager status tramitafacil ;;
   logs) journalctl -u tramitafacil -n 80 --no-pager ;;
   ssl)
@@ -190,6 +192,7 @@ Comandos de TramitaFácil RD:
   tramita precio <servicio> --honorario N Cambiar un precio
   tramita clave                           Cambiar la contraseña del panel (/admin)
   tramita correo                          Configurar el aviso por correo
+  tramita pausar | reanudar               Pausar la página ("Volvemos pronto") o volver a abrirla
   tramita actualizar                      Traer los últimos cambios de GitHub
   tramita ssl                             Activar o renovar HTTPS
   tramita respaldo                        Hacer un respaldo ahora

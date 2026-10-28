@@ -86,9 +86,15 @@ m() { docker exec -it "$NOMBRE" python manage.py "$@"; }
 case "${1:-ayuda}" in
   arrancar|reiniciar) arrancar && echo "TramitaFácil reiniciado." ;;
   actualizar)
+    # Trae lo último de GitHub y vuelve a correr el instalador (no cambia la contraseña ni borra datos)
     cd "$APP" && git checkout -- sitemap.xml robots.txt && git pull --ff-only
-    sed -i "s/TU-DOMINIO\.com/$DOMINIO/g" sitemap.xml robots.txt
-    docker build -q -t tramitafacil:latest "$APP" >/dev/null && arrancar && echo "Página actualizada desde GitHub." ;;
+    exec bash "$APP/tools/instalar_docker.sh" "$DOMINIO" "$CORREO" ;;
+  pausar)
+    sed -i '/^TF_PAUSA=/d' "$ENVF" && echo "TF_PAUSA=1" >> "$ENVF"
+    arrancar && echo "Página en pausa: los visitantes ven \"Volvemos pronto\". El panel /admin sigue funcionando. Para volver: tramita reanudar" ;;
+  reanudar)
+    sed -i '/^TF_PAUSA=/d' "$ENVF"
+    arrancar && echo "Página de nuevo en servicio." ;;
   clave)
     read -r -s -p "Nueva contraseña del panel (mínimo 8 caracteres): " c1; echo
     read -r -s -p "Repítela: " c2; echo
@@ -109,6 +115,8 @@ case "${1:-ayuda}" in
   logs) docker logs --tail 80 "$NOMBRE" ;;
   *) cat <<AYUDA
 Comandos de TramitaFácil RD (Docker):
+  tramita pausar         Poner la página en pausa ("Volvemos pronto")
+  tramita reanudar       Volver a poner la página en servicio
   tramita actualizar     Traer los últimos cambios de GitHub
   tramita clave          Cambiar la contraseña del panel (/admin)
   tramita correo         Configurar el aviso por correo

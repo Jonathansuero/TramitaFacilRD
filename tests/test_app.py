@@ -237,3 +237,17 @@ def test_direcciones_limpias_y_redireccion(client):
     assert b"G-YH24Q9XVZQ" in client.get("/servicios").data
     assert client.get("/app.py").status_code == 404
     assert client.get("/nada.html").status_code == 404
+
+
+def test_pausa(client):
+    os.environ["TF_PAUSA"] = "1"
+    try:
+        r = client.get("/servicios")
+        assert r.status_code == 503 and "Volvemos pronto".encode() in r.data
+        assert client.get("/").status_code == 503
+        assert client.get("/admin").status_code == 200
+        assert client.get("/assets/css/styles.css").status_code == 200
+        assert client.post("/api/solicitud", json={}).status_code == 503
+    finally:
+        os.environ.pop("TF_PAUSA")
+    assert client.get("/servicios").status_code == 200
