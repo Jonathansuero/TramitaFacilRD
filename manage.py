@@ -23,7 +23,7 @@ import sys
 
 import calculos
 import traducciones
-from app import DB_PATH, PASOS, SCHEMA, ahora, migrar
+from app import DB_PATH, PASOS, SCHEMA, agregar_tramite, ahora, migrar, recalcular, tramites_de
 
 DATA_JS = calculos.BASE_DIR / "assets" / "js" / "data.js"
 
@@ -121,17 +121,23 @@ def cmd_estado(args):
     if args.paso not in PASOS:
         sys.exit("El paso debe ser 1 (Recibido), 2 (Verificado), 3 (En la institución) o 4 (Listo).")
     db = conectar()
-    row = db.execute("SELECT 1 FROM seguimiento WHERE codigo=?", (codigo,)).fetchone()
-    estado = args.estado or PASOS[args.paso]
-    if row:
-        db.execute("UPDATE seguimiento SET paso=?, estado=?, detalle=?, actualizado=? WHERE codigo=?",
-                   (args.paso, estado, args.detalle, ahora(), codigo))
-    else:
+    estado, ts = args.estado or PASOS[args.paso], ahora()
+    items = tramites_de(db, codigo)
+    if not items:
         if not args.servicio or not args.cliente:
             sys.exit("Código nuevo: indica también --servicio y --cliente.")
-        db.execute("INSERT INTO seguimiento VALUES (?,?,?,?,?,?,?)",
-                   (codigo, args.servicio, calculos.nombre_publico(args.cliente), args.paso, estado,
-                    args.detalle, ahora()))
+        db.execute("INSERT INTO seguimiento (codigo, servicio, cliente, paso, estado, detalle, actualizado) VALUES (?,?,?,?,?,?,?)",
+                   (codigo, args.servicio, calculos.nombre_publico(args.cliente), args.paso, estado, args.detalle, ts))
+        tid = agregar_tramite(db, codigo, None, args.servicio, None, ts)
+    elif len(items) == 1 and not args.tramite:
+        tid = items[0]["id"]
+    elif args.tramite and 1 <= args.tramite <= len(items):
+        tid = items[args.tramite - 1]["id"]
+    else:
+        lista = "\n".join(f"  {i}. {t['titulo']} (paso {t['paso']})" for i, t in enumerate(items, 1))
+        sys.exit(f"{codigo} tiene {len(items)} trámites. Indica cuál con --tramite N:\n{lista}")
+    db.execute("UPDATE tramites SET paso=?, estado=?, detalle=?, actualizado=? WHERE id=?", (args.paso, estado, args.detalle, ts, tid))
+    recalcular(db, codigo)
     db.commit()
     print(f"✓ {codigo}: paso {args.paso} ({estado}) — {args.detalle}")
 
@@ -162,6 +168,7 @@ def main():
     s = sub.add_parser("estado")
     s.add_argument("codigo"); s.add_argument("paso", type=int); s.add_argument("detalle")
     s.add_argument("--estado"); s.add_argument("--servicio"); s.add_argument("--cliente")
+    s.add_argument("--tramite", type=int, help="Número del trámite cuando el código tiene varios (1, 2, 3…)")
     s.set_defaults(fn=cmd_estado)
     s = sub.add_parser("precio")
     s.add_argument("servicio"); s.add_argument("--tasa", type=int); s.add_argument("--honorario", type=int)

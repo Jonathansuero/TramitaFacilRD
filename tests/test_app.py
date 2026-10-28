@@ -190,3 +190,40 @@ def test_panel_admin_sin_activar(client):
     os.environ.pop("TF_ADMIN_HASH", None)
     assert not client.get("/api/admin/sesion").json["configurado"]
     assert client.post("/api/admin/login", json={"clave": "x"}).status_code == 503
+
+
+def test_varios_tramites_un_codigo(client):
+    from werkzeug.security import generate_password_hash
+    os.environ["TF_ADMIN_HASH"] = generate_password_hash("x-clave-123")
+    try:
+        client.post("/api/admin/login", json={"clave": "x-clave-123"})
+        r = client.post("/api/admin/nuevo", json={"nombre": "Rosa Almonte", "contacto": "8295550000", "pais": "us",
+                                                  "servicios": [{"servicio": "apostilla_documentos"},
+                                                                {"servicio": "otro", "titulo": "Certificado de buena conducta", "precio": 2500}]})
+        assert r.status_code == 201
+        exp = r.json["expediente"]
+        codigo, items = exp["codigo"], exp["tramites"]
+        assert len(items) == 2 and items[1]["titulo"] == "Certificado de buena conducta"
+        assert exp["total_dop"] == 1620 + 2500
+
+        # cada trámite avanza por su cuenta; el resumen va al ritmo del más atrasado
+        client.post("/api/admin/estado", json={"codigo": codigo, "tramite": items[0]["id"], "paso": 4, "detalle": "Apostilla lista."})
+        t = client.get(f"/api/rastreo/{codigo}").json
+        assert t["step"] == 1 and t["statusText"] == "1 de 2 listos" and t["service"] == "2 trámites"
+        assert [i["step"] for i in t["items"]] == [4, 1]
+
+        # sin indicar el trámite no se sabe cuál mover
+        assert client.post("/api/admin/estado", json={"codigo": codigo, "paso": 2, "detalle": "Hola"}).status_code == 400
+
+        # agregar un tercero al mismo código y luego quitarlo
+        r = client.post("/api/admin/agregar", json={"codigo": codigo, "servicio": "creacion_cv"})
+        assert len(r.json["expediente"]["tramites"]) == 3
+        tercero = r.json["expediente"]["tramites"][2]["id"]
+        assert len(client.post("/api/admin/quitar", json={"codigo": codigo, "tramite": tercero}).json["expediente"]["tramites"]) == 2
+
+        client.post("/api/admin/estado", json={"codigo": codigo, "tramite": items[1]["id"], "paso": 4, "detalle": "Listo."})
+        t = client.get(f"/api/rastreo/{codigo}").json
+        assert t["step"] == 4 and t["statusText"] == "Completado"
+        assert "Certificado de buena conducta" in client.get("/api/admin/exportar").get_data(as_text=True)
+    finally:
+        os.environ.pop("TF_ADMIN_HASH", None)

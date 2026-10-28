@@ -34,6 +34,15 @@
         $('trackBadge').textContent = data.statusText;
         $('trackBadge').className = `text-xs font-bold px-3 py-1 rounded-full ${TONOS[data.tone] || TONOS.sky}`;
         $('trackDetailDisplay').textContent = data.detail;
+        // Desglose cuando el código agrupa varios trámites
+        const items = Array.isArray(data.items) ? data.items : [];
+        $('trackItems').classList.toggle('hidden', items.length < 2);
+        $('trackItemsList').innerHTML = items.length < 2 ? '' : items.map(it => `
+            <li class="ti">
+                <div class="ti-top"><strong>${esc(it.service)}</strong><span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap ${TONOS[it.tone] || TONOS.sky}">${esc(it.statusText)}</span></div>
+                <div class="ti-bar" aria-label="${esc(t('track.s' + it.step))}">${[1, 2, 3, 4].map(i => `<i class="${i <= it.step ? (it.step === 4 ? 'on ok' : 'on') : ''}"></i>`).join('')}</div>
+                <p>${esc(it.detail)}</p>
+            </li>`).join('');
         $('trackLineFill').style.width = '0%';
         requestAnimationFrame(() => $('trackLineFill').style.width = ((data.step - 1) / 3 * 100) + '%');
         for (let i = 1; i <= 4; i++) {

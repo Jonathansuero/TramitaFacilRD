@@ -55,11 +55,15 @@
                             <div class="grid grid-cols-4 text-center relative">
                                 <div id="step1" class="track-step"><div>1</div><span data-i18n="track.s1">Recibido</span></div>
                                 <div id="step2" class="track-step"><div>2</div><span data-i18n="track.s2">Verificado</span></div>
-                                <div id="step3" class="track-step"><div>3</div><span data-i18n="track.s3">En entidad</span></div>
+                                <div id="step3" class="track-step"><div>3</div><span data-i18n="track.s3">En la institución</span></div>
                                 <div id="step4" class="track-step"><div>4</div><span data-i18n="track.s4">Listo</span></div>
                             </div>
                         </div>
                         <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-600"><strong class="text-slate-800" data-i18n="track.ultima">Última actualización:</strong> <span id="trackDetailDisplay"></span></div>
+                        <div id="trackItems" class="hidden mt-5">
+                            <h3 class="track-items-t" data-i18n="track.items">Tus trámites en este código</h3>
+                            <ul id="trackItemsList" class="track-items"></ul>
+                        </div>
                     </div>
                     <div id="trackError" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 text-center text-red-700 text-xs" data-i18n="track.error">No encontramos ningún expediente con ese código. Verifica e intenta de nuevo.</div>
                 </div>

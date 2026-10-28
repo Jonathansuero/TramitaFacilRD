@@ -807,7 +807,7 @@
       "Vérifié"
     ],
     "track.s3": [
-      "En entidad",
+      "En la institución",
       "At institution",
       "À l'organisme"
     ],
@@ -820,6 +820,11 @@
       "Última actualización:",
       "Last update:",
       "Dernière mise à jour :"
+    ],
+    "track.items": [
+      "Tus trámites en este código",
+      "Your requests under this code",
+      "Vos démarches sous ce code"
     ],
     "track.error": [
       "No encontramos ningún expediente con ese código. Verifica e intenta de nuevo.",
