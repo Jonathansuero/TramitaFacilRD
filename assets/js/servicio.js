@@ -21,7 +21,7 @@
         $('sInstHero').innerHTML = s.inst.map(i => `<a href="instituciones.html#${i}" class="inst-chip-dark">${esc(D.instituciones[i].sigla)} · ${esc(tc('instituciones', i).nombre)}</a>`).join('');
 
         // pasos genéricos del proceso
-        $('sSteps').innerHTML = [1, 2, 3, 4].map(n => `<li><span>${n}</span><div><strong>${esc(t('serv.p' + n + '.t'))}</strong><p>${esc(t('serv.p' + n + '.d', { inst: s.inst.map(i => D.instituciones[i].sigla).join(', ') || 'RD' }))}</p></div></li>`).join('');
+        $('sSteps').innerHTML = [1, 2, 3, 4].map(n => { const k = 'serv.p' + n + (n === 3 && !s.inst.length ? 'b' : ''); return `<li><span>${n}</span><div><strong>${esc(t(k + '.t'))}</strong><p>${esc(t(k + '.d', { inst: s.inst.map(i => D.instituciones[i].sigla).join(', ') }))}</p></div></li>`; }).join('');
 
         // requisitos
         const ck = D.checklists[id];

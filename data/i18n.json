@@ -1176,6 +1176,16 @@
       "We file and follow up at: {inst}.",
       "Nous déposons et suivons le dossier auprès de : {inst}."
     ],
+    "serv.p3b.t": [
+      "Preparación por nuestro equipo",
+      "Prepared by our team",
+      "Préparation par notre équipe"
+    ],
+    "serv.p3b.d": [
+      "Lo preparamos y te enviamos un borrador para que lo revises y pidas cambios.",
+      "We prepare it and send you a draft to review and request changes.",
+      "Nous le préparons et vous envoyons un brouillon à relire et à modifier."
+    ],
     "serv.p4.t": [
       "Entrega",
       "Delivery",
@@ -1865,7 +1875,7 @@
         ],
         "academicos": [
           "Academic & Apostilles",
-          "MESCYT, MINERD, Exequátur, apostilles, translations"
+          "MESCYT, MINERD, Exequátur, certificates, CVs, apostilles"
         ],
         "empresas": [
           "Companies & Registrations",
@@ -2028,6 +2038,14 @@
         "registro_empresa_onapi": [
           "Trade Name Registration (ONAPI)",
           "Brand / trade name registration at the National Industrial Property Office."
+        ],
+        "certificacion_estudios": [
+          "Academic Certificate (High School / University)",
+          "We request and pick up your high school certificate at MINERD or your university studies certificate, ready to be legalized or apostilled."
+        ],
+        "creacion_cv": [
+          "Professional Résumé (CV) Writing",
+          "We write and design your CV in Spanish or English, ready for jobs in the DR or abroad. Delivered in PDF and Word."
         ]
       },
       "checklists": {
@@ -2108,6 +2126,23 @@
             "Vehicle VIN (17 characters)",
             "Email to receive the PDF report",
             "Proof of payment"
+          ]
+        ],
+        "certificacion_estudios": [
+          "Academic certificate",
+          [
+            "Copy of ID card (cédula) or passport",
+            "Name of the school or university and the year you finished",
+            "Simple power of attorney if you can't go in person (we help you draft it)"
+          ]
+        ],
+        "creacion_cv": [
+          "CV writing",
+          [
+            "Your contact details and a recent photo (optional)",
+            "Studies, courses and certifications",
+            "Work experience: companies, positions and dates",
+            "Job or country you want to apply to"
           ]
         ]
       },
@@ -2340,7 +2375,7 @@
         ],
         "academicos": [
           "Diplômes et apostilles",
-          "MESCYT, MINERD, Exequátur, apostilles, traductions"
+          "MESCYT, MINERD, Exequátur, certificats, CV, apostilles"
         ],
         "empresas": [
           "Entreprises et registres",
@@ -2503,6 +2538,14 @@
         "registro_empresa_onapi": [
           "Enregistrement de nom commercial (ONAPI)",
           "Enregistrement de marque / nom commercial à l'Office national de la propriété industrielle."
+        ],
+        "certificacion_estudios": [
+          "Certificat d'études (baccalauréat / université)",
+          "Nous demandons et récupérons votre certificat de baccalauréat au MINERD ou votre certificat d'études universitaires, prêt à être légalisé ou apostillé."
+        ],
+        "creacion_cv": [
+          "Rédaction de CV professionnel",
+          "Nous rédigeons et mettons en page votre CV en espagnol ou en anglais, prêt pour des emplois en RD ou à l'étranger. Livré en PDF et Word."
         ]
       },
       "checklists": {
@@ -2583,6 +2626,23 @@
             "Numéro VIN du véhicule (17 caractères)",
             "E-mail pour recevoir le rapport PDF",
             "Preuve de paiement"
+          ]
+        ],
+        "certificacion_estudios": [
+          "Certificat d'études",
+          [
+            "Copie de la cédula ou du passeport",
+            "Nom de l'école ou de l'université et année de fin d'études",
+            "Procuration simple si vous ne pouvez pas vous déplacer (nous vous aidons à la rédiger)"
+          ]
+        ],
+        "creacion_cv": [
+          "Rédaction de CV",
+          [
+            "Vos coordonnées et une photo récente (facultatif)",
+            "Études, formations et certifications",
+            "Expérience professionnelle : entreprises, postes et dates",
+            "Poste ou pays visé"
           ]
         ]
       },

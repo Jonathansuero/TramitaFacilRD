@@ -176,7 +176,7 @@
       "label": "Académico y Apostillas",
       "icono": "fa-graduation-cap",
       "emoji": "🎓",
-      "resumen": "MESCYT, MINERD, Exequátur, apostillas, traducciones"
+      "resumen": "MESCYT, MINERD, Exequátur, certificaciones, CV, apostillas"
     },
     "empresas": {
       "label": "Empresas y Registros",
@@ -685,6 +685,38 @@
         "mescyt"
       ]
     },
+    "certificacion_estudios": {
+      "title": "Certificación de Estudios (Bachillerato / Universidad)",
+      "tax": 500,
+      "fee": 1200,
+      "category": "academicos",
+      "paises": [
+        "rd",
+        "us",
+        "es",
+        "mundo"
+      ],
+      "desc": "Solicitamos y retiramos tu certificación de bachiller en el MINERD o tu certificación de estudios universitarios, lista para legalizar o apostillar.",
+      "inst": [
+        "minerd",
+        "mescyt"
+      ]
+    },
+    "creacion_cv": {
+      "title": "Creación de Currículum (CV) Profesional",
+      "tax": 0,
+      "fee": 1500,
+      "category": "academicos",
+      "paises": [
+        "rd",
+        "us",
+        "es",
+        "ext",
+        "mundo"
+      ],
+      "desc": "Redactamos y diseñamos tu CV en español o inglés, listo para empleos en RD o en el exterior. Entrega en PDF y Word.",
+      "inst": []
+    },
     "exequatur_ley": {
       "title": "Exequátur de Ley para Ejercicio Profesional",
       "tax": 3500,
@@ -875,6 +907,23 @@
         "Número de Chasis / VIN (17 dígitos)",
         "Correo electrónico para recibir el reporte en PDF",
         "Comprobante de pago del servicio"
+      ]
+    },
+    "certificacion_estudios": {
+      "label": "Certificación de estudios",
+      "items": [
+        "Copia de Cédula de Identidad o pasaporte",
+        "Nombre del centro educativo o universidad y año en que terminaste",
+        "Poder simple si no puedes ir en persona (te ayudamos a redactarlo)"
+      ]
+    },
+    "creacion_cv": {
+      "label": "Creación de CV",
+      "items": [
+        "Tus datos de contacto y una foto reciente (opcional)",
+        "Estudios, cursos y certificaciones",
+        "Experiencia laboral: empresas, cargos y fechas",
+        "Puesto o país al que quieres aplicar"
       ]
     }
   },
