@@ -160,9 +160,13 @@
         if (!r.ok) { const e = new Error(j.error || 'Error'); e.status = r.status; throw e; }
         return j;
     }
+    // Promesa que se cumple cuando ya se sabe si hay servidor (las páginas que consultan al cargar la esperan)
+    let apiDetectada;
+    const apiLista = new Promise(r => { apiDetectada = r; });
     async function detectarApi() {
-        if (!location.protocol.startsWith('http')) return;
+        if (!location.protocol.startsWith('http')) { apiDetectada(false); return; }
         try { state.api = (await fetch('/api/salud', { cache: 'no-store' })).ok; } catch (e) { state.api = false; }
+        apiDetectada(state.api);
         if (!state.api) return;
         emit('api', true);
         try {
@@ -520,7 +524,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     window.TF = {
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
-        t, tc, applyI18n, money, waLink, saludo, lugar, toast, api,
+        t, tc, applyI18n, money, waLink, saludo, lugar, toast, api, apiLista,
         setLang, setPais, setCountry, setMoneda, on, emit,
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };

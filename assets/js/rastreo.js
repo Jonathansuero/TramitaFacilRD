@@ -14,6 +14,7 @@
         btn.disabled = true; btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${esc(t('track.cargando'))}`;
         let data = null;
         try {
+            await TF.apiLista;   // al abrir un enlace con ?c=, esperar a saber si hay servidor
             if (state.api) { try { data = await TF.api('/rastreo/' + encodeURIComponent(code)); } catch (e) { if (e.status !== 404) data = D.rastreo_demo[code] || null; } }
             else { await new Promise(r => setTimeout(r, 450)); data = D.rastreo_demo[code] || null; }
         } finally { btn.disabled = false; btn.textContent = t('track.btn'); }
