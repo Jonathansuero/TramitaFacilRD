@@ -441,7 +441,7 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .tel-prefijo { padding-left: .6rem; padding-right: .3rem; text-overflow: ellipsis; }
 
 /* ---------- Ficha de servicio: trámites relacionados con detalle desplegable */
-.rel-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.rel-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
 @media (max-width: 1023px) { .rel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 639px) { .rel-grid { grid-template-columns: minmax(0, 1fr); } }
 .rel-card { text-align: left; width: 100%; cursor: pointer; font: inherit; color: inherit; animation: none; }
@@ -483,4 +483,5 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .conf-form { padding: 2rem; display: grid; gap: 1rem; align-content: start; background: #f8fafc; }
 @media (max-width: 639px) { .conf-lado, .conf-form { padding: 1.4rem; } }
 .conf-codigo { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 28px; font-weight: 800; letter-spacing: .06em; color: #002D62; background: #fff; border: 2px dashed #6ee7b7; border-radius: 14px; padding: 10px 16px; margin: 10px 0 6px; text-align: center; }
-#confirmar { scroll-margin-top: 88px; }
+#confirmar { scroll-margin-top: 88px; padding-bottom: 4.5rem; }
+#confirmar + section { padding-top: .5rem; }

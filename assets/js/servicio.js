@@ -116,14 +116,13 @@
     }
 
     // ---------------- Confirmar la solicitud sin salir de la ficha
-    let prefijoTocado = false;
     function irAConfirmar(suave = true) {
         $('confirmar').scrollIntoView({ behavior: suave ? 'smooth' : 'instant', block: 'start' });
         setTimeout(() => $('cNombre').focus({ preventScroll: true }), suave ? 450 : 0);
     }
     function renderConfirmar() {
-        ct.llenar($('cPrefijo'), $('cTel'), prefijoTocado ? $('cPrefijo').value : ct.prefijoInicial());
-        const actual = $('cPais').value || state.pais;
+        ct.llenar($('cPrefijo'), $('cTel'), ct.prefijoInicial());   // sincronizado con "¿Dónde resides?"
+        const actual = state.pais;
         $('cPais').innerHTML = Object.keys(PAISES).map(k => `<option value="${k}">${PAISES[k].bandera} ${esc(tc('paises', k).nombre)}</option>`).join('');
         $('cPais').value = PAISES[actual] ? actual : state.pais;
     }
@@ -175,7 +174,7 @@
     function initConfirmar() {
         renderConfirmar();
         $('sSolicitar').addEventListener('click', e => { e.preventDefault(); irAConfirmar(); });
-        $('cPrefijo').addEventListener('change', () => { prefijoTocado = true; renderConfirmar(); $('cTel').focus(); });
+        $('cPrefijo').addEventListener('change', e => { ct.elegirPrefijo(e.target.value); $('cTel').focus(); });
         $('cPais').addEventListener('change', e => TF.setPais(e.target.value, { animate: false }));
         $('cForm').addEventListener('input', e => { if (e.target.classList.contains('is-invalid')) { e.target.classList.remove('is-invalid'); if (!$('cForm').querySelector('.is-invalid')) mostrarError(''); } });
         $('cForm').addEventListener('click', async e => {

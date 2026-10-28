@@ -153,20 +153,32 @@
     function setMoneda(cur) { state.moneda = cur; store.set('tf_moneda', cur); emit('moneda', cur); }
 
     // ---------------- Contacto: WhatsApp con código de país + correo (formularios de solicitud)
-    const PREFIJOS = [['DO', '1'], ['US', '1'], ['PR', '1'], ['CA', '1'], ['ES', '34'], ['IT', '39'], ['FR', '33'], ['DE', '49'],
-        ['CH', '41'], ['NL', '31'], ['BE', '32'], ['PT', '351'], ['GB', '44'], ['IE', '353'], ['AT', '43'], ['SE', '46'], ['NO', '47'],
-        ['MX', '52'], ['PA', '507'], ['CO', '57'], ['VE', '58'], ['EC', '593'], ['PE', '51'], ['CL', '56'], ['AR', '54'], ['BR', '55'],
-        ['CU', '53'], ['HT', '509'], ['CR', '506'], ['GT', '502'], ['HN', '504'], ['SV', '503'], ['NI', '505'], ['UY', '598'], ['PY', '595'], ['BO', '591']];
+    // Códigos telefónicos de todos los países (ISO → código). Los más usados por nuestros clientes van primero.
+    const CODIGOS = Object.fromEntries('AF93,AL355,DZ213,AS1,AD376,AO244,AI1,AG1,AR54,AM374,AW297,AU61,AT43,AZ994,BS1,BH973,BD880,BB1,BY375,BE32,BZ501,BJ229,BM1,BT975,BO591,BA387,BW267,BR55,IO246,VG1,BN673,BG359,BF226,BI257,KH855,CM237,CA1,CV238,BQ599,KY1,CF236,TD235,CL56,CN86,CO57,KM269,CG242,CD243,CK682,CR506,CI225,HR385,CU53,CW599,CY357,CZ420,DK45,DJ253,DM1,DO1,EC593,EG20,SV503,GQ240,ER291,EE372,SZ268,ET251,FK500,FO298,FJ679,FI358,FR33,GF594,PF689,GA241,GM220,GE995,DE49,GH233,GI350,GR30,GL299,GD1,GP590,GU1,GT502,GG44,GN224,GW245,GY592,HT509,HN504,HK852,HU36,IS354,IN91,ID62,IR98,IQ964,IE353,IM44,IL972,IT39,JM1,JP81,JE44,JO962,KZ7,KE254,KI686,XK383,KW965,KG996,LA856,LV371,LB961,LS266,LR231,LY218,LI423,LT370,LU352,MO853,MG261,MW265,MY60,MV960,ML223,MT356,MH692,MQ596,MR222,MU230,YT262,MX52,FM691,MD373,MC377,MN976,ME382,MS1,MA212,MZ258,MM95,NA264,NR674,NP977,NL31,NC687,NZ64,NI505,NE227,NG234,NU683,KP850,MK389,MP1,NO47,OM968,PK92,PW680,PS970,PA507,PG675,PY595,PE51,PH63,PL48,PT351,PR1,QA974,RE262,RO40,RU7,RW250,BL590,SH290,KN1,LC1,MF590,PM508,VC1,WS685,SM378,ST239,SA966,SN221,RS381,SC248,SL232,SG65,SX1,SK421,SI386,SB677,SO252,ZA27,KR82,SS211,ES34,LK94,SD249,SR597,SE46,CH41,SY963,TW886,TJ992,TZ255,TH66,TL670,TG228,TK690,TO676,TT1,TN216,TR90,TM993,TC1,TV688,VI1,UG256,UA380,AE971,GB44,US1,UY598,UZ998,VU678,VA39,VE58,VN84,WF681,EH212,YE967,ZM260,ZW263'
+        .split(',').map(x => [x.slice(0, 2), x.slice(2)]));
+    const FAVORITOS = ['DO', 'US', 'PR', 'ES', 'IT', 'CA', 'FR', 'DE', 'CH', 'NL', 'BE', 'PT', 'GB', 'MX', 'PA', 'CO', 'VE', 'HT', 'CU'];
+    const EUROPA = new Set('AD AL AT BA BE BG BY CH CY CZ DE DK EE ES FI FO FR GB GG GI GR HR HU IE IM IS IT JE LI LT LU LV MC MD ME MK MT NL NO PL PT RO RS RU SE SI SK SM UA VA XK'.split(' '));
     const contacto = {
+        /** Código de país que corresponde a dónde dice el visitante que reside (sincronizado). */
         prefijoInicial() {
-            if (state.detalle && PREFIJOS.some(([iso]) => iso === state.detalle)) return state.detalle;
+            if (state.detalle && CODIGOS[state.detalle]) return state.detalle;
             return { rd: 'DO', us: 'US', es: 'ES', ext: 'US', mundo: 'US' }[state.pais] || 'DO';
         },
-        /** Llena el selector de código de país y ajusta el ejemplo del número. */
+        /** Llena el selector con todos los países (los más usados primero) y ajusta el ejemplo del número. */
         llenar(sel, tel, iso) {
-            sel.innerHTML = PREFIJOS.map(([i, c]) => `<option value="${i}">${flagOf(i)} +${c} · ${esc(countryName(i))}</option>`).join('');
-            sel.value = iso;
-            if (tel) tel.placeholder = { DO: '809 555 1234', US: '305 555 1234', ES: '612 345 678', IT: '312 345 6789' }[iso] || '600 000 000';
+            const op = i => `<option value="${i}">${flagOf(i)} +${CODIGOS[i]} · ${esc(countryName(i))}</option>`;
+            const resto = Object.keys(CODIGOS).filter(i => !FAVORITOS.includes(i))
+                .sort((a, b) => countryName(a).localeCompare(countryName(b), state.lang));
+            sel.innerHTML = FAVORITOS.map(op).join('') + '<option disabled>──────────</option>' + resto.map(op).join('');
+            sel.value = CODIGOS[iso] ? iso : 'DO';
+            if (tel) tel.placeholder = { DO: '809 555 1234', US: '305 555 1234', PR: '787 555 1234', ES: '612 345 678', IT: '312 345 6789' }[sel.value] || '600 000 000';
+        },
+        /** Al cambiar el código de país, también cambia "¿Dónde resides?" (y el selector de arriba). */
+        elegirPrefijo(iso) {
+            if (!CODIGOS[iso]) return;
+            if (iso === 'DO') setPais('rd', { detalle: null, animate: false });
+            else if (D.paises_mundo.some(r => r[0] === iso)) setCountry(iso, { animate: false });
+            else setPais(EUROPA.has(iso) ? 'es' : 'mundo', { detalle: iso, animate: false });
         },
         /** "+1 8095551234": si escribe el número con + o 00, se respeta tal cual. */
         whatsapp(iso, crudo) {
@@ -174,7 +186,7 @@
             const dig = crudo.replace(/\D/g, '');
             if (!dig) return '';
             if (crudo.startsWith('+') || crudo.startsWith('00')) return '+' + dig.replace(/^00/, '');
-            return `+${(PREFIJOS.find(([i]) => i === iso) || ['DO', '1'])[1]} ${dig}`;
+            return `+${CODIGOS[iso] || '1'} ${dig}`;
         },
         waValido: wa => { const n = wa.replace(/\D/g, '').length; return n >= 8 && n <= 15; },
         correoValido: e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)

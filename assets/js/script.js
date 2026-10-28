@@ -249,11 +249,8 @@
     // SOLICITUD
     // ============================================================
     // ---------------- WhatsApp con código de país + correo (utilidades en core.js)
-    let prefijoTocado = false;
-    function renderPrefijos() {
-        const sel = $('fPrefijo');
-        TF.contacto.llenar(sel, $('fTel'), prefijoTocado ? sel.value : TF.contacto.prefijoInicial());
-    }
+    // el código de país y "¿Dónde resides?" siempre van sincronizados
+    const renderPrefijos = () => TF.contacto.llenar($('fPrefijo'), $('fTel'), TF.contacto.prefijoInicial());
     const whatsapp = () => TF.contacto.whatsapp($('fPrefijo').value, $('fTel').value);
     const correoValido = TF.contacto.correoValido;
 
@@ -294,7 +291,7 @@
         const form = $('solicitudForm'), errBox = $('formError');
         const showErr = msg => { errBox.textContent = msg; errBox.classList.toggle('hidden', !msg); if (msg) restart(errBox, 'shake'); };
         $('fPais').addEventListener('change', e => TF.setPais(e.target.value, { animate: false }));
-        $('fPrefijo').addEventListener('change', () => { prefijoTocado = true; renderPrefijos(); $('fTel').focus(); });
+        $('fPrefijo').addEventListener('change', e => { TF.contacto.elegirPrefijo(e.target.value); $('fTel').focus(); });
         // al corregir un campo, se quita el aviso rojo
         form.addEventListener('input', e => { if (e.target.classList.contains('is-invalid')) { e.target.classList.remove('is-invalid'); if (!form.querySelector('.is-invalid')) showErr(''); } });
         form.addEventListener('submit', async e => {
@@ -327,7 +324,7 @@
         restart(ok, 'pop');
         $('solicitudForm').reset(); $('fPais').value = state.pais; $('fServicio').value = d.servicio;
         $('formError').classList.add('hidden'); $$('#solicitudForm .is-invalid').forEach(i => i.classList.remove('is-invalid'));
-        prefijoTocado = false; renderPrefijos();
+        renderPrefijos();
     }
 
     // ============================================================
