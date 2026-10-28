@@ -636,7 +636,8 @@ def inicio():
 
 @app.get("/assets/<path:ruta>")
 def assets(ruta: str):
-    return send_from_directory(BASE_DIR / "assets", ruta)
+    # 10 min en caché del navegador: cambiar de página no vuelve a pedir estilos ni scripts
+    return send_from_directory(BASE_DIR / "assets", ruta, max_age=600)
 
 
 @app.get("/<nombre>")

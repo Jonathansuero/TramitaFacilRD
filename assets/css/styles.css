@@ -445,15 +445,15 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
    Los demás: se desvanece al salir y aparece al entrar (core.js). */
 @view-transition { navigation: auto; }
 nav.site-nav { view-transition-name: tf-nav; }
-::view-transition-old(root) { animation: tf-vt-sale .22s cubic-bezier(.4, 0, 1, 1) both; }
-::view-transition-new(root) { animation: tf-vt-entra .38s cubic-bezier(.16, 1, .3, 1) both; }
+::view-transition-old(root) { animation: tf-vt-sale .12s ease-in both; }
+::view-transition-new(root) { animation: tf-vt-entra .22s cubic-bezier(.16, 1, .3, 1) both; }
 ::view-transition-group(tf-nav) { animation-duration: 0s; }
-@keyframes tf-vt-sale { to { opacity: 0; transform: translateY(-8px); filter: blur(2px); } }
-@keyframes tf-vt-entra { from { opacity: 0; transform: translateY(14px); filter: blur(3px); } }
-#main.tf-entra { animation: tf-vt-entra .42s cubic-bezier(.16, 1, .3, 1) both; }
-#main.tf-sale, #tf-footer.tf-sale { opacity: 0; transform: translateY(-8px); transition: opacity .18s ease, transform .18s ease; }
+@keyframes tf-vt-sale { to { opacity: 0; } }
+@keyframes tf-vt-entra { from { opacity: 0; transform: translateY(6px); } }
+#main.tf-entra { animation: tf-vt-entra .22s cubic-bezier(.16, 1, .3, 1) both; }
+#main.tf-sale { opacity: 0; transition: opacity .1s ease; }
 @media (prefers-reduced-motion: reduce) {
     @view-transition { navigation: none; }
     #main.tf-entra { animation: none; }
-    #main.tf-sale, #tf-footer.tf-sale { transition: none; }
+    #main.tf-sale { transition: none; }
 }

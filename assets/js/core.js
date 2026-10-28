@@ -530,22 +530,38 @@ ${ES_APP ? renderTabbar() : ''}`;
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };
 
-    /** Transición suave al pasar de una página a otra en navegadores sin View Transitions entre páginas. */
+    /** Cambio de página rápido:
+        1) Precarga: al pasar el dedo o el mouse sobre un enlace, la página siguiente se prepara antes del clic
+           (Chrome/Edge la dejan lista por completo con Speculation Rules; los demás la descargan con prefetch).
+        2) Transición corta: View Transitions en navegadores modernos (CSS) o una entrada suave de 0,2 s en los demás. */
     function transicionesSuaves() {
-        if ('onpagereveal' in window || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;  // el CSS ya lo hace
-        const main = $('main'); if (main) main.classList.add('tf-entra');
-        document.addEventListener('click', e => {
-            const a = e.target.closest('a[href]');
-            if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank' || a.hasAttribute('download')) return;
+        const internas = a => {
+            if (!a || a.target === '_blank' || a.hasAttribute('download')) return null;
             const url = new URL(a.href, location.href);
-            if (url.origin !== location.origin || !/\.html$|\/$/.test(url.pathname)) return;
-            if (url.pathname === location.pathname && url.hash) return;          // ancla en la misma página
-            e.preventDefault();
-            [main, $('tf-footer')].forEach(el => el && el.classList.add('tf-sale'));
-            setTimeout(() => { location.href = url.href; }, 170);
-        });
-        // al volver con el botón atrás (página guardada), se muestra de nuevo
-        window.addEventListener('pageshow', ev => { if (ev.persisted) [main, $('tf-footer')].forEach(el => el && el.classList.remove('tf-sale')); });
+            if (url.origin !== location.origin || !/\.html$|\/$/.test(url.pathname) || /admin/.test(url.pathname)) return null;
+            if (url.pathname === location.pathname && url.hash) return null;
+            return url;
+        };
+        if (window.HTMLScriptElement && HTMLScriptElement.supports && HTMLScriptElement.supports('speculationrules')) {
+            const reglas = document.createElement('script');
+            reglas.type = 'speculationrules';
+            reglas.textContent = JSON.stringify({
+                prerender: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/admin*' } }, { not: { href_matches: '/api/*' } }] }, eagerness: 'moderate' }],
+                prefetch: [{ where: { and: [{ href_matches: '/*.html' }, { not: { href_matches: '/admin*' } }] }, eagerness: 'conservative' }]
+            });
+            document.head.appendChild(reglas);
+        } else {
+            const hechas = new Set();
+            const precargar = e => {
+                const url = internas(e.target.closest && e.target.closest('a[href]'));
+                if (!url || hechas.has(url.pathname + url.search)) return;
+                hechas.add(url.pathname + url.search);
+                const l = document.createElement('link'); l.rel = 'prefetch'; l.href = url.href; document.head.appendChild(l);
+            };
+            ['pointerover', 'touchstart', 'focusin'].forEach(ev => document.addEventListener(ev, precargar, { passive: true }));
+        }
+        if ('onpagereveal' in window || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;  // el CSS ya hace la transición
+        const main = $('main'); if (main) main.classList.add('tf-entra');
     }
 
     // Se dibuja de inmediato (el script va al final del body) para que la página pueda usar los elementos.
