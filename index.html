@@ -261,10 +261,18 @@
             </div>
         </div>
         <form id="solicitudForm" class="lg:col-span-7 bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8 space-y-4" novalidate>
+            <div><label for="fNombre" class="form-label" data-i18n="sol.nombre">Nombre completo</label><input id="fNombre" name="nombre" required maxlength="80" autocomplete="name" class="input"></div>
             <div class="grid sm:grid-cols-2 gap-4">
-                <div><label for="fNombre" class="form-label" data-i18n="sol.nombre">Nombre completo</label><input id="fNombre" name="nombre" required maxlength="80" autocomplete="name" class="input"></div>
-                <div><label for="fContacto" class="form-label" data-i18n="sol.contacto">WhatsApp o correo</label><input id="fContacto" name="contacto" required maxlength="120" autocomplete="tel" placeholder="+1 / +34 / +39 / +1 809..." class="input"></div>
+                <div>
+                    <label for="fTel" class="form-label"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i><span data-i18n="sol.whatsapp">WhatsApp</span></label>
+                    <div class="tel-grupo">
+                        <select id="fPrefijo" name="prefijo" class="input tel-prefijo" data-i18n-aria="sol.prefijo"></select>
+                        <input id="fTel" name="telefono" type="tel" inputmode="tel" maxlength="20" autocomplete="tel-national" placeholder="809 555 1234" class="input">
+                    </div>
+                </div>
+                <div><label for="fEmail" class="form-label"><i class="fa-regular fa-envelope text-domBlue mr-1" aria-hidden="true"></i><span data-i18n="sol.email">Correo electrónico</span></label><input id="fEmail" name="email" type="email" inputmode="email" maxlength="80" autocomplete="email" placeholder="nombre@correo.com" class="input"></div>
             </div>
+            <p class="text-[11px] text-slate-500 -mt-2" data-i18n="sol.contacto.ayuda">Déjanos tu WhatsApp, tu correo o ambos.</p>
             <div class="grid sm:grid-cols-2 gap-4">
                 <div><label for="fPais" class="form-label" data-i18n="sol.pais">¿Dónde resides?</label><select id="fPais" name="pais" class="input"></select></div>
                 <div><label for="fServicio" class="form-label" data-i18n="sol.servicio">Trámite</label><select id="fServicio" name="servicio" class="input"></select></div>

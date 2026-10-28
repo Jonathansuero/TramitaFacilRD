@@ -67,8 +67,40 @@
         $('sWa').href = waLink(saludo(t('wa.servicio', { s: tc('servicios', id).title, total: $('pTotal').textContent })));
     }
 
+    /** Cambia de servicio sin recargar la página (relacionados, anterior/siguiente y botón atrás). */
+    let cambiando = false;
+    async function irA(nuevo, { guardar = true } = {}) {
+        if (!SERV[nuevo] || nuevo === id || cambiando) return;
+        cambiando = true;
+        const main = $('main'), quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const aplicar = () => {
+            id = nuevo;
+            $('pExp').checked = false; $('pEnv').checked = false;
+            render();
+            if (guardar) history.pushState({ id }, '', `servicio.html?id=${encodeURIComponent(id)}`);
+            window.scrollTo({ top: 0, behavior: 'instant' });
+        };
+        if (document.startViewTransition && !quieto) {
+            await document.startViewTransition(aplicar).finished.catch(() => {});
+        } else if (!quieto) {
+            main.classList.add('tf-sale');
+            await new Promise(r => setTimeout(r, 180));
+            aplicar();
+            main.classList.remove('tf-sale'); restart(main, 'tf-entra');
+        } else aplicar();
+        cambiando = false;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         render();
+        history.replaceState({ id }, '', location.href);
+        document.addEventListener('click', e => {
+            const a = e.target.closest('a[href^="servicio.html?id="]');
+            if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank') return;
+            const nuevo = new URLSearchParams(a.getAttribute('href').split('?')[1]).get('id');
+            if (SERV[nuevo]) { e.preventDefault(); e.stopPropagation(); irA(nuevo); }
+        }, true);
+        window.addEventListener('popstate', e => { const nuevo = (e.state && e.state.id) || new URLSearchParams(location.search).get('id'); if (nuevo) irA(nuevo, { guardar: false }); });
         ['pExp', 'pEnv'].forEach(i => $(i).addEventListener('change', precio));
         $('monedaToggle').addEventListener('click', e => { const b = e.target.closest('[data-moneda]'); if (b) TF.setMoneda(b.dataset.moneda); });
         $('sShare').addEventListener('click', async () => {

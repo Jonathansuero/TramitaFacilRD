@@ -53,8 +53,9 @@
 
     /** Número de WhatsApp a partir del contacto (si parece un teléfono). */
     function telefono(contacto) {
-        if (!contacto || contacto.includes('@')) return '';
-        let n = contacto.replace(/\D/g, '');
+        const parte = String(contacto || '').split('·').map(x => x.trim()).find(x => x && !x.includes('@'));
+        if (!parte) return '';
+        let n = parte.replace(/\D/g, '');
         if (n.length < 8) return '';
         if (n.length === 10 && /^(809|829|849)/.test(n)) n = '1' + n;   // número dominicano sin el 1
         return n;
@@ -205,7 +206,8 @@
         const abierto = abiertos.has(e.codigo);
         const items = e.tramites || [];
         const contacto = e.contacto
-            ? (telefono(e.contacto) ? `<a href="tel:+${telefono(e.contacto)}">${esc(e.contacto)}</a>` : (e.contacto.includes('@') ? `<a href="mailto:${esc(e.contacto)}">${esc(e.contacto)}</a>` : esc(e.contacto)))
+            ? String(e.contacto).split('·').map(x => x.trim()).filter(Boolean).map(x =>
+                x.includes('@') ? `<a href="mailto:${esc(x)}">${esc(x)}</a>` : (telefono(x) ? `<a href="tel:+${telefono(x)}">${esc(x)}</a>` : esc(x))).join('<br>')
             : '—';
         const titulo = items.length > 1 ? items.map(t => t.titulo).join(' · ') : e.servicio_titulo;
         const cuerpo = !abierto ? '' : `

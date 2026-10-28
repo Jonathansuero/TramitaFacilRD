@@ -248,9 +248,38 @@
     // ============================================================
     // SOLICITUD
     // ============================================================
+    // ---------------- WhatsApp con código de país + correo
+    const PREFIJOS = [['DO', '1'], ['US', '1'], ['PR', '1'], ['CA', '1'], ['ES', '34'], ['IT', '39'], ['FR', '33'], ['DE', '49'],
+        ['CH', '41'], ['NL', '31'], ['BE', '32'], ['PT', '351'], ['GB', '44'], ['IE', '353'], ['AT', '43'], ['SE', '46'], ['NO', '47'],
+        ['MX', '52'], ['PA', '507'], ['CO', '57'], ['VE', '58'], ['EC', '593'], ['PE', '51'], ['CL', '56'], ['AR', '54'], ['BR', '55'],
+        ['CU', '53'], ['HT', '509'], ['CR', '506'], ['GT', '502'], ['HN', '504'], ['SV', '503'], ['NI', '505'], ['UY', '598'], ['PY', '595'], ['BO', '591']];
+    const PREFIJO_POR_PAIS = { rd: 'DO', us: 'US', es: 'ES', ext: 'US', mundo: 'US' };
+    let prefijoTocado = false;
+    function prefijoInicial() {
+        const det = state.detalle && PREFIJOS.some(([iso]) => iso === state.detalle) ? state.detalle : null;
+        return det || PREFIJO_POR_PAIS[state.pais] || 'DO';
+    }
+    function renderPrefijos() {
+        const sel = $('fPrefijo'), actual = prefijoTocado ? sel.value : prefijoInicial();
+        sel.innerHTML = PREFIJOS.map(([iso, c]) => `<option value="${iso}">${flagOf(iso)} +${c} · ${esc(countryName(iso))}</option>`).join('');
+        sel.value = actual;
+        $('fTel').placeholder = { DO: '809 555 1234', US: '305 555 1234', ES: '612 345 678', IT: '312 345 6789' }[actual] || '600 000 000';
+    }
+    /** "+1 8095551234": si escribe el número con +, se respeta tal cual. */
+    function whatsapp() {
+        const crudo = $('fTel').value.trim();
+        const dig = crudo.replace(/\D/g, '');
+        if (!dig) return '';
+        if (crudo.startsWith('+') || crudo.startsWith('00')) return '+' + dig.replace(/^00/, '');
+        const code = (PREFIJOS.find(([iso]) => iso === $('fPrefijo').value) || ['DO', '1'])[1];
+        return `+${code} ${dig}`;
+    }
+    const correoValido = e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+
     function datosForm() {
         const f = $('solicitudForm');
-        return { nombre: f.nombre.value.trim(), contacto: f.contacto.value.trim(), pais: f.pais.value, servicio: f.servicio.value,
+        const wa = whatsapp(), email = f.email.value.trim();
+        return { nombre: f.nombre.value.trim(), whatsapp: wa, email, contacto: [wa, email].filter(Boolean).join(' · '), pais: f.pais.value, servicio: f.servicio.value,
             mensaje: f.mensaje.value.trim(), acepta: f.acepta.checked, web: f.web.value, moneda: state.moneda,
             idioma: state.lang, pais_detalle: state.detalle || '', ...TF.cotizador.opciones() };
     }
@@ -258,7 +287,12 @@
         const err = [];
         $$('#solicitudForm .input').forEach(i => i.classList.remove('is-invalid'));
         if (d.nombre.length < 2) { err.push(t('sol.e.nombre')); $('fNombre').classList.add('is-invalid'); }
-        if (d.contacto.length < 6) { err.push(t('sol.e.contacto')); $('fContacto').classList.add('is-invalid'); }
+        const dig = d.whatsapp.replace(/\D/g, '');
+        if (!d.whatsapp && !d.email) { err.push(t('sol.e.contacto')); $('fTel').classList.add('is-invalid'); $('fEmail').classList.add('is-invalid'); }
+        else {
+            if (d.whatsapp && (dig.length < 8 || dig.length > 15)) { err.push(t('sol.e.wa')); $('fTel').classList.add('is-invalid'); }
+            if (d.email && !correoValido(d.email)) { err.push(t('sol.e.email')); $('fEmail').classList.add('is-invalid'); }
+        }
         if (!d.acepta) err.push(t('sol.e.acepta'));
         return err.length ? t('sol.e.falta', { lista: err.join(', ') }) : '';
     }
@@ -270,7 +304,8 @@
             `${t('wa.cot.servicio')}: *${tc('servicios', d.servicio).title}*`,
             `${t('wa.sol.nombre')}: ${d.nombre}`,
             `${t('wa.sol.reside')}: ${TF.lugar()}`,
-            `${t('wa.sol.contacto')}: ${d.contacto}`,
+            d.whatsapp ? `${t('wa.sol.whatsapp')}: ${d.whatsapp}` : null,
+            d.email ? `${t('wa.sol.email')}: ${d.email}` : null,
             d.mensaje ? `${t('wa.sol.detalles')}: ${d.mensaje}` : null
         ].filter(x => x !== null).join('\n');
     }
@@ -278,6 +313,9 @@
         const form = $('solicitudForm'), errBox = $('formError');
         const showErr = msg => { errBox.textContent = msg; errBox.classList.toggle('hidden', !msg); if (msg) restart(errBox, 'shake'); };
         $('fPais').addEventListener('change', e => TF.setPais(e.target.value, { animate: false }));
+        $('fPrefijo').addEventListener('change', () => { prefijoTocado = true; renderPrefijos(); $('fTel').focus(); });
+        // al corregir un campo, se quita el aviso rojo
+        form.addEventListener('input', e => { if (e.target.classList.contains('is-invalid')) { e.target.classList.remove('is-invalid'); if (!form.querySelector('.is-invalid')) showErr(''); } });
         form.addEventListener('submit', async e => {
             e.preventDefault();
             const d = datosForm(), msg = validar(d);
@@ -302,11 +340,13 @@
             ? `<div class="font-bold text-base">✅ ${esc(t('ok.t'))}</div>
                <p class="mt-1">${esc(t('ok.codigo'))} <strong class="font-mono text-lg">${esc(codigo)}</strong>. ${esc(t('ok.guarda'))}</p>
                <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo.html?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
-               <button class="border border-emerald-300 text-xs font-bold px-4 py-2 rounded-lg" data-copy="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
+               <button type="button" class="border border-emerald-300 text-xs font-bold px-4 py-2 rounded-lg" data-copy="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
                <a class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg" target="_blank" rel="noopener" href="${waLink(mensajeSolicitud(d, codigo))}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('ok.confirmar'))}</a></div>`
             : `<div class="font-bold">✅ ${esc(t('ok.wa.t'))}</div><p class="mt-1">${esc(t('ok.wa.d'))}</p>`;
         restart(ok, 'pop');
         $('solicitudForm').reset(); $('fPais').value = state.pais; $('fServicio').value = d.servicio;
+        $('formError').classList.add('hidden'); $$('#solicitudForm .is-invalid').forEach(i => i.classList.remove('is-invalid'));
+        prefijoTocado = false; renderPrefijos();
     }
 
     // ============================================================
@@ -363,6 +403,7 @@
         renderQuizCats();
         if (ui.quizKey && !$('quizStep3').classList.contains('hidden')) showQuizResult(ui.quizKey);
         buildFormServicios();
+        renderPrefijos();
         renderChecklistTabs();
         loadChecklist(ui.checklistKey);
     }

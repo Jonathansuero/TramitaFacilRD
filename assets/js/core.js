@@ -244,7 +244,7 @@
     </div>
   </div>
 </div>
-<nav class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+<nav class="site-nav sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
     <a href="${IS_HOME ? '#inicio' : 'index.html'}" class="flex items-center gap-2 group shrink-0">
       <div class="w-10 h-10 rounded-xl bg-domBlue flex items-center justify-center text-white text-xl font-black shadow-md group-hover:bg-domRed transition-colors">TF</div>
@@ -530,6 +530,24 @@ ${ES_APP ? renderTabbar() : ''}`;
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };
 
+    /** Transición suave al pasar de una página a otra en navegadores sin View Transitions entre páginas. */
+    function transicionesSuaves() {
+        if ('onpagereveal' in window || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;  // el CSS ya lo hace
+        const main = $('main'); if (main) main.classList.add('tf-entra');
+        document.addEventListener('click', e => {
+            const a = e.target.closest('a[href]');
+            if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank' || a.hasAttribute('download')) return;
+            const url = new URL(a.href, location.href);
+            if (url.origin !== location.origin || !/\.html$|\/$/.test(url.pathname)) return;
+            if (url.pathname === location.pathname && url.hash) return;          // ancla en la misma página
+            e.preventDefault();
+            [main, $('tf-footer')].forEach(el => el && el.classList.add('tf-sale'));
+            setTimeout(() => { location.href = url.href; }, 170);
+        });
+        // al volver con el botón atrás (página guardada), se muestra de nuevo
+        window.addEventListener('pageshow', ev => { if (ev.persisted) [main, $('tf-footer')].forEach(el => el && el.classList.remove('tf-sale')); });
+    }
+
     // Se dibuja de inmediato (el script va al final del body) para que la página pueda usar los elementos.
     renderHeader();
     renderFooter();
@@ -539,4 +557,5 @@ ${ES_APP ? renderTabbar() : ''}`;
     iniciarApp();
     setInterval(tickTopbar, 15000);
     document.addEventListener('DOMContentLoaded', () => { reveal(); detectarApi(); setTimeout(sugerirIdioma, 1200); });
+    transicionesSuaves();
 })();
