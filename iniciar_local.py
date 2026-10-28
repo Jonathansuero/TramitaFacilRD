@@ -76,7 +76,14 @@ def configuracion(cambiar_clave: bool) -> dict:
     cfg = json.loads(CONFIG.read_text(encoding="utf-8")) if CONFIG.exists() else {}
     if cambiar_clave or "admin_hash" not in cfg:
         print("\nPanel de administración (admin.html)")
-        cfg["admin_hash"] = generate_password_hash(pedir_clave())
+        try:
+            clave = pedir_clave()
+        except (EOFError, OSError):
+            # Sin teclado disponible (p. ej. lanzado desde IDLE): se crea una contraseña y se guarda en un archivo
+            clave = secrets.token_urlsafe(8)
+            (INSTANCIA / "CLAVE-PANEL.txt").write_text(f"Contraseña del panel: {clave}\n", encoding="utf-8")
+            print(f"Contraseña del panel: {clave}  (guardada en instance/CLAVE-PANEL.txt)")
+        cfg["admin_hash"] = generate_password_hash(clave)
         print("✓ Contraseña guardada.\n")
     cfg.setdefault("secret_key", secrets.token_hex(32))
     CONFIG.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
