@@ -33,7 +33,10 @@ paso() { printf '\n\033[1;34m==> %s\033[0m\n' "$1"; }
 paso "1/8 Instalando programas del sistema (tarda unos minutos)"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
-apt-get install -y python3 python3-venv git nginx certbot python3-certbot-nginx ufw sqlite3 curl
+apt-get install -y python3 python3-venv git nginx certbot python3-certbot-nginx ufw sqlite3 curl fail2ban unattended-upgrades
+# Seguridad: bloquea intentos repetidos de entrar por SSH y aplica parches de seguridad solos
+systemctl enable --now fail2ban >/dev/null 2>&1 || true
+printf 'APT::Periodic::Update-Package-Lists "1";\nAPT::Periodic::Unattended-Upgrade "1";\n' > /etc/apt/apt.conf.d/20auto-upgrades
 
 paso "2/8 Creando el usuario del servicio"
 id -u "$USUARIO" >/dev/null 2>&1 || useradd --system --create-home --home-dir "/home/$USUARIO" --shell /usr/sbin/nologin "$USUARIO"
