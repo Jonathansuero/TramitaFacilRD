@@ -1286,6 +1286,31 @@
       "Related services",
       "Démarches associées"
     ],
+    "serv.rel.sub": [
+      "{n} trámites más en {area}. Toca uno para ver sus detalles aquí mismo.",
+      "{n} more services in {area}. Tap one to see its details right here.",
+      "{n} autres démarches en {area}. Touchez-en une pour voir les détails ici même."
+    ],
+    "serv.rel.sub1": [
+      "1 trámite más en {area}. Tócalo para ver sus detalles aquí mismo.",
+      "1 more service in {area}. Tap it to see its details right here.",
+      "1 autre démarche en {area}. Touchez-la pour voir les détails ici même."
+    ],
+    "serv.rel.req": [
+      "Requisitos",
+      "Requirements",
+      "Documents requis"
+    ],
+    "serv.rel.ficha": [
+      "Ver ficha completa",
+      "See full page",
+      "Voir la fiche complète"
+    ],
+    "serv.rel.cerrar": [
+      "Cerrar",
+      "Close",
+      "Fermer"
+    ],
     "serv.anterior": [
       "Servicio anterior",
       "Previous service",

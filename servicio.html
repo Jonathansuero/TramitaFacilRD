@@ -91,11 +91,14 @@
 
     <section class="pb-16">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="flex items-center justify-between gap-3 mb-5">
-                <h2 class="text-xl font-extrabold text-domBlue" data-i18n="serv.relacionados">Trámites relacionados</h2>
-                <div class="flex gap-2"><a id="sPrev" class="pager" href="#"><i class="fa-solid fa-arrow-left"></i></a><a id="sNext" class="pager" href="#"><i class="fa-solid fa-arrow-right"></i></a></div>
+            <div class="flex items-end justify-between gap-3 mb-5">
+                <div>
+                    <h2 class="text-xl font-extrabold text-domBlue" data-i18n="serv.relacionados">Trámites relacionados</h2>
+                    <p id="sRelSub" class="text-sm text-slate-500 mt-1"></p>
+                </div>
+                <div class="flex gap-2 shrink-0"><a id="sPrev" class="pager" href="#"><i class="fa-solid fa-arrow-left"></i></a><a id="sNext" class="pager" href="#"><i class="fa-solid fa-arrow-right"></i></a></div>
             </div>
-            <div id="sRel" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            <div id="sRel" class="rel-grid"></div>
         </div>
     </section>
 </main>
