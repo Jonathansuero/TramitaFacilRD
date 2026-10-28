@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Catálogo de servicios | TramitaFácil RD</title>
+    <meta name="description" content="Todos los trámites que gestionamos en República Dominicana: apostillas, poderes, actas, pasaportes, licencias, propiedades, vehículos, residencia y más, con precios de referencia.">
+    <meta name="theme-color" content="#002D62">
+    <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="apple-touch-icon" href="assets/img/app/apple-touch-icon.png">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="TramitaFácil">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="stylesheet" href="assets/css/tailwind.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body data-page="servicios" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
+<div id="tf-header"></div>
+<main id="main">
+    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white pt-10 pb-24 relative overflow-hidden">
+        <div class="hero-grid absolute inset-0 pointer-events-none"></div>
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 relative text-center">
+            <nav class="breadcrumb justify-center" aria-label="breadcrumb"><a href="index.html" data-i18n="foot.inicio">Inicio</a><span>›</span><span data-i18n="nav.servicios">Servicios</span></nav>
+            <span class="eyebrow bg-white/15 text-white mt-6" data-i18n="cat.eyebrow">Catálogo completo</span>
+            <h1 class="font-display text-3xl sm:text-5xl font-extrabold mt-3" data-i18n="cat.t">Todos nuestros servicios</h1>
+            <p class="text-slate-300 mt-4 max-w-2xl mx-auto"><span data-i18n="cat.sub">Filtra por área o por tu ubicación. Toca un servicio para ver su página completa. Precios en</span> <strong id="catMonedaLabel" class="text-white">RD$</strong>.</p>
+        </div>
+    </section>
+
+    <section id="servicios" class="-mt-16 pb-16 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-5 sm:p-8">
+                <div class="flex flex-col md:flex-row gap-3 mb-4">
+                    <input type="search" id="catSearch" data-i18n-ph="cat.ph" data-i18n-aria="cat.ph" class="flex-1 bg-slate-50 border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
+                    <div id="catPaisFilter" class="flex gap-2 overflow-x-auto"></div>
+                </div>
+                <div id="catChips" class="flex gap-2 overflow-x-auto pb-3 mb-4"></div>
+                <p id="catCount" class="text-xs text-slate-500 mb-3"></p>
+                <div class="cat-viewport" id="catViewport" aria-live="polite"><div class="cat-track" id="catGrid"></div></div>
+                <nav class="cat-pager" id="catPager" data-i18n-aria="cat.paginas"></nav>
+            </div>
+            <div class="mt-6 rounded-3xl bg-gradient-to-br from-domBlue to-slate-900 text-white p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="text-center sm:text-left">
+                    <h2 class="font-extrabold" data-i18n="catp.cta.t">¿No encuentras tu trámite?</h2>
+                    <p class="text-xs text-slate-300 mt-1" data-i18n="catp.cta.d">Gestionamos muchos más. Escríbenos y te decimos cómo hacerlo.</p>
+                </div>
+                <a id="catWa" href="#" target="_blank" rel="noopener" class="inline-flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-bold px-5 py-3 rounded-xl whitespace-nowrap"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="pres.escribir">Escribir por WhatsApp</span></a>
+            </div>
+        </div>
+    </section>
+</main>
+<div id="tf-footer"></div>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/core.js"></script>
+<script src="assets/js/servicios.js"></script>
+</body>
+</html>

@@ -501,6 +501,31 @@
       "Filter by area or location. Tap a service to open its full page. Prices in",
       "Filtrez par domaine ou par lieu. Touchez un service pour ouvrir sa page. Prix en"
     ],
+    "cat.resumen": [
+      "{n} servicios en {a} áreas. Elige un área o abre el catálogo completo para buscar y filtrar.",
+      "{n} services in {a} areas. Pick an area or open the full catalog to search and filter.",
+      "{n} services dans {a} domaines. Choisissez un domaine ou ouvrez le catalogue complet pour chercher et filtrer."
+    ],
+    "cat.completo": [
+      "Ver catálogo completo",
+      "See the full catalog",
+      "Voir le catalogue complet"
+    ],
+    "cat.area.n": [
+      "{n} servicios",
+      "{n} services",
+      "{n} services"
+    ],
+    "catp.cta.t": [
+      "¿No encuentras tu trámite?",
+      "Can't find what you need?",
+      "Vous ne trouvez pas votre démarche ?"
+    ],
+    "catp.cta.d": [
+      "Gestionamos muchos más. Escríbenos y te decimos cómo hacerlo.",
+      "We handle many more. Message us and we'll tell you how.",
+      "Nous en gérons bien d'autres. Écrivez-nous et nous vous expliquons."
+    ],
     "cat.ph": [
       "🔍 Buscar: apostilla, poder, licencia, JCE…",
       "🔍 Search: apostille, power of attorney, license, JCE…",

@@ -62,7 +62,7 @@
             </div>
             <p class="text-xs text-slate-500 mb-5" data-i18n="quick.sub">Elegidos para ti · clic para ver detalles</p>
             <div id="heroQuick" class="space-y-3"></div>
-            <a href="#servicios" class="mt-4 block text-center text-xs font-bold text-domBlue hover:text-domRed" id="verTodos"></a>
+            <a href="servicios.html" class="mt-4 block text-center text-xs font-bold text-domBlue hover:text-domRed" id="verTodos"></a>
         </div>
     </div>
 </section>
@@ -171,20 +171,16 @@
 
 <!-- CATÁLOGO -->
 <section id="servicios" class="py-16 md:py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto mb-8">
             <span class="eyebrow bg-sky-100 text-domBlue" data-i18n="cat.eyebrow">Catálogo completo</span>
             <h2 class="section-title" data-i18n="cat.t">Todos nuestros servicios</h2>
-            <p class="text-slate-600 text-sm mt-1"><span data-i18n="cat.sub">Filtra por área o por tu ubicación. Toca un servicio para ver su página completa. Precios en</span> <strong id="catMonedaLabel">RD$</strong>.</p>
+            <p class="text-slate-600 text-sm mt-1" id="catResumen"></p>
         </div>
-        <div class="flex flex-col md:flex-row gap-3 mb-4">
-            <input type="search" id="catSearch" data-i18n-ph="cat.ph" data-i18n-aria="cat.ph" class="flex-1 bg-slate-50 border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
-            <div id="catPaisFilter" class="flex gap-2 overflow-x-auto"></div>
+        <div id="catAreas" class="areas-grid"></div>
+        <div class="text-center mt-8">
+            <a href="servicios.html" class="cat-cta"><i class="fa-solid fa-layer-group" aria-hidden="true"></i><span data-i18n="cat.completo">Ver catálogo completo</span><i class="fa-solid fa-arrow-right" aria-hidden="true"></i></a>
         </div>
-        <div id="catChips" class="flex gap-2 overflow-x-auto pb-3 mb-4"></div>
-        <p id="catCount" class="text-xs text-slate-500 mb-3"></p>
-        <div class="cat-viewport" id="catViewport" aria-live="polite"><div class="cat-track" id="catGrid"></div></div>
-        <nav class="cat-pager" id="catPager" data-i18n-aria="cat.paginas"></nav>
     </div>
 </section>
 

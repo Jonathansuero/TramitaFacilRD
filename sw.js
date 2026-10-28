@@ -6,16 +6,16 @@
    - /api/ nunca se guarda (solicitudes y rastreo siempre en vivo).
    VERSION la actualiza `python manage.py build`; al cambiar, los teléfonos reciben la nueva versión.
    ========================================================== */
-const VERSION = 'fdb085c08f';
+const VERSION = '418d0a2098';
 const CACHE = `tramitafacil-${VERSION}`;
 const CACHE_EXT = 'tramitafacil-externos';
 
 const PRECACHE = [
-    './', './index.html', './servicio.html', './instituciones.html', './diaspora.html',
+    './', './index.html', './servicios.html', './servicio.html', './instituciones.html', './diaspora.html',
     './rastreo.html', './preguntas.html', './calculadora.html', './offline.html', './site.webmanifest',
     './assets/css/tailwind.css', './assets/css/styles.css',
     './assets/js/data.js', './assets/js/core.js', './assets/js/cotizador.js', './assets/js/script.js',
-    './assets/js/servicio.js', './assets/js/instituciones.js', './assets/js/diaspora.js',
+    './assets/js/servicio.js', './assets/js/servicios.js', './assets/js/instituciones.js', './assets/js/diaspora.js',
     './assets/js/rastreo.js', './assets/js/preguntas.js', './assets/js/calculadora.js',
     './assets/img/favicon.svg', './assets/img/favicon-32.png',
     './assets/img/app/icon-192.png', './assets/img/app/icon-512.png', './assets/img/app/apple-touch-icon.png'

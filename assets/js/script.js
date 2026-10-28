@@ -9,9 +9,8 @@
     const TF = window.TF; if (!TF) return;
     const { D, C, PAISES, SERV, SYM, state, $, $$, esc, t, tc, money, waLink, saludo, toast, restart, normal, goTo, flagOf, countryName } = TF;
 
-    const ui = { cat: 'todos', catPais: 'mio', catQuery: '', catPage: 0, catPaginas: 0, catTotal: 0, quizKey: null, checklistKey: null };
+    const ui = { quizKey: null, checklistKey: null };
     const servUrl = k => `servicio.html?id=${encodeURIComponent(k)}`;
-    const flagsOf = k => SERV[k].paises.map(p => PAISES[p].bandera).join(' ');
 
     // ============================================================
     // PAÍS Y PRESENCIA
@@ -137,104 +136,18 @@
     }
 
     // ============================================================
-    // CATÁLOGO
+    // SERVICIOS (resumen por áreas; el catálogo completo está en servicios.html)
     // ============================================================
-    const POR_PAGINA = 6;
-    function tarjeta(k, i) {
-        const s = SERV[k], tr = tc('servicios', k), cat = tc('categorias', s.category);
-        return `<article class="cat-card" style="animation-delay:${i * 40}ms">
-            <div class="flex items-start justify-between gap-2 mb-2">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid ${D.categorias[s.category].icono} mr-1 text-domBlue"></i>${esc(cat.label)}</span>
-                <span class="cat-flags" title="${esc(t('serv.ideal'))}">${flagsOf(k)}</span></div>
-            <h3><a href="${servUrl(k)}" class="hover:text-domBlue">${esc(tr.title)}</a></h3><p>${esc(tr.desc)}</p>
-            ${s.inst.length ? `<div class="flex flex-wrap gap-1 mt-3">${s.inst.map(id => `<a href="instituciones.html#${id}" class="inst-tag">${esc(D.instituciones[id].sigla)}</a>`).join('')}</div>` : ''}
-            <div class="flex items-end justify-between gap-2 mt-4">
-                <div class="cat-precio">${esc(t('precio.desde'))}<strong>${money(s.tax + s.fee)}</strong></div>
-                <div class="flex gap-1.5"><a class="cat-btn cat-btn-ghost" href="${servUrl(k)}">${esc(t('cat.ver'))}</a><button class="cat-btn cat-btn-primary" data-quick="${k}">${esc(t('cat.cotizar'))}</button></div>
-            </div></article>`;
-    }
-    function renderCatalogo() {
-        $('catChips').innerHTML = `<button class="chip ${ui.cat === 'todos' ? 'is-active' : ''}" data-cat="todos">${esc(t('cat.todos'))}</button>` +
-            Object.keys(D.categorias).map(k => `<button class="chip ${ui.cat === k ? 'is-active' : ''}" data-cat="${k}">${D.categorias[k].emoji} ${esc(tc('categorias', k).label)}</button>`).join('');
-        const P = tc('paises', state.pais);
-        $('catPaisFilter').innerHTML = `<button class="chip ${ui.catPais === 'mio' ? 'is-active' : ''}" data-cpais="mio">${P.bandera} ${esc(t('cat.para', { lugar: P.corto }))}</button><button class="chip ${ui.catPais === 'todos' ? 'is-active' : ''}" data-cpais="todos">🌐 ${esc(t('cat.todos'))}</button>`;
-        $('catMonedaLabel').textContent = SYM[state.moneda];
-        const q = normal(ui.catQuery.trim());
-        const items = Object.keys(SERV).filter(k => {
-            const s = SERV[k], tr = tc('servicios', k);
-            return (ui.cat === 'todos' || s.category === ui.cat) && (ui.catPais === 'todos' || s.paises.includes(state.pais)) &&
-                (!q || normal(tr.title + ' ' + tr.desc + ' ' + s.title + ' ' + s.inst.map(i => D.instituciones[i].sigla).join(' ')).includes(q));
-        });
-        ui.catTotal = items.length;
-        if (!items.length) {
-            ui.catPaginas = 0; ui.catPage = 0;
-            $('catGrid').style.transform = '';
-            $('catGrid').innerHTML = `<div class="cat-page"><div class="text-center py-10 text-sm text-slate-500">${esc(t('cat.vacio'))} <button class="text-domBlue font-bold underline" data-reset-cat>${esc(t('cat.vertodos'))}</button> · <a class="text-emerald-700 font-bold underline" target="_blank" rel="noopener" href="${waLink(saludo(t('wa.buscar', { q: ui.catQuery })))}">${esc(t('cat.preguntar'))}</a></div></div>`;
-            $('catPager').innerHTML = '';
-            $('catCount').textContent = t('cat.count', { n: 0 });
-            ajustarAlto();
-            return;
-        }
-        const paginas = [];
-        for (let i = 0; i < items.length; i += POR_PAGINA) paginas.push(items.slice(i, i + POR_PAGINA));
-        ui.catPaginas = paginas.length;
-        ui.catPage = Math.min(ui.catPage, paginas.length - 1);
-        $('catGrid').innerHTML = paginas.map((pg, n) => `<div class="cat-page grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-pagina="${n}">${pg.map(tarjeta).join('')}</div>`).join('');
-        irAPagina(ui.catPage, { animar: false });
-    }
-
-    /** Muestra la página n del catálogo deslizándola desde la derecha (o izquierda). */
-    function irAPagina(n, { animar = true } = {}) {
-        const total = ui.catPaginas; if (!total) return;
-        n = Math.max(0, Math.min(total - 1, n));
-        ui.catPage = n;
-        const track = $('catGrid');
-        if (!animar) { track.style.transition = 'none'; requestAnimationFrame(() => { track.style.transition = ''; }); }
-        track.style.transform = `translateX(-${n * 100}%)`;
-        $$('#catGrid .cat-page').forEach(pg => {
-            const activa = +pg.dataset.pagina === n;
-            pg.inert = !activa; pg.setAttribute('aria-hidden', String(!activa));
-            if (activa && animar) pg.querySelectorAll('.cat-card').forEach(c => restart(c, 'cat-card'));
-        });
-        // números debajo: ‹ 1 2 3 … ›
-        $('catPager').innerHTML = total < 2 ? '' :
-            `<button type="button" class="cat-arrow" data-cat-page="${n - 1}" ${n === 0 ? 'disabled' : ''} aria-label="${esc(t('cat.anterior'))}"><i class="fa-solid fa-chevron-left"></i></button>` +
-            Array.from({ length: total }, (_, i) => `<button type="button" class="cat-num ${i === n ? 'is-active' : ''}" data-cat-page="${i}" aria-label="${esc(t('cat.pagina', { n: i + 1 }))}" ${i === n ? 'aria-current="page"' : ''}>${i + 1}</button>`).join('') +
-            `<button type="button" class="cat-arrow" data-cat-page="${n + 1}" ${n === total - 1 ? 'disabled' : ''} aria-label="${esc(t('cat.siguiente'))}"><i class="fa-solid fa-chevron-right"></i></button>`;
-        const desde = n * POR_PAGINA + 1, hasta = Math.min(ui.catTotal, (n + 1) * POR_PAGINA);
-        $('catCount').textContent = t(ui.catTotal === 1 ? 'cat.count1' : 'cat.count', { n: ui.catTotal }) + (total > 1 ? ` · ${desde}–${hasta}` : '');
-        ajustarAlto();
-        if (animar) {   // si el inicio del catálogo quedó arriba de la pantalla, lo trae a la vista
-            const top = $('catViewport').getBoundingClientRect().top;
-            if (top < 80) window.scrollBy({ top: top - 140, behavior: 'smooth' });
-        }
-    }
-    /** La ventana del catálogo toma la altura de la página visible. */
-    function ajustarAlto() {
-        const pg = $$('#catGrid .cat-page')[ui.catPaginas ? ui.catPage : 0];
-        $('catViewport').style.height = pg ? pg.offsetHeight + 'px' : '';
-    }
-    function initCatalogo() {
-        const filtrar = () => { ui.catPage = 0; renderCatalogo(); };
-        $('catChips').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (b) { ui.cat = b.dataset.cat; filtrar(); } });
-        $('catPaisFilter').addEventListener('click', e => { const b = e.target.closest('[data-cpais]'); if (b) { ui.catPais = b.dataset.cpais; filtrar(); } });
-        $('catSearch').addEventListener('input', e => { ui.catQuery = e.target.value; filtrar(); });
-        $('catPager').addEventListener('click', e => { const b = e.target.closest('[data-cat-page]'); if (b && !b.disabled) irAPagina(+b.dataset.catPage); });
-        $('catPager').addEventListener('keydown', e => {
-            if (e.key === 'ArrowRight') { e.preventDefault(); irAPagina(ui.catPage + 1); $('catPager').querySelector('.is-active')?.focus(); }
-            if (e.key === 'ArrowLeft') { e.preventDefault(); irAPagina(ui.catPage - 1); $('catPager').querySelector('.is-active')?.focus(); }
-        });
-        // deslizar con el dedo
-        let x0 = null, y0 = null;
-        $('catViewport').addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
-        $('catViewport').addEventListener('touchend', e => {
-            if (x0 === null) return;
-            const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
-            if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) irAPagina(ui.catPage + (dx < 0 ? 1 : -1));
-        }, { passive: true });
-        window.addEventListener('resize', ajustarAlto);
-        if ('ResizeObserver' in window) new ResizeObserver(ajustarAlto).observe($('catViewport'));
-        document.fonts?.ready.then(ajustarAlto);
+    function renderAreas() {
+        const total = Object.keys(SERV).length, areas = Object.keys(D.categorias);
+        $('catResumen').textContent = t('cat.resumen', { n: total, a: areas.length });
+        $('catAreas').innerHTML = areas.map(k => {
+            const n = Object.keys(SERV).filter(s => SERV[s].category === k).length, c = tc('categorias', k);
+            return `<a class="area-card" href="servicios.html?cat=${encodeURIComponent(k)}">
+                <span class="area-ico"><i class="fa-solid ${D.categorias[k].icono}" aria-hidden="true"></i></span>
+                <span class="area-txt"><b>${esc(c.label)}</b><small>${esc(t('cat.area.n', { n }))}<span class="area-res"> · ${esc(c.resumen || '')}</span></small></span>
+                <i class="fa-solid fa-chevron-right area-go" aria-hidden="true"></i></a>`;
+        }).join('');
     }
 
     // ============================================================
@@ -430,8 +343,7 @@
             const r = e.target.closest('[data-req]'); if (r) { openChecklist(r.dataset.req); return; }
             const s = e.target.closest('[data-solicitar]'); if (s) { irASolicitud(s.dataset.solicitar); return; }
             const c = e.target.closest('[data-copy]'); if (c) { navigator.clipboard?.writeText(c.dataset.copy).then(() => toast(t('toast.copiado'))); return; }
-            if (e.target.closest('[data-ver-catalogo]')) { ui.catPais = 'mio'; ui.cat = 'todos'; ui.catPage = 0; renderCatalogo(); goTo('servicios'); return; }
-            if (e.target.closest('[data-reset-cat]')) { ui.cat = 'todos'; ui.catPais = 'todos'; ui.catQuery = ''; ui.catPage = 0; $('catSearch').value = ''; renderCatalogo(); }
+            if (e.target.closest('[data-ver-catalogo]')) { location.href = 'servicios.html?pais=mio'; return; }
         });
     }
     function handleHash() {
@@ -447,7 +359,7 @@
     function renderTodo(animate = false) {
         renderPais(animate);
         renderMundo();
-        renderCatalogo();
+        renderAreas();
         renderQuizCats();
         if (ui.quizKey && !$('quizStep3').classList.contains('hidden')) showQuizResult(ui.quizKey);
         buildFormServicios();
@@ -458,14 +370,14 @@
     document.addEventListener('DOMContentLoaded', () => {
         ui.checklistKey = PAISES[state.pais].destacados.find(k => D.checklists[k]) || Object.keys(D.checklists)[0];
         TF.cotizador.mount('cotizadorApp', { onSolicitar: irASolicitud, formSelect: 'fServicio' });
-        initPresencia(); initMundo(); initCatalogo(); initQuiz(); initSolicitud(); initDelegacion();
+        initPresencia(); initMundo(); initQuiz(); initSolicitud(); initDelegacion();
         $('checklistTabs').addEventListener('click', e => { const b = e.target.closest('[data-key]'); if (b) loadChecklist(b.dataset.key); });
         renderTodo(false);
         empresaSchema();
 
         TF.on('lang', () => renderTodo(false));
         TF.on('pais', d => renderTodo(d.animate !== false));
-        TF.on('moneda', () => { renderHeroQuick(); renderCatalogo(); });
+        TF.on('moneda', renderHeroQuick);
 
         TF.observe($$('[data-count]'), runCounter, { threshold: 0.5 });
         initScrollSpy();

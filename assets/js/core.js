@@ -209,7 +209,7 @@
     // ENCABEZADO Y PIE (iguales en todas las páginas)
     // ============================================================
     const NAV = [
-        { href: homeLink('servicios'), key: 'nav.servicios', id: 'servicios' },
+        { href: 'servicios.html', key: 'nav.servicios', page: 'servicios' },
         { href: 'calculadora.html', key: 'nav.calculadoras', page: 'calculadora' },
         { href: 'instituciones.html', key: 'nav.instituciones', page: 'instituciones' },
         { href: 'diaspora.html', key: 'nav.diaspora', page: 'diaspora' },
@@ -217,7 +217,7 @@
         { href: 'preguntas.html', key: 'nav.faq', page: 'preguntas' }
     ];
     const MOBILE = [
-        ['presencia', 'fa-earth-americas', 'm.presencia'], ['cotizador', 'fa-calculator', 'm.cotizador'], ['servicios', 'fa-layer-group', 'm.servicios'],
+        ['presencia', 'fa-earth-americas', 'm.presencia'], ['cotizador', 'fa-calculator', 'm.cotizador'],
         ['asistente', 'fa-wand-magic-sparkles', 'm.asistente'], ['requisitos', 'fa-list-check', 'm.requisitos'],
         ['solicitud', 'fa-file-pen', 'm.solicitud']
     ];
@@ -270,6 +270,7 @@
   </div>
   <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-4 text-sm max-h-[75vh] overflow-y-auto">
     <button type="button" id="instalarMenu" hidden class="mobile-link ml-install w-full text-left"><span class="ml-ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="ml-txt"><span class="block" data-i18n="app.instalar"></span><span class="block text-[11px] font-medium text-slate-500" data-i18n="app.menu.d"></span></span><i class="fa-solid fa-chevron-right ml-go" aria-hidden="true"></i></button>
+    ${mobileLink('servicios.html', 'fa-layer-group', 'm.servicios', ` ml-page${PAGE === 'servicios' ? ' nav-active' : ''}`)}
     ${mobileLink('instituciones.html', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
     ${mobileLink('diaspora.html', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
     ${mobileLink('calculadora.html', 'fa-calculator', 'nav.calculadoras', ` ml-page${PAGE === 'calculadora' ? ' nav-active' : ''}`)}
@@ -302,7 +303,7 @@
         <li><a href="preguntas.html" data-i18n="m.faq"></a></li>
         <li><a href="servicio.html?id=apostilla_documentos" data-i18n="foot.ejemplo"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.navega"></h4><ul class="foot-ul">
-        <li><a href="${homeLink('servicios')}" data-i18n="m.servicios"></a></li>
+        <li><a href="servicios.html" data-i18n="m.servicios"></a></li>
         <li><a href="${homeLink('cotizador')}" data-i18n="m.cotizador"></a></li>
         <li><a href="${homeLink('solicitud')}" data-i18n="m.solicitud"></a></li>
         <li><a href="calculadora.html#herramientas-dgii" data-i18n="m.dgii"></a></li></ul></div>
@@ -412,7 +413,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     function renderTabbar() {
         const tabs = [
             ['index.html', 'fa-house', 'tab.inicio', PAGE === 'home'],
-            [homeLink('servicios'), 'fa-layer-group', 'tab.servicios', false],
+            ['servicios.html', 'fa-layer-group', 'tab.servicios', PAGE === 'servicios' || PAGE === 'servicio'],
             ['calculadora.html', 'fa-calculator', 'tab.calc', PAGE === 'calculadora'],
             ['rastreo.html', 'fa-location-crosshairs', 'tab.rastrear', PAGE === 'rastreo']
         ];
