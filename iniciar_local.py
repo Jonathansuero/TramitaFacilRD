@@ -12,6 +12,7 @@ Opciones:
     --clave      Cambiar la contraseña del panel de administración
 
 La primera vez crea un entorno de Python en la carpeta .venv e instala Flask.
+Página: http://127.0.0.1:8000 · Panel: http://127.0.0.1:8000/admin.html · Clave: 123456
 Las solicitudes se guardan en instance/tramitafacil.db (haz copia de esa carpeta).
 """
 from __future__ import annotations
@@ -70,21 +71,24 @@ def pedir_clave() -> str:
     return clave
 
 
+CLAVE_LOCAL = "123456"   # contraseña del panel en esta computadora (cámbiala con --clave)
+
+
 def configuracion(cambiar_clave: bool) -> dict:
     from werkzeug.security import generate_password_hash
     INSTANCIA.mkdir(exist_ok=True)
     cfg = json.loads(CONFIG.read_text(encoding="utf-8")) if CONFIG.exists() else {}
-    if cambiar_clave or "admin_hash" not in cfg:
+    if cambiar_clave:
         print("\nPanel de administración (admin.html)")
         try:
             clave = pedir_clave()
         except (EOFError, OSError):
-            # Sin teclado disponible (p. ej. lanzado desde IDLE): se crea una contraseña y se guarda en un archivo
-            clave = secrets.token_urlsafe(8)
-            (INSTANCIA / "CLAVE-PANEL.txt").write_text(f"Contraseña del panel: {clave}\n", encoding="utf-8")
-            print(f"Contraseña del panel: {clave}  (guardada en instance/CLAVE-PANEL.txt)")
-        cfg["admin_hash"] = generate_password_hash(clave)
+            sys.exit("No se pudo leer la contraseña. Ejecuta el comando desde la Terminal.")
+        cfg["admin_hash"], cfg["clave_personal"] = generate_password_hash(clave), True
         print("✓ Contraseña guardada.\n")
+    elif not cfg.get("clave_personal"):
+        # Sin contraseña propia: se usa la del panel local (123456)
+        cfg["admin_hash"] = generate_password_hash(CLAVE_LOCAL)
     cfg.setdefault("secret_key", secrets.token_hex(32))
     CONFIG.write_text(json.dumps(cfg, indent=2), encoding="utf-8")
     return cfg
@@ -131,6 +135,8 @@ def main() -> None:
     print("  TramitaFácil RD está funcionando en tu computadora")
     print(f"  Página:  {url}")
     print(f"  Panel:   {url}/admin.html")
+    if not cfg.get("clave_personal"):
+        print(f"  Clave:   {CLAVE_LOCAL}   (para cambiarla: python3 iniciar_local.py --clave)")
     if en_red:
         print(f"  Desde otro equipo de tu red:  http://{ip_local()}:{puerto}")
     print("  Datos:   instance/tramitafacil.db")
