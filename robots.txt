@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /admin.html
 
-Sitemap: https://TU-DOMINIO.com/sitemap.xml
+Sitemap: https://tramitafacilrd.com/sitemap.xml
