@@ -103,6 +103,8 @@ cd /opt/tramitafacil && bash tools/instalar_vps.sh tudominio.com tucorreo@ejempl
 tramita ayuda
 ```
 
+**Panel de administración** (`/admin.html`, solo con el servidor): ver solicitudes, mover el seguimiento paso a paso, crear expedientes para clientes de WhatsApp, avisarles por WhatsApp y descargar Excel. El instalador muestra la contraseña inicial; se cambia con `tramita clave`.
+
 ## Tareas del día a día
 
 ```bash

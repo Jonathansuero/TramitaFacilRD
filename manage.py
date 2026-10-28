@@ -119,7 +119,7 @@ def cmd_exportar(args):
 def cmd_estado(args):
     codigo = args.codigo.upper()
     if args.paso not in PASOS:
-        sys.exit("El paso debe ser 1 (Recibido), 2 (Verificado), 3 (En Entidad) o 4 (Listo).")
+        sys.exit("El paso debe ser 1 (Recibido), 2 (Verificado), 3 (En la institución) o 4 (Listo).")
     db = conectar()
     row = db.execute("SELECT 1 FROM seguimiento WHERE codigo=?", (codigo,)).fetchone()
     estado = args.estado or PASOS[args.paso]

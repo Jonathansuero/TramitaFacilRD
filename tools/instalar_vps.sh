@@ -70,6 +70,15 @@ EOF
   chmod 600 "$ENVF"
 fi
 
+# Panel de administración (tudominio.com/admin.html): clave secreta de sesión y contraseña inicial
+grep -q '^TF_SECRET_KEY=' "$ENVF" || echo "TF_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))')" >> "$ENVF"
+CLAVE_PANEL=""
+if ! grep -q '^TF_ADMIN_HASH=' "$ENVF"; then
+  CLAVE_PANEL="$(python3 -c 'import secrets; print(secrets.token_urlsafe(9))')"
+  HASH="$(printf '%s' "$CLAVE_PANEL" | "$APP/.venv/bin/python" -c 'import sys; from werkzeug.security import generate_password_hash as g; print(g(sys.stdin.read()))')"
+  echo "TF_ADMIN_HASH='$HASH'" >> "$ENVF"
+fi
+
 paso "5/8 Creando el servicio que mantiene la página encendida"
 cat > /etc/systemd/system/tramitafacil.service <<EOF
 [Unit]
@@ -151,7 +160,20 @@ case "${1:-ayuda}" in
   reiniciar) systemctl restart tramitafacil && echo "Servicio reiniciado." ;;
   estado-servidor) systemctl --no-pager status tramitafacil ;;
   logs) journalctl -u tramitafacil -n 80 --no-pager ;;
-  ssl) certbot --nginx $(dominios) --non-interactive --agree-tos -m "$CORREO" --redirect ;;
+  ssl)
+    certbot --nginx $(dominios) --non-interactive --agree-tos -m "$CORREO" --redirect
+    grep -q '^TF_COOKIE_SEGURA=' /etc/tramitafacil.env || echo "TF_COOKIE_SEGURA=1" >> /etc/tramitafacil.env
+    systemctl restart tramitafacil ;;
+  clave)
+    read -r -s -p "Nueva contraseña del panel (mínimo 8 caracteres): " c1; echo
+    read -r -s -p "Repítela: " c2; echo
+    [ "$c1" = "$c2" ] || { echo "No coinciden. Inténtalo de nuevo."; exit 1; }
+    [ "${#c1}" -ge 8 ] || { echo "Debe tener al menos 8 caracteres."; exit 1; }
+    h="$(printf '%s' "$c1" | "$APP/.venv/bin/python" -c 'import sys; from werkzeug.security import generate_password_hash as g; print(g(sys.stdin.read()))')"
+    sed -i '/^TF_ADMIN_HASH=/d' /etc/tramitafacil.env
+    echo "TF_ADMIN_HASH='$h'" >> /etc/tramitafacil.env
+    grep -q '^TF_SECRET_KEY=' /etc/tramitafacil.env || echo "TF_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))')" >> /etc/tramitafacil.env
+    systemctl restart tramitafacil && echo "Contraseña cambiada. Entra en https://$DOMINIO/admin.html" ;;
   respaldo) /etc/cron.daily/tramitafacil-respaldo && ls -1 /var/backups/tramitafacil | tail -n 3 ;;
   actualizar)
     cd "$APP"
@@ -166,6 +188,7 @@ Comandos de TramitaFácil RD:
   tramita exportar                        Crear un CSV (Excel) con todas las solicitudes
   tramita estado RD-1234 3 "Detalle"      Actualizar el rastreo (pasos 1 a 4)
   tramita precio <servicio> --honorario N Cambiar un precio
+  tramita clave                           Cambiar la contraseña del panel (admin.html)
   tramita correo                          Configurar el aviso por correo
   tramita actualizar                      Traer los últimos cambios de GitHub
   tramita ssl                             Activar o renovar HTTPS
@@ -194,4 +217,8 @@ else
   printf '\n\033[1;31m✗ El servicio no respondió. Revisa con: tramita logs\033[0m\n'
 fi
 echo "  Página:   https://$DOMINIO"
+echo "  Panel:    https://$DOMINIO/admin.html"
+if [ -n "$CLAVE_PANEL" ]; then
+  printf '  Contraseña del panel: \033[1;33m%s\033[0m  (anótala; cámbiala cuando quieras con: tramita clave)\n' "$CLAVE_PANEL"
+fi
 echo "  Ayuda:    tramita ayuda"

@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="robots" content="noindex, nofollow">
+    <meta name="theme-color" content="#002D62">
+    <title>Panel · TramitaFácil RD</title>
+    <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --azul: #002D62; --azul-2: #0B3B78; --rojo: #CE1126; --oro: #D4AF37; --verde: #0E7A52; --verde-wa: #128C4A;
+            --fondo: #F3F5F9; --tarjeta: #FFFFFF; --borde: #E2E8F0; --texto: #0F172A; --suave: #64748B; --suave-2: #94A3B8;
+            --sky: #E0F2FE; --sky-t: #075985; --amber: #FEF3C7; --amber-t: #92400E; --emerald: #D1FAE5; --emerald-t: #065F46;
+        }
+        * { box-sizing: border-box; }
+        html, body { margin: 0; }
+        body { font-family: Inter, system-ui, -apple-system, sans-serif; background: var(--fondo); color: var(--texto); font-size: 15px; line-height: 1.45; -webkit-font-smoothing: antialiased; }
+        button, input, select, textarea { font: inherit; color: inherit; }
+        button { cursor: pointer; }
+        [hidden] { display: none !important; }
+        .wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+
+        /* ---------- barra superior */
+        .top { background: var(--azul); color: #fff; position: sticky; top: 0; z-index: 20; padding-top: env(safe-area-inset-top); }
+        .top .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 64px; }
+        .marca { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 17px; color: #fff; text-decoration: none; }
+        .marca small { display: block; font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #9FB3D1; }
+        .marca .rd { color: #FF6B7D; }
+        .logo { width: 38px; height: 38px; flex-shrink: 0; }
+        .top-acc { display: flex; gap: 8px; }
+        .btn-top { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18); color: #fff; border-radius: 10px; padding: 8px 12px; font-size: 13px; font-weight: 600; text-decoration: none; }
+        .btn-top:hover { background: rgba(255,255,255,.18); }
+
+        /* ---------- botones e inputs */
+        .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 0; border-radius: 12px; padding: 11px 18px; font-weight: 700; font-size: 14px; transition: transform .1s, background .15s, opacity .15s; text-decoration: none; }
+        .btn:active { transform: scale(.98); }
+        .btn:disabled { opacity: .55; cursor: default; }
+        .btn-azul { background: var(--azul); color: #fff; } .btn-azul:hover { background: var(--azul-2); }
+        .btn-rojo { background: var(--rojo); color: #fff; } .btn-rojo:hover { background: #B00E20; }
+        .btn-wa { background: var(--verde-wa); color: #fff; } .btn-wa:hover { background: #0E7A3E; }
+        .btn-borde { background: #fff; color: var(--azul); border: 1px solid var(--borde); } .btn-borde:hover { border-color: #CBD5E1; background: #F8FAFC; }
+        .btn-sm { padding: 8px 12px; font-size: 13px; border-radius: 10px; }
+        label.campo { display: block; font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 6px; }
+        .input { width: 100%; border: 1px solid var(--borde); background: #fff; border-radius: 12px; padding: 11px 14px; outline: none; transition: border-color .15s, box-shadow .15s; }
+        .input:focus { border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,45,98,.12); }
+        textarea.input { resize: vertical; min-height: 76px; }
+        .msg-error { background: #FEE2E2; color: #991B1B; border-radius: 10px; padding: 10px 12px; font-size: 13px; font-weight: 600; }
+
+        /* ---------- login */
+        .login { min-height: 100vh; display: grid; place-items: center; padding: 24px 16px; background: linear-gradient(160deg, #002D62 0%, #0B3B78 60%, #12407F 100%); }
+        .login-card { width: 100%; max-width: 400px; background: #fff; border-radius: 24px; padding: 32px 28px; box-shadow: 0 30px 60px -20px rgba(0,0,0,.45); }
+        .login-card h1 { font-size: 22px; margin: 18px 0 4px; color: var(--azul); letter-spacing: -.01em; }
+        .login-card p { margin: 0 0 22px; color: var(--suave); font-size: 14px; }
+        .login-card .marca { color: var(--azul); }
+        .login-card .marca .rd { color: var(--rojo); }
+        .login-card form { display: grid; gap: 14px; }
+
+        /* ---------- resumen y filtros */
+        main { padding: 20px 0 60px; }
+        .cabecera { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+        .cabecera h2 { margin: 0; font-size: 24px; letter-spacing: -.02em; color: var(--azul); }
+        .cabecera p { margin: 2px 0 0; color: var(--suave); font-size: 14px; }
+        .filtros { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+        .filtro { background: #fff; border: 1px solid var(--borde); border-radius: 14px; padding: 10px 8px; text-align: center; transition: border-color .15s, box-shadow .15s; }
+        .filtro b { display: block; font-size: 22px; font-weight: 800; color: var(--azul); line-height: 1.1; }
+        .filtro span { font-size: 12px; font-weight: 600; color: var(--suave); }
+        .filtro.on { border-color: var(--azul); box-shadow: 0 0 0 2px var(--azul) inset; }
+        .buscar { position: relative; margin-bottom: 16px; }
+        .buscar svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--suave-2); }
+        .buscar .input { padding-left: 40px; }
+
+        /* ---------- tarjetas de expedientes */
+        .lista { display: grid; gap: 12px; }
+        .exp { background: var(--tarjeta); border: 1px solid var(--borde); border-radius: 18px; overflow: hidden; }
+        .exp-cab { width: 100%; text-align: left; background: none; border: 0; padding: 16px 18px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; }
+        .exp-cab:hover { background: #FAFBFD; }
+        .exp-nombre { font-weight: 700; font-size: 16px; }
+        .exp-serv { color: var(--suave); font-size: 13px; grid-column: 1; }
+        .exp-meta { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; color: var(--suave); }
+        .codigo { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-weight: 700; color: var(--azul); background: #EEF3FA; border-radius: 6px; padding: 2px 7px; font-size: 12px; }
+        .chip { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+        .chip.sky { background: var(--sky); color: var(--sky-t); } .chip.amber { background: var(--amber); color: var(--amber-t); } .chip.emerald { background: var(--emerald); color: var(--emerald-t); }
+        .barra { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 4px; }
+        .barra i { height: 5px; border-radius: 99px; background: #E5E9F0; }
+        .barra i.on { background: var(--azul); }
+        .barra i.on.listo { background: var(--verde); }
+
+        .exp-cuerpo { border-top: 1px solid var(--borde); padding: 16px 18px 18px; display: grid; gap: 16px; background: #FCFDFE; }
+        .datos { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px 16px; font-size: 14px; }
+        .datos dt { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--suave-2); }
+        .datos dd { margin: 2px 0 0; word-break: break-word; }
+        .actual { background: #fff; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+        .actual small { display: block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--suave-2); margin-bottom: 2px; }
+        .pasos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+        .paso { border: 1px solid var(--borde); background: #fff; border-radius: 12px; padding: 9px 4px; font-size: 12px; font-weight: 700; color: #475569; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .paso em { font-style: normal; width: 24px; height: 24px; border-radius: 50%; background: #EEF2F7; display: grid; place-items: center; font-size: 12px; }
+        .paso.sel { border-color: var(--azul); background: var(--azul); color: #fff; }
+        .paso.sel em { background: var(--oro); color: var(--azul); }
+        .acciones { display: flex; flex-wrap: wrap; gap: 8px; }
+        .acciones .btn-azul { flex: 1 1 180px; }
+
+        .vacio { text-align: center; color: var(--suave); background: #fff; border: 1px dashed #CBD5E1; border-radius: 18px; padding: 40px 20px; }
+        .vacio b { display: block; color: var(--azul); font-size: 16px; margin-bottom: 4px; }
+
+        /* ---------- ventana de nuevo expediente */
+        .modal { position: fixed; inset: 0; background: rgba(15,23,42,.55); display: grid; place-items: end center; z-index: 40; padding: 0; }
+        .hoja { width: 100%; max-width: 560px; max-height: 92vh; overflow: auto; background: #fff; border-radius: 24px 24px 0 0; padding: 22px 20px calc(22px + env(safe-area-inset-bottom)); display: grid; gap: 14px; }
+        .hoja h3 { margin: 0; font-size: 19px; color: var(--azul); }
+        .dos { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .creado { background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 14px; padding: 14px; text-align: center; }
+        .creado .codigo { font-size: 20px; padding: 4px 10px; display: inline-block; margin: 6px 0; }
+
+        .toast { position: fixed; left: 0; right: 0; margin-inline: auto; bottom: calc(18px + env(safe-area-inset-bottom)); width: max-content; max-width: calc(100% - 32px); background: var(--texto); color: #fff; padding: 11px 16px; border-radius: 12px; font-size: 14px; font-weight: 600; z-index: 60; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+
+        @media (min-width: 640px) { .modal { place-items: center; padding: 16px; } .hoja { border-radius: 24px; } }
+        @media (max-width: 560px) {
+            .filtros { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+            .filtro span { font-size: 11px; }
+            .filtros .filtro:first-child { grid-column: 1 / -1; }
+            .top-acc .txt { display: none; }
+            .dos { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ======================= INICIO DE SESIÓN ======================= -->
+    <section id="vLogin" class="login" hidden>
+        <div class="login-card">
+            <div class="marca">
+                <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="22" fill="#002D62"/><rect y="78" width="100" height="22" fill="#CE1126"/><text x="50" y="60" font-size="44" font-weight="900" text-anchor="middle" fill="#fff" font-family="Inter, Arial, sans-serif">TF</text></svg>
+                <span>TramitaFácil<span class="rd">RD</span></span>
+            </div>
+            <h1>Panel de administración</h1>
+            <p>Solicitudes y seguimiento de tus clientes.</p>
+            <form id="fLogin">
+                <div>
+                    <label class="campo" for="clave">Contraseña</label>
+                    <input id="clave" class="input" type="password" autocomplete="current-password" required>
+                </div>
+                <div id="loginError" class="msg-error" hidden></div>
+                <button class="btn btn-azul" type="submit" id="btnLogin">Entrar</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ======================= PANEL ======================= -->
+    <div id="vPanel" hidden>
+        <header class="top">
+            <div class="wrap">
+                <a class="marca" href="index.html" title="Ir a la página">
+                    <svg class="logo" viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="22" fill="#fff"/><rect y="78" width="100" height="22" fill="#CE1126"/><text x="50" y="60" font-size="44" font-weight="900" text-anchor="middle" fill="#002D62" font-family="Inter, Arial, sans-serif">TF</text></svg>
+                    <span>TramitaFácil<span class="rd">RD</span><small>Panel</small></span>
+                </a>
+                <div class="top-acc">
+                    <a class="btn-top" href="/api/admin/exportar" title="Descargar en Excel">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="txt">Excel</span>
+                    </a>
+                    <button class="btn-top" id="btnSalir" type="button" title="Cerrar sesión">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4v16h-4M10 8l-4 4 4 4M6 12h11"/></svg><span class="txt">Salir</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="wrap">
+            <div class="cabecera">
+                <div>
+                    <h2>Expedientes</h2>
+                    <p id="resumen">Cargando…</p>
+                </div>
+                <button class="btn btn-rojo" id="btnNuevo" type="button">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Nuevo expediente
+                </button>
+            </div>
+
+            <div class="filtros" id="filtros" role="tablist" aria-label="Filtrar por paso"></div>
+
+            <div class="buscar">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                <input id="q" class="input" type="search" placeholder="Buscar por nombre, código, trámite o contacto">
+            </div>
+
+            <div id="lista" class="lista"></div>
+        </main>
+    </div>
+
+    <!-- ======================= NUEVO EXPEDIENTE ======================= -->
+    <div id="vNuevo" class="modal" hidden>
+        <form class="hoja" id="fNuevo" role="dialog" aria-modal="true" aria-labelledby="tNuevo">
+            <h3 id="tNuevo">Nuevo expediente</h3>
+            <p style="margin:-8px 0 0;color:var(--suave);font-size:14px">Para clientes que te escribieron por WhatsApp. Se crea un código de rastreo para enviárselo.</p>
+            <div id="nuevoForm" style="display:grid;gap:14px">
+                <div class="dos">
+                    <div><label class="campo" for="nNombre">Nombre del cliente</label><input id="nNombre" class="input" required maxlength="80" autocomplete="off"></div>
+                    <div><label class="campo" for="nContacto">WhatsApp o correo</label><input id="nContacto" class="input" maxlength="120" autocomplete="off" placeholder="+1 809…"></div>
+                </div>
+                <div><label class="campo" for="nServicio">Trámite</label><select id="nServicio" class="input" required></select></div>
+                <div><label class="campo" for="nPais">Desde dónde escribe</label><select id="nPais" class="input"></select></div>
+                <div><label class="campo" for="nMensaje">Nota interna (opcional)</label><textarea id="nMensaje" class="input" maxlength="1000"></textarea></div>
+                <div id="nuevoError" class="msg-error" hidden></div>
+                <div class="acciones">
+                    <button class="btn btn-azul" type="submit" id="btnCrear">Crear expediente</button>
+                    <button class="btn btn-borde" type="button" data-cerrar>Cancelar</button>
+                </div>
+            </div>
+            <div id="nuevoListo" hidden></div>
+        </form>
+    </div>
+
+    <div id="toast" class="toast" role="status" hidden></div>
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>

@@ -45,7 +45,7 @@ self.addEventListener('fetch', event => {
     const url = new URL(req.url);
 
     if (url.origin === self.location.origin) {
-        if (url.pathname.includes('/api/')) return;                 // siempre en vivo
+        if (url.pathname.includes('/api/') || url.pathname.includes('admin')) return;   // siempre en vivo (API y panel)
         if (req.mode === 'navigate') { event.respondWith(pagina(req)); return; }
         event.respondWith(recurso(req, CACHE));
         return;

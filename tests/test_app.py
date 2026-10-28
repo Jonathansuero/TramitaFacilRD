@@ -141,3 +141,52 @@ def test_app_instalable(client):
     for icono in datos["icons"]:
         assert client.get("/" + icono["src"]).status_code == 200
     assert client.get("/offline.html").status_code == 200
+
+
+# ------------------------------------------------ panel de administración
+def test_panel_admin(client):
+    from werkzeug.security import generate_password_hash
+    os.environ["TF_ADMIN_HASH"] = generate_password_hash("clave-de-prueba")
+    try:
+        assert client.get("/admin.html").status_code == 200
+        assert client.get("/api/admin/expedientes").status_code == 401          # sin sesión, nada
+        assert client.get("/api/admin/exportar").status_code == 401
+        assert client.post("/api/admin/login", json={"clave": "mala"}).status_code == 401
+        assert client.post("/api/admin/login", json={"clave": "clave-de-prueba"}).json["ok"]
+        assert client.get("/api/admin/sesion").json["admin"]
+
+        # una solicitud del formulario aparece en el panel con sus datos completos
+        r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "contacto": "+1 809 555 0000",
+                                                "pais": "rd", "servicio": "apostilla_documentos", "acepta": True})
+        codigo = r.json["codigo"]
+        lista = client.get("/api/admin/expedientes").json
+        assert lista["expedientes"][0]["nombre"] == "Ana Rodríguez" and lista["conteo"]["1"] == 1
+
+        # mover el paso: el cliente lo ve en el rastreo
+        r = client.post("/api/admin/estado", json={"codigo": codigo, "paso": 3, "detalle": "Depositado en el MIREX."})
+        assert r.json["expediente"]["paso"] == 3
+        t = client.get(f"/api/rastreo/{codigo}").json
+        assert t["step"] == 3 and t["detail"] == "Depositado en el MIREX." and t["statusText"] == "En la institución"
+        assert client.post("/api/admin/estado", json={"codigo": codigo, "paso": 9, "detalle": "x x x"}).status_code == 400
+        assert client.post("/api/admin/estado", json={"codigo": "RD-NOEXIST", "paso": 2, "detalle": "Hola"}).status_code == 404
+
+        # expediente creado a mano para un cliente de WhatsApp
+        r = client.post("/api/admin/nuevo", json={"nombre": "Pedro Gómez", "contacto": "8095550000",
+                                                  "servicio": "creacion_cv", "pais": "us"})
+        assert r.status_code == 201
+        nuevo = r.json["expediente"]["codigo"]
+        assert client.get(f"/api/rastreo/{nuevo}").json["client"] == "Pedro G."
+
+        csv_txt = client.get("/api/admin/exportar").get_data(as_text=True)
+        assert "Ana Rodríguez" in csv_txt and "Pedro Gómez" in csv_txt
+
+        client.post("/api/admin/logout")
+        assert client.get("/api/admin/expedientes").status_code == 401
+    finally:
+        os.environ.pop("TF_ADMIN_HASH", None)
+
+
+def test_panel_admin_sin_activar(client):
+    os.environ.pop("TF_ADMIN_HASH", None)
+    assert not client.get("/api/admin/sesion").json["configurado"]
+    assert client.post("/api/admin/login", json={"clave": "x"}).status_code == 503

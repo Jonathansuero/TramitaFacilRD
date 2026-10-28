@@ -14,33 +14,52 @@ Endpoints:
     POST /api/traspaso               {valor}
     GET  /api/rastreo/<codigo>       Estado de un expediente
     POST /api/solicitud              Registra una solicitud y devuelve un código de seguimiento
+
+Panel de administración (admin.html, requiere contraseña: TF_ADMIN_HASH):
+    POST /api/admin/login            {clave}
+    POST /api/admin/logout
+    GET  /api/admin/sesion
+    GET  /api/admin/expedientes      Lista de expedientes con datos del cliente
+    POST /api/admin/estado           {codigo, paso, detalle, estado?}
+    POST /api/admin/nuevo            {nombre, contacto, servicio, pais, mensaje?}
+    GET  /api/admin/exportar         CSV para Excel
 """
 from __future__ import annotations
 
+import csv
+import io
 import json
 import os
+import secrets
 import smtplib
 import sqlite3
 import threading
 import time
 import urllib.request
 from collections import defaultdict, deque
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.message import EmailMessage
+from functools import wraps
 from pathlib import Path
 
-from flask import Flask, abort, g, jsonify, request, send_from_directory
+from flask import Flask, Response, abort, g, jsonify, request, send_from_directory, session
+from werkzeug.security import check_password_hash
 
 import calculos
 
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = Path(os.environ.get("TF_DB_PATH", BASE_DIR / "instance" / "tramitafacil.db"))
-PASOS = {1: "Recibido", 2: "Verificado", 3: "En Entidad", 4: "Listo"}
+PASOS = {1: "Recibido", 2: "Verificado", 3: "En la institución", 4: "Listo"}
 TONO_POR_PASO = {1: "sky", 2: "sky", 3: "amber", 4: "emerald"}
 
 app = Flask(__name__, static_folder=None)
 app.json.ensure_ascii = False  # acentos legibles en las respuestas JSON
 app.config["MAX_CONTENT_LENGTH"] = 32 * 1024  # las solicitudes son JSON pequeños
+# Sesión del panel de administración (cookie firmada, solo HTTP, solo este sitio)
+app.secret_key = os.environ.get("TF_SECRET_KEY") or secrets.token_hex(32)
+app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Strict",
+                  SESSION_COOKIE_SECURE=os.environ.get("TF_COOKIE_SEGURA", "0") == "1",
+                  SESSION_COOKIE_NAME="tf_admin", PERMANENT_SESSION_LIFETIME=timedelta(hours=12))
 
 
 # ---------------------------------------------------------------- catálogo
@@ -311,6 +330,148 @@ def api_solicitud():
     return jsonify({"ok": True, "codigo": codigo, "servicio": titulo}), 201
 
 
+# ---------------------------------------------------------------- panel de administración
+def admin_configurado() -> bool:
+    return bool(os.environ.get("TF_ADMIN_HASH"))
+
+
+def requiere_admin(fn):
+    @wraps(fn)
+    def envoltura(*args, **kwargs):
+        if not session.get("admin"):
+            return error("Tu sesión terminó. Vuelve a entrar.", 401)
+        return fn(*args, **kwargs)
+    return envoltura
+
+
+def expediente(row: sqlite3.Row) -> dict:
+    d = dict(row)
+    d["tono"] = TONO_POR_PASO.get(d["paso"], "sky")
+    return d
+
+
+CONSULTA_EXPEDIENTES = """
+SELECT s.codigo, s.servicio AS servicio_titulo, s.cliente, s.paso, s.estado, s.detalle, s.actualizado,
+       o.nombre, o.contacto, o.pais, o.pais_detalle, o.mensaje, o.total_estimado, o.moneda, o.creado,
+       o.idioma, o.servicio AS servicio_id
+FROM seguimiento s LEFT JOIN solicitudes o ON o.codigo = s.codigo
+"""
+
+
+@app.get("/api/admin/sesion")
+def admin_sesion():
+    return jsonify({"ok": True, "admin": bool(session.get("admin")), "configurado": admin_configurado()})
+
+
+@app.post("/api/admin/login")
+def admin_login():
+    if not admin_configurado():
+        return error("El panel no está activado. En el servidor escribe: tramita clave", 503)
+    if limitar("login", 5, 900):
+        return error("Demasiados intentos. Espera 15 minutos e inténtalo de nuevo.", 429)
+    clave = str(cuerpo_json().get("clave", ""))[:200]
+    if not clave or not check_password_hash(os.environ["TF_ADMIN_HASH"], clave):
+        return error("Contraseña incorrecta.", 401)
+    session.clear()
+    session.permanent = True
+    session["admin"] = True
+    return jsonify({"ok": True})
+
+
+@app.post("/api/admin/logout")
+def admin_logout():
+    session.clear()
+    return jsonify({"ok": True})
+
+
+@app.get("/api/admin/expedientes")
+@requiere_admin
+def admin_expedientes():
+    rows = get_db().execute(CONSULTA_EXPEDIENTES + " ORDER BY s.actualizado DESC LIMIT 1000").fetchall()
+    lista = [expediente(r) for r in rows]
+    conteo = {str(p): sum(1 for e in lista if e["paso"] == p) for p in PASOS}
+    return jsonify({"ok": True, "expedientes": lista, "conteo": conteo, "pasos": PASOS})
+
+
+@app.post("/api/admin/estado")
+@requiere_admin
+def admin_estado():
+    d = cuerpo_json()
+    codigo = str(d.get("codigo", "")).strip().upper()[:12]
+    try:
+        paso = int(d.get("paso"))
+    except (TypeError, ValueError):
+        paso = 0
+    if paso not in PASOS:
+        return error("Elige un paso del 1 al 4.")
+    detalle = str(d.get("detalle", "")).strip()[:500]
+    if len(detalle) < 3:
+        return error("Escribe un mensaje para el cliente.")
+    estado = str(d.get("estado", "")).strip()[:60] or PASOS[paso]
+    db = get_db()
+    cur = db.execute("UPDATE seguimiento SET paso=?, estado=?, detalle=?, actualizado=? WHERE codigo=?",
+                     (paso, estado, detalle, ahora(), codigo))
+    if cur.rowcount == 0:
+        return error("No existe ese código.", 404)
+    db.commit()
+    row = db.execute(CONSULTA_EXPEDIENTES + " WHERE s.codigo=?", (codigo,)).fetchone()
+    return jsonify({"ok": True, "expediente": expediente(row)})
+
+
+@app.post("/api/admin/nuevo")
+@requiere_admin
+def admin_nuevo():
+    """Crea un expediente para un cliente que llegó por WhatsApp (sin usar el formulario)."""
+    d = cuerpo_json()
+    nombre = str(d.get("nombre", "")).strip()[:80]
+    contacto = str(d.get("contacto", "")).strip()[:120]
+    pais = str(d.get("pais", "rd")).strip()
+    servicio = str(d.get("servicio", "")).strip()
+    mensaje = str(d.get("mensaje", "")).strip()[:1000]
+    cat = catalogo()
+    if len(nombre) < 2:
+        return error("Escribe el nombre del cliente.")
+    if servicio not in cat["servicios"]:
+        return error("Elige el trámite.")
+    if pais not in calculos.PAISES_VALIDOS:
+        pais = "rd"
+    db = get_db()
+    existe = lambda c: db.execute("SELECT 1 FROM seguimiento WHERE codigo=?", (c,)).fetchone() is not None
+    codigo = calculos.generar_codigo(existe)
+    try:
+        cot = calculos.cotizar(cat, servicio)
+    except ValueError:
+        cot = {"total": None, "moneda": "DOP"}
+    titulo, ts = cat["servicios"][servicio]["title"], ahora()
+    db.execute("INSERT INTO solicitudes (codigo, nombre, pais, servicio, contacto, mensaje, moneda, total_estimado, creado,"
+               " idioma, pais_detalle) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+               (codigo, nombre, pais, servicio, contacto, mensaje, cot["moneda"], cot["total"], ts, "es", ""))
+    db.execute("INSERT INTO seguimiento (codigo, servicio, cliente, paso, estado, detalle, actualizado)"
+               " VALUES (?,?,?,?,?,?,?)",
+               (codigo, titulo, calculos.nombre_publico(nombre), 1, "Solicitud Recibida",
+                "Recibimos tu solicitud. Un gestor te contactará para validar documentos y pago.", ts))
+    db.commit()
+    row = db.execute(CONSULTA_EXPEDIENTES + " WHERE s.codigo=?", (codigo,)).fetchone()
+    return jsonify({"ok": True, "expediente": expediente(row)}), 201
+
+
+@app.get("/api/admin/exportar")
+@requiere_admin
+def admin_exportar():
+    rows = get_db().execute(CONSULTA_EXPEDIENTES + " ORDER BY COALESCE(o.creado, s.actualizado)").fetchall()
+    salida = io.StringIO()
+    w = csv.writer(salida)
+    w.writerow(["Código", "Nombre", "Contacto", "País", "Trámite", "Paso", "Estado", "Mensaje al cliente",
+                "Total estimado", "Moneda", "Nota del cliente", "Creado", "Última actualización"])
+    for r in rows:
+        w.writerow([r["codigo"], r["nombre"] or r["cliente"], r["contacto"] or "", r["pais"] or "", r["servicio_titulo"],
+                    r["paso"], r["estado"], r["detalle"], r["total_estimado"] or "", r["moneda"] or "",
+                    r["mensaje"] or "", (r["creado"] or "")[:16], (r["actualizado"] or "")[:16]])
+    nombre = f"solicitudes-{datetime.now().strftime('%Y-%m-%d')}.csv"
+    return Response("\ufeff" + salida.getvalue(), mimetype="text/csv",
+                    headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
+
+
 @app.errorhandler(404)
 def no_encontrado(_e):
     if request.path.startswith("/api/"):
@@ -321,7 +482,7 @@ def no_encontrado(_e):
 # ---------------------------------------------------------------- sitio estático
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
 ARCHIVOS_RAIZ = {"index.html", "servicio.html", "instituciones.html", "diaspora.html", "rastreo.html", "preguntas.html", "calculadora.html",
-                 "offline.html", "sw.js", "robots.txt", "sitemap.xml", "site.webmanifest"}
+                 "offline.html", "admin.html", "sw.js", "robots.txt", "sitemap.xml", "site.webmanifest"}
 
 
 @app.get("/")
@@ -346,8 +507,11 @@ def cabeceras(resp):
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
-    if request.path.startswith("/api/"):
+    if request.path.startswith("/api/") or request.path == "/admin.html":
         resp.headers["Cache-Control"] = "no-store"
+        if request.path.startswith("/api/admin") or request.path == "/admin.html":
+            resp.headers["X-Robots-Tag"] = "noindex, nofollow"
+            resp.headers["X-Frame-Options"] = "DENY"
     elif request.path == "/sw.js":
         # el navegador debe revisar siempre si hay una versión nueva de la app
         resp.headers["Cache-Control"] = "no-cache"
