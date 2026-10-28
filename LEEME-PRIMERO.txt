@@ -11,10 +11,10 @@ TRAMITAFÁCIL RD — CÓMO CORRERLO EN TU COMPUTADORA
               (si Mac no te deja: clic derecho > Abrir > Abrir)
    - La primera vez instala lo necesario (necesitas internet) y te pide
      crear la contraseña del panel.
-   - Se abre sola en tu navegador:  http://localhost:5000
+   - Se abre sola en tu navegador:  http://127.0.0.1:8000
 
 3) TU PANEL DE ADMINISTRACIÓN
-   - http://localhost:5000/admin.html  (con la contraseña que creaste)
+   - http://127.0.0.1:8000/admin.html  (con la contraseña que creaste)
    - Ves las solicitudes, mueves cada trámite paso a paso, creas
      expedientes para clientes de WhatsApp y descargas el Excel.
 
@@ -23,7 +23,7 @@ TRAMITAFÁCIL RD — CÓMO CORRERLO EN TU COMPUTADORA
        Windows: en la carpeta, escribe en la barra de dirección  cmd  y luego:
                 py iniciar_local.py --red
        Mac:     python3 iniciar_local.py --red
-   - La ventana te muestra la dirección, por ejemplo http://192.168.1.20:5000
+   - La ventana te muestra la dirección, por ejemplo http://192.168.1.20:8000
 
 5) CAMBIAR LA CONTRASEÑA DEL PANEL
    - py iniciar_local.py --clave   (Windows)   ·   python3 iniciar_local.py --clave   (Mac)

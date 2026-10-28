@@ -8,7 +8,7 @@ iniciar_local.py — Corre TramitaFácil RD en tu propia computadora (sin VPS).
 
 Opciones:
     --red        Permite abrirla desde otros equipos de tu misma red (celular, otra PC)
-    --puerto N   Usar otro puerto (por defecto 5000)
+    --puerto N   Usar otro puerto (por defecto 8000; en Mac el 5000 lo ocupa AirPlay)
     --clave      Cambiar la contraseña del panel de administración
 
 La primera vez crea un entorno de Python en la carpeta .venv e instala Flask.
@@ -90,6 +90,18 @@ def configuracion(cambiar_clave: bool) -> dict:
     return cfg
 
 
+def puerto_libre(preferido: int) -> int:
+    """Devuelve el primer puerto libre desde el preferido (en Mac, AirPlay ocupa el 5000)."""
+    for p in range(preferido, preferido + 20):
+        try:
+            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                s.bind(("0.0.0.0", p))
+            return p
+        except OSError:
+            continue
+    return preferido
+
+
 def ip_local() -> str:
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
@@ -103,7 +115,7 @@ def main() -> None:
     preparar_entorno()
     args = sys.argv[1:]
     en_red = "--red" in args
-    puerto = int(args[args.index("--puerto") + 1]) if "--puerto" in args else 5000
+    puerto = puerto_libre(int(args[args.index("--puerto") + 1]) if "--puerto" in args else 8000)
     cfg = configuracion("--clave" in args)
 
     os.environ.setdefault("TF_DB_PATH", str(INSTANCIA / "tramitafacil.db"))
@@ -114,7 +126,7 @@ def main() -> None:
     os.chdir(RAIZ)
     from app import app  # noqa: E402
 
-    url = f"http://localhost:{puerto}"
+    url = f"http://127.0.0.1:{puerto}"
     print("=" * 58)
     print("  TramitaFácil RD está funcionando en tu computadora")
     print(f"  Página:  {url}")

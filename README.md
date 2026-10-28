@@ -95,7 +95,7 @@ python app.py                      # http://localhost:5000
 gunicorn app:app --bind 0.0.0.0:$PORT
 ```
 
-**En tu propia computadora (uso interno)** — doble clic en `INICIAR-WINDOWS.bat` o `INICIAR-MAC.command` (o `python3 iniciar_local.py`). Instala Flask la primera vez, pide la contraseña del panel y abre `http://localhost:5000`. Detalles en `LEEME-PRIMERO.txt`.
+**En tu propia computadora (uso interno)** — doble clic en `INICIAR-WINDOWS.bat` o `INICIAR-MAC.command` (o `python3 iniciar_local.py`). Instala Flask la primera vez, pide la contraseña del panel y abre `http://127.0.0.1:8000`. Detalles en `LEEME-PRIMERO.txt`.
 
 **VPS con Ubuntu (Hostinger u otro) en un solo paso** — instala la página, Nginx, HTTPS, firewall, respaldos diarios y el comando `tramita`:
 
