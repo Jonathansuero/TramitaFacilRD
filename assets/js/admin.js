@@ -129,12 +129,41 @@
     async function cargar() {
         try {
             const r = await api('/admin/expedientes');
-            expedientes = r.expedientes; conteo = r.conteo;
+            expedientes = r.expedientes; conteo = r.conteo; pendiente = null;
+            $('avisoNuevas').hidden = true;
             pintar();
         } catch (e) {
             if (e.message !== 'sesion') $('lista').innerHTML = `<div class="vacio"><b>No se pudo cargar</b>${esc(e.message)}</div>`;
         }
     }
+
+    // ---------------- actualización automática: las solicitudes nuevas aparecen solas
+    let pendiente = null, revisando = false;
+    const huella = lista => lista.map(e => e.codigo + '@' + e.actualizado).join('|');
+    /** ¿Está escribiendo o con una ventana abierta? Entonces no le cambiamos la lista de golpe. */
+    const ocupado = () => editando || !$('vNuevo').hidden || (document.activeElement && document.activeElement.closest('#lista form'));
+    async function revisar() {
+        if (revisando || $('vPanel').hidden || document.hidden) return;
+        revisando = true;
+        try {
+            const r = await api('/admin/expedientes');
+            if (huella(r.expedientes) === huella(expedientes)) return;
+            const conocidos = new Set(expedientes.map(e => e.codigo));
+            const nuevas = r.expedientes.filter(e => !conocidos.has(e.codigo)).length;
+            if (ocupado()) {
+                pendiente = r;
+                const b = $('avisoNuevas'); b.hidden = false;
+                b.textContent = nuevas ? `${nuevas} ${nuevas === 1 ? 'solicitud nueva' : 'solicitudes nuevas'}. Toca para verlas.` : 'Hay cambios en los expedientes. Toca para actualizar.';
+            } else {
+                expedientes = r.expedientes; conteo = r.conteo; pintar();
+                if (nuevas) toast(`${nuevas} ${nuevas === 1 ? 'solicitud nueva' : 'solicitudes nuevas'}`);
+            }
+        } catch (e) { /* sin conexión: se intenta en la próxima vuelta */ }
+        finally { revisando = false; }
+    }
+    setInterval(revisar, 15000);
+    window.addEventListener('focus', revisar);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) revisar(); });
 
     function recontar() { conteo = {}; expedientes.forEach(e => { conteo[e.paso] = (conteo[e.paso] || 0) + 1; }); }
     function reemplazar(exp) {
@@ -318,6 +347,14 @@
         $('vNuevo').hidden = false; $('nNombre').focus();
     }
     const cerrarNuevo = () => { $('vNuevo').hidden = true; };
+    $('avisoNuevas').addEventListener('click', () => {
+        if (pendiente) { expedientes = pendiente.expedientes; conteo = pendiente.conteo; pendiente = null; }
+        editando = null; $('avisoNuevas').hidden = true; pintar();
+    });
+    $('btnRecargar').addEventListener('click', async () => {
+        const b = $('btnRecargar'); b.disabled = true;
+        editando = null; await cargar(); b.disabled = false; toast('Lista actualizada');
+    });
     $('btnNuevo').addEventListener('click', () => {
         if (cat && !$('nPais').options.length) $('nPais').innerHTML = Object.entries(cat.paises).map(([id, p]) => `<option value="${esc(id)}">${p.bandera} ${esc(p.nombre)}</option>`).join('');
         abrirNuevo();

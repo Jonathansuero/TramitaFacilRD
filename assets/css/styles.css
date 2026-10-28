@@ -431,3 +431,7 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
     .area-res, .area-go { display: none; }
     .cat-cta { width: 100%; }
 }
+
+/* ---------- Portada: botón rojo "Ver los 41 servicios" */
+.btn-todos { margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: #CE1126; color: #fff; font-size: 14px; font-weight: 800; padding: 13px 18px; border-radius: 14px; box-shadow: 0 10px 22px -12px rgba(206,17,38,.75); transition: background .2s, transform .2s; }
+.btn-todos:hover { background: #A30E1F; transform: translateY(-1px); }
