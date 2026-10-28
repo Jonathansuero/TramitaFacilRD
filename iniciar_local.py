@@ -12,7 +12,7 @@ Opciones:
     --clave      Cambiar la contraseña del panel de administración
 
 La primera vez crea un entorno de Python en la carpeta .venv e instala Flask.
-Página: http://127.0.0.1:8000 · Panel: http://127.0.0.1:8000/admin.html · Clave: 123456
+Página: http://127.0.0.1:8000 · Panel: http://127.0.0.1:8000/admin · Clave: 123456
 Las solicitudes se guardan en instance/tramitafacil.db (haz copia de esa carpeta).
 """
 from __future__ import annotations
@@ -79,7 +79,7 @@ def configuracion(cambiar_clave: bool) -> dict:
     INSTANCIA.mkdir(exist_ok=True)
     cfg = json.loads(CONFIG.read_text(encoding="utf-8")) if CONFIG.exists() else {}
     if cambiar_clave:
-        print("\nPanel de administración (admin.html)")
+        print("\nPanel de administración (/admin)")
         try:
             clave = pedir_clave()
         except (EOFError, OSError):
@@ -134,7 +134,7 @@ def main() -> None:
     print("=" * 58)
     print("  TramitaFácil RD está funcionando en tu computadora")
     print(f"  Página:  {url}")
-    print(f"  Panel:   {url}/admin.html")
+    print(f"  Panel:   {url}/admin")
     if not cfg.get("clave_personal"):
         print(f"  Clave:   {CLAVE_LOCAL}   (para cambiarla: python3 iniciar_local.py --clave)")
     if en_red:

@@ -70,7 +70,7 @@ EOF
   chmod 600 "$ENVF"
 fi
 
-# Panel de administración (tudominio.com/admin.html): clave secreta de sesión y contraseña inicial
+# Panel de administración (tudominio.com/admin): clave secreta de sesión y contraseña inicial
 grep -q '^TF_SECRET_KEY=' "$ENVF" || echo "TF_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))')" >> "$ENVF"
 CLAVE_PANEL=""
 if ! grep -q '^TF_ADMIN_HASH=' "$ENVF"; then
@@ -173,7 +173,7 @@ case "${1:-ayuda}" in
     sed -i '/^TF_ADMIN_HASH=/d' /etc/tramitafacil.env
     echo "TF_ADMIN_HASH='$h'" >> /etc/tramitafacil.env
     grep -q '^TF_SECRET_KEY=' /etc/tramitafacil.env || echo "TF_SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))')" >> /etc/tramitafacil.env
-    systemctl restart tramitafacil && echo "Contraseña cambiada. Entra en https://$DOMINIO/admin.html" ;;
+    systemctl restart tramitafacil && echo "Contraseña cambiada. Entra en https://$DOMINIO/admin" ;;
   respaldo) /etc/cron.daily/tramitafacil-respaldo && ls -1 /var/backups/tramitafacil | tail -n 3 ;;
   actualizar)
     cd "$APP"
@@ -188,7 +188,7 @@ Comandos de TramitaFácil RD:
   tramita exportar                        Crear un CSV (Excel) con todas las solicitudes
   tramita estado RD-1234 3 "Detalle"      Actualizar el rastreo (pasos 1 a 4)
   tramita precio <servicio> --honorario N Cambiar un precio
-  tramita clave                           Cambiar la contraseña del panel (admin.html)
+  tramita clave                           Cambiar la contraseña del panel (/admin)
   tramita correo                          Configurar el aviso por correo
   tramita actualizar                      Traer los últimos cambios de GitHub
   tramita ssl                             Activar o renovar HTTPS
@@ -217,7 +217,7 @@ else
   printf '\n\033[1;31m✗ El servicio no respondió. Revisa con: tramita logs\033[0m\n'
 fi
 echo "  Página:   https://$DOMINIO"
-echo "  Panel:    https://$DOMINIO/admin.html"
+echo "  Panel:    https://$DOMINIO/admin"
 if [ -n "$CLAVE_PANEL" ]; then
   printf '  Contraseña del panel: \033[1;33m%s\033[0m  (anótala; cámbiala cuando quieras con: tramita clave)\n' "$CLAVE_PANEL"
 fi

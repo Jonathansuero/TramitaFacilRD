@@ -21,7 +21,7 @@ Archivos: `site.webmanifest`, `sw.js`, `offline.html`, `assets/img/app/` (ícono
 | Área | Qué hace |
 |---|---|
 | **Idiomas ES · EN · FR** | Selector siempre visible arriba (barra azul) y en el pie. Traduce toda la interfaz, los 39 servicios, requisitos, instituciones, países y preguntas frecuentes. El sitio abre en español; si el navegador del visitante está en inglés o francés, se le sugiere cambiar con un aviso discreto. Los mensajes de WhatsApp salen en el idioma elegido. |
-| **4 páginas conectadas** | `index.html` (portada), `servicio.html?id=…` (una página por cada trámite: cómo funciona, requisitos, institución, precio con Express/envío, compartir, relacionados), `instituciones.html` (directorio con filtro y panel de detalle) y `diaspora.html` (guía por país). Todo enlaza entre sí: tarjeta → página del servicio → institución → otros trámites → solicitud con el trámite ya elegido. |
+| **4 páginas conectadas** | `index.html` (portada), `/servicio?id=…` (una página por cada trámite: cómo funciona, requisitos, institución, precio con Express/envío, compartir, relacionados), `/instituciones` (directorio con filtro y panel de detalle) y `/diaspora` (guía por país). Todo enlaza entre sí: tarjeta → página del servicio → institución → otros trámites → solicitud con el trámite ya elegido. |
 | **Instituciones** | Muro de 23 entidades (14 públicas, 5 privadas, 4 internacionales) con sellos de diseño propio por siglas y enlace a sus trámites. Cada servicio muestra ante qué entidad se gestiona. |
 | **Dominicanos en cualquier país** | Mensaje en la barra superior, sección con banderas en movimiento y buscador de país, nuevo perfil "🌐 Mundo" en el selector, y página de diáspora con: hora local vs RD, barra de 24 h con el horario de atención en la hora del visitante, moneda, trámites más pedidos y guía de 4 pasos. 31 países listados (agregar más en `paises_mundo`). |
 
@@ -59,14 +59,14 @@ assets/js/script.js        Portada
 assets/js/servicio.js      Página de cada servicio
 assets/js/instituciones.js Directorio de instituciones
 assets/js/diaspora.js      Guía para la diáspora
-servicio.html · instituciones.html · diaspora.html
-calculadora.html           Calculadora desglosada + IPI + traspaso vehicular (calculadora.html?s=<servicio>)
-rastreo.html               Rastreo de expedientes (rastreo.html?c=RD-XXXX)
-preguntas.html             Preguntas frecuentes
+/servicio · /instituciones · /diaspora
+/calculadora           Calculadora desglosada + IPI + traspaso vehicular (/calculadora?s=<servicio>)
+/rastreo               Rastreo de expedientes (/rastreo?c=RD-XXXX)
+/preguntas             Preguntas frecuentes
 site.webmanifest           Datos de la app instalable (nombre, íconos, accesos directos)
 sw.js                      Service worker: modo sin conexión y actualizaciones de la app
 offline.html               Página que se muestra sin internet
-assets/js/cotizador.js     Calculadora desglosada (la usan la portada y calculadora.html)
+assets/js/cotizador.js     Calculadora desglosada (la usan la portada y /calculadora)
 assets/js/calculadora.js   Pestaña de calculadoras (IPI y traspaso)
 assets/js/rastreo.js       Lógica del rastreo
 assets/js/preguntas.js     Lógica de las preguntas frecuentes
@@ -105,7 +105,7 @@ cd /opt/tramitafacil && bash tools/instalar_vps.sh tudominio.com tucorreo@ejempl
 tramita ayuda
 ```
 
-**Panel de administración** (`/admin.html`, solo con el servidor): ver solicitudes, mover el seguimiento paso a paso, crear expedientes para clientes de WhatsApp, avisarles por WhatsApp y descargar Excel. El instalador muestra la contraseña inicial; se cambia con `tramita clave`.
+**Panel de administración** (`/admin`, solo con el servidor): ver solicitudes, mover el seguimiento paso a paso, crear expedientes para clientes de WhatsApp, avisarles por WhatsApp y descargar Excel. El instalador muestra la contraseña inicial; se cambia con `tramita clave`.
 
 ## Tareas del día a día
 
@@ -135,5 +135,6 @@ npx @tailwindcss/cli -i assets/css/tailwind.src.css -o assets/css/tailwind.css -
 - Que atienden en inglés y francés (el sitio ya lo ofrece).
 - Revisión de las traducciones al inglés y francés por un hablante nativo antes de publicar.
 - Requisitos nuevos: *Poder desde el exterior* y *Soltería JCE*.
-- Reemplazar `TU-DOMINIO.com` en `robots.txt`, `sitemap.xml`, `index.html` y `config.sitio`.
+- Dominio configurado: `tramitafacilrd.com` (`config.sitio`). Direcciones limpias sin `.html`; los enlaces viejos `.html` redirigen solos.
+- Google Analytics (G-YH24Q9XVZQ) va en el `<head>` de todas las páginas públicas (no en el panel).
 - Tasas de respaldo USD/EUR (`config.tasas_respaldo`).

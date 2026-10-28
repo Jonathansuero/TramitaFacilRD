@@ -73,9 +73,9 @@ def cmd_sitemap(_args):
     """sitemap.xml con la portada, las páginas fijas y una página por servicio."""
     cat = calculos.cargar_catalogo()
     sitio = cat["config"]["sitio"].rstrip("/")
-    urls = [("/", "1.0"), ("/instituciones.html", "0.8"), ("/diaspora.html", "0.8"),
-            ("/servicios.html", "0.9"), ("/calculadora.html", "0.8"), ("/preguntas.html", "0.7"), ("/rastreo.html", "0.5")]
-    urls += [(f"/servicio.html?id={k}", "0.6") for k in cat["servicios"]]
+    urls = [("/", "1.0"), ("/instituciones", "0.8"), ("/diaspora", "0.8"),
+            ("/servicios", "0.9"), ("/calculadora", "0.8"), ("/preguntas", "0.7"), ("/rastreo", "0.5")]
+    urls += [(f"/servicio?id={k}", "0.6") for k in cat["servicios"]]
     cuerpo = "\n".join(f"  <url><loc>{sitio}{u.replace('&', '&amp;')}</loc><priority>{p}</priority></url>" for u, p in urls)
     (calculos.BASE_DIR / "sitemap.xml").write_text(
         f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{cuerpo}\n</urlset>\n',
@@ -92,6 +92,8 @@ def cmd_app(_args):
     huella = hashlib.sha256()
     for ruta in re.findall(r"'\./([^']*)'", lista):
         archivo = calculos.BASE_DIR / (ruta or "index.html")
+        if not archivo.is_file() and "." not in ruta:
+            archivo = calculos.BASE_DIR / f"{ruta}.html"
         huella.update(archivo.read_bytes() if archivo.is_file() else ruta.encode())
     version = huella.hexdigest()[:10]
     sw.write_text(re.sub(r"const VERSION = '[^']*';", f"const VERSION = '{version}';", texto, count=1), encoding="utf-8")

@@ -1,13 +1,13 @@
 /* ==========================================================
    TramitaFácil RD — calculadora desglosada de costos (compartida)
-   Se usa en la portada (index.html#cotizador) y en la pestaña calculadora.html.
+   Se usa en la portada (/#cotizador) y en la pestaña calculadora.
    Uso: TF.cotizador.mount('cotizadorApp', { onSolicitar: k => ..., formSelect: 'fServicio' })
    ========================================================== */
 (function () {
     'use strict';
     const TF = window.TF; if (!TF) return;
     const { D, C, PAISES, SERV, state, $, $$, esc, t, tc, money, waLink, restart, normal } = TF;
-    const servUrl = k => `servicio.html?id=${encodeURIComponent(k)}`;
+    const servUrl = k => `servicio?id=${encodeURIComponent(k)}`;
 
     const PLANTILLA = `
 <div class="grid lg:grid-cols-12 gap-8 items-start">
@@ -141,7 +141,7 @@
         $('monedaToggle').addEventListener('click', e => { const b = e.target.closest('[data-moneda]'); if (b) TF.setMoneda(b.dataset.moneda); });
         $('quoteFormBtn').addEventListener('click', () => {
             const k = $('calcServiceSelect').value;
-            if (opts.onSolicitar) opts.onSolicitar(k); else location.href = `index.html#solicitar=${encodeURIComponent(k)}`;
+            if (opts.onSolicitar) opts.onSolicitar(k); else location.href = `/#solicitar=${encodeURIComponent(k)}`;
         });
         TF.on('lang', () => buildServiceSelect($('calcServiceSearch').value));
         TF.on('pais', () => { renderPais(); calcular(); });

@@ -1,4 +1,4 @@
-/* TramitaFácil RD — preguntas frecuentes (preguntas.html). Las del país del visitante van primero. */
+/* TramitaFácil RD — preguntas frecuentes (preguntas). Las del país del visitante van primero. */
 (function () {
     'use strict';
     const TF = window.TF; if (!TF) return;

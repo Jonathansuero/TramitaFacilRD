@@ -1,7 +1,7 @@
 /* ==========================================================
-   TramitaFácil RD — catálogo completo (servicios.html)
+   TramitaFácil RD — catálogo completo (servicios)
    Búsqueda, filtros por área y ubicación, y páginas de 6 servicios.
-   Enlaces: servicios.html?cat=<área>&pais=<mio|todos>&q=<texto>
+   Enlaces: servicios?cat=<área>&pais=<mio|todos>&q=<texto>
    ========================================================== */
 (function () {
     'use strict';
@@ -14,7 +14,7 @@
         catPais: params.get('pais') === 'mio' ? 'mio' : 'todos',
         catQuery: (params.get('q') || '').slice(0, 60), catPage: 0, catPaginas: 0, catTotal: 0
     };
-    const servUrl = k => `servicio.html?id=${encodeURIComponent(k)}`;
+    const servUrl = k => `servicio?id=${encodeURIComponent(k)}`;
     const flagsOf = k => SERV[k].paises.map(p => PAISES[p].bandera).join(' ');
 
     // ============================================================
@@ -28,10 +28,10 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid ${D.categorias[s.category].icono} mr-1 text-domBlue"></i>${esc(cat.label)}</span>
                 <span class="cat-flags" title="${esc(t('serv.ideal'))}">${flagsOf(k)}</span></div>
             <h3><a href="${servUrl(k)}" class="hover:text-domBlue">${esc(tr.title)}</a></h3><p>${esc(tr.desc)}</p>
-            ${s.inst.length ? `<div class="flex flex-wrap gap-1 mt-3">${s.inst.map(id => `<a href="instituciones.html#${id}" class="inst-tag">${esc(D.instituciones[id].sigla)}</a>`).join('')}</div>` : ''}
+            ${s.inst.length ? `<div class="flex flex-wrap gap-1 mt-3">${s.inst.map(id => `<a href="instituciones#${id}" class="inst-tag">${esc(D.instituciones[id].sigla)}</a>`).join('')}</div>` : ''}
             <div class="flex items-end justify-between gap-2 mt-4">
                 <div class="cat-precio">${esc(t('precio.desde'))}<strong>${money(s.tax + s.fee)}</strong></div>
-                <div class="flex gap-1.5"><a class="cat-btn cat-btn-ghost" href="${servUrl(k)}">${esc(t('cat.ver'))}</a><a class="cat-btn cat-btn-primary" href="index.html#cotizar=${encodeURIComponent(k)}">${esc(t('cat.cotizar'))}</a></div>
+                <div class="flex gap-1.5"><a class="cat-btn cat-btn-ghost" href="${servUrl(k)}">${esc(t('cat.ver'))}</a><a class="cat-btn cat-btn-primary" href="/#cotizar=${encodeURIComponent(k)}">${esc(t('cat.cotizar'))}</a></div>
             </div></article>`;
     }
     function renderCatalogo() {

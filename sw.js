@@ -6,13 +6,13 @@
    - /api/ nunca se guarda (solicitudes y rastreo siempre en vivo).
    VERSION la actualiza `python manage.py build`; al cambiar, los teléfonos reciben la nueva versión.
    ========================================================== */
-const VERSION = 'c1126f291a';
+const VERSION = 'e1c460469f';
 const CACHE = `tramitafacil-${VERSION}`;
 const CACHE_EXT = 'tramitafacil-externos';
 
 const PRECACHE = [
-    './', './index.html', './servicios.html', './servicio.html', './instituciones.html', './diaspora.html',
-    './rastreo.html', './preguntas.html', './calculadora.html', './offline.html', './site.webmanifest',
+    './', './servicios', './servicio', './instituciones', './diaspora',
+    './rastreo', './preguntas', './calculadora', './offline', './site.webmanifest',
     './assets/css/tailwind.css', './assets/css/styles.css',
     './assets/js/data.js', './assets/js/core.js', './assets/js/cotizador.js', './assets/js/script.js',
     './assets/js/servicio.js', './assets/js/servicios.js', './assets/js/instituciones.js', './assets/js/diaspora.js',
@@ -53,7 +53,7 @@ self.addEventListener('fetch', event => {
     if (EXTERNOS.includes(url.hostname)) event.respondWith(recurso(req, CACHE_EXT));
 });
 
-/** Páginas: red primero (máx. 4 s); si no hay red, la copia guardada; si tampoco, offline.html. */
+/** Páginas: red primero (máx. 4 s); si no hay red, la copia guardada; si tampoco, offline. */
 async function pagina(req) {
     const cache = await caches.open(CACHE);
     try {
@@ -61,7 +61,7 @@ async function pagina(req) {
         if (resp && resp.ok) cache.put(req, resp.clone());
         return resp;
     } catch (e) {
-        return (await cache.match(req)) || (await cache.match(req, { ignoreSearch: true })) || cache.match('./offline.html');
+        return (await cache.match(req)) || (await cache.match(req, { ignoreSearch: true })) || cache.match('./offline');
     }
 }
 

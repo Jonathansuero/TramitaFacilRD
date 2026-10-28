@@ -1,8 +1,8 @@
 /* ==========================================================
-   TramitaFácil RD — portada (index.html)
+   TramitaFácil RD — portada (/)
    Usa window.TF (core.js). Se redibuja al cambiar idioma, país o moneda.
    Enlaces que llegan desde otras páginas:
-     index.html#cotizar=<servicio>  #requisitos=<servicio>  #solicitar=<servicio>  #pais=<rd|us|es|ext|mundo>
+     /#cotizar=<servicio>  #requisitos=<servicio>  #solicitar=<servicio>  #pais=<rd|us|es|ext|mundo>
    ========================================================== */
 (function () {
     'use strict';
@@ -10,7 +10,7 @@
     const { D, C, PAISES, SERV, SYM, state, $, $$, esc, t, tc, money, waLink, saludo, toast, restart, normal, goTo, flagOf, countryName } = TF;
 
     const ui = { quizKey: null, checklistKey: null };
-    const servUrl = k => `servicio.html?id=${encodeURIComponent(k)}`;
+    const servUrl = k => `servicio?id=${encodeURIComponent(k)}`;
 
     // ============================================================
     // PAÍS Y PRESENCIA
@@ -73,7 +73,7 @@
             <div class="flex flex-wrap gap-2">${PAISES[p].destacados.map(k => `<a class="mini-serv" href="${servUrl(k)}"><i class="fa-solid ${D.categorias[SERV[k].category].icono}"></i>${esc(shortTitle(tc('servicios', k).title))}</a>`).join('')}</div>
             <div class="mt-auto pt-6 grid sm:grid-cols-2 gap-2">
                 ${p === 'mundo' || p === 'us' || p === 'es'
-                    ? `<a href="diaspora.html" class="bg-domBlue hover:bg-domBlueHover text-white text-xs font-bold py-3 rounded-xl text-center">${esc(t('pres.guia'))} →</a>`
+                    ? `<a href="diaspora" class="bg-domBlue hover:bg-domBlueHover text-white text-xs font-bold py-3 rounded-xl text-center">${esc(t('pres.guia'))} →</a>`
                     : `<button class="bg-domBlue hover:bg-domBlueHover text-white text-xs font-bold py-3 rounded-xl" data-ver-catalogo>${esc(t('pres.ver', { lugar: P.corto }))} →</button>`}
                 <a class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 rounded-xl text-center" target="_blank" rel="noopener" href="${waLink(saludo())}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('pres.escribir'))}</a>
             </div>`;
@@ -118,7 +118,7 @@
     function renderMundo() {
         const rows = D.paises_mundo.filter(r => r[0] !== 'DO');
         $('mundoList').innerHTML = rows.map(r => `<option value="${esc(countryName(r[0]))}"></option>`).join('');
-        const chip = r => `<a class="flag-chip" href="diaspora.html?c=${r[0]}" tabindex="-1">${flagOf(r[0])} ${esc(countryName(r[0]))}</a>`;
+        const chip = r => `<a class="flag-chip" href="diaspora?c=${r[0]}" tabindex="-1">${flagOf(r[0])} ${esc(countryName(r[0]))}</a>`;
         const half = Math.ceil(rows.length / 2);
         const a = rows.slice(0, half).map(chip).join(''), b = rows.slice(half).map(chip).join('');
         $('mundoMarquee').innerHTML = a + a;   // duplicado para que el desplazamiento sea continuo
@@ -131,19 +131,19 @@
             const q = normal($('mundoInput').value.trim());
             const row = D.paises_mundo.find(r => normal(countryName(r[0])) === q) || D.paises_mundo.find(r => q && normal(countryName(r[0])).startsWith(q));
             if (!row) { restart($('mundoInput'), 'shake'); toast(t('mundo.noencontrado')); return; }
-            location.href = `diaspora.html?c=${row[0]}`;
+            location.href = `diaspora?c=${row[0]}`;
         });
     }
 
     // ============================================================
-    // SERVICIOS (resumen por áreas; el catálogo completo está en servicios.html)
+    // SERVICIOS (resumen por áreas; el catálogo completo está en servicios)
     // ============================================================
     function renderAreas() {
         const total = Object.keys(SERV).length, areas = Object.keys(D.categorias);
         $('catResumen').textContent = t('cat.resumen', { n: total, a: areas.length });
         $('catAreas').innerHTML = areas.map(k => {
             const n = Object.keys(SERV).filter(s => SERV[s].category === k).length, c = tc('categorias', k);
-            return `<a class="area-card" href="servicios.html?cat=${encodeURIComponent(k)}">
+            return `<a class="area-card" href="servicios?cat=${encodeURIComponent(k)}">
                 <span class="area-ico"><i class="fa-solid ${D.categorias[k].icono}" aria-hidden="true"></i></span>
                 <span class="area-txt"><b>${esc(c.label)}</b><small>${esc(t('cat.area.n', { n }))}<span class="area-res"> · ${esc(c.resumen || '')}</span></small></span>
                 <i class="fa-solid fa-chevron-right area-go" aria-hidden="true"></i></a>`;
@@ -174,7 +174,7 @@
             <h4 class="font-extrabold text-slate-900 text-base mt-2">${esc(tr.title)}</h4>
             <p class="text-xs text-slate-600 mt-1">${esc(tr.desc)}</p>
             <p class="text-xs text-slate-500 mt-2">${esc(t('serv.ideal'))}: ${s.paises.map(p => `${PAISES[p].bandera} ${esc(tc('paises', p).corto)}`).join(' · ')}</p>
-            ${s.inst.length ? `<p class="text-xs text-slate-500 mt-1">${esc(t('serv.ante'))}: ${s.inst.map(i => `<a class="font-bold text-domBlue hover:underline" href="instituciones.html#${i}">${esc(D.instituciones[i].sigla)}</a>`).join(', ')}</p>` : ''}
+            ${s.inst.length ? `<p class="text-xs text-slate-500 mt-1">${esc(t('serv.ante'))}: ${s.inst.map(i => `<a class="font-bold text-domBlue hover:underline" href="instituciones#${i}">${esc(D.instituciones[i].sigla)}</a>`).join(', ')}</p>` : ''}
             <div class="mt-3 text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">${esc(t('quiz.base'))} ${money(s.tax + s.fee)}</div>`;
         $('quizPageBtn').href = servUrl(k);
         $('quizStep2').classList.add('hidden'); $('quizStep3').classList.remove('hidden'); quizDots(3);
@@ -317,7 +317,7 @@
         ok.innerHTML = codigo
             ? `<div class="font-bold text-base">✅ ${esc(t('ok.t'))}</div>
                <p class="mt-1">${esc(t('ok.codigo'))} <strong class="font-mono text-lg">${esc(codigo)}</strong>. ${esc(t('ok.guarda'))}</p>
-               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo.html?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
+               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
                <button type="button" class="border border-emerald-300 text-xs font-bold px-4 py-2 rounded-lg" data-copy="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
                <a class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg" target="_blank" rel="noopener" href="${waLink(mensajeSolicitud(d, codigo))}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('ok.confirmar'))}</a></div>`
             : `<div class="font-bold">✅ ${esc(t('ok.wa.t'))}</div><p class="mt-1">${esc(t('ok.wa.d'))}</p>`;
@@ -361,7 +361,7 @@
             const r = e.target.closest('[data-req]'); if (r) { openChecklist(r.dataset.req); return; }
             const s = e.target.closest('[data-solicitar]'); if (s) { irASolicitud(s.dataset.solicitar); return; }
             const c = e.target.closest('[data-copy]'); if (c) { navigator.clipboard?.writeText(c.dataset.copy).then(() => toast(t('toast.copiado'))); return; }
-            if (e.target.closest('[data-ver-catalogo]')) { location.href = 'servicios.html?pais=mio'; return; }
+            if (e.target.closest('[data-ver-catalogo]')) { location.href = 'servicios?pais=mio'; return; }
         });
     }
     function handleHash() {

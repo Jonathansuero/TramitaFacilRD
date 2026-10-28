@@ -28,7 +28,7 @@
     const normal = s => String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
     const goTo = id => $(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     /** Enlace a una sección de la portada desde cualquier página. */
-    const homeLink = hash => (IS_HOME ? '' : 'index.html') + '#' + hash;
+    const homeLink = hash => (IS_HOME ? '' : '/') + '#' + hash;
     const flagOf = code => code.toUpperCase().replace(/./g, ch => String.fromCodePoint(127397 + ch.charCodeAt(0)));
 
     // ---------------- estado
@@ -249,12 +249,12 @@
     // ENCABEZADO Y PIE (iguales en todas las páginas)
     // ============================================================
     const NAV = [
-        { href: 'servicios.html', key: 'nav.servicios', page: 'servicios' },
-        { href: 'calculadora.html', key: 'nav.calculadoras', page: 'calculadora' },
-        { href: 'instituciones.html', key: 'nav.instituciones', page: 'instituciones' },
-        { href: 'diaspora.html', key: 'nav.diaspora', page: 'diaspora' },
-        { href: 'rastreo.html', key: 'nav.rastrear', page: 'rastreo' },
-        { href: 'preguntas.html', key: 'nav.faq', page: 'preguntas' }
+        { href: 'servicios', key: 'nav.servicios', page: 'servicios' },
+        { href: 'calculadora', key: 'nav.calculadoras', page: 'calculadora' },
+        { href: 'instituciones', key: 'nav.instituciones', page: 'instituciones' },
+        { href: 'diaspora', key: 'nav.diaspora', page: 'diaspora' },
+        { href: 'rastreo', key: 'nav.rastrear', page: 'rastreo' },
+        { href: 'preguntas', key: 'nav.faq', page: 'preguntas' }
     ];
     const MOBILE = [
         ['presencia', 'fa-earth-americas', 'm.presencia'], ['cotizador', 'fa-calculator', 'm.cotizador'],
@@ -274,7 +274,7 @@
   <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
     <div class="flex items-center gap-2 min-w-0">
       <span class="bg-domRed text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full tracking-wider shrink-0" data-i18n="top.diaspora"></span>
-      <a href="diaspora.html" class="truncate hover:text-domGold"><span class="hidden md:inline" data-i18n="top.mundo"></span><span class="md:hidden" data-i18n="top.mundo.corto"></span> <span class="topbar-flags" aria-hidden="true">🇺🇸🇪🇸🇮🇹🇵🇷🇨🇦🇨🇭🌎</span></a>
+      <a href="diaspora" class="truncate hover:text-domGold"><span class="hidden md:inline" data-i18n="top.mundo"></span><span class="md:hidden" data-i18n="top.mundo.corto"></span> <span class="topbar-flags" aria-hidden="true">🇺🇸🇪🇸🇮🇹🇵🇷🇨🇦🇨🇭🌎</span></a>
     </div>
     <div class="flex items-center gap-3 shrink-0">
       <span class="hidden lg:flex items-center gap-2 text-slate-200"><span id="openDot" class="w-2 h-2 rounded-full bg-slate-400"></span><span><span id="openText"></span> · <strong id="rdClock" class="font-semibold text-white tabular-nums">--:--</strong></span></span>
@@ -286,7 +286,7 @@
 </div>
 <nav class="site-nav sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
-    <a href="${IS_HOME ? '#inicio' : 'index.html'}" class="flex items-center gap-2 group shrink-0">
+    <a href="${IS_HOME ? '#inicio' : '/'}" class="flex items-center gap-2 group shrink-0">
       <div class="w-10 h-10 rounded-xl bg-domBlue flex items-center justify-center text-white text-xl font-black shadow-md group-hover:bg-domRed transition-colors">TF</div>
       <div><span class="text-xl font-extrabold text-domBlue tracking-tight">TramitaFácil<span class="text-domRed">RD</span></span>
         <span class="block text-[10px] text-slate-500 font-medium tracking-widest uppercase -mt-1" data-i18n="brand.sub"></span></div>
@@ -310,12 +310,12 @@
   </div>
   <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-4 text-sm max-h-[75vh] overflow-y-auto">
     <button type="button" id="instalarMenu" hidden class="mobile-link ml-install w-full text-left"><span class="ml-ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="ml-txt"><span class="block" data-i18n="app.instalar"></span><span class="block text-[11px] font-medium text-slate-500" data-i18n="app.menu.d"></span></span><i class="fa-solid fa-chevron-right ml-go" aria-hidden="true"></i></button>
-    ${mobileLink('servicios.html', 'fa-layer-group', 'm.servicios', ` ml-page${PAGE === 'servicios' ? ' nav-active' : ''}`)}
-    ${mobileLink('instituciones.html', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
-    ${mobileLink('diaspora.html', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
-    ${mobileLink('calculadora.html', 'fa-calculator', 'nav.calculadoras', ` ml-page${PAGE === 'calculadora' ? ' nav-active' : ''}`)}
-    ${mobileLink('rastreo.html', 'fa-location-crosshairs', 'm.rastreo', ` ml-page${PAGE === 'rastreo' ? ' nav-active' : ''}`)}
-    ${mobileLink('preguntas.html', 'fa-circle-question', 'm.faq', ` ml-page${PAGE === 'preguntas' ? ' nav-active' : ''}`)}
+    ${mobileLink('servicios', 'fa-layer-group', 'm.servicios', ` ml-page${PAGE === 'servicios' ? ' nav-active' : ''}`)}
+    ${mobileLink('instituciones', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
+    ${mobileLink('diaspora', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
+    ${mobileLink('calculadora', 'fa-calculator', 'nav.calculadoras', ` ml-page${PAGE === 'calculadora' ? ' nav-active' : ''}`)}
+    ${mobileLink('rastreo', 'fa-location-crosshairs', 'm.rastreo', ` ml-page${PAGE === 'rastreo' ? ' nav-active' : ''}`)}
+    ${mobileLink('preguntas', 'fa-circle-question', 'm.faq', ` ml-page${PAGE === 'preguntas' ? ' nav-active' : ''}`)}
     <div class="ml-sep" role="presentation"></div>
     ${MOBILE.map(([id, ico, key]) => mobileLink(homeLink(id), ico, key)).join('')}
   </div>
@@ -335,18 +335,18 @@
         <div class="lang-switch lang-switch-dark" role="group" data-i18n-aria="top.idioma">${LANGS.map(l => `<button data-lang="${l}" lang="${l}">${l.toUpperCase()}</button>`).join('')}</div>
       </div>
       <div><h4 class="foot-h" data-i18n="foot.paginas"></h4><ul class="foot-ul">
-        <li><a href="index.html" data-i18n="foot.inicio"></a></li>
-        <li><a href="instituciones.html" data-i18n="nav.instituciones"></a></li>
-        <li><a href="calculadora.html" data-i18n="nav.calculadoras"></a></li>
-        <li><a href="diaspora.html" data-i18n="nav.diaspora"></a></li>
-        <li><a href="rastreo.html" data-i18n="m.rastreo"></a></li>
-        <li><a href="preguntas.html" data-i18n="m.faq"></a></li>
-        <li><a href="servicio.html?id=apostilla_documentos" data-i18n="foot.ejemplo"></a></li></ul></div>
+        <li><a href="/" data-i18n="foot.inicio"></a></li>
+        <li><a href="instituciones" data-i18n="nav.instituciones"></a></li>
+        <li><a href="calculadora" data-i18n="nav.calculadoras"></a></li>
+        <li><a href="diaspora" data-i18n="nav.diaspora"></a></li>
+        <li><a href="rastreo" data-i18n="m.rastreo"></a></li>
+        <li><a href="preguntas" data-i18n="m.faq"></a></li>
+        <li><a href="servicio?id=apostilla_documentos" data-i18n="foot.ejemplo"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.navega"></h4><ul class="foot-ul">
-        <li><a href="servicios.html" data-i18n="m.servicios"></a></li>
+        <li><a href="servicios" data-i18n="m.servicios"></a></li>
         <li><a href="${homeLink('cotizador')}" data-i18n="m.cotizador"></a></li>
         <li><a href="${homeLink('solicitud')}" data-i18n="m.solicitud"></a></li>
-        <li><a href="calculadora.html#herramientas-dgii" data-i18n="m.dgii"></a></li></ul></div>
+        <li><a href="calculadora#herramientas-dgii" data-i18n="m.dgii"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.contacto"></h4><ul class="foot-ul">
         <li><i class="fa-brands fa-whatsapp text-emerald-400 mr-2"></i><a id="footWa" href="#" target="_blank" rel="noopener" data-wa-display></a></li>
         <li><i class="fa-solid fa-envelope text-amber-400 mr-2"></i><a id="footMail" href="mailto:${esc(C.email)}">${esc(C.email)}</a></li>
@@ -373,7 +373,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         if ($('paisMenu')) {
             $('paisMenu').innerHTML = `<p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">${esc(t('nav.desde'))}</p>` +
                 Object.keys(PAISES).map(k => { const Q = tc('paises', k); return `<button class="pais-opt" role="option" data-pais="${k}" aria-selected="${k === state.pais}"><span class="flag">${Q.bandera}</span><span><span class="block">${esc(Q.nombre)}</span><span class="block text-[10px] text-slate-400 font-medium">${esc(t('nav.precios', { sym: SYM[PAISES[k].moneda] }))}</span></span></button>`; }).join('') +
-                `<a href="diaspora.html" class="pais-opt text-domBlue"><span class="flag">🔎</span><span>${esc(t('nav.buscarpais'))}</span></a>`;
+                `<a href="diaspora" class="pais-opt text-domBlue"><span class="flag">🔎</span><span>${esc(t('nav.buscarpais'))}</span></a>`;
         }
         $$('[data-lang]').forEach(b => { const on = b.dataset.lang === state.lang; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', on); });
         if ($('footFlags')) $('footFlags').innerHTML = Object.keys(PAISES).map(k => `<button class="foot-flag ${k === state.pais ? 'is-active' : ''}" data-set-pais="${k}" title="${esc(tc('paises', k).nombre)}">${PAISES[k].bandera}</button>`).join('');
@@ -452,10 +452,10 @@ ${ES_APP ? renderTabbar() : ''}`;
     /** Barra de navegación inferior, como en una app (solo cuando se abre instalada). */
     function renderTabbar() {
         const tabs = [
-            ['index.html', 'fa-house', 'tab.inicio', PAGE === 'home'],
-            ['servicios.html', 'fa-layer-group', 'tab.servicios', PAGE === 'servicios' || PAGE === 'servicio'],
-            ['calculadora.html', 'fa-calculator', 'tab.calc', PAGE === 'calculadora'],
-            ['rastreo.html', 'fa-location-crosshairs', 'tab.rastrear', PAGE === 'rastreo']
+            ['/', 'fa-house', 'tab.inicio', PAGE === 'home'],
+            ['servicios', 'fa-layer-group', 'tab.servicios', PAGE === 'servicios' || PAGE === 'servicio'],
+            ['calculadora', 'fa-calculator', 'tab.calc', PAGE === 'calculadora'],
+            ['rastreo', 'fa-location-crosshairs', 'tab.rastrear', PAGE === 'rastreo']
         ];
         return `<nav id="tabbar" class="tabbar" data-i18n-aria="nav.menu">
             ${tabs.map(([href, ico, key, on]) => `<a href="${href}" class="tab ${on ? 'is-active' : ''}" ${on ? 'aria-current="page"' : ''}><i class="fa-solid ${ico}" aria-hidden="true"></i><span data-i18n="${key}"></span></a>`).join('')}
@@ -576,7 +576,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         const internas = a => {
             if (!a || a.target === '_blank' || a.hasAttribute('download')) return null;
             const url = new URL(a.href, location.href);
-            if (url.origin !== location.origin || !/\.html$|\/$/.test(url.pathname) || /admin/.test(url.pathname)) return null;
+            if (url.origin !== location.origin || !/^\/(servicios|servicio|instituciones|diaspora|rastreo|preguntas|calculadora)?$/.test(url.pathname) || /admin/.test(url.pathname)) return null;
             if (url.pathname === location.pathname && url.hash) return null;
             return url;
         };
@@ -585,7 +585,7 @@ ${ES_APP ? renderTabbar() : ''}`;
             reglas.type = 'speculationrules';
             reglas.textContent = JSON.stringify({
                 prerender: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/admin*' } }, { not: { href_matches: '/api/*' } }] }, eagerness: 'moderate' }],
-                prefetch: [{ where: { and: [{ href_matches: '/*.html' }, { not: { href_matches: '/admin*' } }] }, eagerness: 'conservative' }]
+                prefetch: [{ where: { and: [{ href_matches: '/*' }, { not: { href_matches: '/admin*' } }, { not: { href_matches: '/api/*' } }, { not: { href_matches: '/assets/*' } }] }, eagerness: 'conservative' }]
             });
             document.head.appendChild(reglas);
         } else {

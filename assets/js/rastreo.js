@@ -1,4 +1,4 @@
-/* TramitaFácil RD — rastreo de expedientes: rastreo.html?c=<CÓDIGO> */
+/* TramitaFácil RD — rastreo de expedientes: rastreo?c=<CÓDIGO> */
 (function () {
     'use strict';
     const TF = window.TF; if (!TF) return;

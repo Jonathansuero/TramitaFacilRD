@@ -1,4 +1,4 @@
-/* TramitaFácil RD — panel de administración (admin.html)
+/* TramitaFácil RD — panel de administración (admin)
    Un código por cliente con uno o varios trámites; cada trámite avanza por su cuenta.
    Ver solicitudes, mover cada trámite paso a paso, agregar trámites al mismo código,
    crear expedientes para clientes de WhatsApp y avisarles. Requiere el servidor (app.py). */
@@ -63,7 +63,7 @@
 
     function linkWhatsApp(e) {
         const nombre = (e.nombre || e.cliente || '').split(' ')[0];
-        const enlace = `${location.origin}/rastreo.html?c=${encodeURIComponent(e.codigo)}`;
+        const enlace = `${location.origin}/rastreo?c=${encodeURIComponent(e.codigo)}`;
         const items = e.tramites || [];
         const lineas = [`Hola ${nombre} 👋`, '', 'Te escribimos de *TramitaFácil RD*.', `🔎 Tu código: *${e.codigo}*`];
         if (items.length > 1) {

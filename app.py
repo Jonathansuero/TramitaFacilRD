@@ -15,7 +15,7 @@ Endpoints:
     GET  /api/rastreo/<codigo>       Estado de un expediente
     POST /api/solicitud              Registra una solicitud y devuelve un código de seguimiento
 
-Panel de administración (admin.html, requiere contraseña: TF_ADMIN_HASH):
+Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/login            {clave}
     POST /api/admin/logout
     GET  /api/admin/sesion
@@ -44,7 +44,7 @@ from email.message import EmailMessage
 from functools import wraps
 from pathlib import Path
 
-from flask import Flask, Response, abort, g, jsonify, request, send_from_directory, session
+from flask import Flask, Response, abort, g, jsonify, redirect, request, send_from_directory, session
 from werkzeug.security import check_password_hash
 
 import calculos
@@ -625,8 +625,14 @@ def no_encontrado(_e):
 
 # ---------------------------------------------------------------- sitio estático
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
-ARCHIVOS_RAIZ = {"index.html", "servicios.html", "servicio.html", "instituciones.html", "diaspora.html", "rastreo.html", "preguntas.html", "calculadora.html",
-                 "offline.html", "admin.html", "sw.js", "robots.txt", "sitemap.xml", "site.webmanifest"}
+# Direcciones limpias: /servicios, /servicio?id=…, /rastreo… (sin ".html").
+PAGINAS = {"servicios", "servicio", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora", "offline", "admin"}
+ARCHIVOS_RAIZ = {"sw.js", "robots.txt", "sitemap.xml", "site.webmanifest"}
+
+
+def _con_busqueda(destino: str) -> str:
+    q = request.query_string.decode("utf-8", "ignore")
+    return f"{destino}?{q}" if q else destino
 
 
 @app.get("/")
@@ -642,9 +648,19 @@ def assets(ruta: str):
 
 @app.get("/<nombre>")
 def archivo_raiz(nombre: str):
-    if nombre not in ARCHIVOS_RAIZ:
+    if nombre in PAGINAS:
+        return send_from_directory(BASE_DIR, f"{nombre}.html")
+    if nombre.endswith(".html"):
+        # enlaces viejos (servicios.html, index.html…) → dirección limpia, permanente
+        limpio = nombre[:-5]
+        if limpio == "index":
+            return redirect(_con_busqueda("/"), 301)
+        if limpio in PAGINAS:
+            return redirect(_con_busqueda(f"/{limpio}"), 301)
         abort(404)
-    return send_from_directory(BASE_DIR, nombre)
+    if nombre in ARCHIVOS_RAIZ:
+        return send_from_directory(BASE_DIR, nombre)
+    abort(404)
 
 
 @app.after_request
@@ -652,9 +668,9 @@ def cabeceras(resp):
     resp.headers.setdefault("X-Content-Type-Options", "nosniff")
     resp.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
     resp.headers.setdefault("X-Frame-Options", "SAMEORIGIN")
-    if request.path.startswith("/api/") or request.path == "/admin.html":
+    if request.path.startswith("/api/") or request.path == "/admin":
         resp.headers["Cache-Control"] = "no-store"
-        if request.path.startswith("/api/admin") or request.path == "/admin.html":
+        if request.path.startswith("/api/admin") or request.path == "/admin":
             resp.headers["X-Robots-Tag"] = "noindex, nofollow"
             resp.headers["X-Frame-Options"] = "DENY"
     elif request.path == "/sw.js":

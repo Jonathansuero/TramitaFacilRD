@@ -1,4 +1,4 @@
-/* TramitaFácil RD — pestaña de calculadoras: calculadora.html?s=<servicio>
+/* TramitaFácil RD — pestaña de calculadoras: calculadora?s=<servicio>
    Calculadora desglosada (módulo compartido cotizador.js) + IPI + traspaso vehicular. */
 (function () {
     'use strict';
@@ -21,7 +21,7 @@
                 <div>${esc(t('ipi.anual'))}: <strong class="text-emerald-700">${fmtDOP(ipi)}</strong></div>
                 <div>${esc(t('ipi.cuota'))}: <strong>${fmtDOP(ipi / 2)}</strong>${state.moneda !== 'DOP' ? ` <span class="text-slate-500">(≈ ${money(ipi / 2)})</span>` : ''}</div>
                 <div class="text-[10px] text-slate-500 mt-1">${esc(t('ipi.nota'))}</div>
-                <a class="text-left text-xs font-bold text-domBlue mt-1" href="servicio.html?id=ipi_impuesto">${esc(t('ipi.cta'))} →</a>`;
+                <a class="text-left text-xs font-bold text-domBlue mt-1" href="servicio?id=ipi_impuesto">${esc(t('ipi.cta'))} →</a>`;
         }
         if (e) restart(box, 'pop');
     }
@@ -35,7 +35,7 @@
         box.innerHTML = `<div>${esc(t('veh.impuesto'))} (${C.traspaso_tasa * 100}%): <strong>${fmtDOP(imp)}</strong></div>
             <div>${esc(t('veh.cargos'))}: <strong>${fmtDOP(C.traspaso_cargos)}</strong></div>
             <div class="text-emerald-700 font-bold border-t border-slate-200 pt-1 mt-1">${esc(t('veh.total'))}: ${fmtDOP(tot)}${state.moneda !== 'DOP' ? ` (≈ ${money(tot)})` : ''}</div>
-            <a class="text-left text-xs font-bold text-domBlue mt-1" href="servicio.html?id=traspaso_vehicular">${esc(t('veh.cta'))} →</a>`;
+            <a class="text-left text-xs font-bold text-domBlue mt-1" href="servicio?id=traspaso_vehicular">${esc(t('veh.cta'))} →</a>`;
         if (e) restart(box, 'pop');
     }
     const refrescarDgii = () => { calculateIPI(); calculateVehicleTransfer(); };
@@ -51,7 +51,7 @@
         TF.on('moneda', refrescarDgii);
         TF.on('pais', refrescarDgii);
 
-        // Enlaces directos: calculadora.html#herramientas-dgii lleva a IPI y traspaso
+        // Enlaces directos: calculadora#herramientas-dgii lleva a IPI y traspaso
         if (location.hash === '#herramientas-dgii') setTimeout(() => TF.goTo('herramientas-dgii'), 300);
     });
 })();

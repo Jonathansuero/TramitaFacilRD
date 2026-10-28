@@ -117,7 +117,7 @@ def test_paises_mundo_validos():
 
 
 def test_paginas_nuevas(client):
-    for page in ("servicios.html", "servicio.html", "instituciones.html", "diaspora.html", "rastreo.html", "preguntas.html", "calculadora.html"):
+    for page in ("servicios", "servicio", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora"):
         r = client.get("/" + page)
         assert r.status_code == 200 and b'id="tf-header"' in r.data
 
@@ -140,7 +140,7 @@ def test_app_instalable(client):
     assert datos["display"] == "standalone" and {"192x192", "512x512"} <= {i["sizes"] for i in datos["icons"]}
     for icono in datos["icons"]:
         assert client.get("/" + icono["src"]).status_code == 200
-    assert client.get("/offline.html").status_code == 200
+    assert client.get("/offline").status_code == 200
 
 
 # ------------------------------------------------ panel de administración
@@ -148,7 +148,7 @@ def test_panel_admin(client):
     from werkzeug.security import generate_password_hash
     os.environ["TF_ADMIN_HASH"] = generate_password_hash("clave-de-prueba")
     try:
-        assert client.get("/admin.html").status_code == 200
+        assert client.get("/admin").status_code == 200
         assert client.get("/api/admin/expedientes").status_code == 401          # sin sesión, nada
         assert client.get("/api/admin/exportar").status_code == 401
         assert client.post("/api/admin/login", json={"clave": "mala"}).status_code == 401
@@ -227,3 +227,13 @@ def test_varios_tramites_un_codigo(client):
         assert "Certificado de buena conducta" in client.get("/api/admin/exportar").get_data(as_text=True)
     finally:
         os.environ.pop("TF_ADMIN_HASH", None)
+
+
+def test_direcciones_limpias_y_redireccion(client):
+    r = client.get("/servicio.html?id=e_ticket")
+    assert r.status_code == 301 and r.headers["Location"].endswith("/servicio?id=e_ticket")
+    assert client.get("/index.html").headers["Location"].endswith("/")
+    assert client.get("/servicio?id=e_ticket").status_code == 200
+    assert b"G-YH24Q9XVZQ" in client.get("/servicios").data
+    assert client.get("/app.py").status_code == 404
+    assert client.get("/nada.html").status_code == 404

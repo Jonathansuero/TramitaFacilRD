@@ -13,7 +13,7 @@ TRAMITAFÁCIL RD — CÓMO CORRERLO EN TU COMPUTADORA
    - Se abre sola en tu navegador:  http://127.0.0.1:8000
 
 3) TU PANEL DE ADMINISTRACIÓN
-   - http://127.0.0.1:8000/admin.html   ·   Contraseña: 123456
+   - http://127.0.0.1:8000/admin   ·   Contraseña: 123456
    - Ves las solicitudes, mueves cada trámite paso a paso, creas
      expedientes para clientes de WhatsApp y descargas el Excel.
 

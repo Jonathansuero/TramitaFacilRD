@@ -1,4 +1,4 @@
-/* TramitaFácil RD — guía para la diáspora: diaspora.html?c=<ISO> */
+/* TramitaFácil RD — guía para la diáspora: diaspora?c=<ISO> */
 (function () {
     'use strict';
     const TF = window.TF; if (!TF) return;
@@ -37,9 +37,9 @@
             </div>
             <p class="text-xs text-slate-500 mt-4">${esc(t('dia.moneda', { sym: SYM[moneda] }))}</p>
             <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-5 mb-2">${esc(t('dia.populares'))}</p>
-            <div class="space-y-2">${P.destacados.map(k => `<a href="servicio.html?id=${k}" class="flex items-center justify-between gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-domBlue hover:bg-sky-50 text-xs font-semibold"><span>${esc(tc('servicios', k).title)}</span><span class="text-domBlue whitespace-nowrap">${money(SERV[k].tax + SERV[k].fee, moneda)}</span></a>`).join('')}</div>
+            <div class="space-y-2">${P.destacados.map(k => `<a href="servicio?id=${k}" class="flex items-center justify-between gap-2 p-2.5 rounded-xl border border-slate-200 hover:border-domBlue hover:bg-sky-50 text-xs font-semibold"><span>${esc(tc('servicios', k).title)}</span><span class="text-domBlue whitespace-nowrap">${money(SERV[k].tax + SERV[k].fee, moneda)}</span></a>`).join('')}</div>
             <div class="grid grid-cols-2 gap-2 mt-5">
-              <a href="index.html#pais=${perfil}" class="bg-domBlue hover:bg-domBlueHover text-white text-xs font-bold py-3 rounded-xl text-center">${esc(t('dia.cotizar'))}</a>
+              <a href="/#pais=${perfil}" class="bg-domBlue hover:bg-domBlueHover text-white text-xs font-bold py-3 rounded-xl text-center">${esc(t('dia.cotizar'))}</a>
               <a href="${waLink(saludo())}" target="_blank" rel="noopener" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-3 rounded-xl text-center"><i class="fa-brands fa-whatsapp mr-1"></i>WhatsApp</a>
             </div>`;
         if (animate) restart($('dCard'), 'panel-anim');

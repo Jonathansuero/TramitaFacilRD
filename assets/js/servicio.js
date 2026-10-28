@@ -1,4 +1,4 @@
-/* TramitaFácil RD — página de detalle: servicio.html?id=<clave> */
+/* TramitaFácil RD — página de detalle: servicio?id=<clave> */
 (function () {
     'use strict';
     const TF = window.TF; if (!TF) return;
@@ -19,7 +19,7 @@
         $('sFlags').title = t('serv.ideal');
         $('sTitle').textContent = tr.title;
         $('sDesc').textContent = tr.desc;
-        $('sInstHero').innerHTML = s.inst.map(i => `<a href="instituciones.html#${i}" class="inst-chip-dark">${esc(D.instituciones[i].sigla)} · ${esc(tc('instituciones', i).nombre)}</a>`).join('');
+        $('sInstHero').innerHTML = s.inst.map(i => `<a href="instituciones#${i}" class="inst-chip-dark">${esc(D.instituciones[i].sigla)} · ${esc(tc('instituciones', i).nombre)}</a>`).join('');
 
         // pasos genéricos del proceso
         $('sSteps').innerHTML = [1, 2, 3, 4].map(n => { const k = 'serv.p' + n + (n === 3 && !s.inst.length ? 'b' : ''); return `<li><span>${n}</span><div><strong>${esc(t(k + '.t'))}</strong><p>${esc(t(k + '.d', { inst: s.inst.map(i => D.instituciones[i].sigla).join(', ') }))}</p></div></li>`; }).join('');
@@ -36,7 +36,7 @@
 
         // instituciones
         $('sInst').innerHTML = s.inst.length ? s.inst.map(i => { const it = tc('instituciones', i);
-            return `<a href="instituciones.html#${i}" class="flex items-start gap-3 p-3 rounded-2xl border border-slate-200 hover:border-domBlue hover:bg-sky-50 transition-colors">${TF.instBadge(i, 'sm')}<span><strong class="block text-sm text-slate-900">${esc(it.nombre)}</strong><span class="block text-xs text-slate-500">${esc(it.desc)}</span></span></a>`; }).join('')
+            return `<a href="instituciones#${i}" class="flex items-start gap-3 p-3 rounded-2xl border border-slate-200 hover:border-domBlue hover:bg-sky-50 transition-colors">${TF.instBadge(i, 'sm')}<span><strong class="block text-sm text-slate-900">${esc(it.nombre)}</strong><span class="block text-xs text-slate-500">${esc(it.desc)}</span></span></a>`; }).join('')
             : `<p class="text-sm text-slate-500">${esc(t('serv.sininst'))}</p>`;
 
         precio();
@@ -45,8 +45,8 @@
         // relacionados y navegación anterior/siguiente
         renderRelacionados();
         const i = keys.indexOf(id);
-        $('sPrev').href = `servicio.html?id=${keys[(i - 1 + keys.length) % keys.length]}`;
-        $('sNext').href = `servicio.html?id=${keys[(i + 1) % keys.length]}`;
+        $('sPrev').href = `servicio?id=${keys[(i - 1 + keys.length) % keys.length]}`;
+        $('sNext').href = `servicio?id=${keys[(i + 1) % keys.length]}`;
         $('sPrev').setAttribute('aria-label', t('serv.anterior')); $('sNext').setAttribute('aria-label', t('serv.siguiente'));
     }
 
@@ -78,7 +78,7 @@
             <p class="text-sm text-slate-600 mt-2">${esc(tr.desc)}</p>
             <div class="rel-cuerpo">
                 <div class="space-y-4">
-                    ${s.inst.length ? `<div><p class="rel-t">${esc(t('serv.ante'))}</p><div class="flex flex-wrap gap-1.5">${s.inst.map(i => `<a href="instituciones.html#${i}" class="inst-tag">${esc(D.instituciones[i].sigla)}</a>`).join('')}</div></div>` : ''}
+                    ${s.inst.length ? `<div><p class="rel-t">${esc(t('serv.ante'))}</p><div class="flex flex-wrap gap-1.5">${s.inst.map(i => `<a href="instituciones#${i}" class="inst-tag">${esc(D.instituciones[i].sigla)}</a>`).join('')}</div></div>` : ''}
                     ${ck ? `<div><p class="rel-t">${esc(t('serv.rel.req'))}</p><ul class="rel-req">${ck.map(x => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(x)}</span></li>`).join('')}</ul></div>` : ''}
                 </div>
                 <div class="rel-precio">
@@ -90,7 +90,7 @@
             <div class="rel-acciones">
                 <button type="button" class="rel-btn rel-btn-rojo" data-rel-solicitar="${k}">${esc(t('serv.solicitar'))}</button>
                 <a class="rel-btn rel-btn-verde" target="_blank" rel="noopener" href="${waLink(saludo(t('wa.servicio', { s: tr.title, total })))}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
-                <a class="rel-btn rel-btn-borde" href="index.html#cotizar=${encodeURIComponent(k)}">${esc(t('cat.cotizar'))}</a>
+                <a class="rel-btn rel-btn-borde" href="/#cotizar=${encodeURIComponent(k)}">${esc(t('cat.cotizar'))}</a>
                 <button type="button" class="rel-btn rel-btn-azul" data-rel-ficha="${k}">${esc(t('serv.rel.ficha'))} <i class="fa-solid fa-arrow-right"></i></button>
             </div>
         </div>`;
@@ -163,7 +163,7 @@
                <p class="mt-1">${esc(t('ok.codigo'))}</p>
                <div class="conf-codigo">${esc(codigo)}</div>
                <p class="text-xs text-emerald-800">${esc(t('ok.guarda'))}</p>
-               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo.html?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
+               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
                <button type="button" class="border border-emerald-300 bg-white text-xs font-bold px-4 py-2 rounded-lg" data-copiar-codigo="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
                <a class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg" target="_blank" rel="noopener" href="${waLink(mensajeConfirmar(d, codigo))}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('ok.confirmar'))}</a></div>`
             : `<div class="font-bold">✅ ${esc(t('ok.wa.t'))}</div><p class="mt-1">${esc(t('ok.wa.d'))}</p>`;
@@ -227,7 +227,7 @@
         id = nuevo;
         $('pExp').checked = false; $('pEnv').checked = false;
         render();
-        if (guardar) history.pushState({ id }, '', `servicio.html?id=${encodeURIComponent(id)}`);
+        if (guardar) history.pushState({ id }, '', `servicio?id=${encodeURIComponent(id)}`);
         window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
@@ -245,7 +245,7 @@
         let anchoPrevio = window.innerWidth;
         window.addEventListener('resize', () => { if (abierto && window.innerWidth !== anchoPrevio) { anchoPrevio = window.innerWidth; colocarDetalle(false); } });
         document.addEventListener('click', e => {
-            const a = e.target.closest('a[href^="servicio.html?id="]');
+            const a = e.target.closest('a[href^="servicio?id="]');
             if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank') return;
             const nuevo = new URLSearchParams(a.getAttribute('href').split('?')[1]).get('id');
             if (SERV[nuevo]) { e.preventDefault(); e.stopPropagation(); irA(nuevo); }
