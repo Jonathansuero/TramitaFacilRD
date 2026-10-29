@@ -251,3 +251,17 @@ def test_pausa(client):
     finally:
         os.environ.pop("TF_PAUSA")
     assert client.get("/servicios").status_code == 200
+
+
+def test_seo_canonical_y_vista_previa(client):
+    r = client.get("/servicio?id=e_ticket").get_data(as_text=True)
+    assert '<link rel="canonical" href="https://tramitafacilrd.com/servicio?id=e_ticket">' in r
+    assert "<title>Llenado Formulario E-Ticket Viaje RD | TramitaFácil RD</title>" in r
+    assert 'og:image" content="https://tramitafacilrd.com/assets/img/og-tramitafacil.png"' in r
+    assert r.count('rel="canonical"') == 1 and r.count('property="og:title"') == 1
+    assert 'href="https://tramitafacilrd.com/"' in client.get("/").get_data(as_text=True)
+    assert 'canonical" href="https://tramitafacilrd.com/servicios"' in client.get("/servicio?id=nada").get_data(as_text=True)
+    assert "canonical" not in client.get("/admin").get_data(as_text=True)
+    w = client.get("/servicios?cat=viajes", headers={"Host": "www.tramitafacilrd.com"})
+    assert w.status_code == 301 and w.headers["Location"] == "https://tramitafacilrd.com/servicios?cat=viajes"
+    assert client.get("/assets/img/og-tramitafacil.png").status_code == 200

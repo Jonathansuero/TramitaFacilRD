@@ -76,7 +76,9 @@ def cmd_sitemap(_args):
     urls = [("/", "1.0"), ("/instituciones", "0.8"), ("/diaspora", "0.8"),
             ("/servicios", "0.9"), ("/calculadora", "0.8"), ("/preguntas", "0.7"), ("/rastreo", "0.5")]
     urls += [(f"/servicio?id={k}", "0.6") for k in cat["servicios"]]
-    cuerpo = "\n".join(f"  <url><loc>{sitio}{u.replace('&', '&amp;')}</loc><priority>{p}</priority></url>" for u, p in urls)
+    from datetime import date
+    hoy = date.today().isoformat()
+    cuerpo = "\n".join(f"  <url><loc>{sitio}{u.replace('&', '&amp;')}</loc><lastmod>{hoy}</lastmod><priority>{p}</priority></url>" for u, p in urls)
     (calculos.BASE_DIR / "sitemap.xml").write_text(
         f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{cuerpo}\n</urlset>\n',
         encoding="utf-8")

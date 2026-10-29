@@ -32,6 +32,7 @@ import csv
 import io
 import json
 import os
+import re
 import secrets
 import smtplib
 import sqlite3
@@ -635,9 +636,80 @@ def _con_busqueda(destino: str) -> str:
     return f"{destino}?{q}" if q else destino
 
 
+# ---------------------------------------------------------------- SEO
+# Cada página sale del servidor con su dirección oficial (canonical) y su vista previa para
+# WhatsApp/Facebook/Google (Open Graph). La página de cada servicio lleva su propio título y descripción.
+SEO_PAGINAS = {"index", "servicios", "servicio", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora"}
+_html_cache: dict = {}
+
+
+def _leer_html(nombre: str) -> str:
+    ruta = BASE_DIR / f"{nombre}.html"
+    mtime = ruta.stat().st_mtime
+    if _html_cache.get(nombre, (0, ""))[0] != mtime:
+        _html_cache[nombre] = (mtime, ruta.read_text(encoding="utf-8"))
+    return _html_cache[nombre][1]
+
+
+def _atr(texto: str) -> str:
+    return (texto or "").replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def pagina(nombre: str):
+    """Sirve una página pública con canonical y Open Graph ya puestos (sin esperar al JavaScript)."""
+    html = _leer_html(nombre)
+    if nombre not in SEO_PAGINAS:
+        return Response(html, mimetype="text/html")
+    cat = catalogo()
+    sitio = cat["config"].get("sitio", "").rstrip("/")
+    ruta = "/" if nombre == "index" else f"/{nombre}"
+    titulo = re.search(r"<title>(.*?)</title>", html, re.S).group(1).strip()
+    m = re.search(r'<meta name="description" content="([^"]*)"', html)
+    desc = m.group(1) if m else ""
+    if nombre == "servicio":
+        sid = request.args.get("id", "")
+        serv = cat["servicios"].get(sid)
+        if serv:
+            ruta = f"/servicio?id={sid}"
+            titulo = f"{serv['title']} | TramitaFácil RD"
+            desc = " ".join(serv.get("desc", "").split())[:300]
+            html = re.sub(r"<title>.*?</title>", f"<title>{_atr(titulo)}</title>", html, count=1, flags=re.S)
+            html = re.sub(r'<meta name="description" content="[^"]*"', f'<meta name="description" content="{_atr(desc)}"', html, count=1)
+        else:
+            ruta = "/servicios"   # sin servicio válido: la dirección oficial es el catálogo
+    url = sitio + ruta
+    imagen = f"{sitio}/assets/img/og-tramitafacil.png"
+    etiquetas = f"""
+    <link rel="canonical" href="{_atr(url)}">
+    <meta property="og:site_name" content="TramitaFácil RD">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="es_DO">
+    <meta property="og:url" content="{_atr(url)}">
+    <meta property="og:title" content="{_atr(titulo)}">
+    <meta property="og:description" content="{_atr(desc)}">
+    <meta property="og:image" content="{imagen}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="TramitaFácil RD · Todos tus trámites en un solo lugar">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="{imagen}">"""
+    html = html.replace("</title>", "</title>" + etiquetas, 1)
+    return Response(html, mimetype="text/html")
+
+
+@app.before_request
+def sin_www():
+    """www.tramitafacilrd.com → tramitafacilrd.com (una sola dirección para Google)."""
+    host = (request.host or "").lower()
+    if host.startswith("www."):
+        destino = "https://" + host[4:] + request.full_path.rstrip("?")
+        return redirect(destino, 301)
+    return None
+
+
 @app.get("/")
 def inicio():
-    return send_from_directory(BASE_DIR, "index.html")
+    return pagina("index")
 
 
 @app.get("/assets/<path:ruta>")
@@ -649,7 +721,7 @@ def assets(ruta: str):
 @app.get("/<nombre>")
 def archivo_raiz(nombre: str):
     if nombre in PAGINAS:
-        return send_from_directory(BASE_DIR, f"{nombre}.html")
+        return pagina(nombre)
     if nombre.endswith(".html"):
         # enlaces viejos (servicios.html, index.html…) → dirección limpia, permanente
         limpio = nombre[:-5]
