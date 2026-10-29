@@ -28,6 +28,7 @@
                 <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400"><i class="fa-solid ${D.categorias[s.category].icono} mr-1 text-domBlue"></i>${esc(cat.label)}</span>
                 <span class="cat-flags" title="${esc(t('serv.ideal'))}">${flagsOf(k)}</span></div>
             <h3><a href="${servUrl(k)}" class="hover:text-domBlue">${esc(tr.title)}</a></h3><p>${esc(tr.desc)}</p>
+            ${TF.tiempo(k) ? `<div class="tiempo-chip"><i class="fa-regular fa-clock" aria-hidden="true"></i>${esc(TF.tiempo(k).txt)}</div>` : ''}
             ${s.inst.length ? `<div class="flex flex-wrap gap-1 mt-3">${s.inst.map(id => `<a href="instituciones#${id}" class="inst-tag">${esc(D.instituciones[id].sigla)}</a>`).join('')}</div>` : ''}
             <div class="flex items-end justify-between gap-2 mt-4">
                 <div class="cat-precio">${esc(t('precio.desde'))}<strong>${money(s.tax + s.fee)}</strong></div>

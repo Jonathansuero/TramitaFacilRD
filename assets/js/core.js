@@ -109,6 +109,12 @@
     const waTexto = () => { const p = C.whatsapp; return `+${p[0]} (${p.slice(1, 4)}) ${p.slice(4, 7)}-${p.slice(7)}`; };
     /** Aviso: único número oficial (se usa en el pie y al confirmar una solicitud). */
     const avisoOficial = (extra = '') => `<p class="aviso-oficial ${extra}"><i class="fa-solid fa-shield-halved"></i><span>${esc(t('oficial.msg'))} <strong>${esc(waTexto())}</strong>. ${esc(t('oficial.correo'))} <strong>${esc(C.email)}</strong>.</span></p>`;
+    /** Tiempo estimado oficial de la institución (solo los servicios que lo tienen claro). */
+    const tiempo = id => { const x = (D.tiempos || {})[id]; return x ? { txt: x[state.lang] || x.es, fuente: x.fuente } : null; };
+    const tiempoHtml = (id, variante = '') => {
+        const x = tiempo(id); if (!x) return '';
+        return `<div class="tiempo-est ${variante}"><i class="fa-regular fa-clock" aria-hidden="true"></i><div><div class="tiempo-t">${esc(t('tiempo.t'))}</div><div class="tiempo-v">${esc(x.txt)}</div><div class="tiempo-f">${esc(t('tiempo.fuente', { fuente: x.fuente }))}</div></div></div>`;
+    };
     const igUrl = () => `https://www.instagram.com/${C.instagram}/`;
     const waLink = text => `https://api.whatsapp.com/send?phone=${C.whatsapp}&text=${encodeURIComponent(String(text).normalize('NFC'))}`;
     /** Nombre del lugar desde donde escribe el visitante (país exacto si lo eligió). */
@@ -347,6 +353,7 @@
         <li><a href="diaspora" data-i18n="nav.diaspora"></a></li>
         <li><a href="rastreo" data-i18n="m.rastreo"></a></li>
         <li><a href="preguntas" data-i18n="m.faq"></a></li>
+        <li><a href="${homeLink('app')}" data-i18n="tuto.pie"></a></li>
         <li><a href="servicio?id=apostilla_documentos" data-i18n="foot.ejemplo"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.navega"></h4><ul class="foot-ul">
         <li><a href="servicios" data-i18n="m.servicios"></a></li>
@@ -542,6 +549,7 @@ ${ES_APP ? renderTabbar() : ''}`;
             window.addEventListener('online', () => toast(t('app.online')));
         }
 
+        document.addEventListener('click', e => { if (e.target.closest('[data-instalar-app]')) instalar(); });
         if (!('serviceWorker' in navigator) || !location.protocol.startsWith('http')) return;
         // La versión nueva se instala sola y en silencio: se ve en la próxima página que se abra (sin avisos).
         window.addEventListener('load', () => {
@@ -553,7 +561,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     window.TF = {
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
-        t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, saludo, lugar, toast, api, apiLista, contacto,
+        t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, tiempo, tiempoHtml, saludo, lugar, toast, api, apiLista, contacto,
         setLang, setPais, setCountry, setMoneda, on, emit,
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };

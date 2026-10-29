@@ -83,6 +83,15 @@ arrancar() {
     tramitafacil:latest >/dev/null
 }
 m() { docker exec -it "$NOMBRE" python manage.py "$@"; }
+avisar_buscadores() {
+  # IndexNow: avisa a Bing, Yandex, Seznam y Naver de todas las páginas del sitemap (Google se avisa con Search Console)
+  local urls
+  urls="$(grep -o '<loc>[^<]*</loc>' "$APP/sitemap.xml" | sed 's/<[^>]*>//g' | sed 's/&amp;/\&/g' | awk '{printf "%s\"%s\"", (NR>1?",":""), $0}')"
+  curl -s -o /dev/null -w '%{http_code}' --max-time 20 -X POST https://api.indexnow.org/IndexNow \
+    -H 'Content-Type: application/json; charset=utf-8' \
+    -d "{\"host\":\"$DOMINIO\",\"key\":\"33200d87b13a122cdb2087cad4e581ff\",\"keyLocation\":\"https://$DOMINIO/33200d87b13a122cdb2087cad4e581ff.txt\",\"urlList\":[$urls]}" || echo "sin conexión"
+}
+
 case "${1:-ayuda}" in
   arrancar|reiniciar) arrancar && echo "TramitaFácil reiniciado." ;;
   actualizar)
@@ -113,6 +122,7 @@ case "${1:-ayuda}" in
     find /var/backups/tramitafacil -name '*.db' -mtime +30 -delete
     ls -1 /var/backups/tramitafacil | tail -n 3 ;;
   logs) docker logs --tail 80 "$NOMBRE" ;;
+  buscadores) echo "Avisando a los buscadores (IndexNow)… respuesta: $(avisar_buscadores)  (200 o 202 = recibido)" ;;
   *) cat <<AYUDA
 Comandos de TramitaFácil RD (Docker):
   tramita pausar         Poner la página en pausa ("Volvemos pronto")
@@ -122,6 +132,7 @@ Comandos de TramitaFácil RD (Docker):
   tramita correo         Configurar el aviso por correo
   tramita solicitudes    Ver las últimas solicitudes
   tramita respaldo       Hacer un respaldo ahora
+  tramita buscadores     Avisar a Bing y otros buscadores de las páginas nuevas
   tramita logs | reiniciar
 AYUDA
   ;;
@@ -147,3 +158,4 @@ echo "  Página:  https://$DOMINIO"
 echo "  Panel:   https://$DOMINIO/admin"
 [ -n "$CLAVE_PANEL" ] && printf '  Contraseña del panel: \033[1;33m%s\033[0m  (anótala; cámbiala con: tramita clave)\n' "$CLAVE_PANEL"
 echo "  Ayuda:   tramita ayuda"
+( sleep 60; /usr/local/bin/tramita buscadores >/dev/null 2>&1 ) &

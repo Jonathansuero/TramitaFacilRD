@@ -17,12 +17,12 @@ CAT = calculos.cargar_catalogo()
 def test_cotizacion_dop_con_extras():
     r = calculos.cotizar(CAT, "residencia_dominicana", express=True, envio=True)
     cfg = CAT["config"]
-    assert r["total"] == 15000 + 10000 + cfg["express_fee"] + cfg["delivery_fee"]
+    assert r["total"] == 15000 + 11000 + cfg["express_fee"] + cfg["delivery_fee"]
 
 
 def test_cotizacion_en_usd_usa_tasa():
     r = calculos.cotizar(CAT, "e_ticket", moneda="USD", tasas={"USD": 0.02})
-    assert r["total"] == 10.0  # 500 DOP * 0.02
+    assert r["total"] == 11.0  # 550 DOP * 0.02
 
 
 def test_cotizacion_servicio_invalido():
@@ -95,7 +95,7 @@ def test_rastreo_demo_y_desconocido(client):
 
 def test_cotizar_api(client):
     r = client.post("/api/cotizar", json={"servicio": "apostilla_documentos", "moneda": "DOP"}).json
-    assert r["total"] == 1620
+    assert r["total"] == 1720  # 620 tasas + 1100 honorarios
 
 
 # ------------------------------------------------ v3: idiomas, instituciones, diáspora
@@ -204,7 +204,7 @@ def test_varios_tramites_un_codigo(client):
         exp = r.json["expediente"]
         codigo, items = exp["codigo"], exp["tramites"]
         assert len(items) == 2 and items[1]["titulo"] == "Certificado de buena conducta"
-        assert exp["total_dop"] == 1620 + 2500
+        assert exp["total_dop"] == 1720 + 2500
 
         # cada trámite avanza por su cuenta; el resumen va al ritmo del más atrasado
         client.post("/api/admin/estado", json={"codigo": codigo, "tramite": items[0]["id"], "paso": 4, "detalle": "Apostilla lista."})

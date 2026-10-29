@@ -13,6 +13,7 @@
     function render() {
         const s = SERV[id], tr = tc('servicios', id), cat = tc('categorias', s.category);
         document.title = `${tr.title} | TramitaFácil RD`;
+        $('sTiempo').innerHTML = TF.tiempoHtml(id, 'tiempo-oscuro');
         $('bcCat').textContent = cat.label;
         $('sCat').innerHTML = `<i class="fa-solid ${D.categorias[s.category].icono} mr-1"></i>${esc(cat.label)}`;
         $('sFlags').textContent = s.paises.map(p => PAISES[p].bandera).join(' ');

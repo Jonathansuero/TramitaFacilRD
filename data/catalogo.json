@@ -190,7 +190,7 @@
     "residencia_dominicana": {
       "title": "Residencia Dominicana para Extranjeros (DGM)",
       "tax": 15000,
-      "fee": 10000,
+      "fee": 11000,
       "category": "viajes",
       "paises": [
         "ext"
@@ -203,7 +203,7 @@
     "green_card_usa": {
       "title": "Renovación de Residencia / Green Card EE.UU.",
       "tax": 32000,
-      "fee": 4500,
+      "fee": 4950,
       "category": "viajes",
       "paises": [
         "us",
@@ -217,7 +217,7 @@
     "peticiones_familiares": {
       "title": "Peticiones Familiares EE.UU. / Europa (I-130)",
       "tax": 38000,
-      "fee": 7500,
+      "fee": 8250,
       "category": "viajes",
       "paises": [
         "us",
@@ -234,7 +234,7 @@
     "movimientos_migratorios": {
       "title": "Certificación de Movimientos Migratorios (DGM)",
       "tax": 1200,
-      "fee": 1500,
+      "fee": 1650,
       "category": "viajes",
       "paises": [
         "rd",
@@ -251,7 +251,7 @@
     "visa_europea": {
       "title": "Visado Europeo / Schengen (España, Francia, Italia, etc.)",
       "tax": 5400,
-      "fee": 4500,
+      "fee": 4950,
       "category": "viajes",
       "paises": [
         "rd"
@@ -264,7 +264,7 @@
     "e_ticket": {
       "title": "Llenado Formulario E-Ticket Viaje RD",
       "tax": 0,
-      "fee": 500,
+      "fee": 550,
       "category": "viajes",
       "paises": [
         "us",
@@ -281,7 +281,7 @@
     "permiso_menores": {
       "title": "Permiso de Salida de Menores (DGM)",
       "tax": 3000,
-      "fee": 2500,
+      "fee": 2750,
       "category": "viajes",
       "paises": [
         "rd",
@@ -298,7 +298,7 @@
     "pasaporte_vip": {
       "title": "Pasaporte Dominicano VIP (MIP)",
       "tax": 3000,
-      "fee": 1500,
+      "fee": 1650,
       "category": "viajes",
       "paises": [
         "rd",
@@ -314,7 +314,7 @@
     "pasaporte_normal": {
       "title": "Pasaporte Dominicano Normal (MIP)",
       "tax": 1650,
-      "fee": 1200,
+      "fee": 1320,
       "category": "viajes",
       "paises": [
         "rd",
@@ -330,7 +330,7 @@
     "visa_ds160": {
       "title": "Visa Americana B1/B2 (DS-160)",
       "tax": 11100,
-      "fee": 3500,
+      "fee": 3850,
       "category": "viajes",
       "paises": [
         "rd"
@@ -343,7 +343,7 @@
     "certificacion_solteria": {
       "title": "Certificación de Soltería (JCE)",
       "tax": 800,
-      "fee": 1200,
+      "fee": 1320,
       "category": "legales",
       "paises": [
         "us",
@@ -359,7 +359,7 @@
     "poderes_especiales": {
       "title": "Poderes Notariales Especiales",
       "tax": 1500,
-      "fee": 2500,
+      "fee": 2750,
       "category": "legales",
       "paises": [
         "us",
@@ -376,7 +376,7 @@
     "rectificacion_actas_jce": {
       "title": "Rectificación de Actas de la JCE",
       "tax": 1000,
-      "fee": 3500,
+      "fee": 3850,
       "category": "legales",
       "paises": [
         "us",
@@ -392,7 +392,7 @@
     "contratos_alquiler": {
       "title": "Contrato de Alquiler Notarizado",
       "tax": 1000,
-      "fee": 2000,
+      "fee": 2200,
       "category": "legales",
       "paises": [
         "rd",
@@ -409,7 +409,7 @@
     "declaracion_union_libre": {
       "title": "Declaración Jurada de Unión Libre",
       "tax": 800,
-      "fee": 1500,
+      "fee": 1650,
       "category": "legales",
       "paises": [
         "rd",
@@ -424,7 +424,7 @@
     "declaracion_jurada": {
       "title": "Declaración Jurada General (Ingresos, Soltería, etc.)",
       "tax": 800,
-      "fee": 1500,
+      "fee": 1650,
       "category": "legales",
       "paises": [
         "rd",
@@ -440,7 +440,7 @@
     "contrato_notarial": {
       "title": "Contrato Notarial o Legalizado General",
       "tax": 1000,
-      "fee": 2000,
+      "fee": 2200,
       "category": "legales",
       "paises": [
         "rd",
@@ -454,7 +454,7 @@
     "divorcio_mutuo_acuerdo": {
       "title": "Divorcio por Mutuo Consentimiento",
       "tax": 8000,
-      "fee": 12000,
+      "fee": 13200,
       "category": "legales",
       "paises": [
         "rd",
@@ -471,7 +471,7 @@
     "hipotecas_cargas": {
       "title": "Inscripción / Cancelación de Hipotecas y Cargas",
       "tax": 2500,
-      "fee": 4000,
+      "fee": 4400,
       "category": "inmobiliario",
       "paises": [
         "us",
@@ -488,7 +488,7 @@
     "estado_juridico_inmueble": {
       "title": "Certificación de Estado Jurídico del Inmueble (Libre de Cargas)",
       "tax": 1000,
-      "fee": 1500,
+      "fee": 1650,
       "category": "inmobiliario",
       "paises": [
         "us",
@@ -504,7 +504,7 @@
     "ipi_impuesto": {
       "title": "IPI (Impuesto a la Propiedad Inmobiliaria - DGII)",
       "tax": 1500,
-      "fee": 2000,
+      "fee": 2200,
       "category": "inmobiliario",
       "paises": [
         "us",
@@ -521,7 +521,7 @@
     "deposito_banco_agricola": {
       "title": "Depósito de Alquileres en el Banco Agrícola",
       "tax": 500,
-      "fee": 1500,
+      "fee": 1650,
       "category": "inmobiliario",
       "paises": [
         "rd",
@@ -537,7 +537,7 @@
     "renovacion_licencia": {
       "title": "Renovación y Duplicado de Licencia de Conducir (INTRANT)",
       "tax": 1900,
-      "fee": 1500,
+      "fee": 1650,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd",
@@ -553,7 +553,7 @@
     "levantamiento_oposicion": {
       "title": "Levantamiento de Oposición de Vehículos (DGII)",
       "tax": 1500,
-      "fee": 2500,
+      "fee": 2750,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd"
@@ -567,7 +567,7 @@
     "certificacion_no_registro_vehicular": {
       "title": "Certificación de Propiedad / No Registro de Vehículos",
       "tax": 600,
-      "fee": 1000,
+      "fee": 1100,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd",
@@ -581,7 +581,7 @@
     "duplicado_matricula": {
       "title": "Duplicado de Matrícula por Pérdida (DGII)",
       "tax": 2000,
-      "fee": 3000,
+      "fee": 3300,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd"
@@ -594,7 +594,7 @@
     "traspaso_vehicular": {
       "title": "Traspaso Vehicular (DGII + Acto Venta)",
       "tax": 2500,
-      "fee": 2500,
+      "fee": 2750,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd",
@@ -611,7 +611,7 @@
     "pagos_impuestos": {
       "title": "Gestión y Pago de Impuestos (DGII / Marbete)",
       "tax": 1500,
-      "fee": 800,
+      "fee": 880,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd",
@@ -627,7 +627,7 @@
     "carfax_vehicular": {
       "title": "Reporte Carfax de Vehículo Importado",
       "tax": 1000,
-      "fee": 500,
+      "fee": 550,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd"
@@ -640,7 +640,7 @@
     "multas_transito": {
       "title": "Consulta y Pago de Multas de Tránsito (DIGESETT/PGR)",
       "tax": 1000,
-      "fee": 500,
+      "fee": 550,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd",
@@ -656,7 +656,7 @@
     "legalizacion_mescyt": {
       "title": "Legalización de Títulos Universitarios (MESCYT)",
       "tax": 1000,
-      "fee": 1500,
+      "fee": 1650,
       "category": "academicos",
       "paises": [
         "rd",
@@ -672,7 +672,7 @@
     "record_notas_minerd_mescyt": {
       "title": "Certificación de Récord de Notas (MINERD / MESCYT)",
       "tax": 800,
-      "fee": 1200,
+      "fee": 1320,
       "category": "academicos",
       "paises": [
         "rd",
@@ -689,7 +689,7 @@
     "certificacion_estudios": {
       "title": "Certificación de Estudios (Bachillerato / Universidad)",
       "tax": 500,
-      "fee": 1200,
+      "fee": 1320,
       "category": "academicos",
       "paises": [
         "rd",
@@ -706,7 +706,7 @@
     "creacion_cv": {
       "title": "Creación de Currículum (CV) Profesional",
       "tax": 0,
-      "fee": 1500,
+      "fee": 1650,
       "category": "academicos",
       "paises": [
         "rd",
@@ -721,7 +721,7 @@
     "exequatur_ley": {
       "title": "Exequátur de Ley para Ejercicio Profesional",
       "tax": 3500,
-      "fee": 5000,
+      "fee": 5500,
       "category": "academicos",
       "paises": [
         "rd",
@@ -736,7 +736,7 @@
     "apostilla_documentos": {
       "title": "Apostilla de Documentos (MIREX Cancillería)",
       "tax": 620,
-      "fee": 1000,
+      "fee": 1100,
       "category": "academicos",
       "paises": [
         "us",
@@ -752,7 +752,7 @@
     "legalizacion_documentos": {
       "title": "Legalización de Documentos Oficiales",
       "tax": 500,
-      "fee": 1000,
+      "fee": 1100,
       "category": "academicos",
       "paises": [
         "rd",
@@ -771,7 +771,7 @@
     "traduccion_documentos": {
       "title": "Traducción Judicial Oficial (Por página)",
       "tax": 0,
-      "fee": 1200,
+      "fee": 1320,
       "category": "academicos",
       "paises": [
         "ext",
@@ -788,7 +788,7 @@
     "turnitin_check": {
       "title": "Verificación Antiplagio Turnitin (Informe Tesis)",
       "tax": 0,
-      "fee": 750,
+      "fee": 825,
       "category": "academicos",
       "paises": [
         "rd"
@@ -799,7 +799,7 @@
     "constitucion_empresas": {
       "title": "Constitución Completa de Empresa / SRL",
       "tax": 12000,
-      "fee": 8000,
+      "fee": 8800,
       "category": "empresas",
       "paises": [
         "ext",
@@ -818,7 +818,7 @@
     "registro_empresa_onapi": {
       "title": "Registro de Nombre Comercial (ONAPI)",
       "tax": 4755,
-      "fee": 2000,
+      "fee": 2200,
       "category": "empresas",
       "paises": [
         "rd",
@@ -1362,5 +1362,49 @@
       "DOP",
       "rd"
     ]
-  ]
+  ],
+  "tiempos": {
+    "e_ticket": {
+      "es": "Inmediato (el código QR sale al completar el formulario)",
+      "en": "Immediate (the QR code is issued when the form is completed)",
+      "fr": "Immédiat (le code QR est émis à la fin du formulaire)",
+      "fuente": "Dirección General de Migración"
+    },
+    "pasaporte_normal": {
+      "es": "24 a 48 horas en Gran Santo Domingo; 48 a 72 horas en el interior",
+      "en": "24–48 hours in Greater Santo Domingo; 48–72 hours elsewhere in the country",
+      "fr": "24 à 48 h dans le Grand Saint-Domingue ; 48 à 72 h en province",
+      "fuente": "Dirección General de Pasaportes"
+    },
+    "certificacion_solteria": {
+      "es": "El mismo día, si se solicita antes del mediodía",
+      "en": "Same day, if requested before noon",
+      "fr": "Le jour même, si la demande est faite avant midi",
+      "fuente": "Junta Central Electoral"
+    },
+    "apostilla_documentos": {
+      "es": "3 días laborables",
+      "en": "3 business days",
+      "fr": "3 jours ouvrables",
+      "fuente": "MIREX (Cancillería)"
+    },
+    "legalizacion_mescyt": {
+      "es": "10 a 15 días laborables",
+      "en": "10–15 business days",
+      "fr": "10 à 15 jours ouvrables",
+      "fuente": "MESCYT"
+    },
+    "estado_juridico_inmueble": {
+      "es": "Hasta 30 días hábiles",
+      "en": "Up to 30 business days",
+      "fr": "Jusqu'à 30 jours ouvrables",
+      "fuente": "Registro Inmobiliario"
+    },
+    "certificacion_no_registro_vehicular": {
+      "es": "Inmediato (hasta 3 días laborables si hay mucha demanda)",
+      "en": "Immediate (up to 3 business days at peak demand)",
+      "fr": "Immédiat (jusqu'à 3 jours ouvrables en forte demande)",
+      "fuente": "DGII"
+    }
+  }
 }

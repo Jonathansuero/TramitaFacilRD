@@ -1955,6 +1955,91 @@
       "Pago: {inicio} al iniciar y {entrega} al entregar (50% y 50%)",
       "Payment: {inicio} to start and {entrega} on delivery (50% / 50%)",
       "Paiement : {inicio} au début et {entrega} à la livraison (50 % / 50 %)"
+    ],
+    "tiempo.t": [
+      "Tiempo estimado de la institución",
+      "Institution's estimated time",
+      "Délai estimé de l'institution"
+    ],
+    "tiempo.fuente": [
+      "Según {fuente}. Puede variar según la demanda.",
+      "According to {fuente}. May vary with demand.",
+      "Selon {fuente}. Peut varier selon la demande."
+    ],
+    "tuto.eyebrow": [
+      "App en tu celular",
+      "App on your phone",
+      "Appli sur votre téléphone"
+    ],
+    "tuto.t": [
+      "Lleva TramitaFácil en tu pantalla de inicio",
+      "Put TramitaFácil on your home screen",
+      "Ajoutez TramitaFácil à votre écran d'accueil"
+    ],
+    "tuto.d": [
+      "Sin descargar nada de la tienda: en pocos toques tendrás el ícono TF junto a tus apps para cotizar, rastrear y escribirnos más rápido.",
+      "No app store needed: in a few taps you'll have the TF icon next to your apps to get quotes, track and message us faster.",
+      "Sans passer par une boutique : en quelques gestes, l'icône TF sera à côté de vos applis pour obtenir un devis, suivre et nous écrire plus vite."
+    ],
+    "tuto.ios": [
+      "iPhone (Safari)",
+      "iPhone (Safari)",
+      "iPhone (Safari)"
+    ],
+    "tuto.ios.1": [
+      "Abre tramitafacilrd.com en Safari.",
+      "Open tramitafacilrd.com in Safari.",
+      "Ouvrez tramitafacilrd.com dans Safari."
+    ],
+    "tuto.ios.2": [
+      "Toca el botón Compartir (el cuadro con la flecha hacia arriba).",
+      "Tap the Share button (the square with the up arrow).",
+      "Touchez le bouton Partager (le carré avec la flèche vers le haut)."
+    ],
+    "tuto.ios.3": [
+      "Baja y elige «Agregar a pantalla de inicio».",
+      "Scroll down and choose “Add to Home Screen”.",
+      "Faites défiler et choisissez « Sur l'écran d'accueil »."
+    ],
+    "tuto.ios.4": [
+      "Toca «Agregar». El ícono TF aparecerá en tu pantalla.",
+      "Tap “Add”. The TF icon will appear on your screen.",
+      "Touchez « Ajouter ». L'icône TF apparaîtra sur votre écran."
+    ],
+    "tuto.and": [
+      "Android (Chrome)",
+      "Android (Chrome)",
+      "Android (Chrome)"
+    ],
+    "tuto.and.1": [
+      "Abre tramitafacilrd.com en Chrome.",
+      "Open tramitafacilrd.com in Chrome.",
+      "Ouvrez tramitafacilrd.com dans Chrome."
+    ],
+    "tuto.and.2": [
+      "Toca el menú ⋮ (tres puntos, arriba a la derecha).",
+      "Tap the ⋮ menu (three dots, top right).",
+      "Touchez le menu ⋮ (trois points, en haut à droite)."
+    ],
+    "tuto.and.3": [
+      "Elige «Instalar app» o «Agregar a la pantalla principal».",
+      "Choose “Install app” or “Add to Home screen”.",
+      "Choisissez « Installer l'appli » ou « Ajouter à l'écran d'accueil »."
+    ],
+    "tuto.and.4": [
+      "Confirma con «Instalar». El ícono TF aparecerá con tus apps.",
+      "Confirm with “Install”. The TF icon will appear with your apps.",
+      "Confirmez avec « Installer ». L'icône TF apparaîtra avec vos applis."
+    ],
+    "tuto.btn": [
+      "Instalar ahora",
+      "Install now",
+      "Installer maintenant"
+    ],
+    "tuto.pie": [
+      "Instalar la app",
+      "Install the app",
+      "Installer l'appli"
     ]
   },
   "contenido": {

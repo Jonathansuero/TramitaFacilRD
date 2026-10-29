@@ -628,7 +628,9 @@ def no_encontrado(_e):
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
 # Direcciones limpias: /servicios, /servicio?id=…, /rastreo… (sin ".html").
 PAGINAS = {"servicios", "servicio", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora", "offline", "admin"}
-ARCHIVOS_RAIZ = {"sw.js", "robots.txt", "sitemap.xml", "site.webmanifest"}
+# 33200d87b13a122cdb2087cad4e581ff.txt: clave de IndexNow (Bing, Yandex…) para avisar a los buscadores de páginas nuevas
+INDEXNOW_KEY = "33200d87b13a122cdb2087cad4e581ff"
+ARCHIVOS_RAIZ = {"sw.js", "robots.txt", "sitemap.xml", "site.webmanifest", f"{INDEXNOW_KEY}.txt"}
 
 
 def _con_busqueda(destino: str) -> str:
