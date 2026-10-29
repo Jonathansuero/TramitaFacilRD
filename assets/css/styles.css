@@ -537,3 +537,82 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .app-tuto-btn { display: inline-flex; align-items: center; gap: .5rem; min-height: 48px; padding: .8rem 1.6rem; border-radius: .9rem; background: #CE1126; color: #fff; font-weight: 800; font-size: .95rem; box-shadow: 0 12px 24px -12px rgba(206,17,38,.7); }
 .app-tuto-btn:hover { background: #a90e1f; }
 @media (max-width: 640px) { .app-tuto-head { flex-direction: column; align-items: flex-start; } .app-tuto-logo { width: 72px; height: 72px; } }
+
+/* ==========================================================
+   Casos reales (problema → solución)
+   ========================================================== */
+.casos-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: .5rem; }
+.casos-chip { font-size: .78rem; font-weight: 700; padding: .45rem .9rem; border-radius: 999px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.25); color: #fff; }
+.casos-chip:hover { background: #fff; color: #002D62; }
+.casos-lista { display: grid; gap: 2rem; }
+.caso { position: relative; border-radius: 2rem; overflow: hidden; background: #fff; box-shadow: 0 30px 60px -36px rgba(0,45,98,.5); border: 1px solid #e2e8f0; animation: heroIn .5s ease both; scroll-margin-top: 6rem; }
+.caso-mitad { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 2rem; align-items: center; padding: 2.75rem 2.75rem; }
+.caso-problema { background: #EEF0F3; padding-bottom: 3.25rem; }
+.caso-solucion { background: #002D62; color: #fff; padding-top: 3.25rem; }
+.caso-texto { display: flex; flex-direction: column; gap: .9rem; }
+.caso-texto h2 { margin: 0; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: clamp(1.5rem, 2.6vw, 2.15rem); line-height: 1.1; letter-spacing: -.02em; }
+.caso-problema h2 { color: #1F2937; }
+.caso-texto p { margin: 0; font-size: 1rem; line-height: 1.5; }
+.caso-problema p { color: #4B5563; }
+.caso-solucion p { color: #DCE4F0; }
+.caso-tag { align-self: flex-start; display: inline-flex; align-items: center; gap: .45rem; font-size: .72rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; padding: .4rem .8rem; border-radius: 999px; }
+.caso-tag-rojo { color: #A3111F; background: #FBDDE0; }
+.caso-tag-verde { color: #065F46; background: #C9F2DD; }
+.caso-flecha { position: relative; z-index: 2; width: 64px; height: 64px; margin: -32px auto; border-radius: 50%; background: #D4AF37; border: 6px solid #fff; display: flex; align-items: center; justify-content: center; }
+.caso-pie { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.25rem 2.75rem 1.5rem; background: #002D62; border-top: 1px solid rgba(255,255,255,.14); }
+.caso-servicio { display: flex; flex-direction: column; gap: .15rem; color: #fff; min-width: 0; }
+.caso-serv-label { font-size: .68rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: #9FB3D1; }
+.caso-serv-nombre { font-weight: 800; color: #fff; text-decoration: underline; text-decoration-color: rgba(212,175,55,.6); text-underline-offset: 3px; }
+.caso-serv-nombre:hover { color: #FFE3A3; }
+.caso-serv-meta { font-size: .8rem; color: #C9D6EA; }
+.caso-serv-meta strong { color: #D4AF37; }
+.caso-botones { display: flex; flex-wrap: wrap; gap: .5rem; }
+.caso-btn { display: inline-flex; align-items: center; gap: .45rem; min-height: 44px; padding: .6rem 1.1rem; border-radius: .8rem; font-size: .85rem; font-weight: 800; }
+.caso-btn-borde { border: 1px solid rgba(255,255,255,.35); color: #fff; background: rgba(255,255,255,.06); }
+.caso-btn-borde:hover { background: rgba(255,255,255,.15); }
+.caso-btn-rojo { background: #CE1126; color: #fff; box-shadow: 0 10px 20px -10px rgba(206,17,38,.8); }
+.caso-btn-rojo:hover { background: #a90e1f; }
+/* chats ilustrativos */
+.chat { width: 100%; max-width: 360px; justify-self: end; border-radius: 1.4rem; overflow: hidden; font-size: .9rem; line-height: 1.35; }
+.chat-gris { background: #F8FAFC; border: 2px solid #D5DBE3; box-shadow: 0 20px 34px -24px rgba(15,23,42,.45); color: #0F172A; }
+.chat-wa { background: #ECE5DD; color: #0F172A; box-shadow: 0 20px 34px -18px rgba(0,0,0,.5); }
+.chat-cab { display: flex; align-items: center; gap: .65rem; padding: .7rem .9rem; }
+.chat-cab-gris { background: #CBD2DC; color: #334155; }
+.chat-cab-wa { background: #0E7A52; color: #fff; }
+.chat-cab-wa small { display: block; font-size: .7rem; color: #D1FAE5; }
+.chat-avatar { width: 32px; height: 32px; border-radius: 50%; background: #8D5524; flex-shrink: 0; }
+.chat-tf-logo { width: 32px; height: 32px; border-radius: 50%; background: #fff; color: #002D62; font-weight: 900; font-size: .8rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.chat-cuerpo { display: flex; flex-direction: column; gap: .5rem; padding: .8rem; }
+.chat-b { max-width: 86%; padding: .55rem .75rem; border-radius: 1rem; }
+.chat-yo-gris { align-self: flex-end; background: #D9DEE5; border-bottom-right-radius: .3rem; }
+.chat-otro { align-self: flex-start; background: #fff; border-bottom-left-radius: .3rem; }
+.chat-tf { align-self: flex-start; background: #fff; border-bottom-left-radius: .3rem; }
+.chat-yo-verde { align-self: flex-end; background: #D9FDD3; border-bottom-right-radius: .3rem; }
+.chat-hora { display: flex; justify-content: flex-end; align-items: center; gap: .25rem; font-size: .66rem; color: #64748B; margin-top: .2rem; }
+.chat-nota { align-self: center; font-size: .7rem; font-weight: 700; color: #64748B; background: #E2E8F0; border-radius: 999px; padding: .15rem .6rem; }
+.inicia-btn { width: 100%; display: inline-flex; align-items: center; justify-content: center; gap: .55rem; min-height: 54px; border-radius: 1rem; background: #CE1126; color: #fff; font-weight: 800; font-size: 1.05rem; box-shadow: 0 14px 28px -14px rgba(206,17,38,.85); }
+.inicia-btn:hover { background: #a90e1f; }
+.inicia-btn:disabled { opacity: .7; }
+@media (max-width: 767px) {
+  .caso-mitad { grid-template-columns: 1fr; padding: 2rem 1.25rem; gap: 1.25rem; }
+  .caso-problema { padding-bottom: 2.5rem; }
+  .caso-solucion { padding-top: 2.5rem; }
+  .chat { justify-self: stretch; max-width: none; }
+  .caso-pie { padding: 1.25rem; }
+  .caso-botones, .caso-btn { width: 100%; justify-content: center; }
+}
+
+/* ==========================================================
+   Inicio: catálogo con frase dominicana e ilustración
+   ========================================================== */
+.cat-confianza { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 2.5rem; align-items: center; }
+.cat-confianza-ilus { border-radius: 2rem; overflow: hidden; box-shadow: 0 30px 60px -34px rgba(0,45,98,.6); }
+.cat-confianza-ilus img { display: block; width: 100%; height: auto; }
+.cat-frase { font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: clamp(1.6rem, 3.2vw, 2.6rem); line-height: 1.1; letter-spacing: -.025em; color: #002D62; margin: .6rem 0 0; }
+.cat-frase span + span { color: #CE1126; }
+.cat-confianza-lista { list-style: none; padding: 0; margin: 1.25rem 0 0; display: grid; gap: .55rem; }
+.cat-confianza-lista li { display: flex; gap: .6rem; align-items: flex-start; color: #334155; font-size: .95rem; }
+.cat-confianza-lista i { color: #0E7A52; margin-top: .2rem; }
+.cat-confianza-btn { margin-top: 1.75rem; display: inline-flex; align-items: center; gap: .6rem; min-height: 54px; padding: .9rem 1.6rem; border-radius: 1rem; background: #CE1126; color: #fff; font-weight: 800; font-size: 1rem; box-shadow: 0 14px 28px -14px rgba(206,17,38,.85); }
+.cat-confianza-btn:hover { background: #a90e1f; }
+@media (max-width: 900px) { .cat-confianza { grid-template-columns: 1fr; } .cat-confianza-ilus { order: -1; } }

@@ -1406,5 +1406,514 @@
       "fr": "Immédiat (jusqu'à 3 jours ouvrables en forte demande)",
       "fuente": "DGII"
     }
-  }
+  },
+  "casos": [
+    {
+      "id": "familiar",
+      "servicio": "rectificacion_actas_jce",
+      "problema": {
+        "titulo": {
+          "es": "Esperar a que un familiar «tenga un chance» para ir.",
+          "en": "Waiting for a relative to “find time” to go.",
+          "fr": "Attendre qu'un proche « trouve le temps » d'y aller."
+        },
+        "texto": {
+          "es": "Pasan las semanas y el trámite sigue igual.",
+          "en": "Weeks go by and nothing moves.",
+          "fr": "Les semaines passent et rien n'avance."
+        },
+        "contacto": {
+          "es": "Primo Luis",
+          "en": "Primo Luis",
+          "fr": "Primo Luis"
+        },
+        "chat": [
+          [
+            "yo",
+            {
+              "es": "Primo, ¿pudiste ir a la JCE?",
+              "en": "Cuz, did you make it to the JCE?",
+              "fr": "Cousin, tu as pu aller à la JCE ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Esta semana no pude, la otra sí.",
+              "en": "Couldn't this week, next week for sure.",
+              "fr": "Pas cette semaine, la prochaine sans faute."
+            }
+          ],
+          [
+            "nota",
+            {
+              "es": "2 semanas después",
+              "en": "2 weeks later",
+              "fr": "2 semaines plus tard"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Y? ¿Fuiste?",
+              "en": "So? Did you go?",
+              "fr": "Alors ? Tu y es allé ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Mañana, sin falta.",
+              "en": "Tomorrow, for sure.",
+              "fr": "Demain, promis."
+            }
+          ]
+        ]
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Un gestor que te avisa de cada paso por WhatsApp.",
+          "en": "An agent who updates you on every step via WhatsApp.",
+          "fr": "Un gestionnaire qui vous tient au courant de chaque étape sur WhatsApp."
+        },
+        "texto": {
+          "es": "Tu familia, tranquila. Tú, siempre informado.",
+          "en": "Your family stays calm. You stay informed.",
+          "fr": "Votre famille est tranquille. Vous, toujours informé."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Buenas, don José. Su expediente ya fue depositado en la JCE. Le avisamos en cuanto esté listo.",
+              "en": "Good morning, Mr. José. Your file has been filed at the JCE. We'll let you know as soon as it's ready.",
+              "fr": "Bonjour M. José. Votre dossier a été déposé à la JCE. Nous vous prévenons dès qu'il est prêt."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Perfecto, gracias!",
+              "en": "Perfect, thank you!",
+              "fr": "Parfait, merci !"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "poder",
+      "servicio": "poderes_especiales",
+      "problema": {
+        "titulo": {
+          "es": "Tener que viajar a RD solo para firmar un papel.",
+          "en": "Having to fly to the DR just to sign one paper.",
+          "fr": "Devoir aller en RD juste pour signer un papier."
+        },
+        "texto": {
+          "es": "Pasaje, días libres y el trabajo en riesgo, por una firma.",
+          "en": "Airfare, time off and your job at risk, for one signature.",
+          "fr": "Billet d'avion, congés et emploi en jeu, pour une signature."
+        },
+        "contacto": {
+          "es": "Supervisor",
+          "en": "Supervisor",
+          "fr": "Superviseur"
+        },
+        "chat": [
+          [
+            "yo",
+            {
+              "es": "Jefe, necesito una semana libre para ir a RD a firmar unos papeles.",
+              "en": "Boss, I need a week off to go to the DR and sign some papers.",
+              "fr": "Chef, j'ai besoin d'une semaine pour aller signer des papiers en RD."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "¿Una semana? Ahora mismo imposible.",
+              "en": "A week? Not possible right now.",
+              "fr": "Une semaine ? Impossible en ce moment."
+            }
+          ]
+        ]
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Firmas un poder donde vives y nosotros hacemos el resto en RD.",
+          "en": "Sign a power of attorney where you live; we do the rest in the DR.",
+          "fr": "Signez une procuration là où vous vivez ; on s'occupe du reste en RD."
+        },
+        "texto": {
+          "es": "En el consulado dominicano o ante notario con apostilla.",
+          "en": "At the Dominican consulate or before a notary with apostille.",
+          "fr": "Au consulat dominicain ou devant notaire avec apostille."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Le enviamos el modelo del poder. Fírmelo en el consulado de Nueva York y nos manda una foto por aquí.",
+              "en": "We've sent you the power of attorney template. Sign it at the New York consulate and send us a photo here.",
+              "fr": "Nous vous avons envoyé le modèle de procuration. Signez-le au consulat de New York et envoyez-nous une photo ici."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Qué bien! Así no pierdo días de trabajo.",
+              "en": "Great! That way I don't miss work.",
+              "fr": "Super ! Comme ça je ne perds pas de jours de travail."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "pasaporte",
+      "servicio": "pasaporte_normal",
+      "problema": {
+        "titulo": {
+          "es": "Perder el día entero en Pasaportes.",
+          "en": "Losing a whole day at the Passport office.",
+          "fr": "Perdre toute une journée au bureau des passeports."
+        },
+        "texto": {
+          "es": "Sin cita, con un papel que faltó, y a volver otro día.",
+          "en": "No appointment, one missing paper, and you have to come back.",
+          "fr": "Sans rendez-vous, un papier manquant, et il faut revenir."
+        },
+        "contacto": {
+          "es": "Mi esposa",
+          "en": "My wife",
+          "fr": "Ma femme"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "¿Y el pasaporte?",
+              "en": "How's the passport going?",
+              "fr": "Et le passeport ?"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Me devolvieron. Faltaba un papel y tengo que volver.",
+              "en": "They sent me back. A paper was missing and I have to return.",
+              "fr": "On m'a renvoyé. Il manquait un papier, je dois revenir."
+            }
+          ]
+        ]
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Te decimos qué llevar y coordinamos la cita.",
+          "en": "We tell you what to bring and set up the appointment.",
+          "fr": "On vous dit quoi apporter et on organise le rendez-vous."
+        },
+        "texto": {
+          "es": "Llegas con todo completo y en orden.",
+          "en": "You arrive with everything complete and in order.",
+          "fr": "Vous arrivez avec un dossier complet et en ordre."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Doña Carmen, su cita es el martes a las 9:00. Lleve la cédula y el pasaporte anterior. Todo lo demás ya está listo.",
+              "en": "Mrs. Carmen, your appointment is Tuesday at 9:00. Bring your ID and old passport. Everything else is ready.",
+              "fr": "Mme Carmen, votre rendez-vous est mardi à 9 h. Apportez votre cédula et l'ancien passeport. Le reste est prêt."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Así da gusto!",
+              "en": "Now that's how it should be!",
+              "fr": "Comme ça, c'est un plaisir !"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "apostilla",
+      "servicio": "apostilla_documentos",
+      "problema": {
+        "titulo": {
+          "es": "Te piden el título apostillado y no sabes por dónde empezar.",
+          "en": "You're asked for an apostilled degree and don't know where to start.",
+          "fr": "On vous demande un diplôme apostillé et vous ne savez pas par où commencer."
+        },
+        "texto": {
+          "es": "Legalizar, apostillar, traducir… y cada oficina te manda a otra.",
+          "en": "Legalize, apostille, translate… and every office sends you elsewhere.",
+          "fr": "Légaliser, apostiller, traduire… et chaque bureau vous renvoie ailleurs."
+        },
+        "contacto": {
+          "es": "Amiga Carla",
+          "en": "Friend Carla",
+          "fr": "Amie Carla"
+        },
+        "chat": [
+          [
+            "yo",
+            {
+              "es": "¿Tú sabes dónde se apostilla un título para España?",
+              "en": "Do you know where to apostille a degree for Spain?",
+              "fr": "Tu sais où on apostille un diplôme pour l'Espagne ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Ni idea… creo que primero va al MESCYT, ¿o era la Cancillería?",
+              "en": "No idea… I think MESCYT first, or was it the Foreign Ministry?",
+              "fr": "Aucune idée… le MESCYT d'abord, ou c'était la Chancellerie ?"
+            }
+          ]
+        ]
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Legalizamos y apostillamos tu documento por ti.",
+          "en": "We legalize and apostille your document for you.",
+          "fr": "Nous légalisons et apostillons votre document pour vous."
+        },
+        "texto": {
+          "es": "Y te lo enviamos a donde estés.",
+          "en": "And send it to you wherever you are.",
+          "fr": "Et nous vous l'envoyons où que vous soyez."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Su título ya está apostillado. Hoy sale por courier hacia Madrid.",
+              "en": "Your degree is now apostilled. It ships by courier to Madrid today.",
+              "fr": "Votre diplôme est apostillé. Il part aujourd'hui par coursier vers Madrid."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Mil gracias! No sabía ni por dónde empezar.",
+              "en": "Thanks a million! I didn't even know where to start.",
+              "fr": "Mille mercis ! Je ne savais même pas par où commencer."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "terreno",
+      "servicio": "estado_juridico_inmueble",
+      "problema": {
+        "titulo": {
+          "es": "Comprar un solar sin saber si tiene hipoteca o problemas.",
+          "en": "Buying a lot without knowing if it has a mortgage or issues.",
+          "fr": "Acheter un terrain sans savoir s'il a une hypothèque ou des problèmes."
+        },
+        "texto": {
+          "es": "Los ahorros de años, en manos de un «confíe en mí».",
+          "en": "Years of savings, riding on a “trust me”.",
+          "fr": "Des années d'économies, sur un simple « faites-moi confiance »."
+        },
+        "contacto": {
+          "es": "Vendedor",
+          "en": "Seller",
+          "fr": "Vendeur"
+        },
+        "chat": [
+          [
+            "yo",
+            {
+              "es": "¿Ese solar tiene algún problema legal?",
+              "en": "Does that lot have any legal problem?",
+              "fr": "Ce terrain a un problème juridique ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Ese solar está limpiecito. Confíe en mí.",
+              "en": "That lot is totally clean. Trust me.",
+              "fr": "Ce terrain est tout propre. Faites-moi confiance."
+            }
+          ]
+        ]
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Antes de pagar, verificamos el inmueble en el Registro.",
+          "en": "Before you pay, we check the property at the Registry.",
+          "fr": "Avant de payer, nous vérifions le bien au Registre."
+        },
+        "texto": {
+          "es": "Con la Certificación de Estado Jurídico sabes si está libre de cargas.",
+          "en": "The Legal Status Certificate tells you if it's free of liens.",
+          "fr": "Le certificat d'état juridique indique s'il est libre de charges."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Salió la certificación: el inmueble está a nombre del vendedor y libre de cargas. Puede firmar tranquilo.",
+              "en": "The certificate is out: the property is in the seller's name and free of liens. You can sign with peace of mind.",
+              "fr": "Le certificat est arrivé : le bien est au nom du vendeur et libre de charges. Vous pouvez signer sereinement."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Ahora sí. ¡Gracias!",
+              "en": "Now we're talking. Thanks!",
+              "fr": "Là, c'est bon. Merci !"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "carro",
+      "servicio": "traspaso_vehicular",
+      "problema": {
+        "titulo": {
+          "es": "Vendiste el carro y las multas siguen llegando a tu nombre.",
+          "en": "You sold the car and fines still arrive in your name.",
+          "fr": "Vous avez vendu la voiture et les amendes arrivent toujours à votre nom."
+        },
+        "texto": {
+          "es": "Sin traspaso, legalmente el carro sigue siendo tuyo.",
+          "en": "Without a transfer, the car is still legally yours.",
+          "fr": "Sans transfert, la voiture est toujours légalement à vous."
+        },
+        "contacto": {
+          "es": "Compadre Ramón",
+          "en": "Buddy Ramón",
+          "fr": "L'ami Ramón"
+        },
+        "chat": [
+          [
+            "yo",
+            {
+              "es": "Compadre, ¿hiciste el traspaso del carro?",
+              "en": "Buddy, did you do the car transfer?",
+              "fr": "Dis, tu as fait le transfert de la voiture ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Tranquilo, eso después lo hago.",
+              "en": "Relax, I'll do it later.",
+              "fr": "T'inquiète, je le ferai plus tard."
+            }
+          ]
+        ]
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Hacemos el traspaso en la DGII con el acto de venta.",
+          "en": "We do the transfer at the DGII with the bill of sale.",
+          "fr": "Nous faisons le transfert à la DGII avec l'acte de vente."
+        },
+        "texto": {
+          "es": "El carro pasa a nombre del comprador y tú te olvidas del tema.",
+          "en": "The car goes into the buyer's name and you're done with it.",
+          "fr": "La voiture passe au nom de l'acheteur et vous n'y pensez plus."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Traspaso listo: la matrícula ya está a nombre del comprador. Le enviamos la constancia.",
+              "en": "Transfer done: the registration is now in the buyer's name. We've sent you the proof.",
+              "fr": "Transfert terminé : la carte grise est au nom de l'acheteur. Nous vous avons envoyé le justificatif."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Qué alivio!",
+              "en": "What a relief!",
+              "fr": "Quel soulagement !"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "eticket",
+      "servicio": "e_ticket",
+      "problema": {
+        "titulo": {
+          "es": "Llegar al aeropuerto sin el E-Ticket hecho.",
+          "en": "Getting to the airport without the E-Ticket done.",
+          "fr": "Arriver à l'aéroport sans avoir fait l'E-Ticket."
+        },
+        "texto": {
+          "es": "Filas, nervios y el vuelo a punto de salir.",
+          "en": "Lines, nerves and the flight about to leave.",
+          "fr": "Files d'attente, stress et le vol sur le point de partir."
+        },
+        "contacto": {
+          "es": "Sobrina Ana",
+          "en": "Niece Ana",
+          "fr": "Ma nièce Ana"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "Tía, ¿ya llenaste el E-Ticket para el viaje?",
+              "en": "Auntie, did you fill out the E-Ticket for the trip?",
+              "fr": "Tata, tu as rempli l'E-Ticket pour le voyage ?"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿El qué? Mi vuelo sale mañana temprano.",
+              "en": "The what? My flight leaves early tomorrow.",
+              "fr": "Le quoi ? Mon vol part demain matin."
+            }
+          ]
+        ]
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Te lo llenamos y te enviamos el código QR.",
+          "en": "We fill it out and send you the QR code.",
+          "fr": "Nous le remplissons et vous envoyons le code QR."
+        },
+        "texto": {
+          "es": "Lo presentas desde el celular y listo.",
+          "en": "Show it on your phone and you're set.",
+          "fr": "Présentez-le sur votre téléphone, c'est tout."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Doña Rosa, aquí tiene su código QR del E-Ticket. Muéstrelo en el aeropuerto. ¡Buen viaje!",
+              "en": "Mrs. Rosa, here's your E-Ticket QR code. Show it at the airport. Have a good trip!",
+              "fr": "Mme Rosa, voici votre code QR E-Ticket. Montrez-le à l'aéroport. Bon voyage !"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Dios les pague, mis hijos!",
+              "en": "God bless you, my dears!",
+              "fr": "Que Dieu vous bénisse, mes enfants !"
+            }
+          ]
+        ]
+      }
+    }
+  ]
 }

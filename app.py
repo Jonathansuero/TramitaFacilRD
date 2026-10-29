@@ -627,7 +627,7 @@ def no_encontrado(_e):
 # ---------------------------------------------------------------- sitio estático
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
 # Direcciones limpias: /servicios, /servicio?id=…, /rastreo… (sin ".html").
-PAGINAS = {"servicios", "servicio", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora", "offline", "admin"}
+PAGINAS = {"servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora", "offline", "admin"}
 # 33200d87b13a122cdb2087cad4e581ff.txt: clave de IndexNow (Bing, Yandex…) para avisar a los buscadores de páginas nuevas
 INDEXNOW_KEY = "33200d87b13a122cdb2087cad4e581ff"
 ARCHIVOS_RAIZ = {"sw.js", "robots.txt", "sitemap.xml", "site.webmanifest", f"{INDEXNOW_KEY}.txt"}
@@ -641,7 +641,7 @@ def _con_busqueda(destino: str) -> str:
 # ---------------------------------------------------------------- SEO
 # Cada página sale del servidor con su dirección oficial (canonical) y su vista previa para
 # WhatsApp/Facebook/Google (Open Graph). La página de cada servicio lleva su propio título y descripción.
-SEO_PAGINAS = {"index", "servicios", "servicio", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora"}
+SEO_PAGINAS = {"index", "servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora"}
 _html_cache: dict = {}
 
 

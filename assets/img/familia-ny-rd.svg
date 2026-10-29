@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="780" viewBox="0 0 1080 780" role="img" aria-label="Un joven trabajador en Nueva York y su abuela en República Dominicana conversan por videollamada">
+  <rect width="540" height="780" fill="#1B2A57"/>
+  <g fill="#ffffff" opacity="0.8">
+    <circle cx="60" cy="60" r="3"/><circle cx="170" cy="40" r="2.5"/><circle cx="290" cy="90" r="3"/>
+    <circle cx="420" cy="50" r="2.5"/><circle cx="110" cy="150" r="2"/><circle cx="470" cy="160" r="2"/>
+  </g>
+  <circle cx="90" cy="110" r="34" fill="#F4F1E1"/>
+  <circle cx="104" cy="100" r="30" fill="#1B2A57"/>
+  <g fill="#2C4183">
+    <rect x="0" y="420" width="70" height="360"/>
+    <rect x="78" y="330" width="80" height="450"/>
+    <rect x="166" y="470" width="66" height="310"/>
+    <rect x="240" y="260" width="74" height="520"/>
+    <rect x="322" y="380" width="96" height="400"/>
+    <rect x="426" y="440" width="114" height="340"/>
+  </g>
+  <rect x="270" y="210" width="14" height="50" fill="#2C4183"/>
+  <g fill="#FFD66B">
+    <rect x="20" y="450" width="12" height="16"/><rect x="42" y="490" width="12" height="16"/><rect x="20" y="560" width="12" height="16"/>
+    <rect x="96" y="360" width="12" height="16"/><rect x="126" y="400" width="12" height="16"/><rect x="96" y="470" width="12" height="16"/><rect x="126" y="540" width="12" height="16"/>
+    <rect x="258" y="290" width="12" height="16"/><rect x="286" y="340" width="12" height="16"/><rect x="258" y="410" width="12" height="16"/>
+    <rect x="342" y="410" width="12" height="16"/><rect x="378" y="450" width="12" height="16"/><rect x="446" y="470" width="12" height="16"/><rect x="494" y="510" width="12" height="16"/>
+  </g>
+  <g fill="#ffffff" opacity="0.85">
+    <circle cx="40" cy="250" r="5"/><circle cx="150" cy="210" r="4"/><circle cx="210" cy="300" r="5"/>
+    <circle cx="360" cy="230" r="4"/><circle cx="470" cy="290" r="5"/><circle cx="320" cy="330" r="3"/><circle cx="60" cy="350" r="4"/>
+  </g>
+
+  <rect x="540" width="540" height="780" fill="#8ED6F5"/>
+  <circle cx="960" cy="120" r="56" fill="#FFD66B"/>
+  <ellipse cx="700" cy="170" rx="70" ry="18" fill="#ffffff" opacity="0.8"/>
+  <rect x="540" y="520" width="540" height="90" fill="#19A7B5"/>
+  <path d="M600 556 q 16 -10 32 0 q 16 -10 32 0" fill="none" stroke="#A6EBEF" stroke-width="5" stroke-linecap="round"/>
+  <path d="M940 580 q 16 -10 32 0 q 16 -10 32 0" fill="none" stroke="#A6EBEF" stroke-width="5" stroke-linecap="round"/>
+  <rect x="540" y="600" width="540" height="180" fill="#F2D7A2"/>
+  <rect x="800" y="470" width="190" height="140" fill="#F6C35B"/>
+  <polygon points="786,474 895,412 1004,474" fill="#CE1126"/>
+  <rect x="876" y="520" width="38" height="90" fill="#1E5AA8"/>
+  <rect x="820" y="504" width="40" height="40" fill="#ffffff"/>
+  <rect x="930" y="504" width="40" height="40" fill="#ffffff"/>
+  <path d="M1040 780 C 1040 690, 1030 610, 1006 548" fill="none" stroke="#7A4A2C" stroke-width="16" stroke-linecap="round"/>
+  <g transform="translate(1006 548) scale(0.55)" fill="#1E8A4A">
+    <path d="M0 0 C 50 -46, 130 -48, 190 -6 C 130 -26, 64 -18, 0 0 Z" transform="rotate(-4)"/>
+    <path d="M0 0 C 50 -46, 130 -48, 190 -6 C 130 -26, 64 -18, 0 0 Z" transform="rotate(32)"/>
+    <path d="M0 0 C 50 -46, 130 -48, 190 -6 C 130 -26, 64 -18, 0 0 Z" transform="scale(-1 1) rotate(-4)"/>
+    <path d="M0 0 C 50 -46, 130 -48, 190 -6 C 130 -26, 64 -18, 0 0 Z" transform="scale(-1 1) rotate(32)"/>
+    <path d="M0 0 C 50 -46, 130 -48, 190 -6 C 130 -26, 64 -18, 0 0 Z" transform="scale(-1 1) rotate(-44)"/>
+  </g>
+
+  <path d="M170 270 C 360 70, 720 70, 910 270" fill="none" stroke="#ffffff" stroke-width="5" stroke-dasharray="4 16" stroke-linecap="round"/>
+  <g transform="translate(540 120) rotate(8)">
+    <path d="M-34 0 L 30 -6 C 42 -6, 42 6, 30 6 L -34 0 Z" fill="#ffffff"/>
+    <path d="M-4 -2 L -20 -30 L -8 -30 L 14 -3 Z" fill="#ffffff"/>
+    <path d="M-4 2 L -20 30 L -8 30 L 14 3 Z" fill="#ffffff"/>
+    <path d="M-30 -1 L -40 -14 L -32 -14 L -22 -2 Z" fill="#ffffff"/>
+  </g>
+  <rect x="40" y="40" width="184" height="46" rx="23" fill="#ffffff" opacity="0.14"/>
+  <text x="132" y="71" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#ffffff">Nueva York</text>
+  <rect x="600" y="40" width="250" height="46" rx="23" fill="#ffffff" opacity="0.8"/>
+  <text x="725" y="71" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800" fill="#002D62">República Dominicana</text>
+
+  <!-- Joven trabajador en Nueva York: casco y chaleco reflectivo -->
+  <g transform="translate(300 330) rotate(-6 100 200)">
+    <rect width="200" height="400" rx="32" fill="#0F172A"/>
+    <rect x="12" y="34" width="176" height="352" rx="20" fill="#FCE9D7"/>
+    <rect x="80" y="14" width="40" height="8" rx="4" fill="#334155"/>
+    <g transform="translate(12 34)">
+      <path d="M14 352 C 14 252, 162 252, 162 352 Z" fill="#475569"/>
+      <path d="M30 352 C 32 286, 60 266, 70 262 L 78 352 Z" fill="#F97316"/>
+      <path d="M146 352 C 144 286, 116 266, 106 262 L 98 352 Z" fill="#F97316"/>
+      <rect x="34" y="306" width="40" height="9" rx="2" fill="#E5E7EB" transform="rotate(-4 54 310)"/>
+      <rect x="102" y="306" width="40" height="9" rx="2" fill="#E5E7EB" transform="rotate(4 122 310)"/>
+      <rect x="74" y="168" width="28" height="40" fill="#7A4A26"/>
+      <circle cx="88" cy="132" r="50" fill="#8D5524"/>
+      <path d="M40 118 C 40 62, 136 62, 136 118 Z" fill="#FACC15"/>
+      <rect x="30" y="112" width="116" height="12" rx="6" fill="#EAB308"/>
+      <rect x="83" y="66" width="10" height="46" rx="5" fill="#EAB308"/>
+      <circle cx="70" cy="138" r="5.5" fill="#1F1A17"/>
+      <circle cx="106" cy="138" r="5.5" fill="#1F1A17"/>
+      <path d="M70 156 q 18 16 36 0" fill="none" stroke="#1F1A17" stroke-width="4.5" stroke-linecap="round"/>
+    </g>
+  </g>
+  <!-- Abuela en República Dominicana -->
+  <g transform="translate(580 330) rotate(6 100 200)">
+    <rect width="200" height="400" rx="32" fill="#0F172A"/>
+    <rect x="12" y="34" width="176" height="352" rx="20" fill="#E3F4FB"/>
+    <rect x="80" y="14" width="40" height="8" rx="4" fill="#334155"/>
+    <g transform="translate(12 34)">
+      <path d="M14 352 C 14 252, 162 252, 162 352 Z" fill="#1E5AA8"/>
+      <circle cx="62" cy="300" r="9" fill="#F6C35B"/><circle cx="114" cy="318" r="9" fill="#F6C35B"/>
+      <rect x="74" y="168" width="28" height="40" fill="#9A6440"/>
+      <circle cx="88" cy="70" r="24" fill="#D4D4D4"/>
+      <circle cx="88" cy="132" r="50" fill="#B97A4E"/>
+      <path d="M38 132 C 34 68, 142 68, 138 132 C 128 100, 50 100, 38 132 Z" fill="#D4D4D4"/>
+      <circle cx="70" cy="134" r="14" fill="none" stroke="#3B2A20" stroke-width="3.5"/>
+      <circle cx="106" cy="134" r="14" fill="none" stroke="#3B2A20" stroke-width="3.5"/>
+      <path d="M84 134 L 92 134" stroke="#3B2A20" stroke-width="3.5"/>
+      <circle cx="70" cy="134" r="4.5" fill="#3B2A20"/>
+      <circle cx="106" cy="134" r="4.5" fill="#3B2A20"/>
+      <path d="M70 158 q 18 16 36 0" fill="none" stroke="#3B2A20" stroke-width="4.5" stroke-linecap="round"/>
+    </g>
+  </g>
+  <g transform="translate(518 600)">
+    <circle cx="22" cy="20" r="42" fill="#ffffff"/>
+    <path d="M0 10 C 0 -6, 22 -6, 22 10 C 22 -6, 44 -6, 44 10 C 44 28, 22 40, 22 46 C 22 40, 0 28, 0 10 Z" fill="#CE1126"/>
+  </g>
+</svg>

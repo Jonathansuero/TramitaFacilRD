@@ -92,6 +92,7 @@
         $$('[data-i18n-ph]', root).forEach(el => el.placeholder = t(el.dataset.i18nPh));
         $$('[data-i18n-aria]', root).forEach(el => el.setAttribute('aria-label', t(el.dataset.i18nAria)));
         $$('[data-i18n-title]', root).forEach(el => el.title = t(el.dataset.i18nTitle));
+        $$('[data-i18n-alt]', root).forEach(el => el.alt = t(el.dataset.i18nAlt));
         document.documentElement.lang = state.lang;
         const mt = I18N.ui['meta.' + PAGE + '.title'];
         if (mt) document.title = t('meta.' + PAGE + '.title');
@@ -261,6 +262,7 @@
     // ============================================================
     const NAV = [
         { href: 'servicios', key: 'nav.servicios', page: 'servicios' },
+        { href: 'casos', key: 'nav.casos', page: 'casos' },
         { href: 'calculadora', key: 'nav.calculadoras', page: 'calculadora' },
         { href: 'instituciones', key: 'nav.instituciones', page: 'instituciones' },
         { href: 'diaspora', key: 'nav.diaspora', page: 'diaspora' },
@@ -322,6 +324,7 @@
   <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-4 text-sm max-h-[75vh] overflow-y-auto">
     <button type="button" id="instalarMenu" hidden class="mobile-link ml-install w-full text-left"><span class="ml-ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="ml-txt"><span class="block" data-i18n="app.instalar"></span><span class="block text-[11px] font-medium text-slate-500" data-i18n="app.menu.d"></span></span><i class="fa-solid fa-chevron-right ml-go" aria-hidden="true"></i></button>
     ${mobileLink('servicios', 'fa-layer-group', 'm.servicios', ` ml-page${PAGE === 'servicios' ? ' nav-active' : ''}`)}
+    ${mobileLink('casos', 'fa-comments', 'nav.casos', ` ml-page${PAGE === 'casos' ? ' nav-active' : ''}`)}
     ${mobileLink('instituciones', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
     ${mobileLink('diaspora', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
     ${mobileLink('calculadora', 'fa-calculator', 'nav.calculadoras', ` ml-page${PAGE === 'calculadora' ? ' nav-active' : ''}`)}
@@ -357,6 +360,7 @@
         <li><a href="servicio?id=apostilla_documentos" data-i18n="foot.ejemplo"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.navega"></h4><ul class="foot-ul">
         <li><a href="servicios" data-i18n="m.servicios"></a></li>
+        <li><a href="casos" data-i18n="nav.casos"></a></li>
         <li><a href="${homeLink('cotizador')}" data-i18n="m.cotizador"></a></li>
         <li><a href="${homeLink('solicitud')}" data-i18n="m.solicitud"></a></li>
         <li><a href="calculadora#herramientas-dgii" data-i18n="m.dgii"></a></li></ul></div>

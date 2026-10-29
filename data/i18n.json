@@ -2040,6 +2040,116 @@
       "Instalar la app",
       "Install the app",
       "Installer l'appli"
+    ],
+    "nav.casos": [
+      "Casos reales",
+      "Real cases",
+      "Cas réels"
+    ],
+    "meta.casos.title": [
+      "Casos reales | TramitaFácil RD",
+      "Real cases | TramitaFácil RD",
+      "Cas réels | TramitaFácil RD"
+    ],
+    "meta.casos.desc": [
+      "Situaciones que viven a diario los dominicanos con sus trámites en RD y cómo las resolvemos.",
+      "Everyday situations Dominicans face with paperwork in the DR, and how we solve them.",
+      "Situations quotidiennes des Dominicains avec leurs démarches en RD, et comment nous les résolvons."
+    ],
+    "casos.eyebrow": [
+      "Casos reales",
+      "Real cases",
+      "Cas réels"
+    ],
+    "casos.t": [
+      "Lo que nos pasa a diario… y cómo lo resolvemos",
+      "What happens every day… and how we solve it",
+      "Ce qui arrive tous les jours… et comment nous le résolvons"
+    ],
+    "casos.sub": [
+      "Situaciones que viven muchos dominicanos, aquí y en el exterior, con sus trámites. Mira el problema, la solución y calcula cuánto te sale.",
+      "Situations many Dominicans face with paperwork, at home and abroad. See the problem, the solution and calculate the cost.",
+      "Des situations que vivent beaucoup de Dominicains, au pays et à l'étranger. Voyez le problème, la solution et calculez le coût."
+    ],
+    "casos.nota": [
+      "Los nombres de las conversaciones son ilustrativos; las situaciones son las que vemos todos los días.",
+      "Names in the chats are illustrative; the situations are the ones we see every day.",
+      "Les noms des conversations sont illustratifs ; les situations sont celles que nous voyons chaque jour."
+    ],
+    "casos.problema": [
+      "El problema",
+      "The problem",
+      "Le problème"
+    ],
+    "casos.solucion": [
+      "La solución",
+      "The solution",
+      "La solution"
+    ],
+    "casos.enlinea": [
+      "en línea",
+      "online",
+      "en ligne"
+    ],
+    "casos.servicio": [
+      "Servicio",
+      "Service",
+      "Service"
+    ],
+    "casos.calcular": [
+      "Calcular costo",
+      "Calculate cost",
+      "Calculer le coût"
+    ],
+    "casos.inicia": [
+      "Inicia Solicitud",
+      "Start Request",
+      "Lancer la demande"
+    ],
+    "catc.eyebrow": [
+      "Catálogo de nuestros servicios",
+      "Our service catalog",
+      "Catalogue de nos services"
+    ],
+    "catc.frase1": [
+      "Tranquilo, mi hermano:",
+      "Relax, my friend:",
+      "Tranquille, mon ami :"
+    ],
+    "catc.frase2": [
+      "lo tuyo aquí se resuelve.",
+      "we've got you covered.",
+      "on s'occupe de tout."
+    ],
+    "catc.sub": [
+      "Tú trabajando en Nueva York y la abuela allá en el campo, sin tener que coger lucha con filas ni papeles. Nosotros nos encargamos.",
+      "You working in New York and grandma back home, with no lines or paperwork hassle. We take care of it.",
+      "Vous au travail à New York et grand-mère au pays, sans files ni paperasse. Nous nous en occupons."
+    ],
+    "catc.p1": [
+      "Actas, poderes, apostillas, pasaportes, licencias, propiedades y más.",
+      "Records, powers of attorney, apostilles, passports, licenses, property and more.",
+      "Actes, procurations, apostilles, passeports, permis, biens immobiliers et plus."
+    ],
+    "catc.p2": [
+      "Precio claro antes de empezar: 50% al iniciar y 50% al entregar.",
+      "Clear price upfront: 50% to start and 50% on delivery.",
+      "Prix clair dès le départ : 50 % au début et 50 % à la livraison."
+    ],
+    "catc.p3": [
+      "Te avisamos de cada paso por WhatsApp y rastreas con tu código.",
+      "We update you on every step via WhatsApp and you track it with your code.",
+      "Nous vous informons de chaque étape sur WhatsApp et vous suivez avec votre code."
+    ],
+    "catc.btn": [
+      "Ver nuestros servicios",
+      "See our services",
+      "Voir nos services"
+    ],
+    "catc.alt": [
+      "Un joven trabajador en Nueva York habla por videollamada con su abuela en República Dominicana",
+      "A young worker in New York video-calls his grandmother in the Dominican Republic",
+      "Un jeune travailleur à New York appelle sa grand-mère en République dominicaine en visio"
     ]
   },
   "contenido": {

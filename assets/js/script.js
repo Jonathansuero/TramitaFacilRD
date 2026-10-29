@@ -138,18 +138,6 @@
     // ============================================================
     // SERVICIOS (resumen por áreas; el catálogo completo está en servicios)
     // ============================================================
-    function renderAreas() {
-        const total = Object.keys(SERV).length, areas = Object.keys(D.categorias);
-        $('catResumen').textContent = t('cat.resumen', { n: total, a: areas.length });
-        $('catAreas').innerHTML = areas.map(k => {
-            const n = Object.keys(SERV).filter(s => SERV[s].category === k).length, c = tc('categorias', k);
-            return `<a class="area-card" href="servicios?cat=${encodeURIComponent(k)}">
-                <span class="area-ico"><i class="fa-solid ${D.categorias[k].icono}" aria-hidden="true"></i></span>
-                <span class="area-txt"><b>${esc(c.label)}</b><small>${esc(t('cat.area.n', { n }))}<span class="area-res"> · ${esc(c.resumen || '')}</span></small></span>
-                <i class="fa-solid fa-chevron-right area-go" aria-hidden="true"></i></a>`;
-        }).join('');
-    }
-
     // ============================================================
     // ASISTENTE
     // ============================================================
@@ -378,7 +366,6 @@
     function renderTodo(animate = false) {
         renderPais(animate);
         renderMundo();
-        renderAreas();
         renderQuizCats();
         if (ui.quizKey && !$('quizStep3').classList.contains('hidden')) showQuizResult(ui.quizKey);
         buildFormServicios();
