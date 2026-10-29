@@ -62,14 +62,14 @@
       "Diaspora"
     ],
     "top.mundo": [
-      "Trabajamos con dominicanos en cualquier país del mundo",
-      "We serve Dominicans in every country in the world",
-      "Nous accompagnons les Dominicains dans tous les pays du monde"
+      "Servicio exclusivo para los dominicanos que se encuentran en cualquier parte del mundo",
+      "Exclusive service for Dominicans living anywhere in the world",
+      "Service exclusif pour les Dominicains où qu'ils soient dans le monde"
     ],
     "top.mundo.corto": [
-      "Dominicanos en todo el mundo",
-      "Dominicans worldwide",
-      "Dominicains du monde entier"
+      "Exclusivo para dominicanos en el mundo",
+      "Exclusively for Dominicans worldwide",
+      "Exclusif pour les Dominicains du monde"
     ],
     "top.idioma": [
       "Idioma",
@@ -187,14 +187,14 @@
       "Questions fréquentes"
     ],
     "hero.t1": [
-      "Tus trámites en RD,",
-      "Your Dominican paperwork,",
-      "Vos démarches en RD,"
+      "Todos tus trámites",
+      "All your paperwork",
+      "Toutes vos démarches"
     ],
     "hero.t2": [
-      "estés donde estés.",
-      "wherever you are.",
-      "où que vous soyez."
+      "en un solo lugar.",
+      "in one place.",
+      "en un seul endroit."
     ],
     "hero.cta1": [
       "Cotizar mi trámite",
@@ -2150,6 +2150,31 @@
       "Un joven trabajador en Nueva York habla por videollamada con su abuela en República Dominicana",
       "A young worker in New York video-calls his grandmother in the Dominican Republic",
       "Un jeune travailleur à New York appelle sa grand-mère en République dominicaine en visio"
+    ],
+    "crs.ver": [
+      "Ver todos los casos",
+      "See all cases",
+      "Voir tous les cas"
+    ],
+    "crs.ant": [
+      "Caso anterior",
+      "Previous case",
+      "Cas précédent"
+    ],
+    "crs.sig": [
+      "Caso siguiente",
+      "Next case",
+      "Cas suivant"
+    ],
+    "crs.pausa": [
+      "Pausar el carrusel",
+      "Pause carousel",
+      "Mettre en pause"
+    ],
+    "crs.seguir": [
+      "Reanudar el carrusel",
+      "Resume carousel",
+      "Reprendre"
     ]
   },
   "contenido": {

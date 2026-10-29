@@ -1499,6 +1499,12 @@
             }
           ]
         ]
+      },
+      "img": "santiago",
+      "lugar": {
+        "es": "Monumento de Santiago",
+        "en": "Santiago Monument",
+        "fr": "Monument de Santiago"
       }
     },
     {
@@ -1568,6 +1574,12 @@
             }
           ]
         ]
+      },
+      "img": "familia-ny",
+      "lugar": {
+        "es": "De Nueva York a RD",
+        "en": "From New York to the DR",
+        "fr": "De New York à la RD"
       }
     },
     {
@@ -1634,6 +1646,56 @@
               "es": "¡Así da gusto!",
               "en": "Now that's how it should be!",
               "fr": "Comme ça, c'est un plaisir !"
+            }
+          ]
+        ]
+      },
+      "img": "malecon",
+      "lugar": {
+        "es": "Malecón de Santo Domingo",
+        "en": "Santo Domingo Malecón",
+        "fr": "Malecón de Saint-Domingue"
+      }
+    },
+    {
+      "id": "pelotero",
+      "servicio": "visa_ds160",
+      "img": "pelota",
+      "lugar": {
+        "es": "Pelota invernal",
+        "en": "Winter baseball",
+        "fr": "Baseball d'hiver"
+      },
+      "problema": {
+        "titulo": {
+          "es": "A tu hijo lo llamaron a un campo de entrenamiento en EE.UU.",
+          "en": "Your son was invited to a training camp in the U.S.",
+          "fr": "Votre fils est invité à un camp d'entraînement aux États-Unis."
+        },
+        "texto": {
+          "es": "Y el formulario de la visa parece un examen.",
+          "en": "And the visa form feels like an exam.",
+          "fr": "Et le formulaire de visa ressemble à un examen."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Llenamos el DS-160 y preparamos la cita en la embajada.",
+          "en": "We fill out the DS-160 and prepare the embassy appointment.",
+          "fr": "Nous remplissons le DS-160 et préparons le rendez-vous à l'ambassade."
+        },
+        "texto": {
+          "es": "Para que él solo piense en batear.",
+          "en": "So all he thinks about is hitting.",
+          "fr": "Pour qu'il ne pense qu'à frapper."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Doña Ana, el DS-160 de Junior está listo y la cita en la embajada agendada.",
+              "en": "Mrs. Ana, Junior's DS-160 is done and the embassy appointment is booked.",
+              "fr": "Mme Ana, le DS-160 de Junior est prêt et le rendez-vous à l'ambassade est fixé."
             }
           ]
         ]
@@ -1706,6 +1768,12 @@
             }
           ]
         ]
+      },
+      "img": "zona-colonial",
+      "lugar": {
+        "es": "Zona Colonial",
+        "en": "Colonial Zone",
+        "fr": "Zone coloniale"
       }
     },
     {
@@ -1772,6 +1840,56 @@
               "es": "Ahora sí. ¡Gracias!",
               "en": "Now we're talking. Thanks!",
               "fr": "Là, c'est bon. Merci !"
+            }
+          ]
+        ]
+      },
+      "img": "constanza",
+      "lugar": {
+        "es": "Valle de Constanza",
+        "en": "Constanza Valley",
+        "fr": "Vallée de Constanza"
+      }
+    },
+    {
+      "id": "menores",
+      "servicio": "permiso_menores",
+      "img": "salto-limon",
+      "lugar": {
+        "es": "Salto El Limón, Samaná",
+        "en": "El Limón Waterfall, Samaná",
+        "fr": "Cascade El Limón, Samaná"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Los niños viajan con la abuela y falta el permiso de salida.",
+          "en": "The kids travel with grandma and the exit permit is missing.",
+          "fr": "Les enfants voyagent avec grand-mère et l'autorisation de sortie manque."
+        },
+        "texto": {
+          "es": "Sin ese papel, Migración no los deja salir del país.",
+          "en": "Without it, Immigration won't let them leave the country.",
+          "fr": "Sans ce papier, l'Immigration ne les laisse pas sortir."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Preparamos el permiso de salida de menores ante notario y Migración.",
+          "en": "We prepare the minors' exit permit with a notary and Immigration.",
+          "fr": "Nous préparons l'autorisation de sortie des mineurs chez le notaire et à l'Immigration."
+        },
+        "texto": {
+          "es": "Aunque uno de los padres esté en el exterior.",
+          "en": "Even if one parent lives abroad.",
+          "fr": "Même si l'un des parents vit à l'étranger."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Doña Mercedes, el permiso de los niños ya está aprobado. ¡Buen viaje a la familia!",
+              "en": "Mrs. Mercedes, the children's permit is approved. Have a great family trip!",
+              "fr": "Mme Mercedes, l'autorisation des enfants est approuvée. Bon voyage à la famille !"
             }
           ]
         ]
@@ -1844,6 +1962,56 @@
             }
           ]
         ]
+      },
+      "img": "jarabacoa",
+      "lugar": {
+        "es": "Jarabacoa",
+        "en": "Jarabacoa",
+        "fr": "Jarabacoa"
+      }
+    },
+    {
+      "id": "artesano",
+      "servicio": "registro_empresa_onapi",
+      "img": "carnaval",
+      "lugar": {
+        "es": "Carnaval de La Vega",
+        "en": "La Vega Carnival",
+        "fr": "Carnaval de La Vega"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Tus caretas de carnaval se venden solas, pero el nombre no es tuyo.",
+          "en": "Your carnival masks sell themselves, but the name isn't yours.",
+          "fr": "Vos masques de carnaval se vendent tout seuls, mais le nom n'est pas à vous."
+        },
+        "texto": {
+          "es": "Cualquiera puede registrarlo primero.",
+          "en": "Anyone could register it first.",
+          "fr": "N'importe qui pourrait l'enregistrer avant vous."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Registramos tu nombre comercial en ONAPI.",
+          "en": "We register your trade name at ONAPI.",
+          "fr": "Nous enregistrons votre nom commercial à l'ONAPI."
+        },
+        "texto": {
+          "es": "Tu marca, protegida y a tu nombre.",
+          "en": "Your brand, protected and in your name.",
+          "fr": "Votre marque, protégée et à votre nom."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Felicidades, Rosa: «Caretas Vegano» ya está registrado a su nombre en ONAPI.",
+              "en": "Congrats, Rosa: “Caretas Vegano” is now registered in your name at ONAPI.",
+              "fr": "Félicitations, Rosa : « Caretas Vegano » est enregistré à votre nom à l'ONAPI."
+            }
+          ]
+        ]
       }
     },
     {
@@ -1910,6 +2078,364 @@
               "es": "¡Dios les pague, mis hijos!",
               "en": "God bless you, my dears!",
               "fr": "Que Dieu vous bénisse, mes enfants !"
+            }
+          ]
+        ]
+      },
+      "img": "altos-chavon",
+      "lugar": {
+        "es": "Altos de Chavón, La Romana",
+        "en": "Altos de Chavón, La Romana",
+        "fr": "Altos de Chavón, La Romana"
+      }
+    },
+    {
+      "id": "residencia",
+      "servicio": "residencia_dominicana",
+      "img": "punta-cana",
+      "lugar": {
+        "es": "Punta Cana",
+        "en": "Punta Cana",
+        "fr": "Punta Cana"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Tu esposo extranjero quiere vivir en RD y no saben por dónde empezar.",
+          "en": "Your foreign spouse wants to live in the DR and you don't know where to start.",
+          "fr": "Votre conjoint étranger veut vivre en RD et vous ne savez pas par où commencer."
+        },
+        "texto": {
+          "es": "Visa, residencia, certificados… y todo en otro idioma.",
+          "en": "Visa, residency, certificates… all in another language.",
+          "fr": "Visa, résidence, certificats… et tout dans une autre langue."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Llevamos su residencia en la DGM de principio a fin.",
+          "en": "We handle the residency at the DGM from start to finish.",
+          "fr": "Nous gérons la résidence à la DGM du début à la fin."
+        },
+        "texto": {
+          "es": "Te atendemos en español, inglés o francés.",
+          "en": "We assist you in Spanish, English or French.",
+          "fr": "Nous vous accompagnons en espagnol, anglais ou français."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Buenas noticias, Mr. Smith: su cita de residencia en la DGM quedó confirmada para el lunes.",
+              "en": "Good news, Mr. Smith: your residency appointment at DGM is confirmed for Monday.",
+              "fr": "Bonne nouvelle, M. Smith : votre rendez-vous de résidence à la DGM est confirmé pour lundi."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "licencia",
+      "servicio": "renovacion_licencia",
+      "img": "navidad",
+      "lugar": {
+        "es": "Navidad en RD",
+        "en": "Christmas in the DR",
+        "fr": "Noël en RD"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Llegas en diciembre y la licencia está vencida.",
+          "en": "You arrive in December and your license is expired.",
+          "fr": "Vous arrivez en décembre et votre permis est expiré."
+        },
+        "texto": {
+          "es": "Y la idea era manejar para ir donde la familia.",
+          "en": "And the plan was to drive to see the family.",
+          "fr": "Et le plan était de conduire pour voir la famille."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Coordinamos tu renovación en el INTRANT para que manejes en las fiestas.",
+          "en": "We set up your INTRANT renewal so you can drive over the holidays.",
+          "fr": "Nous organisons votre renouvellement à l'INTRANT pour conduire pendant les fêtes."
+        },
+        "texto": {
+          "es": "Te decimos qué llevar y cuándo ir.",
+          "en": "We tell you what to bring and when to go.",
+          "fr": "On vous dit quoi apporter et quand y aller."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Listo, Yorki: su cita en el INTRANT es el 22 a las 8:30. ¡Felices fiestas!",
+              "en": "All set, Yorki: your INTRANT appointment is on the 22nd at 8:30. Happy holidays!",
+              "fr": "C'est prêt, Yorki : votre rendez-vous à l'INTRANT est le 22 à 8 h 30. Joyeuses fêtes !"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "hipoteca",
+      "servicio": "hipotecas_cargas",
+      "img": "samana",
+      "lugar": {
+        "es": "Bahía de Samaná",
+        "en": "Samaná Bay",
+        "fr": "Baie de Samaná"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Pagaste la casa al banco, pero la hipoteca sigue en el título.",
+          "en": "You paid off the house, but the mortgage is still on the title.",
+          "fr": "Vous avez remboursé la maison, mais l'hypothèque figure encore sur le titre."
+        },
+        "texto": {
+          "es": "Y así no puedes vender ni heredar sin problemas.",
+          "en": "So you can't sell or pass it on without trouble.",
+          "fr": "Impossible de vendre ou de transmettre sans problème."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Inscribimos la cancelación de la hipoteca en el Registro de Títulos.",
+          "en": "We register the mortgage release at the Title Registry.",
+          "fr": "Nous inscrivons la mainlevée de l'hypothèque au Registre des titres."
+        },
+        "texto": {
+          "es": "Tu casa queda limpia, a tu nombre.",
+          "en": "Your home is clear, in your name.",
+          "fr": "Votre maison est libre, à votre nom."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Don Rafael, la hipoteca ya fue cancelada. Su certificado de título está libre de cargas.",
+              "en": "Mr. Rafael, the mortgage has been released. Your title is free of liens.",
+              "fr": "M. Rafael, l'hypothèque est levée. Votre titre est libre de charges."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "negocio",
+      "servicio": "constitucion_empresas",
+      "img": "domino",
+      "lugar": {
+        "es": "El colmado del barrio",
+        "en": "The neighborhood colmado",
+        "fr": "Le colmado du quartier"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Quieres formalizar tu negocio y te hablan de ONAPI, RNC, Cámara…",
+          "en": "You want to formalize your business and hear about ONAPI, RNC, Chamber…",
+          "fr": "Vous voulez formaliser votre commerce et on vous parle d'ONAPI, RNC, Chambre…"
+        },
+        "texto": {
+          "es": "Tantas oficinas que da miedo empezar.",
+          "en": "So many offices it's scary to even start.",
+          "fr": "Tant de bureaux qu'on a peur de commencer."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Constituimos tu SRL completa, con nombre, registro y RNC.",
+          "en": "We set up your full SRL, with name, registration and RNC.",
+          "fr": "Nous constituons votre SRL complète, avec nom, registre et RNC."
+        },
+        "texto": {
+          "es": "Tú sigues vendiendo; nosotros hacemos el papeleo.",
+          "en": "You keep selling; we handle the paperwork.",
+          "fr": "Vous continuez à vendre ; nous faisons la paperasse."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Don Fello, ya tiene su RNC. ¡Colmado Fello SRL es oficial!",
+              "en": "Mr. Fello, your RNC is ready. Colmado Fello SRL is official!",
+              "fr": "M. Fello, votre RNC est prêt. Colmado Fello SRL est officiel !"
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "legalizacion",
+      "servicio": "legalizacion_mescyt",
+      "img": "puerto-plata",
+      "lugar": {
+        "es": "Teleférico de Puerto Plata",
+        "en": "Puerto Plata Cable Car",
+        "fr": "Téléphérique de Puerto Plata"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Te salió el trabajo afuera, pero piden el título legalizado.",
+          "en": "You got the job abroad, but they want your degree legalized.",
+          "fr": "Vous avez le poste à l'étranger, mais il faut légaliser le diplôme."
+        },
+        "texto": {
+          "es": "Y tú no puedes volver a RD solo para eso.",
+          "en": "And you can't fly back to the DR just for that.",
+          "fr": "Et vous ne pouvez pas rentrer en RD juste pour ça."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Legalizamos tu título en el MESCYT y te lo enviamos.",
+          "en": "We legalize your degree at MESCYT and send it to you.",
+          "fr": "Nous légalisons votre diplôme au MESCYT et vous l'envoyons."
+        },
+        "texto": {
+          "es": "Si hace falta, también lo apostillamos.",
+          "en": "If needed, we apostille it too.",
+          "fr": "Si besoin, nous l'apostillons aussi."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Ing. Peña, su título ya está legalizado. Mañana pasa a la apostilla.",
+              "en": "Eng. Peña, your degree is legalized. Tomorrow it goes for the apostille.",
+              "fr": "Ing. Peña, votre diplôme est légalisé. Demain, il part pour l'apostille."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "ipi",
+      "servicio": "ipi_impuesto",
+      "img": "bahia-aguilas",
+      "lugar": {
+        "es": "Bahía de las Águilas, Pedernales",
+        "en": "Bahía de las Águilas, Pedernales",
+        "fr": "Bahía de las Águilas, Pedernales"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Tienes una casa en RD y no sabes si debes el IPI.",
+          "en": "You own a house in the DR and don't know if you owe IPI tax.",
+          "fr": "Vous avez une maison en RD et ne savez pas si vous devez l'IPI."
+        },
+        "texto": {
+          "es": "Los recargos crecen mientras tú estás afuera.",
+          "en": "Late charges grow while you're away.",
+          "fr": "Les pénalités augmentent pendant votre absence."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Revisamos tu caso en la DGII y pagamos a tiempo por ti.",
+          "en": "We check your case at the DGII and pay on time for you.",
+          "fr": "Nous vérifions votre dossier à la DGII et payons à temps pour vous."
+        },
+        "texto": {
+          "es": "Sin sorpresas cuando quieras vender.",
+          "en": "No surprises when you want to sell.",
+          "fr": "Pas de surprise le jour où vous vendez."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Don Manuel, su IPI está al día. Le enviamos el comprobante de la DGII.",
+              "en": "Mr. Manuel, your IPI is up to date. We've sent you the DGII receipt.",
+              "fr": "M. Manuel, votre IPI est à jour. Nous vous avons envoyé le reçu de la DGII."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "multas",
+      "servicio": "multas_transito",
+      "img": "tres-ojos",
+      "lugar": {
+        "es": "Los Tres Ojos, Santo Domingo Este",
+        "en": "Los Tres Ojos, Santo Domingo East",
+        "fr": "Los Tres Ojos, Saint-Domingue Est"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Te paran en un chequeo y apareces con multas que ni sabías.",
+          "en": "You're stopped at a checkpoint with fines you didn't know about.",
+          "fr": "Contrôlé sur la route, vous découvrez des amendes inconnues."
+        },
+        "texto": {
+          "es": "Y en pleno viaje no sabes dónde pagarlas.",
+          "en": "And mid-trip you don't know where to pay them.",
+          "fr": "Et en plein voyage, impossible de savoir où payer."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Consultamos y pagamos tus multas de tránsito.",
+          "en": "We look up and pay your traffic fines.",
+          "fr": "Nous consultons et payons vos amendes de circulation."
+        },
+        "texto": {
+          "es": "Te enviamos el comprobante al momento.",
+          "en": "We send you the receipt right away.",
+          "fr": "Nous vous envoyons le reçu tout de suite."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Listo, Carlos: sus dos multas están pagadas. Aquí tiene los comprobantes.",
+              "en": "Done, Carlos: both fines are paid. Here are the receipts.",
+              "fr": "C'est fait, Carlos : vos deux amendes sont payées. Voici les reçus."
+            }
+          ]
+        ]
+      }
+    },
+    {
+      "id": "traduccion",
+      "servicio": "traduccion_documentos",
+      "img": "merengue",
+      "lugar": {
+        "es": "Merengue típico",
+        "en": "Traditional merengue",
+        "fr": "Merengue typique"
+      },
+      "problema": {
+        "titulo": {
+          "es": "Tu grupo de merengue tiene gira en Europa y piden documentos traducidos.",
+          "en": "Your merengue band is touring Europe and needs translated documents.",
+          "fr": "Votre groupe de merengue part en tournée en Europe et doit traduire ses documents."
+        },
+        "texto": {
+          "es": "Actas, contratos y certificados, todo en otro idioma.",
+          "en": "Records, contracts and certificates, all in another language.",
+          "fr": "Actes, contrats et certificats, tout dans une autre langue."
+        }
+      },
+      "solucion": {
+        "titulo": {
+          "es": "Traducción judicial oficial, lista para presentar.",
+          "en": "Official certified translation, ready to submit.",
+          "fr": "Traduction officielle assermentée, prête à présenter."
+        },
+        "texto": {
+          "es": "Al inglés, francés, italiano y más.",
+          "en": "Into English, French, Italian and more.",
+          "fr": "En anglais, français, italien et plus."
+        },
+        "chat": [
+          [
+            "tf",
+            {
+              "es": "Maestro, las traducciones del grupo están listas y certificadas. ¡Que suene esa güira!",
+              "en": "Maestro, the band's translations are ready and certified. Let that güira ring!",
+              "fr": "Maestro, les traductions du groupe sont prêtes et certifiées. Que la güira résonne !"
             }
           ]
         ]

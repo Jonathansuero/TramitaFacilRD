@@ -8,72 +8,6 @@
     const { D, PAISES, SERV, state, $, $$, esc, t, tc, money, waLink, toast, restart } = TF;
     const ct = TF.contacto;
     const CASOS = D.casos || [];
-    const tx = o => (o && (o[state.lang] || o.es)) || '';
-
-    // ---------------- ilustraciones de chat
-    const ICO_X = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
-    const ICO_OK = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
-    const ICO_LEIDO = '<svg width="16" height="10" viewBox="0 0 20 12" fill="none" stroke="#2A9DF4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 6l3.5 3.5L11 3M8 9.5L9 10.5 17 2"/></svg>';
-
-    function chatProblema(c) {
-        const burbujas = c.problema.chat.map(([de, m]) => de === 'nota'
-            ? `<div class="chat-nota">${esc(tx(m))}</div>`
-            : `<div class="chat-b ${de === 'yo' ? 'chat-yo-gris' : 'chat-otro'}">${esc(tx(m))}</div>`).join('');
-        return `<div class="chat chat-gris" aria-hidden="true">
-            <div class="chat-cab chat-cab-gris"><span class="chat-avatar"></span><strong>${esc(tx(c.problema.contacto))}</strong></div>
-            <div class="chat-cuerpo">${burbujas}</div></div>`;
-    }
-    function chatSolucion(c) {
-        let min = 42;
-        const burbujas = c.solucion.chat.map(([de, m]) => {
-            const hora = `10:${String(min++).padStart(2, '0')}`;
-            return de === 'tf'
-                ? `<div class="chat-b chat-tf">${esc(tx(m))}<span class="chat-hora">${hora}</span></div>`
-                : `<div class="chat-b chat-yo-verde">${esc(tx(m))}<span class="chat-hora">${hora} ${ICO_LEIDO}</span></div>`;
-        }).join('');
-        return `<div class="chat chat-wa" aria-hidden="true">
-            <div class="chat-cab chat-cab-wa"><span class="chat-tf-logo">TF</span><span><strong>TramitaFácil RD</strong><small>${esc(t('casos.enlinea'))}</small></span></div>
-            <div class="chat-cuerpo">${burbujas}</div></div>`;
-    }
-
-    function casoHtml(c, i) {
-        const s = SERV[c.servicio], tr = tc('servicios', c.servicio), tiempo = TF.tiempo(c.servicio);
-        return `<article class="caso" id="caso-${esc(c.id)}" style="animation-delay:${i * 60}ms">
-            <div class="caso-mitad caso-problema">
-                <div class="caso-texto">
-                    <span class="caso-tag caso-tag-rojo">${ICO_X}${esc(t('casos.problema'))}</span>
-                    <h2>${esc(tx(c.problema.titulo))}</h2>
-                    <p>${esc(tx(c.problema.texto))}</p>
-                </div>
-                ${chatProblema(c)}
-            </div>
-            <div class="caso-flecha" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#002D62" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M5 12l7 7 7-7"/></svg></div>
-            <div class="caso-mitad caso-solucion">
-                <div class="caso-texto">
-                    <span class="caso-tag caso-tag-verde">${ICO_OK}${esc(t('casos.solucion'))}</span>
-                    <h2>${esc(tx(c.solucion.titulo))}</h2>
-                    <p>${esc(tx(c.solucion.texto))}</p>
-                </div>
-                ${chatSolucion(c)}
-            </div>
-            <div class="caso-pie">
-                <div class="caso-servicio">
-                    <span class="caso-serv-label">${esc(t('casos.servicio'))}</span>
-                    <a href="servicio?id=${encodeURIComponent(c.servicio)}" class="caso-serv-nombre">${esc(tr.title)}</a>
-                    <span class="caso-serv-meta">${esc(t('precio.desde'))} <strong>${money(s.tax + s.fee)}</strong>${tiempo ? ` · <i class="fa-regular fa-clock" aria-hidden="true"></i> ${esc(tiempo.txt)}` : ''}</span>
-                </div>
-                <div class="caso-botones">
-                    <button type="button" class="caso-btn caso-btn-borde" data-calcular="${esc(c.servicio)}"><i class="fa-solid fa-calculator" aria-hidden="true"></i> ${esc(t('casos.calcular'))}</button>
-                    <button type="button" class="caso-btn caso-btn-rojo" data-iniciar="${esc(c.servicio)}">${esc(t('casos.inicia'))} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
-                </div>
-            </div>
-        </article>`;
-    }
-
-    function renderCasos() {
-        $('casosChips').innerHTML = CASOS.map(c => `<a href="#caso-${esc(c.id)}" class="casos-chip">${esc(tc('servicios', c.servicio).title.split(' (')[0])}</a>`).join('');
-        $('casosLista').innerHTML = CASOS.map(casoHtml).join('');
-    }
 
     // ---------------- formulario "Inicia Solicitud"
     function renderForm() {
@@ -137,15 +71,13 @@
     }
 
     function init() {
-        renderCasos();
         renderForm();
         TF.cotizador.mount('cotizadorApp', { onSolicitar: irAFormulario, formSelect: 'kServicio' });
         if (CASOS[0]) TF.cotizador.seleccionar(CASOS[0].servicio);
 
-        $('casosLista').addEventListener('click', e => {
-            const calc = e.target.closest('[data-calcular]'), ini = e.target.closest('[data-iniciar]');
-            if (calc) { TF.cotizador.seleccionar(calc.dataset.calcular); $('cotizador').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-            if (ini) irAFormulario(ini.dataset.iniciar);
+        TF.carrusel.mount('casosCarrusel', {
+            onCalcular: k => { TF.cotizador.seleccionar(k); $('cotizador').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+            onIniciar: irAFormulario
         });
         $('kPrefijo').addEventListener('change', e => { ct.elegirPrefijo(e.target.value); $('kTel').focus(); });
         $('kPais').addEventListener('change', e => TF.setPais(e.target.value, { animate: false }));
@@ -168,7 +100,7 @@
             finally { btn.disabled = false; }
         });
         // al cambiar idioma, país o moneda se vuelve a dibujar
-        ['lang', 'pais', 'moneda'].forEach(ev => TF.on(ev, () => { renderCasos(); renderForm(); }));
+        ['lang', 'pais'].forEach(ev => TF.on(ev, renderForm));
     }
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 })();
