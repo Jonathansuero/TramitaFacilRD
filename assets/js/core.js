@@ -109,6 +109,7 @@
     const waTexto = () => { const p = C.whatsapp; return `+${p[0]} (${p.slice(1, 4)}) ${p.slice(4, 7)}-${p.slice(7)}`; };
     /** Aviso: único número oficial (se usa en el pie y al confirmar una solicitud). */
     const avisoOficial = (extra = '') => `<p class="aviso-oficial ${extra}"><i class="fa-solid fa-shield-halved"></i><span>${esc(t('oficial.msg'))} <strong>${esc(waTexto())}</strong>. ${esc(t('oficial.correo'))} <strong>${esc(C.email)}</strong>.</span></p>`;
+    const igUrl = () => `https://www.instagram.com/${C.instagram}/`;
     const waLink = text => `https://api.whatsapp.com/send?phone=${C.whatsapp}&text=${encodeURIComponent(String(text).normalize('NFC'))}`;
     /** Nombre del lugar desde donde escribe el visitante (país exacto si lo eligió). */
     function lugar() {
@@ -335,6 +336,7 @@
       <div class="space-y-3 md:col-span-2">
         <div class="flex items-center gap-2"><div class="w-8 h-8 rounded-lg bg-domRed flex items-center justify-center font-black text-sm">TF</div><span class="text-lg font-bold">TramitaFácil<span class="text-domRed">RD</span></span></div>
         <p class="text-xs text-slate-400 leading-relaxed" data-i18n="foot.desc"></p>
+        <a class="ig-pill" href="${igUrl()}" target="_blank" rel="noopener"><i class="fa-brands fa-instagram" aria-hidden="true"></i><span><span data-i18n="ig.siguenos"></span> <strong>@${esc(C.instagram)}</strong></span></a>
         <div class="flex gap-2 text-lg" id="footFlags"></div>
         <div class="lang-switch lang-switch-dark" role="group" data-i18n-aria="top.idioma">${LANGS.map(l => `<button data-lang="${l}" lang="${l}">${l.toUpperCase()}</button>`).join('')}</div>
       </div>
@@ -353,6 +355,7 @@
         <li><a href="calculadora#herramientas-dgii" data-i18n="m.dgii"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.contacto"></h4><ul class="foot-ul">
         <li><i class="fa-brands fa-whatsapp text-emerald-400 mr-2"></i><a id="footWa" href="#" target="_blank" rel="noopener" data-wa-display></a></li>
+        <li><i class="fa-brands fa-instagram ig-ico mr-2"></i><a href="${igUrl()}" target="_blank" rel="noopener">@${esc(C.instagram)}</a></li>
         <li><i class="fa-solid fa-envelope text-amber-400 mr-2"></i><a id="footMail" href="mailto:${esc(C.email)}">${esc(C.email)}</a></li>
         <li><i class="fa-solid fa-location-dot mr-2"></i>Santo Domingo, R.D.</li></ul></div>
     </div>
@@ -540,37 +543,17 @@ ${ES_APP ? renderTabbar() : ''}`;
         }
 
         if (!('serviceWorker' in navigator) || !location.protocol.startsWith('http')) return;
-        let recargando = false;
-        navigator.serviceWorker.addEventListener('controllerchange', () => { if (!recargando) { recargando = true; location.reload(); } });
+        // La versión nueva se instala sola y en silencio: se ve en la próxima página que se abra (sin avisos).
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('sw.js').then(reg => {
-                const ofrecer = w => {
-                    if (!w || !navigator.serviceWorker.controller) return;   // primera instalación: nada que actualizar
-                    avisoActualizar(() => w.postMessage('actualizar'));
-                };
-                if (reg.waiting) ofrecer(reg.waiting);
-                reg.addEventListener('updatefound', () => {
-                    const w = reg.installing;
-                    w?.addEventListener('statechange', () => { if (w.state === 'installed') ofrecer(w); });
-                });
-            }).catch(() => { /* sin service worker: el sitio funciona igual, solo sin modo sin conexión */ });
+            navigator.serviceWorker.register('sw.js').catch(() => { /* sin service worker: el sitio funciona igual */ });
         });
-    }
-    function avisoActualizar(accion) {
-        if ($('appUpdate')) return;
-        const el = document.createElement('div');
-        el.id = 'appUpdate'; el.className = 'app-update'; el.setAttribute('role', 'status');
-        el.innerHTML = `<i class="fa-solid fa-rotate" aria-hidden="true"></i><span data-i18n="app.nueva"></span><button type="button" data-i18n="app.actualizar"></button>`;
-        applyI18n(el);
-        el.querySelector('button').addEventListener('click', () => { el.querySelector('button').disabled = true; accion(); });
-        document.body.appendChild(el);
     }
 
     // ---------------- API pública
     window.TF = {
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
-        t, tc, applyI18n, money, waLink, waTexto, avisoOficial, saludo, lugar, toast, api, apiLista, contacto,
+        t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, saludo, lugar, toast, api, apiLista, contacto,
         setLang, setPais, setCountry, setMoneda, on, emit,
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };

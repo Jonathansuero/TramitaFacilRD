@@ -234,7 +234,7 @@ def test_direcciones_limpias_y_redireccion(client):
     assert r.status_code == 301 and r.headers["Location"].endswith("/servicio?id=e_ticket")
     assert client.get("/index.html").headers["Location"].endswith("/")
     assert client.get("/servicio?id=e_ticket").status_code == 200
-    assert b"G-YH24Q9XVZQ" in client.get("/servicios").data
+    assert b"GTM-PTD3KJ4Q" in client.get("/servicios").data
     assert client.get("/app.py").status_code == 404
     assert client.get("/nada.html").status_code == 404
 

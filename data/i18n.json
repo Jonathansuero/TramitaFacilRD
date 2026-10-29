@@ -1886,16 +1886,6 @@
       "Done! TramitaFácil is on your home screen 📲",
       "C'est fait ! TramitaFácil est sur votre écran d'accueil 📲"
     ],
-    "app.nueva": [
-      "Hay una versión nueva de la app",
-      "A new version of the app is available",
-      "Une nouvelle version de l'app est disponible"
-    ],
-    "app.actualizar": [
-      "Actualizar",
-      "Update",
-      "Mettre à jour"
-    ],
     "app.offline": [
       "Sin conexión: verás lo que ya está guardado",
       "Offline: you'll see what's already saved",
@@ -1935,6 +1925,36 @@
       "Correo oficial:",
       "Official email:",
       "E-mail officiel :"
+    ],
+    "ig.siguenos": [
+      "Síguenos en Instagram",
+      "Follow us on Instagram",
+      "Suivez-nous sur Instagram"
+    ],
+    "pago.t": [
+      "Forma de pago: 50% y 50%",
+      "Payment: 50% now, 50% on delivery",
+      "Paiement : 50 % et 50 %"
+    ],
+    "pago.inicio": [
+      "50% para iniciar el trámite",
+      "50% to start the process",
+      "50 % pour lancer la démarche"
+    ],
+    "pago.entrega": [
+      "50% cuando te entregamos",
+      "50% when we deliver",
+      "50 % à la livraison"
+    ],
+    "pago.nota": [
+      "Pagas la mitad para empezar y la otra mitad al recibir tu trámite terminado.",
+      "You pay half to get started and the other half when you receive your completed paperwork.",
+      "Vous payez la moitié pour commencer et l'autre moitié à la réception de votre démarche terminée."
+    ],
+    "wa.cot.pago": [
+      "Pago: {inicio} al iniciar y {entrega} al entregar (50% y 50%)",
+      "Payment: {inicio} to start and {entrega} on delivery (50% / 50%)",
+      "Paiement : {inicio} au début et {entrega} à la livraison (50 % / 50 %)"
     ]
   },
   "contenido": {
@@ -2406,7 +2426,7 @@
         ],
         [
           "How do I pay if I live abroad?",
-          "We send your quote in your currency (US$ or €) and agree the payment method on WhatsApp before starting. Only pay through the channels shown on this site."
+          "We send your quote in your currency (US$ or €) and agree the payment method on WhatsApp. We work 50/50: you pay half to start and the other half when we deliver your completed paperwork. Only pay through the channels shown on this site."
         ],
         [
           "Do you assist foreigners?",
@@ -2906,7 +2926,7 @@
         ],
         [
           "Comment payer si je vis à l'étranger ?",
-          "Nous vous envoyons le devis dans votre devise (US$ ou €) et convenons du mode de paiement sur WhatsApp avant de commencer. Payez uniquement via les canaux indiqués sur ce site."
+          "Nous vous envoyons le devis dans votre devise (US$ ou €) et convenons du mode de paiement sur WhatsApp. Nous travaillons à 50 % / 50 % : vous payez la moitié pour commencer et l'autre moitié à la livraison de votre démarche terminée. Payez uniquement via les canaux indiqués sur ce site."
         ],
         [
           "Accompagnez-vous les étrangers ?",

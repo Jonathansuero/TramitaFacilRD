@@ -136,7 +136,7 @@ npx @tailwindcss/cli -i assets/css/tailwind.src.css -o assets/css/tailwind.css -
 - Revisión de las traducciones al inglés y francés por un hablante nativo antes de publicar.
 - Requisitos nuevos: *Poder desde el exterior* y *Soltería JCE*.
 - Dominio configurado: `tramitafacilrd.com` (`config.sitio`). Direcciones limpias sin `.html`; los enlaces viejos `.html` redirigen solos.
-- Google Analytics (G-YH24Q9XVZQ) va en el `<head>` de todas las páginas públicas (no en el panel).
+- Etiqueta de Google (GTM-PTD3KJ4Q, una sola por página) va justo después de `<head>` en todas las páginas públicas (no en el panel).
 - Tasas de respaldo USD/EUR (`config.tasas_respaldo`).
 
 ## Instalar en un VPS que ya usa Docker (nginx-proxy + acme-companion)

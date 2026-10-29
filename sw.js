@@ -6,7 +6,7 @@
    - /api/ nunca se guarda (solicitudes y rastreo siempre en vivo).
    VERSION la actualiza `python manage.py build`; al cambiar, los teléfonos reciben la nueva versión.
    ========================================================== */
-const VERSION = '3fcadd51cb';
+const VERSION = '8edf50b4ab';
 const CACHE = `tramitafacil-${VERSION}`;
 const CACHE_EXT = 'tramitafacil-externos';
 
@@ -23,7 +23,8 @@ const PRECACHE = [
 const EXTERNOS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'cdnjs.cloudflare.com'];
 
 self.addEventListener('install', event => {
-    event.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)));
+    // la versión nueva se activa sola, sin pedirle nada al visitante
+    event.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', event => {

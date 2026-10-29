@@ -49,6 +49,12 @@
             <p class="text-[11px] text-slate-400 italic" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
             <p id="rateNote" class="text-[11px] text-slate-400 mt-1"></p>
         </div>
+        <div class="pago-5050" aria-labelledby="pagoT">
+            <div id="pagoT" class="pago-t"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span data-i18n="pago.t">Forma de pago: 50% y 50%</span></div>
+            <div class="pago-fila"><span><b>1</b><span data-i18n="pago.inicio">50% para iniciar el trámite</span></span><strong id="pagoInicio" class="tabular-nums">—</strong></div>
+            <div class="pago-fila"><span><b>2</b><span data-i18n="pago.entrega">50% cuando te entregamos</span></span><strong id="pagoEntrega" class="tabular-nums">—</strong></div>
+            <p class="pago-nota" data-i18n="pago.nota">Pagas la mitad para empezar y la otra mitad al recibir tu trámite terminado.</p>
+        </div>
         <div class="grid sm:grid-cols-2 gap-2 mt-6">
             <a id="quoteWaBtn" href="#" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</a>
             <button id="quoteFormBtn" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-sm" data-i18n="calc.iniciar">Iniciar solicitud →</button>
@@ -92,6 +98,9 @@
         $('resExtrasRow').classList.toggle('hidden', extras === 0);
         $('resExtras').textContent = money(extras);
         $('resTotal').textContent = money(s.tax + s.fee + extras);
+        const mitad = (s.tax + s.fee + extras) / 2;
+        $('pagoInicio').textContent = money(mitad);
+        $('pagoEntrega').textContent = money(mitad);
         restart($('resTotal'), 'bump');
         const cur = state.moneda;
         $('rateNote').textContent = cur === 'DOP' ? t('calc.pesos') : t('calc.tasa', { cur, v: (1 / state.rates[cur]).toFixed(2), fecha: state.ratesInfo.fecha });
@@ -111,6 +120,7 @@
             express && t('wa.express'),
             envio && t('wa.envio'),
             `${t('wa.cot.total')}: *${$('resTotal').textContent}*`,
+            t('wa.cot.pago', { inicio: $('pagoInicio').textContent, entrega: $('pagoEntrega').textContent }),
             '',
             t('wa.cot.cierre')
         ].filter(x => x !== false).join('\n');

@@ -333,7 +333,7 @@
     // ============================================================
     function empresaSchema() {
         const s = document.createElement('script'); s.type = 'application/ld+json';
-        s.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'ProfessionalService', name: 'TramitaFácil RD', telephone: '+' + C.whatsapp, email: C.email,
+        s.textContent = JSON.stringify({ '@context': 'https://schema.org', '@type': 'ProfessionalService', name: 'TramitaFácil RD', telephone: '+' + C.whatsapp, email: C.email, url: C.sitio, sameAs: [TF.igUrl()],
             availableLanguage: ['es', 'en', 'fr'], areaServed: D.paises_mundo.map(r => r[0]),
             address: { '@type': 'PostalAddress', addressLocality: 'Santo Domingo', addressCountry: 'DO' } });
         document.head.appendChild(s);
