@@ -608,6 +608,42 @@ ${ES_APP ? renderTabbar() : ''}`;
     initHeaderEventos();
     iniciarApp();
     setInterval(tickTopbar, 15000);
-    document.addEventListener('DOMContentLoaded', () => { reveal(); detectarApi(); setTimeout(sugerirIdioma, 1200); });
+    /** Aviso de actividad real (abajo a la izquierda): personas con la página abierta ahora,
+        solicitudes que entraron hoy y trámites completados hoy. Los datos salen del servidor; si un
+        número no aplica (0, o 1 persona viendo = solo tú), ese aviso no se muestra. Rota cada 20 s. */
+    function actividadEnVivo() {
+        if (PAGE === 'admin' || !state.api) return;
+        let sid = (() => { try { return sessionStorage.getItem('tf_sid'); } catch (e) { return null; } })();
+        if (!sid) { sid = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); try { sessionStorage.setItem('tf_sid', sid); } catch (e) { /* sin almacenamiento */ } }
+        try { if (sessionStorage.getItem('tf_act_cerrado')) return; } catch (e) { /* sigue */ }
+        let datos = null, turno = 0, ocultar = null;
+        const consultar = async () => {
+            if (document.hidden) return;
+            try { datos = await api('/actividad', { method: 'POST', body: JSON.stringify({ s: sid }) }); } catch (e) { /* sin conexión: no se muestra nada */ }
+        };
+        const avisos = () => !datos ? [] : [
+            datos.viendo >= 2 && { ico: 'fa-eye', txt: t('act.viendo', { n: datos.viendo }) },
+            datos.iniciados_hoy >= 1 && { ico: 'fa-file-signature', txt: t(datos.iniciados_hoy === 1 ? 'act.iniciado1' : 'act.iniciados', { n: datos.iniciados_hoy }) },
+            datos.completados_hoy >= 1 && { ico: 'fa-circle-check', txt: t(datos.completados_hoy === 1 ? 'act.completado1' : 'act.completados', { n: datos.completados_hoy }) }
+        ].filter(Boolean);
+        const mostrar = () => {
+            const lista = avisos(); if (!lista.length || document.hidden) return;
+            const a = lista[turno++ % lista.length];
+            let el = $('actAviso');
+            if (!el) {
+                el = document.createElement('div'); el.id = 'actAviso'; el.className = 'act-aviso'; el.setAttribute('role', 'status');
+                document.body.appendChild(el);
+                el.addEventListener('click', e => { if (e.target.closest('.act-cerrar')) { el.remove(); clearInterval(rotar); clearInterval(sondeo); try { sessionStorage.setItem('tf_act_cerrado', '1'); } catch (er) { /* nada */ } } });
+            }
+            el.innerHTML = `<span class="act-ico"><i class="fa-solid ${a.ico}" aria-hidden="true"></i></span><span class="act-txt">${esc(a.txt)}<small><span class="act-punto" aria-hidden="true"></span>${esc(t('act.hoy'))}</small></span><button type="button" class="act-cerrar" aria-label="${esc(t('act.cerrar'))}"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>`;
+            el.classList.add('is-on');
+            clearTimeout(ocultar); ocultar = setTimeout(() => el.classList.remove('is-on'), 7000);
+        };
+        const sondeo = setInterval(consultar, 60000);
+        const rotar = setInterval(mostrar, 20000);
+        consultar().then(() => setTimeout(mostrar, 6000));
+    }
+
+    document.addEventListener('DOMContentLoaded', () => { reveal(); detectarApi(); apiLista.then(ok => { if (ok) actividadEnVivo(); }); setTimeout(sugerirIdioma, 1200); });
     precargarPaginas();
 })();

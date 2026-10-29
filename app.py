@@ -276,6 +276,47 @@ def salud():
     return jsonify({"ok": True, "servicio": "TramitaFácil RD", "hora": ahora()})
 
 
+# ---------------------------------------------------------------- actividad real (aviso de la izquierda)
+# Solo datos reales: personas con la página abierta ahora (avisan cada minuto), solicitudes que
+# entraron hoy y trámites marcados "Listo" hoy en el panel. Nada inventado.
+_presentes: dict[str, float] = {}
+_presentes_lock = threading.Lock()
+RD_OFFSET = timedelta(hours=-4)   # República Dominicana: UTC−4 todo el año (sin horario de verano)
+
+
+def _inicio_dia_rd_utc() -> str:
+    ahora_rd = datetime.now(timezone.utc) + RD_OFFSET
+    medianoche_rd = ahora_rd.replace(hour=0, minute=0, second=0, microsecond=0)
+    return (medianoche_rd - RD_OFFSET).isoformat(timespec="seconds")
+
+
+def actividad_hoy() -> dict:
+    limite = time.time() - 90
+    with _presentes_lock:
+        for k in [k for k, v in _presentes.items() if v < limite]:
+            del _presentes[k]
+        viendo = len(_presentes)
+    desde = _inicio_dia_rd_utc()
+    db = get_db()
+    iniciados = db.execute("SELECT COUNT(*) FROM solicitudes WHERE creado >= ?", (desde,)).fetchone()[0]
+    completados = db.execute("SELECT COUNT(*) FROM tramites WHERE paso = 4 AND actualizado >= ?", (desde,)).fetchone()[0]
+    return {"viendo": viendo, "iniciados_hoy": iniciados, "completados_hoy": completados}
+
+
+@app.post("/api/actividad")
+def api_actividad():
+    """El navegador avisa que la página está abierta (cada minuto) y recibe la actividad real de hoy."""
+    if limitar("actividad", 20, 60):
+        return error("Demasiadas consultas.", 429)
+    d = request.get_json(silent=True) or {}
+    sid = str(d.get("s", ""))[:40]
+    if re.fullmatch(r"[A-Za-z0-9_-]{8,40}", sid):
+        with _presentes_lock:
+            if sid in _presentes or len(_presentes) < 5000:
+                _presentes[sid] = time.time()
+    return jsonify(actividad_hoy())
+
+
 @app.get("/api/catalogo")
 def api_catalogo():
     return jsonify(catalogo())

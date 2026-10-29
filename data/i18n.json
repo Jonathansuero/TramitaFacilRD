@@ -2175,6 +2175,41 @@
       "Reanudar el carrusel",
       "Resume carousel",
       "Reprendre"
+    ],
+    "act.viendo": [
+      "{n} personas están viendo la página ahora",
+      "{n} people are viewing this page now",
+      "{n} personnes consultent la page en ce moment"
+    ],
+    "act.iniciados": [
+      "{n} personas iniciaron su trámite hoy",
+      "{n} people started their paperwork today",
+      "{n} personnes ont lancé leur démarche aujourd'hui"
+    ],
+    "act.iniciado1": [
+      "1 persona inició su trámite hoy",
+      "1 person started their paperwork today",
+      "1 personne a lancé sa démarche aujourd'hui"
+    ],
+    "act.completados": [
+      "{n} trámites se completaron hoy",
+      "{n} cases were completed today",
+      "{n} démarches terminées aujourd'hui"
+    ],
+    "act.completado1": [
+      "1 trámite se completó hoy",
+      "1 case was completed today",
+      "1 démarche terminée aujourd'hui"
+    ],
+    "act.hoy": [
+      "Actividad real de TramitaFácil RD",
+      "Live TramitaFácil RD activity",
+      "Activité réelle de TramitaFácil RD"
+    ],
+    "act.cerrar": [
+      "Cerrar aviso",
+      "Close notice",
+      "Fermer l'avis"
     ]
   },
   "contenido": {

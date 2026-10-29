@@ -265,3 +265,16 @@ def test_seo_canonical_y_vista_previa(client):
     w = client.get("/servicios?cat=viajes", headers={"Host": "www.tramitafacilrd.com"})
     assert w.status_code == 301 and w.headers["Location"] == "https://tramitafacilrd.com/servicios?cat=viajes"
     assert client.get("/assets/img/og-tramitafacil.png").status_code == 200
+
+
+def test_actividad_real(client):
+    import app as appmod
+    appmod._presentes.clear()
+    r = client.post("/api/actividad", json={"s": "visitante-uno"}).json
+    assert r["viendo"] == 1 and r["iniciados_hoy"] >= 0
+    antes = r["iniciados_hoy"]
+    client.post("/api/solicitud", json={"nombre": "Ana Hoy", "contacto": "+1 809 555 0000", "pais": "rd",
+                                        "servicio": "e_ticket", "acepta": True})
+    r = client.post("/api/actividad", json={"s": "visitante-dos"}).json
+    assert r["viendo"] == 2 and r["iniciados_hoy"] == antes + 1
+    assert client.post("/api/actividad", json={"s": "x"}).json["viendo"] == 2   # id inválido no cuenta
