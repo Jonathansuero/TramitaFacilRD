@@ -1925,6 +1925,16 @@
       "Rastrear",
       "Track",
       "Suivi"
+    ],
+    "oficial.msg": [
+      "Número oficial: todos los mensajes de TramitaFácil RD se envían y se reciben solo desde el WhatsApp",
+      "Official number: all TramitaFácil RD messages are sent and received only from WhatsApp",
+      "Numéro officiel : tous les messages de TramitaFácil RD sont envoyés et reçus uniquement depuis le WhatsApp"
+    ],
+    "oficial.correo": [
+      "Correo oficial:",
+      "Official email:",
+      "E-mail officiel :"
     ]
   },
   "contenido": {

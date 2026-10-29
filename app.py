@@ -672,7 +672,7 @@ def pausa():
     if ruta == "/admin" or ruta.startswith(("/api/admin", "/assets/")) or ruta in ("/robots.txt", "/sw.js"):
         return None
     if ruta.startswith("/api/"):
-        return error("Estamos en mantenimiento. Escríbenos por WhatsApp: +1 (849) 270-1295.", 503)
+        return error("Estamos en mantenimiento. Escríbenos por WhatsApp: +1 (849) 243-1206.", 503)
     resp = send_from_directory(BASE_DIR, "pausa.html")
     resp.status_code = 503
     resp.headers["Retry-After"] = "1800"

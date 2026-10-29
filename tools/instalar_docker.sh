@@ -8,7 +8,7 @@
 # ---------------------------------------------------------------------------
 set -euo pipefail
 DOMINIO="${1:-tramitafacilrd.com}"
-CORREO="${2:-jonathansuero24@gmail.com}"
+CORREO="${2:-Tramitafacilrd@gmail.com}"
 APP=/opt/tramitafacil
 DATOS=/opt/tramitafacil-datos
 ENVF=/etc/tramitafacil-docker.env

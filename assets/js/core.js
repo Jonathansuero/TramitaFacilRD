@@ -105,6 +105,10 @@
         return `${SYM[cur]} ${v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec })}`;
     }
     // api.whatsapp.com conserva los emojis; la redirección de wa.me los daña en algunos navegadores y en WhatsApp Web.
+    /** Número oficial con formato: +1 (849) 243-1206 */
+    const waTexto = () => { const p = C.whatsapp; return `+${p[0]} (${p.slice(1, 4)}) ${p.slice(4, 7)}-${p.slice(7)}`; };
+    /** Aviso: único número oficial (se usa en el pie y al confirmar una solicitud). */
+    const avisoOficial = (extra = '') => `<p class="aviso-oficial ${extra}"><i class="fa-solid fa-shield-halved"></i><span>${esc(t('oficial.msg'))} <strong>${esc(waTexto())}</strong>. ${esc(t('oficial.correo'))} <strong>${esc(C.email)}</strong>.</span></p>`;
     const waLink = text => `https://api.whatsapp.com/send?phone=${C.whatsapp}&text=${encodeURIComponent(String(text).normalize('NFC'))}`;
     /** Nombre del lugar desde donde escribe el visitante (país exacto si lo eligió). */
     function lugar() {
@@ -352,6 +356,7 @@
         <li><i class="fa-solid fa-envelope text-amber-400 mr-2"></i><a id="footMail" href="mailto:${esc(C.email)}">${esc(C.email)}</a></li>
         <li><i class="fa-solid fa-location-dot mr-2"></i>Santo Domingo, R.D.</li></ul></div>
     </div>
+    <div class="mt-8 max-w-3xl mx-auto">${avisoOficial('aviso-oficial-oscuro')}</div>
     <p class="mt-8 text-[11px] text-slate-400 leading-relaxed max-w-4xl mx-auto text-center" data-i18n="foot.legal"></p>
     <div class="mt-4 text-center text-xs text-slate-500">© ${new Date().getFullYear()} TramitaFácil RD. <span data-i18n="foot.derechos"></span></div>
   </div>
@@ -361,7 +366,7 @@
 <div id="toast" role="status" aria-live="polite" class="toast"></div>
 ${ES_APP ? renderTabbar() : ''}`;
         const p = C.whatsapp;
-        $$('[data-wa-display]').forEach(el => el.textContent = `+${p[0]} (${p.slice(1, 4)}) ${p.slice(4, 7)}-${p.slice(7)}`);
+        $$('[data-wa-display]').forEach(el => el.textContent = waTexto());
     }
 
     /** Partes del encabezado que dependen del idioma o del país. */
@@ -565,7 +570,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     window.TF = {
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
-        t, tc, applyI18n, money, waLink, saludo, lugar, toast, api, apiLista, contacto,
+        t, tc, applyI18n, money, waLink, waTexto, avisoOficial, saludo, lugar, toast, api, apiLista, contacto,
         setLang, setPais, setCountry, setMoneda, on, emit,
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };

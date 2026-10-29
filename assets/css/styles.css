@@ -485,3 +485,12 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .conf-codigo { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 28px; font-weight: 800; letter-spacing: .06em; color: #002D62; background: #fff; border: 2px dashed #6ee7b7; border-radius: 14px; padding: 10px 16px; margin: 10px 0 6px; text-align: center; }
 #confirmar { scroll-margin-top: 88px; padding-bottom: 4.5rem; }
 #confirmar + section { padding-top: .5rem; }
+
+/* Aviso de número y correo oficiales */
+.aviso-oficial { display: flex; gap: .6rem; align-items: flex-start; margin: 0; padding: .75rem .9rem; border-radius: .9rem;
+  background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; font-size: .78rem; line-height: 1.5; text-align: left; }
+.aviso-oficial i { margin-top: .15rem; color: #059669; }
+.aviso-oficial strong { white-space: nowrap; }
+.aviso-oficial-oscuro { background: rgba(16,185,129,.08); border-color: rgba(16,185,129,.35); color: #cbd5e1; }
+.aviso-oficial-oscuro i { color: #34d399; }
+.aviso-oficial-oscuro strong { color: #fff; }

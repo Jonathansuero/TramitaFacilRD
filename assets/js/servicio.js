@@ -167,6 +167,7 @@
                <button type="button" class="border border-emerald-300 bg-white text-xs font-bold px-4 py-2 rounded-lg" data-copiar-codigo="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
                <a class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg" target="_blank" rel="noopener" href="${waLink(mensajeConfirmar(d, codigo))}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('ok.confirmar'))}</a></div>`
             : `<div class="font-bold">✅ ${esc(t('ok.wa.t'))}</div><p class="mt-1">${esc(t('ok.wa.d'))}</p>`;
+        ok.insertAdjacentHTML('beforeend', TF.avisoOficial('mt-3'));
         restart(ok, 'pop');
         ['cNombre', 'cTel', 'cEmail', 'cMensaje'].forEach(i => { $(i).value = ''; }); $('cAcepta').checked = false;
         mostrarError(''); ok.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
