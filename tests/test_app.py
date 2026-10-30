@@ -335,3 +335,12 @@ def test_descripcion_para_google_por_servicio(client):
     html = client.get("/servicio?id=pasaporte_normal").get_data(as_text=True)
     seo = CAT["servicios"]["pasaporte_normal"]["seo"]
     assert f'<meta name="description" content="{seo}"' in html and f'<meta property="og:description" content="{seo}"' in html
+
+
+def test_icono_y_logo_para_google(client):
+    r = client.get("/favicon.ico")
+    assert r.status_code == 200 and r.data[:4] == b"\x00\x00\x01\x00"
+    html = client.get("/").get_data(as_text=True)
+    assert 'sizes="192x192" href="/assets/img/app/icon-192.png"' in html
+    assert '"@type": "Organization"' in html and "/assets/img/app/icon-512.png" in html
+    assert client.get("/assets/img/app/icon-192.png").status_code == 200

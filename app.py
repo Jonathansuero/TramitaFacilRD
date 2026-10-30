@@ -997,6 +997,15 @@ def pagina(nombre: str):
     <meta property="og:image:alt" content="TramitaFácil RD · Todos tus trámites en un solo lugar">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="{imagen}">"""
+    if nombre == "index":
+        # Para Google: nombre del sitio y logo de la empresa (no depende del JavaScript)
+        org = {"@context": "https://schema.org", "@graph": [
+            {"@type": "WebSite", "name": "TramitaFácil RD", "alternateName": "TramitaFacilRD", "url": sitio + "/"},
+            {"@type": "Organization", "name": "TramitaFácil RD", "url": sitio + "/",
+             "logo": sitio + "/assets/img/app/icon-512.png", "email": cat["config"].get("email", ""),
+             "telephone": "+" + cat["config"].get("whatsapp", ""),
+             "sameAs": [f"https://www.instagram.com/{cat['config'].get('instagram', '')}"]}]}
+        etiquetas += '\n    <script type="application/ld+json">' + json.dumps(org, ensure_ascii=False).replace("</", "<\\/") + "</script>"
     html = html.replace("</title>", "</title>" + etiquetas, 1)
     return Response(html, mimetype="text/html")
 
@@ -1036,6 +1045,8 @@ def archivo_raiz(nombre: str):
         abort(404)
     if nombre in ARCHIVOS_RAIZ:
         return send_from_directory(BASE_DIR, nombre)
+    if nombre == "favicon.ico":  # Google y los navegadores lo buscan en la raíz
+        return send_from_directory(BASE_DIR / "assets" / "img", "favicon.ico", max_age=86400)
     abort(404)
 
 
