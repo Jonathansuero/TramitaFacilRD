@@ -1031,6 +1031,14 @@ def assets(ruta: str):
     return send_from_directory(BASE_DIR / "assets", ruta, max_age=600)
 
 
+@app.get("/.well-known/assetlinks.json")
+def assetlinks():
+    """Vincula la app de Android (Google Play) con este dominio: la app abre sin barra del navegador."""
+    resp = send_from_directory(BASE_DIR / ".well-known", "assetlinks.json", mimetype="application/json")
+    resp.headers["Cache-Control"] = "public, max-age=3600"
+    return resp
+
+
 @app.get("/<nombre>")
 def archivo_raiz(nombre: str):
     if nombre in PAGINAS:

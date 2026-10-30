@@ -344,3 +344,9 @@ def test_icono_y_logo_para_google(client):
     assert 'sizes="192x192" href="/assets/img/app/icon-192.png"' in html
     assert '"@type": "Organization"' in html and "/assets/img/app/icon-512.png" in html
     assert client.get("/assets/img/app/icon-192.png").status_code == 200
+
+
+def test_assetlinks_app_android(client):
+    r = client.get("/.well-known/assetlinks.json")
+    assert r.status_code == 200 and r.mimetype == "application/json"
+    assert r.json[0]["target"]["namespace"] == "android_app"

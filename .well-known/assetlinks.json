@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.tramitafacilrd.Aapp",
+      "sha256_cert_fingerprints": ["13:A5:B7:4E:4B:82:AE:CD:78:EC:24:65:8C:4B:70:17:9B:78:3F:22:70:E8:2D:D8:F1:A1:53:24:EE:59:48:98"]
+    }
+  }
+]
