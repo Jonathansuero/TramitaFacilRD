@@ -15,7 +15,8 @@
         3: 'Tu expediente fue depositado en la institución. Te avisaremos de cualquier novedad.',
         4: '¡Tu trámite está listo! Te contactaremos para coordinar la entrega.'
     };
-    const DIAS_ALERTA = 5;   // días sin moverse para marcar un expediente como detenido
+    const DIAS_ALERTA = 5;
+    const DIAS_ZAFACON = 7;   // días que un cliente eliminado se puede reactivar   // días sin moverse para marcar un expediente como detenido
     const TZ = 'America/Santo_Domingo';
     const ORIGEN_N = { instagram: 'Instagram', facebook: 'Facebook', whatsapp: 'WhatsApp', google: 'Google', tiktok: 'TikTok', youtube: 'YouTube',
         bing: 'Bing', x: 'X (Twitter)', referido: 'Recomendado', app: 'App instalada', directo: 'Directo (escribió la dirección)', otro: 'Otro sitio web', '': 'Sin dato' };
@@ -43,6 +44,7 @@
         resumen: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
         precios: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/>',
         herramientas: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+        zafacon: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>',
         usuarios: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/>'
     };
     const ico = (n, s = 16) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n] || ''}</svg>`;
@@ -69,12 +71,13 @@
     const puede = p => !!(yo && (yo.permisos || []).includes(p));
     const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
     let usuariosData = null, editandoUsuario = null;
-    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios' };
+    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios', mensajes: 'usuarios' };
     const filtro = { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
     let tab = 'inicio', periodo = 30;
     let precios = null, preciosQ = '', preciosCat = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
     const recien = new Set();        // solicitudes que acaban de llegar (se resaltan unos segundos)
+    let borrando = null;             // código con la confirmación de «Eliminar cliente» abierta
     const docsAbiertos = new Set();  // "CODIGO:idTramite" con la lista de documentos abierta
     let editando = null;             // "CODIGO:idTramite" con el formulario de avance abierto
 
@@ -163,11 +166,23 @@
         return wa(e, lineas);
     }
     function linkListo(e) {
-        const listos = (e.tramites || []).filter(t => t.paso === 4);
-        const lineas = [`Hola ${primerNombre(e)} 🎉`, '', `¡Buenas noticias! ${listos.length > 1 || !listos.length ? 'Tus trámites están listos' : `Tu trámite *${listos[0].titulo}* está listo`} (código *${e.codigo}*).`];
+        const listos = (e.tramites || []).filter(t => t.paso === 4), arch = e.archivos || [];
+        const lineas = [`Hola ${primerNombre(e)} 🎉`, ''];
+        if (listos.length === 1) lineas.push(`¡Buenas noticias! Tu trámite *${listos[0].titulo}* está listo.`);
+        else { lineas.push('¡Buenas noticias! Tus trámites están listos:'); (listos.length ? listos : e.tramites || []).forEach(t => lineas.push(`• ${t.titulo}`)); }
+        lineas.push('', `🔎 Número de seguimiento: *${e.codigo}*`);
+        if (arch.length) { lineas.push('', 'Puedes descargar tus documentos aquí:'); arch.forEach(a => lineas.push(`• ${a.nombre}: ${a.enlace}`)); }
         if (e.pendiente) lineas.push('', `Para la entrega queda pendiente el saldo de *${rd(e.pendiente)}*.`);
-        lineas.push('', 'Escríbenos para coordinar la entrega. ¡Gracias por confiar en nosotros! 🇩🇴', '— TramitaFácil RD');
-        return wa(e, lineas);
+        lineas.push('', `Consulta tu expediente cuando quieras: ${enlaceRastreo(e)}`, arch.length ? '' : 'Escríbenos para coordinar la entrega.', '¡Gracias por confiar en nosotros! 🇩🇴', '— TramitaFácil RD');
+        return wa(e, lineas.filter((x, i, l) => x !== '' || l[i - 1] !== ''));
+    }
+    /** WhatsApp con el avance de un trámite (si quedó listo, el mensaje de «listo»). */
+    function linkAvance(e, tid) {
+        const t = (e.tramites || []).find(x => x.id === tid) || (e.tramites || [])[0];
+        if (!t || t.paso === 4) return linkListo(e);
+        return wa(e, [`Hola ${primerNombre(e)}`, '', 'Te escribimos de *TramitaFácil RD* con una actualización de tu trámite.', '',
+            `📄 Trámite: ${t.titulo}`, `🔎 Número de seguimiento: *${e.codigo}*`, `📍 Estado: ${t.estado} — ${t.detalle}`, '',
+            `Consulta el avance aquí: ${enlaceRastreo(e)}`, '', '— TramitaFácil RD']);
     }
 
     const bandera = pais => (cat && cat.paises[pais] && cat.paises[pais].bandera) || '';
@@ -235,6 +250,7 @@
         $('vLogin').hidden = true; $('vPanel').hidden = false;
         if (yo && yo.cambiar_clave) { abrirCuenta(true); return; }   // primero crea su propia clave
         animarMapa = true;
+        cargarMensajes();
         if (!cat) { try { cat = await api('/catalogo'); } catch (e) { /* el panel funciona igual */ } }
         llenarFiltros();
         await cargar();
@@ -311,14 +327,15 @@
         $('bottomnav').querySelector('[data-mas]').hidden = !$('vMas').querySelector('[data-tab]:not([hidden])');
     }
 
-    function irATab(nuevo) {
+    function irATab(nuevo, desdeHistorial) {
+        if (!desdeHistorial && nuevo !== tab) marcarHistorial({ tab: nuevo });   // «atrás» vuelve a la sección anterior
         tab = nuevo;
         $('vMas').hidden = true;
         document.querySelectorAll('#tabs .tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === tab); b.setAttribute('aria-selected', b.dataset.tab === tab); });
         const enBarra = !!$('bottomnav').querySelector(`[data-tab="${tab}"]`);
         $('bottomnav').querySelectorAll('.bn').forEach(b => b.classList.toggle('on', b.dataset.tab ? b.dataset.tab === tab : !enBarra));
-        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios'].forEach(t => { $({ inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
-        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else pintarTodo();
+        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios', 'zafacon', 'mensajes'].forEach(t => { $({ mensajes: 'tMensajes', zafacon: 'tZafacon', inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
+        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else if (tab === 'zafacon') cargarZafacon(); else if (tab === 'mensajes') pintarMensajes(); else pintarTodo();
         window.scrollTo({ top: 0 });
     }
     function verExpediente(codigo) {
@@ -382,15 +399,16 @@
     function bloqueAvisar(e) {
         const email = e.correo_cliente, tel = telefono(e.contacto), gestiona = puede('expedientes');
         const ultimo = (e.correos || []).find(c => c.tipo === 'aviso' || c.tipo === 'estado');
-        return `<div class="bloque avisar">
-            <div class="bloque-t"><span>${ico('campana')} Avisar al cliente</span>${ultimo ? `<span>último correo: ${esc(fecha(ultimo.fecha))}</span>` : ''}</div>
+        const listo = (e.tramites || []).length > 0 && e.tramites.every(t => t.paso === 4);
+        return `<div class="bloque avisar${listo ? ' listo' : ''}">
+            <div class="bloque-t"><span>${ico(listo ? 'ok' : 'campana')} ${listo ? 'Avisar que está listo' : 'Avisar al cliente'}</span>${ultimo ? `<span>último correo: ${esc(fecha(ultimo.fecha))}</span>` : ''}</div>
             <div class="avisar-btns">
                 ${gestiona ? `<button type="button" class="btn btn-azul" data-avisar-correo="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>
                     ${ico('correo', 18)}<span>Enviar por correo<small>${esc(email || 'Sin correo registrado')}</small></span></button>` : ''}
-                <a class="btn btn-wa" href="${linkWhatsApp(e)}" target="_blank" rel="noopener"${tel ? '' : ' aria-disabled="true"'}>
+                <a class="btn btn-wa" href="${listo ? linkListo(e) : linkWhatsApp(e)}" target="_blank" rel="noopener"${tel ? '' : ' aria-disabled="true"'}>
                     ${ico('chat', 18)}<span>Enviar por WhatsApp<small>${tel ? '+' + esc(tel) : 'Sin WhatsApp registrado'}</small></span></a>
             </div>
-            <small class="ayuda">Le envía el estado actual de todos sus trámites y el enlace para seguir su expediente.${email && !correoActivo && gestiona ? ' El correo aún no está activado en el servidor (tramita correo).' : ''}</small>
+            <small class="ayuda">${listo ? `Le avisa que su trámite está listo, con su número de seguimiento ${esc(e.codigo)}${(e.archivos || []).length ? ' y los enlaces de sus documentos' : ''}.` : `Le envía el estado actual de todos sus trámites con su número de seguimiento ${esc(e.codigo)}.`} Es opcional: úsalo solo cuando quieras avisar.${email && !correoActivo && gestiona ? ' El correo aún no está activado en el servidor (tramita correo).' : ''}</small>
         </div>`;
     }
 
@@ -434,12 +452,20 @@
                 <div class="pasos">${[1, 2, 3, 4].map(i => `<button type="button" class="paso${i === t.paso ? ' sel' : ''}" data-p="${i}"><em>${i}</em>${esc(PASOS[i])}</button>`).join('')}</div>
                 <input type="hidden" name="paso" value="${t.paso}">
                 <div><label class="campo" for="d-${clave}">Mensaje para el cliente</label>
-                    <textarea class="input" id="d-${clave}" name="detalle" maxlength="500" required>${esc(t.detalle)}</textarea></div>
+                    <textarea class="input" id="d-${clave}" name="detalle" maxlength="500" required>${esc(mensajesDe(t, t.paso).defecto)}</textarea></div>
+                <div class="presets" data-presets>${presetsHTML(t, t.paso)}</div>
                 <div><label class="campo" for="s-${clave}">Estado (opcional)</label>
                     <input class="input" id="s-${clave}" name="estado" maxlength="60" placeholder="Ej.: Esperando firma del notario"></div>
-                ${e.correo_cliente ? `<label class="check-correo"><input type="checkbox" name="avisar"${correoActivo ? ' checked' : ' disabled'}>
-                    <span>${ico('correo')} ${correoActivo ? `Avisar al cliente por correo <small>${esc(e.correo_cliente)}</small>` : 'Aviso por correo <small>aún no está activado en el servidor</small>'}</span></label>`
-                    : `<p class="ayuda">${ico('correo')} El cliente no tiene correo registrado; avísale por WhatsApp.</p>`}
+                <fieldset class="aviso-opc">
+                    <legend>¿Avisar al cliente al guardar? <small>Opcional</small></legend>
+                    <div class="opc-btns">
+                        <label class="opc"><input type="checkbox" name="avisarCorreo"${!e.correo_cliente || !correoActivo ? ' disabled' : ''}>
+                            <span><b class="opc-t">${ico('correo')} Por correo</b><small>${esc(!e.correo_cliente ? 'Sin correo registrado' : !correoActivo ? 'Correo aún no activado' : e.correo_cliente)}</small></span></label>
+                        <label class="opc"><input type="checkbox" name="avisarWa"${telefono(e.contacto) ? '' : ' disabled'}>
+                            <span><b class="opc-t">${ico('chat')} Por WhatsApp</b><small>${telefono(e.contacto) ? '+' + esc(telefono(e.contacto)) : 'Sin WhatsApp registrado'}</small></span></label>
+                    </div>
+                    <p class="ayuda">Si no marcas nada, solo se cambia el estado: el cliente lo verá en Rastrear con su número de seguimiento. Si eliges «Listo», el aviso dice que está listo e incluye el número de seguimiento.</p>
+                </fieldset>
                 <div class="acciones"><button class="btn btn-azul" type="submit">Guardar</button><button class="btn btn-borde" type="button" data-cancelar>Cancelar</button></div>
             </form>`;
         return `<div class="tr">
@@ -570,6 +596,12 @@
                 <div class="acciones">
                     <button class="btn btn-borde" type="button" data-copiar="${esc(e.codigo)}">Copiar código</button>
                 </div>
+                ${puede('usuarios') ? (borrando === e.codigo ? `<form class="confirmar-borrar" data-borrar="${esc(e.codigo)}">
+                    <b>${ico('zafacon')} ¿Eliminar a ${esc(e.nombre || e.cliente)}?</b>
+                    <p>El cliente pasa al zafacón y deja de verse en el panel y en Rastrear. Durante ${DIAS_ZAFACON} días puedes reactivarlo tal como está; después se borra por completo, con sus documentos.</p>
+                    <input class="input" name="motivo" maxlength="200" placeholder="Motivo (opcional). Ej.: No respondió, solicitud duplicada">
+                    <div class="acciones"><button class="btn btn-peligro" type="submit">Sí, mover al zafacón</button><button class="btn btn-borde" type="button" data-cancelar-borrar>Cancelar</button></div>
+                </form>` : `<div class="zona-peligro"><button type="button" class="link-rojo" data-eliminar="${esc(e.codigo)}">${ico('zafacon', 14)} Eliminar cliente</button></div>`) : ''}
             </div>`;
         const cobroChip = !puede('pagos') ? '' : e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
             : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : '');
@@ -912,6 +944,126 @@
     });
 
 
+    // ------------------------------------------------------------ mensajes preestablecidos (los edita el administrador)
+    let mensajes = [], msjServicio = '', editandoMsj = null;
+    async function cargarMensajes() {
+        try { mensajes = (await api('/admin/mensajes')).mensajes || []; } catch (e) { /* se usan los de siempre */ }
+        if (tab === 'mensajes') pintarMensajes();
+    }
+    const listaMsj = (sid, paso) => mensajes.filter(m => m.servicio_id === (sid || '') && m.paso === paso);
+    /** Mensajes para un trámite y paso: los suyos primero, luego los generales. El primero es el de por defecto. */
+    function mensajesDe(t, paso) {
+        const propios = t && t.servicio_id ? listaMsj(t.servicio_id, paso) : [], generales = listaMsj('', paso);
+        return { propios, generales, defecto: (propios[0] || generales[0] || { texto: PLANTILLAS[paso] }).texto };
+    }
+    function tramiteDe(form) {
+        const e = expedientes.find(x => x.codigo === form.dataset.codigo);
+        return e && (e.tramites || []).find(x => x.id === Number(form.dataset.tramite));
+    }
+    function presetsHTML(t, paso) {
+        const { propios, generales, defecto } = mensajesDe(t, paso);
+        const lista = [...propios.map(m => [m, 'Este trámite']), ...generales.map(m => [m, 'General'])];
+        const actual = t && t.paso === paso && t.detalle && !lista.some(([m]) => m.texto === t.detalle) ? t.detalle : '';
+        return `<span class="presets-t">Mensajes guardados para «${esc(PASOS[paso])}»</span>
+            ${lista.map(([m, de]) => `<button type="button" class="preset${m.texto === defecto ? ' sel' : ''}" data-preset-msj="${m.id}" data-texto="${esc(m.texto)}">
+                <small class="${de === 'General' ? 'gen' : ''}">${m.texto === defecto ? 'Por defecto · ' : ''}${de}</small>${esc(m.texto)}</button>`).join('')}
+            ${actual ? `<button type="button" class="preset" data-preset-msj="actual" data-texto="${esc(actual)}"><small class="gen">Mensaje actual</small>${esc(actual)}</button>` : ''}
+            <button type="button" class="preset propio" data-msj-propio>${ico('editar', 14)} Escribir mi propio mensaje</button>`;
+    }
+    function opcionesTramites() {
+        if (!cat) return '';
+        const conPropios = new Set(mensajes.filter(m => m.servicio_id).map(m => m.servicio_id));
+        return Object.entries(cat.categorias).map(([k, c]) => `<optgroup label="${esc(c.label)}">${Object.entries(cat.servicios).filter(([, s]) => s.category === k)
+            .map(([id, s]) => `<option value="${esc(id)}"${id === msjServicio ? ' selected' : ''}>${esc(s.title)}${conPropios.has(id) ? ' · personalizado' : ''}</option>`).join('')}</optgroup>`).join('');
+    }
+    function formMsj(paso, m) {
+        return `<form class="msj-form" data-paso="${paso}" data-id="${m ? m.id : ''}">
+            <textarea class="input" name="texto" maxlength="500" required placeholder="Ej.: Para completar tu E-Ticket necesitamos: foto del pasaporte y el día y la fecha del vuelo.">${esc(m ? m.texto : '')}</textarea>
+            <label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" name="defecto"${m ? '' : (listaMsj(msjServicio, paso).length ? '' : ' checked')}> Usar como mensaje por defecto</label>
+            <div class="acciones"><button class="btn btn-azul btn-sm" type="submit">Guardar mensaje</button><button class="btn btn-borde btn-sm" type="button" data-msj-cancelar>Cancelar</button></div>
+        </form>`;
+    }
+    function pintarMensajes() {
+        const nombre = msjServicio && cat && cat.servicios[msjServicio] ? cat.servicios[msjServicio].title : 'Todos los trámites';
+        $('tMensajes').innerHTML = `<div class="pila">
+            <div class="cabecera" style="margin:0"><div><h2>Mensajes para el cliente</h2><p>Textos listos para cada paso. Al actualizar un trámite sale primero el de por defecto; el gestor puede elegir otro o escribir el suyo.</p></div></div>
+            <div class="card"><label class="campo" for="msjSrv">Trámite</label>
+                <select class="input" id="msjSrv"><option value="">Todos los trámites (mensajes generales)</option>${opcionesTramites()}</select>
+                <small style="color:var(--suave)">Si un trámite no tiene mensajes propios en un paso, se usan los generales.</small></div>
+            ${[1, 2, 3, 4].map(paso => { const lista = listaMsj(msjServicio, paso), gen = listaMsj('', paso)[0];
+                return `<div class="card msj-paso"><h3><em>${paso}</em>${esc(PASOS[paso])}</h3>
+                    <div class="msj-lista">
+                        ${lista.map((m, i) => editandoMsj === m.id ? formMsj(paso, m) : `<div class="msj${i === 0 ? ' defecto' : ''}">
+                            ${i === 0 ? '<span class="etq-defecto">POR DEFECTO</span>' : ''}<p>${esc(m.texto)}</p>
+                            <div class="msj-acc"><button type="button" data-msj-editar="${m.id}">Editar</button>${i > 0 ? `<button type="button" data-msj-defecto="${m.id}">Usar por defecto</button>` : ''}<button type="button" class="rojo" data-msj-quitar="${m.id}">Quitar</button></div>
+                        </div>`).join('')}
+                        ${!lista.length && msjServicio ? `<p class="ayuda">${esc(nombre)} no tiene mensajes propios en este paso; se usa el general${gen ? `: «${esc(gen.texto)}»` : ''}.</p>` : ''}
+                        ${editandoMsj === 'nuevo-' + paso ? formMsj(paso, null) : `<button type="button" class="btn btn-borde btn-sm" style="justify-self:start" data-msj-nuevo="${paso}">+ Agregar mensaje</button>`}
+                    </div></div>`; }).join('')}
+        </div>`;
+    }
+    $('tMensajes').addEventListener('change', ev => { if (ev.target.id === 'msjSrv') { msjServicio = ev.target.value; editandoMsj = null; pintarMensajes(); } });
+    $('tMensajes').addEventListener('click', async ev => {
+        const n = ev.target.closest('[data-msj-nuevo]'), ed = ev.target.closest('[data-msj-editar]');
+        if (n) { editandoMsj = 'nuevo-' + n.dataset.msjNuevo; pintarMensajes(); const f = $('tMensajes').querySelector('.msj-form textarea'); if (f) f.focus(); return; }
+        if (ed) { editandoMsj = Number(ed.dataset.msjEditar); pintarMensajes(); return; }
+        if (ev.target.closest('[data-msj-cancelar]')) { editandoMsj = null; pintarMensajes(); return; }
+        const df = ev.target.closest('[data-msj-defecto]'), q = ev.target.closest('[data-msj-quitar]');
+        try {
+            if (df) { const m = mensajes.find(x => x.id === Number(df.dataset.msjDefecto));
+                mensajes = (await post('/admin/mensajes/guardar', { id: m.id, servicio: m.servicio_id, paso: m.paso, texto: m.texto, defecto: true })).mensajes; pintarMensajes(); toast('Ahora es el mensaje por defecto'); }
+            if (q) { if (!window.confirm('¿Quitar este mensaje?')) return;
+                mensajes = (await post('/admin/mensajes/quitar', { id: Number(q.dataset.msjQuitar) })).mensajes; pintarMensajes(); toast('Mensaje quitado'); }
+        } catch (e) { if (e.message !== 'sesion') toast(e.message); }
+    });
+    $('tMensajes').addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const f = ev.target, btn = f.querySelector('[type=submit]'); btn.disabled = true;
+        try {
+            mensajes = (await post('/admin/mensajes/guardar', { id: f.dataset.id ? Number(f.dataset.id) : undefined, servicio: msjServicio,
+                paso: Number(f.dataset.paso), texto: f.texto.value, defecto: f.defecto.checked })).mensajes;
+            editandoMsj = null; pintarMensajes(); toast('Mensaje guardado');
+        } catch (e) { if (e.message !== 'sesion') toast(e.message); btn.disabled = false; }
+    });
+
+    // ------------------------------------------------------------ zafacón (solo administradores)
+    let zafaconData = null;
+    async function cargarZafacon() {
+        if (!zafaconData) $('tZafacon').innerHTML = '<div class="vacio"><b>Cargando…</b></div>';
+        try { zafaconData = (await api('/admin/zafacon')).zafacon; pintarZafacon(); }
+        catch (e) { if (e.message !== 'sesion') $('tZafacon').innerHTML = `<div class="vacio"><b>No se pudo cargar</b>${esc(e.message)}</div>`; }
+    }
+    function pintarZafacon() {
+        const lista = zafaconData || [];
+        $('numZafacon').hidden = !lista.length; $('numZafacon').textContent = lista.length;
+        $('tZafacon').innerHTML = `<div class="pila">
+            <div class="cabecera" style="margin:0"><div><h2>Zafacón</h2><p>${lista.length ? `${lista.length} ${lista.length === 1 ? 'cliente eliminado' : 'clientes eliminados'}` : 'Clientes eliminados'}</p></div></div>
+            <div class="zaf-banner">${ico('zafacon', 22)}<span><b>Se guardan ${DIAS_ZAFACON} días</b>Si el cliente vuelve a aparecer, reactívalo y sigue tal como estaba (trámites, pagos, notas y documentos). Pasados los ${DIAS_ZAFACON} días se borra por completo y no se puede recuperar.</span></div>
+            ${lista.length ? `<div class="personas">${lista.map(z => `<article class="persona zaf">
+                <div class="p-cab">${avatar(z.nombre)}
+                    <div class="p-id"><b>${esc(z.nombre)}</b><span class="codigo">${esc(z.codigo)}</span></div>
+                    <span class="vence${z.dias_restantes <= 2 ? ' pronto' : ''}">${z.dias_restantes <= 1 ? 'Se borra en menos de 1 día' : `Se borra en ${z.dias_restantes} días`}</span></div>
+                ${z.volvio ? `<div class="volvio">${ico('ok', 16)}<span>Volvió a escribir: llegó una solicitud nueva con su mismo WhatsApp o correo.</span></div>` : ''}
+                <dl class="p-datos">
+                    <div style="grid-column:1/-1"><dt>${z.tramites.length > 1 ? 'Trámites' : 'Trámite'}</dt><dd>${esc(z.tramites.join(' · '))}</dd></div>
+                    <div><dt>Estado</dt><dd>${bandera(z.pais)} ${esc(z.estado)}</dd></div>
+                    <div><dt>Eliminado</dt><dd>${esc(fecha(z.eliminado))} · ${esc(z.eliminado_por || '')}</dd></div>
+                    ${z.motivo ? `<div style="grid-column:1/-1"><dt>Motivo</dt><dd>${esc(z.motivo)}</dd></div>` : ''}
+                </dl>
+                <button type="button" class="btn btn-azul" data-restaurar="${esc(z.codigo)}">Reactivar solicitud</button>
+            </article>`).join('')}</div>` : '<div class="vacio"><b>El zafacón está vacío</b>Cuando elimines un cliente, aparecerá aquí durante 7 días.</div>'}
+        </div>`;
+    }
+    $('tZafacon').addEventListener('click', async ev => {
+        const b = ev.target.closest('[data-restaurar]'); if (!b) return;
+        b.disabled = true;
+        try {
+            const r = await post('/admin/restaurar', { codigo: b.dataset.restaurar });
+            reemplazar(r.expediente); zafaconData = zafaconData.filter(z => z.codigo !== b.dataset.restaurar); pintarZafacon();
+            toast(`${r.expediente.nombre || r.expediente.cliente} reactivado. Ya está otra vez en Expedientes.`);
+        } catch (e) { if (e.message !== 'sesion') toast(e.message); b.disabled = false; }
+    });
+
     // ------------------------------------------------------------ inicio: saludo, mapa y lo que hay que atender
     const iniciales = n => String(n || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '··';
     const BURBUJAS = [   // dónde se dibuja cada grupo de clientes alrededor de la isla
@@ -1163,7 +1315,7 @@
 
     $('btnSalir').addEventListener('click', async () => {
         try { await post('/admin/logout', {}); } catch (e) { /* igual salimos */ }
-        expedientes = []; precios = null; usuariosData = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
+        expedientes = []; precios = null; usuariosData = null; zafaconData = null; borrando = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
     });
 
     $('tabs').addEventListener('click', ev => { const b = ev.target.closest('[data-tab]'); if (b) irATab(b.dataset.tab); });
@@ -1260,8 +1412,20 @@
         if (paso) {
             const form = paso.closest('form'), p = Number(paso.dataset.p);
             form.querySelectorAll('.paso').forEach(b => b.classList.toggle('sel', b === paso));
-            form.paso.value = p; form.detalle.value = PLANTILLAS[p]; form.detalle.focus();
+            const tr = tramiteDe(form);
+            form.paso.value = p; form.detalle.value = mensajesDe(tr, p).defecto;
+            form.querySelector('[data-presets]').innerHTML = presetsHTML(tr, p); form.detalle.focus();
             return;
+        }
+        const pr = ev.target.closest('[data-preset-msj]');
+        if (pr) {
+            const form = pr.closest('form');
+            form.detalle.value = pr.dataset.texto; form.querySelectorAll('.preset').forEach(b => b.classList.toggle('sel', b === pr));
+            form.detalle.focus(); return;
+        }
+        if (ev.target.closest('[data-msj-propio]')) {
+            const form = ev.target.closest('form');
+            form.detalle.value = ''; form.querySelectorAll('.preset').forEach(b => b.classList.remove('sel')); form.detalle.focus(); return;
         }
         const quitar = ev.target.closest('[data-quitar]');
         if (quitar) {
@@ -1284,6 +1448,9 @@
             catch (e) { if (e.message !== 'sesion') toast(e.message); }
             return;
         }
+        const el = ev.target.closest('[data-eliminar]');
+        if (el) { borrando = el.dataset.eliminar; pintar(); const f = document.querySelector(`[data-borrar="${borrando}"] [name=motivo]`); if (f) f.focus(); return; }
+        if (ev.target.closest('[data-cancelar-borrar]')) { borrando = null; pintar(); return; }
         const av = ev.target.closest('[data-avisar-correo]');
         if (av) {
             av.disabled = true;
@@ -1315,11 +1482,18 @@
         const btn = form.querySelector('[type=submit]'), txt = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando…';
         try {
             if (form.classList.contains('avance')) {
-                const r = await post('/admin/estado', { codigo: form.dataset.codigo, tramite: Number(form.dataset.tramite),
-                    paso: Number(form.paso.value), detalle: form.detalle.value, estado: form.estado.value,
-                    avisar: !!(form.avisar && form.avisar.checked) });
+                const porCorreo = !!(form.avisarCorreo && form.avisarCorreo.checked), porWa = !!(form.avisarWa && form.avisarWa.checked);
+                // la pestaña de WhatsApp se abre ya (si se abre después de guardar, el navegador la bloquea)
+                const ventana = porWa ? window.open('about:blank', '_blank') : null;
+                let r;
+                try {
+                    r = await post('/admin/estado', { codigo: form.dataset.codigo, tramite: Number(form.dataset.tramite),
+                        paso: Number(form.paso.value), detalle: form.detalle.value, estado: form.estado.value, avisar: porCorreo });
+                } catch (e) { if (ventana) ventana.close(); throw e; }
                 editando = null; reemplazar(r.expediente); pintar();
-                toast(r.correo === 'enviando' ? `Guardado. Aviso enviado por correo a ${r.expediente.correo_cliente}.` : 'Guardado. El cliente ya lo ve en Rastrear.');
+                if (ventana) ventana.location.href = linkAvance(r.expediente, Number(form.dataset.tramite));
+                const avisos = [r.correo === 'enviando' ? `correo a ${r.expediente.correo_cliente}` : '', ventana ? 'WhatsApp abierto' : ''].filter(Boolean);
+                toast(avisos.length ? `Estado guardado · aviso por ${avisos.join(' y ')}` : 'Estado guardado (sin aviso). El cliente lo verá en Rastrear.');
             } else if (form.classList.contains('agregar')) {
                 const r = await post('/admin/agregar', { codigo: form.dataset.codigo, ...leerServicio(form) });
                 reemplazar(r.expediente); pintar();
@@ -1336,6 +1510,12 @@
                 editandoCliente.delete(form.dataset.codigo);
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintar(); toast('Datos del cliente actualizados');
+            } else if (form.classList.contains('confirmar-borrar')) {
+                const codigo = form.dataset.borrar;
+                await post('/admin/eliminar', { codigo, motivo: form.motivo.value });
+                borrando = null; abiertos.delete(codigo);
+                expedientes = expedientes.filter(x => x.codigo !== codigo); recontar(); pintarTodo(); zafaconData = null;
+                toast(`Movido al zafacón. Puedes reactivarlo durante ${DIAS_ZAFACON} días.`);
             } else if (form.classList.contains('form-nota')) {
                 const r = await post('/admin/nota', { codigo: form.dataset.codigo, texto: form.texto.value });
                 document.activeElement && document.activeElement.blur();
@@ -1433,6 +1613,47 @@
     });
 
     // ------------------------------------------------------------ inicio
+    // ------------------------------------------------------------ botón «atrás»: nunca sale del panel
+    // Atrás (navegador, celular o gesto) cierra primero la ventana abierta, luego vuelve a la sección
+    // anterior y, al final, se queda en Inicio. Para salir a la página está «Ver la página web».
+    let historialListo = false;
+    function marcarHistorial(estado) {
+        if (!historialListo) return;
+        try { history.pushState({ tf: 'panel', ...estado }, ''); } catch (e) { /* sin historial */ }
+    }
+    function prepararHistorial() {
+        if (historialListo) return;
+        historialListo = true;
+        try {
+            history.replaceState({ tf: 'raiz' }, '');
+            history.pushState({ tf: 'panel', tab }, '');
+        } catch (e) { /* sin historial */ }
+    }
+    // se arma con el primer toque (los navegadores ignoran entradas creadas sin que la persona haya tocado la página)
+    ['pointerdown', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, prepararHistorial, { capture: true, once: true, passive: true }));
+    // al abrir una ventana (Mi cuenta, Avisos, Más, Nuevo expediente) «atrás» la cierra
+    let cerrandoPorAtras = false;
+    document.querySelectorAll('.modal').forEach(m => new MutationObserver(() => {
+        if (!m.hidden) marcarHistorial({ tab, modal: m.id });
+        else if (!cerrandoPorAtras && historialListo && history.state && history.state.modal === m.id) history.back();   // cerrada con la X: se quita su paso
+    }).observe(m, { attributes: true, attributeFilter: ['hidden'] }));
+    window.addEventListener('popstate', ev => {
+        if (!historialListo) return;
+        const abierta = [...document.querySelectorAll('.modal')].find(m => !m.hidden);
+        if (abierta) {
+            cerrandoPorAtras = true; setTimeout(() => { cerrandoPorAtras = false; }, 0);
+            if (abierta.id === 'vCuenta') cerrarCuenta();
+            else if (abierta.id === 'vNuevo') cerrarNuevo();
+            else abierta.hidden = true;
+        } else if (!$('vPanel').hidden) {
+            const destino = ev.state && ev.state.tf === 'panel' && ev.state.tab ? ev.state.tab : 'inicio';
+            if (editando || editandoCliente.size) { editando = null; editandoCliente.clear(); pintarTodo(); }
+            else if (destino !== tab) irATab(destino, true);
+        }
+        // si llegó al principio, se vuelve a poner un paso para que el siguiente «atrás» tampoco salga
+        if (!ev.state || ev.state.tf === 'raiz') { try { history.pushState({ tf: 'panel', tab }, ''); } catch (e) { /* sin historial */ } }
+    });
+
     (async function iniciar() {
         try {
             const s = await api('/admin/sesion');

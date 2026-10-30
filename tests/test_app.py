@@ -457,11 +457,15 @@ def test_correos_documentos_y_avisos(client, monkeypatch, tmp_path):
     exp = next(e for e in client.get("/api/admin/expedientes").json["expedientes"] if e["codigo"] == codigo)
     assert exp["correo_cliente"] == "ana@correo.com"
     tid = exp["tramites"][0]["id"]
-    r = client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 2, "detalle": "Documentos validados"})
+    r = client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 2, "detalle": "Documentos validados",
+                                               "avisar": True})
     assert r.json["correo"] == "enviando" and enviados[-1]["To"] == "ana@correo.com"
     assert "Documentos validados" in enviados[-1].get_body(("plain",)).get_content()
     assert client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 3, "detalle": "En la JCE",
                                                   "avisar": False}).json["correo"] == "desactivado"
+    n = len(enviados)  # sin elegir aviso: solo se cambia el estado
+    assert client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 3, "detalle": "Seguimos en la JCE"}).json["correo"] == "desactivado"
+    assert len(enviados) == n
     # documentos: solo PDF/fotos de verdad
     falso = client.post("/api/admin/archivo", data={"codigo": codigo, "archivo": (io.BytesIO(b"hola"), "acta.pdf")},
                         content_type="multipart/form-data")
@@ -474,7 +478,7 @@ def test_correos_documentos_y_avisos(client, monkeypatch, tmp_path):
     assert r.status_code == 201 and r.json["expediente"]["archivos"][0]["nombre"] == "Acta de soltería.pdf"
     enlace = r.json["expediente"]["archivos"][0]["enlace"]
     # al pasar a Listo el correo lleva el enlace de descarga
-    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar"})
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar", "avisar": True})
     assert "/descarga/" in enviados[-1].get_body(("plain",)).get_content()
     # enviar los documentos por correo (adjuntos)
     assert client.post("/api/admin/archivo/enviar", json={"codigo": codigo}).json["para"] == "ana@correo.com"
@@ -540,3 +544,78 @@ def test_avisar_al_cliente_con_un_clic(client, monkeypatch, tmp_path):
     assert r.json["para"] == "ana@correo.com" and enviados[-1]["To"] == "ana@correo.com"
     assert "Certificación de Soltería" in enviados[-1].get_body(("plain",)).get_content()
     assert r.json["expediente"]["correos"][0]["tipo"] == "aviso"
+
+
+def test_zafacon_solo_admin_7_dias_y_reactivar(client, monkeypatch, tmp_path):
+    import io
+    import sqlite3
+    import app as app_module
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    monkeypatch.setenv("TF_ARCHIVOS", str(tmp_path / "archivos"))
+    base = {"pais": "us", "servicio": "certificacion_solteria", "acepta": True}
+    c1 = client.post("/api/solicitud", json={**base, "nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com"}).json["codigo"]
+    c2 = client.post("/api/solicitud", json={**base, "nombre": "Luis Peña", "whatsapp": "+1 809 555 9876", "email": "luis@correo.com"}).json["codigo"]
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    client.post("/api/admin/archivo", data={"codigo": c2, "archivo": (io.BytesIO(PDF), "acta.pdf")}, content_type="multipart/form-data")
+    # un gestor no puede eliminar
+    client.post("/api/admin/usuarios/guardar", json={"usuario": "maria", "nombre": "María", "permisos": ["expedientes", "pagos"], "clave": "temporal-123"})
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "maria", "clave": "temporal-123"})
+    client.post("/api/admin/cuenta/clave", json={"actual": "temporal-123", "nueva": "maria-clave-1"})
+    assert client.post("/api/admin/eliminar", json={"codigo": c1}).status_code == 403
+    assert client.get("/api/admin/zafacon").status_code == 403
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    # el administrador lo manda al zafacón: desaparece de la lista, del rastreo y del Excel
+    assert client.post("/api/admin/eliminar", json={"codigo": c1, "motivo": "No respondió"}).json["dias"] == 7
+    assert c1 not in [e["codigo"] for e in client.get("/api/admin/expedientes").json["expedientes"]]
+    assert client.get(f"/api/rastreo/{c1}").status_code == 404
+    assert c1 not in client.get("/api/admin/exportar").data.decode()
+    assert client.post("/api/admin/nota", json={"codigo": c1, "texto": "x"}).status_code == 404
+    z = client.get("/api/admin/zafacon").json["zafacon"]
+    assert z[0]["codigo"] == c1 and z[0]["dias_restantes"] == 7 and z[0]["motivo"] == "No respondió" and not z[0]["volvio"]
+    # el cliente vuelve a escribir (mismo WhatsApp): se marca y se puede reactivar tal cual
+    client.post("/api/solicitud", json={**base, "nombre": "Ana R.", "whatsapp": "+1 809 555 1234", "email": "otra@correo.com"})
+    assert client.get("/api/admin/zafacon").json["zafacon"][0]["volvio"] is True
+    r = client.post("/api/admin/restaurar", json={"codigo": c1})
+    assert r.json["expediente"]["nombre"] == "Ana Rodríguez" and client.get(f"/api/rastreo/{c1}").status_code == 200
+    assert client.get("/api/admin/zafacon").json["zafacon"] == []
+    # a los 7 días se borra por completo, con sus documentos
+    client.post("/api/admin/eliminar", json={"codigo": c2})
+    db = sqlite3.connect(app_module.DB_PATH)
+    db.execute("UPDATE seguimiento SET eliminado='2020-01-01T00:00:00+00:00' WHERE codigo=?", (c2,)); db.commit()
+    assert client.get("/api/admin/zafacon").json["zafacon"] == []
+    for tabla in ("seguimiento", "solicitudes", "tramites", "archivos"):
+        assert db.execute(f"SELECT COUNT(*) FROM {tabla} WHERE codigo=?", (c2,)).fetchone()[0] == 0
+    assert not any((tmp_path / "archivos").rglob("*.pdf"))
+    assert client.post("/api/admin/restaurar", json={"codigo": c2}).status_code == 404
+
+
+def test_mensajes_preestablecidos(client, monkeypatch):
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    m = client.get("/api/admin/mensajes").json["mensajes"]
+    general1 = [x for x in m if x["servicio_id"] == "" and x["paso"] == 1]
+    eticket1 = [x for x in m if x["servicio_id"] == "e_ticket" and x["paso"] == 1]
+    assert general1 and "pasaporte" in eticket1[0]["texto"]
+    # el administrador agrega otro y lo pone por defecto; luego lo edita y lo quita
+    m = client.post("/api/admin/mensajes/guardar", json={"servicio": "e_ticket", "paso": 1, "texto": "Envíanos tu pasaporte y la fecha del vuelo.",
+                                                           "defecto": True}).json["mensajes"]
+    lista = [x for x in m if x["servicio_id"] == "e_ticket" and x["paso"] == 1]
+    assert len(lista) == 2 and lista[0]["texto"].startswith("Envíanos")
+    m = client.post("/api/admin/mensajes/guardar", json={"id": lista[1]["id"], "servicio": "e_ticket", "paso": 1,
+                                                           "texto": lista[1]["texto"], "defecto": True}).json["mensajes"]
+    assert [x for x in m if x["servicio_id"] == "e_ticket" and x["paso"] == 1][0]["id"] == lista[1]["id"]
+    assert client.post("/api/admin/mensajes/guardar", json={"servicio": "no_existe", "paso": 1, "texto": "Hola hola"}).status_code == 400
+    assert client.post("/api/admin/mensajes/guardar", json={"servicio": "", "paso": 9, "texto": "Hola hola"}).status_code == 400
+    m = client.post("/api/admin/mensajes/quitar", json={"id": lista[0]["id"]}).json["mensajes"]
+    assert lista[0]["id"] not in [x["id"] for x in m]
+    # un gestor los ve (para usarlos) pero no los puede cambiar
+    client.post("/api/admin/usuarios/guardar", json={"usuario": "maria", "nombre": "María", "permisos": ["expedientes"], "clave": "temporal-123"})
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "maria", "clave": "temporal-123"})
+    client.post("/api/admin/cuenta/clave", json={"actual": "temporal-123", "nueva": "maria-clave-1"})
+    assert client.get("/api/admin/mensajes").json["ok"]
+    assert client.post("/api/admin/mensajes/guardar", json={"servicio": "", "paso": 1, "texto": "Hola hola"}).status_code == 403
