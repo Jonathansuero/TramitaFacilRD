@@ -41,6 +41,13 @@
       "description": "Envía tu solicitud y recibe un código de seguimiento",
       "url": "./?fuente=app#solicitud",
       "icons": [{ "src": "assets/img/app/icon-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Panel del equipo",
+      "short_name": "Panel",
+      "description": "Acceso para el equipo de TramitaFácil RD (usuario y contraseña)",
+      "url": "./admin",
+      "icons": [{ "src": "assets/img/app/icon-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }
