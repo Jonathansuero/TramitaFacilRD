@@ -378,6 +378,7 @@
         ui.checklistKey = PAISES[state.pais].destacados.find(k => D.checklists[k]) || Object.keys(D.checklists)[0];
         TF.cotizador.mount('cotizadorApp', { onSolicitar: irASolicitud, formSelect: 'fServicio' });
         if (TF.carrusel) TF.carrusel.mount('casosInicio', {
+            simple: true,
             onCalcular: k => { TF.cotizador.seleccionar(k); goTo('cotizador'); },
             onIniciar: irASolicitud
         });

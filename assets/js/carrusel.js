@@ -1,6 +1,7 @@
 /* ==========================================================
    TramitaFácil RD — Carrusel de casos reales
-   TF.carrusel.mount('idDelContenedor', { onCalcular(servicio), onIniciar(servicio), limite })
+   TF.carrusel.mount('idDelContenedor', { onCalcular(servicio), onIniciar(servicio), limite, simple })
+   simple: true → abajo solo el botón «Iniciar solicitud» (inicio); sin simple → servicio, precio y calculadora (página Casos reales).
    Cada caso trae su ilustración dominicana (assets/img/rd/<img>.webp).
    Desliza con el dedo, flechas, teclado o solo (cada 8 s; se detiene al tocarlo).
    ========================================================== */
@@ -13,7 +14,7 @@
     const OK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
     const reducido = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function slide(c, i, total) {
+    function slide(c, i, total, simple) {
         const s = SERV[c.servicio], tr = tc('servicios', c.servicio), tiempo = TF.tiempo(c.servicio);
         const tf = (c.solucion.chat || []).find(m => m[0] === 'tf');
         return `<article class="crs-slide" role="group" aria-roledescription="slide" aria-label="${i + 1} / ${total}" data-i="${i}">
@@ -33,14 +34,16 @@
                     <h3 class="crs-h">${esc(tx(c.solucion.titulo))}</h3>
                     ${tf ? `<div class="crs-wa"><span class="crs-wa-de"><b>TF</b> TramitaFácil RD</span>${esc(tx(tf[1]))}<span class="chat-hora">10:42 ${LEIDO}</span></div>` : `<p class="crs-p">${esc(tx(c.solucion.texto))}</p>`}
                 </div>
-                <div class="crs-pie">
+                ${simple ? `<div class="crs-pie crs-pie-simple">
+                    <button type="button" class="crs-btn crs-btn-rojo crs-btn-grande" data-iniciar="${esc(c.servicio)}">${esc(t('crs.iniciar'))} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
+                </div>` : `                <div class="crs-pie">
                     <div class="crs-serv"><a href="servicio?id=${encodeURIComponent(c.servicio)}">${esc(tr.title)}</a>
                         <span>${esc(t('precio.desde'))} <strong>${money(s.tax + s.fee)}</strong>${tiempo ? ` · <i class="fa-regular fa-clock" aria-hidden="true"></i> ${esc(tiempo.txt)}` : ''}</span></div>
                     <div class="crs-botones">
                         <button type="button" class="crs-btn crs-btn-borde" data-calcular="${esc(c.servicio)}"><i class="fa-solid fa-calculator" aria-hidden="true"></i> ${esc(t('casos.calcular'))}</button>
                         <button type="button" class="crs-btn crs-btn-rojo" data-iniciar="${esc(c.servicio)}">${esc(t('casos.inicia'))} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                     </div>
-                </div>
+                </div>`}
             </div>
         </article>`;
     }
@@ -58,7 +61,7 @@
             raiz.setAttribute('aria-label', t('casos.eyebrow'));
             raiz.innerHTML = `<div class="crs-marco">
                     <button type="button" class="crs-flecha crs-prev" aria-label="${esc(t('crs.ant'))}"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
-                    <div class="crs-pista" tabindex="0" aria-live="off">${casos.map((c, i) => slide(c, i, casos.length)).join('')}</div>
+                    <div class="crs-pista" tabindex="0" aria-live="off">${casos.map((c, i) => slide(c, i, casos.length, !!opts.simple)).join('')}</div>
                     <button type="button" class="crs-flecha crs-next" aria-label="${esc(t('crs.sig'))}"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
                 </div>
                 <div class="crs-controles">

@@ -2175,6 +2175,11 @@
       "Reanudar el carrusel",
       "Resume carousel",
       "Reprendre"
+    ],
+    "crs.iniciar": [
+      "Iniciar solicitud",
+      "Start request",
+      "Lancer la demande"
     ]
   },
   "contenido": {

@@ -672,3 +672,7 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
   .crs-prev { left: 8px; } .crs-next { right: 8px; }
   .crs-botones, .crs-btn { width: 100%; justify-content: center; }
 }
+
+/* Carrusel del inicio: solo «Iniciar solicitud» */
+.crs-pie-simple { justify-content: flex-start; }
+.crs-btn-grande { min-height: 52px; padding: .75rem 1.5rem; font-size: .95rem; }
