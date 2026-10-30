@@ -81,7 +81,9 @@
     let precios = null, preciosQ = '', preciosCat = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
     const recien = new Set();        // solicitudes que acaban de llegar (se resaltan unos segundos)
-    let borrando = null;             // código con la confirmación de «Eliminar cliente» abierta
+    let borrando = null;
+    const porSubir = new Map();      // código -> archivos elegidos que todavía no se han guardado
+    const agregando = new Set();     // códigos con el formulario «Agregar otro trámite» abierto             // código con la confirmación de «Eliminar cliente» abierta
     const docsAbiertos = new Set();  // "CODIGO:idTramite" con la lista de documentos abierta
     let editando = null;             // "CODIGO:idTramite" con el formulario de avance abierto
 
@@ -277,7 +279,7 @@
     let pendiente = null, revisando = false;
     const huella = lista => lista.map(e => e.codigo + '@' + e.actualizado + '@' + (e.pagos || []).length + '@' + (e.notas || []).length).join('|');
     /** ¿Está escribiendo o con una ventana abierta? Entonces no le cambiamos la lista de golpe. */
-    const ocupado = () => editando || editandoCliente.size || !$('vNuevo').hidden || !$('vCuenta').hidden || (document.activeElement && document.activeElement.closest('#vPanel main form, #tPrecios'));
+    const ocupado = () => editando || editandoCliente.size || porSubir.size || agregando.size || !$('vNuevo').hidden || !$('vCuenta').hidden || (document.activeElement && document.activeElement.closest('#vPanel main form, #tPrecios'));
     async function revisar() {
         if (revisando || $('vPanel').hidden || document.hidden) return;
         revisando = true;
@@ -445,15 +447,25 @@
                 <span class="ar-t"><a href="/api/admin/archivo/${a.id}" target="_blank" rel="noopener">${esc(a.nombre)}</a><small>${esc(peso(a.tamano))} · ${esc(fecha(a.creado))}${a.usuario ? ` · ${esc(a.usuario)}` : ''}</small></span>
                 ${gestiona ? `<button type="button" class="x" data-quitar-archivo="${a.id}" data-codigo="${esc(e.codigo)}" title="Quitar documento" aria-label="Quitar documento">×</button>` : ''}
             </li>`).join('')}</ul>` : '<p class="ayuda">Sube el documento escaneado (PDF o foto) para que el cliente lo reciba y pueda descargarlo con su número de expediente.</p>'}
+            ${gestiona && (porSubir.get(e.codigo) || []).length ? `<div class="por-subir">
+                <span class="ps-t">Listos para guardar (${porSubir.get(e.codigo).length})</span>
+                <ul>${porSubir.get(e.codigo).map((f, i) => `<li><span class="ar-tipo ${/\.pdf$/i.test(f.name) ? 'pdf' : 'img'}">${/\.pdf$/i.test(f.name) ? 'PDF' : 'IMG'}</span>
+                    <span class="ar-t"><b>${esc(f.name)}</b><small>${esc(peso(f.size))}</small></span>
+                    <button type="button" class="x" data-sacar="${i}" data-codigo="${esc(e.codigo)}" title="No subir este" aria-label="No subir este archivo">×</button></li>`).join('')}</ul>
+                <div class="acciones"><button type="button" class="btn btn-azul" data-guardar-docs="${esc(e.codigo)}">${ico('subir', 16)} Guardar documentos</button>
+                    <button type="button" class="btn btn-borde" data-cancelar-subir="${esc(e.codigo)}">Cancelar</button></div>
+                <small class="ayuda">Al guardar, el cliente podrá descargarlos en la página (Rastrear) con su número de expediente. No hace falta enviárselos.</small>
+            </div>` : ''}
             ${gestiona ? `<label class="subir">
                 <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" multiple data-subir="${esc(e.codigo)}">
-                ${ico('subir', 20)}<span><b>Subir documentos escaneados</b><small>PDF, JPG o PNG · hasta 10 MB cada uno</small></span>
+                ${ico('subir', 20)}<span><b>${arch.length || porSubir.has(e.codigo) ? 'Elegir más documentos' : 'Elegir documentos escaneados'}</b><small>PDF, JPG o PNG · hasta 10 MB cada uno</small></span>
             </label>` : ''}
-            ${arch.length ? `<div class="acciones">
+            ${arch.length ? `<p class="disponible">${ico('ok', 16)}<span>Disponibles para el cliente en <b>Rastrear</b> con su código ${esc(e.codigo)}. Enviárselos es opcional:</span></p>
+            <div class="acciones">
                 ${gestiona ? `<button type="button" class="btn btn-azul btn-sm" data-enviar-docs="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>${ico('correo')} Enviar por correo</button>` : ''}
                 <a class="btn btn-wa btn-sm" href="${linkEntrega(e)}" target="_blank" rel="noopener">${ico('chat')} Enviar por WhatsApp</a>
             </div>
-            <small class="ayuda">${!email ? 'El cliente no tiene correo registrado: agrégalo en «Editar datos del cliente» o envíalos por WhatsApp. ' : !correoActivo ? 'El envío de correos aún no está activado en el servidor (tramita correo). ' : `El correo se enviará a ${esc(email)} con los documentos adjuntos. `}El cliente también puede descargarlos en Rastrear con su código y los últimos 4 dígitos de su WhatsApp. Los enlaces vencen en 30 días.</small>` : ''}
+            <small class="ayuda">${!email ? 'El cliente no tiene correo registrado. ' : !correoActivo ? 'El envío de correos aún no está activado en el servidor (tramita correo). ' : `El correo se enviaría a ${esc(email)} con los documentos adjuntos. `}Para descargarlos en Rastrear, el cliente confirma los últimos 4 dígitos de su WhatsApp o su correo.</small>` : ''}
         </div>`;
     }
 
@@ -615,11 +627,12 @@
                 <div class="tramites">
                     <p class="tramites-t">Trámites en este código (${items.length})</p>
                     ${items.map(t => bloqueTramite(e, t, items.length > 1)).join('')}
-                    ${puede('expedientes') ? `<form class="agregar" data-codigo="${esc(e.codigo)}">
-                        <span class="campo" style="margin:0">Agregar otro trámite a este código</span>
+                    ${!puede('expedientes') ? '' : agregando.has(e.codigo) ? `<form class="agregar" data-codigo="${esc(e.codigo)}">
+                        <span class="campo" style="margin:0">Agregar otro trámite a esta solicitud (mismo código ${esc(e.codigo)})</span>
                         ${campoServicio()}
-                        <button class="btn btn-borde btn-sm" type="submit">+ Agregar trámite</button>
-                    </form>` : ''}
+                        <div class="acciones"><button class="btn btn-azul btn-sm" type="submit">Agregar trámite</button>
+                            <button class="btn btn-borde btn-sm" type="button" data-cerrar-agregar="${esc(e.codigo)}">Cancelar</button></div>
+                    </form>` : `<button type="button" class="link agregar-abrir" data-abrir-agregar="${esc(e.codigo)}">+ Agregar otro trámite a esta solicitud</button>`}
                 </div>
                 ${puede('pagos') ? bloqueCobro(e) : ''}
                 ${puede('expedientes') ? bloqueNotas(e) : ''}
@@ -1443,23 +1456,34 @@
         }
     });
 
-    $('lista').addEventListener('change', async ev => {
+    // Documentos: al elegirlos quedan en espera; se suben al tocar «Guardar documentos»
+    $('lista').addEventListener('change', ev => {
         const inp = ev.target.closest && ev.target.closest('[data-subir]');
         if (!inp || !inp.files.length) return;
-        const fd = new FormData(); fd.append('codigo', inp.dataset.subir);
+        const codigo = inp.dataset.subir, lista = porSubir.get(codigo) || [];
         for (const f of inp.files) {
-            if (f.size > 10 * 1024 * 1024) { toast(`«${f.name}» pesa más de 10 MB`); inp.value = ''; return; }
-            fd.append('archivo', f, f.name);
+            if (!/\.(pdf|jpe?g|png|webp)$/i.test(f.name)) { toast(`«${f.name}»: solo PDF, JPG, PNG o WEBP`); continue; }
+            if (f.size > 10 * 1024 * 1024) { toast(`«${f.name}» pesa más de 10 MB`); continue; }
+            if (!lista.some(x => x.name === f.name && x.size === f.size)) lista.push(f);
         }
-        const lbl = inp.closest('.subir'); lbl.classList.add('cargando');
+        if (lista.length) porSubir.set(codigo, lista);
+        pintar();
+    });
+    async function guardarDocumentos(btn) {
+        const codigo = btn.dataset.guardarDocs, lista = porSubir.get(codigo) || [];
+        if (!lista.length) return;
+        const fd = new FormData(); fd.append('codigo', codigo);
+        lista.forEach(f => fd.append('archivo', f, f.name));
+        btn.disabled = true; btn.textContent = 'Guardando…';
         try {
             const r = await fetch('/api/admin/archivo', { method: 'POST', body: fd, credentials: 'same-origin' });
             let d = {}; try { d = await r.json(); } catch (e) { /* sin JSON */ }
             if (r.status === 401) { mostrarLogin('Tu sesión terminó. Vuelve a entrar.'); return; }
-            if (!r.ok || d.ok === false) throw new Error(d.error || (r.status === 413 ? 'Los archivos pesan demasiado.' : 'No se pudo subir.'));
-            reemplazar(d.expediente); pintar(); toast(inp.files.length > 1 ? 'Documentos subidos' : 'Documento subido');
-        } catch (e) { toast(e.message); lbl.classList.remove('cargando'); inp.value = ''; }
-    });
+            if (!r.ok || d.ok === false) throw new Error(d.error || (r.status === 413 ? 'Los archivos pesan demasiado.' : 'No se pudo guardar.'));
+            porSubir.delete(codigo); reemplazar(d.expediente); pintar();
+            toast(`${lista.length > 1 ? 'Documentos guardados' : 'Documento guardado'}. El cliente ya puede descargarlo en Rastrear.`);
+        } catch (e) { toast(e.message); btn.disabled = false; btn.textContent = 'Guardar documentos'; }
+    }
 
     $('lista').addEventListener('click', async ev => {
         const cab = ev.target.closest('.exp-cab');
@@ -1520,6 +1544,16 @@
             catch (e) { if (e.message !== 'sesion') toast(e.message); }
             return;
         }
+        const gd = ev.target.closest('[data-guardar-docs]');
+        if (gd) { await guardarDocumentos(gd); return; }
+        const sc = ev.target.closest('[data-sacar]');
+        if (sc) { const l = porSubir.get(sc.dataset.codigo) || []; l.splice(Number(sc.dataset.sacar), 1); l.length ? porSubir.set(sc.dataset.codigo, l) : porSubir.delete(sc.dataset.codigo); pintar(); return; }
+        const cs = ev.target.closest('[data-cancelar-subir]');
+        if (cs) { porSubir.delete(cs.dataset.cancelarSubir); pintar(); return; }
+        const ag = ev.target.closest('[data-abrir-agregar]');
+        if (ag) { agregando.add(ag.dataset.abrirAgregar); pintar(); const s = document.querySelector(`form.agregar[data-codigo="${ag.dataset.abrirAgregar}"] select`); if (s) s.focus(); return; }
+        const cg = ev.target.closest('[data-cerrar-agregar]');
+        if (cg) { agregando.delete(cg.dataset.cerrarAgregar); pintar(); return; }
         const qa = ev.target.closest('[data-quitar-archivo]');
         if (qa) {
             if (!window.confirm('¿Quitar este documento? El cliente ya no podrá descargarlo.')) return;
@@ -1577,7 +1611,7 @@
                 toast(avisos.length ? `Estado guardado · aviso por ${avisos.join(' y ')}` : 'Estado guardado (sin aviso). El cliente lo verá en Rastrear.');
             } else if (form.classList.contains('agregar')) {
                 const r = await post('/admin/agregar', { codigo: form.dataset.codigo, ...leerServicio(form) });
-                reemplazar(r.expediente); pintar();
+                agregando.delete(form.dataset.codigo); reemplazar(r.expediente); pintar();
                 toast('Trámite agregado al mismo código.');
             } else if (form.classList.contains('form-pago')) {
                 const r = await post('/admin/pago', { codigo: form.dataset.codigo, tipo: form.tipo.value, monto: Number(form.monto.value),
