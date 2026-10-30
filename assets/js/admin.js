@@ -71,7 +71,7 @@
     const puede = p => !!(yo && (yo.permisos || []).includes(p));
     const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
     let usuariosData = null, editandoUsuario = null;
-    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios' };
+    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios', mensajes: 'usuarios' };
     const filtro = { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
     let tab = 'inicio', periodo = 30;
     let precios = null, preciosQ = '', preciosCat = '';
@@ -250,6 +250,7 @@
         $('vLogin').hidden = true; $('vPanel').hidden = false;
         if (yo && yo.cambiar_clave) { abrirCuenta(true); return; }   // primero crea su propia clave
         animarMapa = true;
+        cargarMensajes();
         if (!cat) { try { cat = await api('/catalogo'); } catch (e) { /* el panel funciona igual */ } }
         llenarFiltros();
         await cargar();
@@ -333,8 +334,8 @@
         document.querySelectorAll('#tabs .tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === tab); b.setAttribute('aria-selected', b.dataset.tab === tab); });
         const enBarra = !!$('bottomnav').querySelector(`[data-tab="${tab}"]`);
         $('bottomnav').querySelectorAll('.bn').forEach(b => b.classList.toggle('on', b.dataset.tab ? b.dataset.tab === tab : !enBarra));
-        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios', 'zafacon'].forEach(t => { $({ zafacon: 'tZafacon', inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
-        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else if (tab === 'zafacon') cargarZafacon(); else pintarTodo();
+        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios', 'zafacon', 'mensajes'].forEach(t => { $({ mensajes: 'tMensajes', zafacon: 'tZafacon', inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
+        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else if (tab === 'zafacon') cargarZafacon(); else if (tab === 'mensajes') pintarMensajes(); else pintarTodo();
         window.scrollTo({ top: 0 });
     }
     function verExpediente(codigo) {
@@ -451,7 +452,8 @@
                 <div class="pasos">${[1, 2, 3, 4].map(i => `<button type="button" class="paso${i === t.paso ? ' sel' : ''}" data-p="${i}"><em>${i}</em>${esc(PASOS[i])}</button>`).join('')}</div>
                 <input type="hidden" name="paso" value="${t.paso}">
                 <div><label class="campo" for="d-${clave}">Mensaje para el cliente</label>
-                    <textarea class="input" id="d-${clave}" name="detalle" maxlength="500" required>${esc(t.detalle)}</textarea></div>
+                    <textarea class="input" id="d-${clave}" name="detalle" maxlength="500" required>${esc(mensajesDe(t, t.paso).defecto)}</textarea></div>
+                <div class="presets" data-presets>${presetsHTML(t, t.paso)}</div>
                 <div><label class="campo" for="s-${clave}">Estado (opcional)</label>
                     <input class="input" id="s-${clave}" name="estado" maxlength="60" placeholder="Ej.: Esperando firma del notario"></div>
                 <fieldset class="aviso-opc">
@@ -942,6 +944,88 @@
     });
 
 
+    // ------------------------------------------------------------ mensajes preestablecidos (los edita el administrador)
+    let mensajes = [], msjServicio = '', editandoMsj = null;
+    async function cargarMensajes() {
+        try { mensajes = (await api('/admin/mensajes')).mensajes || []; } catch (e) { /* se usan los de siempre */ }
+        if (tab === 'mensajes') pintarMensajes();
+    }
+    const listaMsj = (sid, paso) => mensajes.filter(m => m.servicio_id === (sid || '') && m.paso === paso);
+    /** Mensajes para un trámite y paso: los suyos primero, luego los generales. El primero es el de por defecto. */
+    function mensajesDe(t, paso) {
+        const propios = t && t.servicio_id ? listaMsj(t.servicio_id, paso) : [], generales = listaMsj('', paso);
+        return { propios, generales, defecto: (propios[0] || generales[0] || { texto: PLANTILLAS[paso] }).texto };
+    }
+    function tramiteDe(form) {
+        const e = expedientes.find(x => x.codigo === form.dataset.codigo);
+        return e && (e.tramites || []).find(x => x.id === Number(form.dataset.tramite));
+    }
+    function presetsHTML(t, paso) {
+        const { propios, generales, defecto } = mensajesDe(t, paso);
+        const lista = [...propios.map(m => [m, 'Este trámite']), ...generales.map(m => [m, 'General'])];
+        const actual = t && t.paso === paso && t.detalle && !lista.some(([m]) => m.texto === t.detalle) ? t.detalle : '';
+        return `<span class="presets-t">Mensajes guardados para «${esc(PASOS[paso])}»</span>
+            ${lista.map(([m, de]) => `<button type="button" class="preset${m.texto === defecto ? ' sel' : ''}" data-preset-msj="${m.id}" data-texto="${esc(m.texto)}">
+                <small class="${de === 'General' ? 'gen' : ''}">${m.texto === defecto ? 'Por defecto · ' : ''}${de}</small>${esc(m.texto)}</button>`).join('')}
+            ${actual ? `<button type="button" class="preset" data-preset-msj="actual" data-texto="${esc(actual)}"><small class="gen">Mensaje actual</small>${esc(actual)}</button>` : ''}
+            <button type="button" class="preset propio" data-msj-propio>${ico('editar', 14)} Escribir mi propio mensaje</button>`;
+    }
+    function opcionesTramites() {
+        if (!cat) return '';
+        const conPropios = new Set(mensajes.filter(m => m.servicio_id).map(m => m.servicio_id));
+        return Object.entries(cat.categorias).map(([k, c]) => `<optgroup label="${esc(c.label)}">${Object.entries(cat.servicios).filter(([, s]) => s.category === k)
+            .map(([id, s]) => `<option value="${esc(id)}"${id === msjServicio ? ' selected' : ''}>${esc(s.title)}${conPropios.has(id) ? ' · personalizado' : ''}</option>`).join('')}</optgroup>`).join('');
+    }
+    function formMsj(paso, m) {
+        return `<form class="msj-form" data-paso="${paso}" data-id="${m ? m.id : ''}">
+            <textarea class="input" name="texto" maxlength="500" required placeholder="Ej.: Para completar tu E-Ticket necesitamos: foto del pasaporte y el día y la fecha del vuelo.">${esc(m ? m.texto : '')}</textarea>
+            <label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" name="defecto"${m ? '' : (listaMsj(msjServicio, paso).length ? '' : ' checked')}> Usar como mensaje por defecto</label>
+            <div class="acciones"><button class="btn btn-azul btn-sm" type="submit">Guardar mensaje</button><button class="btn btn-borde btn-sm" type="button" data-msj-cancelar>Cancelar</button></div>
+        </form>`;
+    }
+    function pintarMensajes() {
+        const nombre = msjServicio && cat && cat.servicios[msjServicio] ? cat.servicios[msjServicio].title : 'Todos los trámites';
+        $('tMensajes').innerHTML = `<div class="pila">
+            <div class="cabecera" style="margin:0"><div><h2>Mensajes para el cliente</h2><p>Textos listos para cada paso. Al actualizar un trámite sale primero el de por defecto; el gestor puede elegir otro o escribir el suyo.</p></div></div>
+            <div class="card"><label class="campo" for="msjSrv">Trámite</label>
+                <select class="input" id="msjSrv"><option value="">Todos los trámites (mensajes generales)</option>${opcionesTramites()}</select>
+                <small style="color:var(--suave)">Si un trámite no tiene mensajes propios en un paso, se usan los generales.</small></div>
+            ${[1, 2, 3, 4].map(paso => { const lista = listaMsj(msjServicio, paso), gen = listaMsj('', paso)[0];
+                return `<div class="card msj-paso"><h3><em>${paso}</em>${esc(PASOS[paso])}</h3>
+                    <div class="msj-lista">
+                        ${lista.map((m, i) => editandoMsj === m.id ? formMsj(paso, m) : `<div class="msj${i === 0 ? ' defecto' : ''}">
+                            ${i === 0 ? '<span class="etq-defecto">POR DEFECTO</span>' : ''}<p>${esc(m.texto)}</p>
+                            <div class="msj-acc"><button type="button" data-msj-editar="${m.id}">Editar</button>${i > 0 ? `<button type="button" data-msj-defecto="${m.id}">Usar por defecto</button>` : ''}<button type="button" class="rojo" data-msj-quitar="${m.id}">Quitar</button></div>
+                        </div>`).join('')}
+                        ${!lista.length && msjServicio ? `<p class="ayuda">${esc(nombre)} no tiene mensajes propios en este paso; se usa el general${gen ? `: «${esc(gen.texto)}»` : ''}.</p>` : ''}
+                        ${editandoMsj === 'nuevo-' + paso ? formMsj(paso, null) : `<button type="button" class="btn btn-borde btn-sm" style="justify-self:start" data-msj-nuevo="${paso}">+ Agregar mensaje</button>`}
+                    </div></div>`; }).join('')}
+        </div>`;
+    }
+    $('tMensajes').addEventListener('change', ev => { if (ev.target.id === 'msjSrv') { msjServicio = ev.target.value; editandoMsj = null; pintarMensajes(); } });
+    $('tMensajes').addEventListener('click', async ev => {
+        const n = ev.target.closest('[data-msj-nuevo]'), ed = ev.target.closest('[data-msj-editar]');
+        if (n) { editandoMsj = 'nuevo-' + n.dataset.msjNuevo; pintarMensajes(); const f = $('tMensajes').querySelector('.msj-form textarea'); if (f) f.focus(); return; }
+        if (ed) { editandoMsj = Number(ed.dataset.msjEditar); pintarMensajes(); return; }
+        if (ev.target.closest('[data-msj-cancelar]')) { editandoMsj = null; pintarMensajes(); return; }
+        const df = ev.target.closest('[data-msj-defecto]'), q = ev.target.closest('[data-msj-quitar]');
+        try {
+            if (df) { const m = mensajes.find(x => x.id === Number(df.dataset.msjDefecto));
+                mensajes = (await post('/admin/mensajes/guardar', { id: m.id, servicio: m.servicio_id, paso: m.paso, texto: m.texto, defecto: true })).mensajes; pintarMensajes(); toast('Ahora es el mensaje por defecto'); }
+            if (q) { if (!window.confirm('¿Quitar este mensaje?')) return;
+                mensajes = (await post('/admin/mensajes/quitar', { id: Number(q.dataset.msjQuitar) })).mensajes; pintarMensajes(); toast('Mensaje quitado'); }
+        } catch (e) { if (e.message !== 'sesion') toast(e.message); }
+    });
+    $('tMensajes').addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const f = ev.target, btn = f.querySelector('[type=submit]'); btn.disabled = true;
+        try {
+            mensajes = (await post('/admin/mensajes/guardar', { id: f.dataset.id ? Number(f.dataset.id) : undefined, servicio: msjServicio,
+                paso: Number(f.dataset.paso), texto: f.texto.value, defecto: f.defecto.checked })).mensajes;
+            editandoMsj = null; pintarMensajes(); toast('Mensaje guardado');
+        } catch (e) { if (e.message !== 'sesion') toast(e.message); btn.disabled = false; }
+    });
+
     // ------------------------------------------------------------ zafacón (solo administradores)
     let zafaconData = null;
     async function cargarZafacon() {
@@ -1328,8 +1412,20 @@
         if (paso) {
             const form = paso.closest('form'), p = Number(paso.dataset.p);
             form.querySelectorAll('.paso').forEach(b => b.classList.toggle('sel', b === paso));
-            form.paso.value = p; form.detalle.value = PLANTILLAS[p]; form.detalle.focus();
+            const tr = tramiteDe(form);
+            form.paso.value = p; form.detalle.value = mensajesDe(tr, p).defecto;
+            form.querySelector('[data-presets]').innerHTML = presetsHTML(tr, p); form.detalle.focus();
             return;
+        }
+        const pr = ev.target.closest('[data-preset-msj]');
+        if (pr) {
+            const form = pr.closest('form');
+            form.detalle.value = pr.dataset.texto; form.querySelectorAll('.preset').forEach(b => b.classList.toggle('sel', b === pr));
+            form.detalle.focus(); return;
+        }
+        if (ev.target.closest('[data-msj-propio]')) {
+            const form = ev.target.closest('form');
+            form.detalle.value = ''; form.querySelectorAll('.preset').forEach(b => b.classList.remove('sel')); form.detalle.focus(); return;
         }
         const quitar = ev.target.closest('[data-quitar]');
         if (quitar) {

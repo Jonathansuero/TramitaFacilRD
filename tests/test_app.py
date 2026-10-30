@@ -590,3 +590,32 @@ def test_zafacon_solo_admin_7_dias_y_reactivar(client, monkeypatch, tmp_path):
         assert db.execute(f"SELECT COUNT(*) FROM {tabla} WHERE codigo=?", (c2,)).fetchone()[0] == 0
     assert not any((tmp_path / "archivos").rglob("*.pdf"))
     assert client.post("/api/admin/restaurar", json={"codigo": c2}).status_code == 404
+
+
+def test_mensajes_preestablecidos(client, monkeypatch):
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    m = client.get("/api/admin/mensajes").json["mensajes"]
+    general1 = [x for x in m if x["servicio_id"] == "" and x["paso"] == 1]
+    eticket1 = [x for x in m if x["servicio_id"] == "e_ticket" and x["paso"] == 1]
+    assert general1 and "pasaporte" in eticket1[0]["texto"]
+    # el administrador agrega otro y lo pone por defecto; luego lo edita y lo quita
+    m = client.post("/api/admin/mensajes/guardar", json={"servicio": "e_ticket", "paso": 1, "texto": "Envíanos tu pasaporte y la fecha del vuelo.",
+                                                           "defecto": True}).json["mensajes"]
+    lista = [x for x in m if x["servicio_id"] == "e_ticket" and x["paso"] == 1]
+    assert len(lista) == 2 and lista[0]["texto"].startswith("Envíanos")
+    m = client.post("/api/admin/mensajes/guardar", json={"id": lista[1]["id"], "servicio": "e_ticket", "paso": 1,
+                                                           "texto": lista[1]["texto"], "defecto": True}).json["mensajes"]
+    assert [x for x in m if x["servicio_id"] == "e_ticket" and x["paso"] == 1][0]["id"] == lista[1]["id"]
+    assert client.post("/api/admin/mensajes/guardar", json={"servicio": "no_existe", "paso": 1, "texto": "Hola hola"}).status_code == 400
+    assert client.post("/api/admin/mensajes/guardar", json={"servicio": "", "paso": 9, "texto": "Hola hola"}).status_code == 400
+    m = client.post("/api/admin/mensajes/quitar", json={"id": lista[0]["id"]}).json["mensajes"]
+    assert lista[0]["id"] not in [x["id"] for x in m]
+    # un gestor los ve (para usarlos) pero no los puede cambiar
+    client.post("/api/admin/usuarios/guardar", json={"usuario": "maria", "nombre": "María", "permisos": ["expedientes"], "clave": "temporal-123"})
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "maria", "clave": "temporal-123"})
+    client.post("/api/admin/cuenta/clave", json={"actual": "temporal-123", "nueva": "maria-clave-1"})
+    assert client.get("/api/admin/mensajes").json["ok"]
+    assert client.post("/api/admin/mensajes/guardar", json={"servicio": "", "paso": 1, "texto": "Hola hola"}).status_code == 403

@@ -44,6 +44,9 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/eliminar         {codigo, motivo?} Mueve el cliente al zafacón (solo administradores)
     GET  /api/admin/zafacon          Clientes eliminados (se borran por completo a los 7 días)
     POST /api/admin/restaurar        {codigo}         Reactiva el cliente tal como estaba
+    GET  /api/admin/mensajes         Mensajes preestablecidos por trámite y paso (el primero de cada lista es el de por defecto)
+    POST /api/admin/mensajes/guardar {id?, servicio ('' = todos), paso, texto, defecto?}   (solo administradores)
+    POST /api/admin/mensajes/quitar  {id}
     GET  /api/admin/avisos           Avisos de solicitudes nuevas (no los ven los usuarios de solo lectura)
     POST /api/admin/avisos/visto     {hasta}
     POST /api/rastreo/<codigo>/archivos {dato}   (público) últimos 4 del WhatsApp o el correo -> enlaces de descarga
@@ -265,6 +268,16 @@ CREATE TABLE IF NOT EXISTS correos (
     fecha TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_correos_codigo ON correos (codigo);
+CREATE TABLE IF NOT EXISTS mensajes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    servicio_id TEXT NOT NULL DEFAULT '',
+    paso INTEGER NOT NULL,
+    texto TEXT NOT NULL,
+    orden REAL NOT NULL,
+    actualizado TEXT NOT NULL,
+    usuario TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_mensajes ON mensajes (servicio_id, paso, orden);
 CREATE TABLE IF NOT EXISTS ajustes (
     clave TEXT PRIMARY KEY,
     valor TEXT
@@ -1583,6 +1596,87 @@ def admin_avisos_visto():
     db.execute("UPDATE usuarios SET avisos_visto=MAX(avisos_visto, ?) WHERE id=?", (hasta, usuario_actual()["id"]))
     db.commit()
     return jsonify({"ok": True})
+
+
+# ---------------------------------------------------------------- mensajes preestablecidos para el cliente
+# servicio_id '' = sirven para todos los trámites. En cada (trámite, paso) el primero (menor «orden») es el de por defecto.
+MENSAJES_INICIALES = [
+    ("", 1, "Recibimos tu solicitud. Te contactaremos pronto para validar documentos y pago."),
+    ("", 2, "Documentos y pago confirmados. Ya estamos preparando tu expediente."),
+    ("", 3, "Tu expediente fue depositado en la institución. Te avisaremos de cualquier novedad."),
+    ("", 4, "¡Tu trámite está listo! Te contactaremos para coordinar la entrega."),
+    ("e_ticket", 1, "Para completar tu E-Ticket necesitamos: foto de la página principal de tu pasaporte y el día y la fecha de tu vuelo."),
+    ("e_ticket", 4, "¡Tu E-Ticket está listo! Te enviamos el código QR para que lo presentes en el aeropuerto."),
+]
+
+
+def mensajes_lista(db: sqlite3.Connection) -> list[dict]:
+    if not db.execute("SELECT 1 FROM ajustes WHERE clave='mensajes_iniciales'").fetchone():
+        ts = ahora()
+        for i, (sid, paso, texto) in enumerate(MENSAJES_INICIALES):
+            db.execute("INSERT INTO mensajes (servicio_id, paso, texto, orden, actualizado, usuario) VALUES (?,?,?,?,?,?)",
+                       (sid, paso, texto, i, ts, "sistema"))
+        db.execute("INSERT INTO ajustes (clave, valor) VALUES ('mensajes_iniciales', ?)", (ts,))
+        db.commit()
+    return [dict(r) for r in db.execute("SELECT id, servicio_id, paso, texto, orden, actualizado, usuario FROM mensajes ORDER BY servicio_id, paso, orden, id")]
+
+
+@app.get("/api/admin/mensajes")
+@requiere_admin
+def admin_mensajes():
+    return jsonify({"ok": True, "mensajes": mensajes_lista(get_db()), "pasos": PASOS})
+
+
+@app.post("/api/admin/mensajes/guardar")
+@requiere("usuarios")
+def admin_mensaje_guardar():
+    """Crea o edita un mensaje: {id?, servicio, paso, texto, defecto?}. «defecto» lo pone primero en su lista."""
+    d = cuerpo_json()
+    db = get_db()
+    mensajes_lista(db)
+    sid = str(d.get("servicio", "") or "").strip()
+    try:
+        paso = int(d.get("paso"))
+    except (TypeError, ValueError):
+        paso = 0
+    texto = str(d.get("texto", "") or "").strip()[:500]
+    if sid and sid not in catalogo()["servicios"]:
+        return error("Elige un trámite válido.")
+    if paso not in PASOS:
+        return error("Elige un paso del 1 al 4.")
+    if len(texto) < 5:
+        return error("Escribe el mensaje (mínimo 5 caracteres).")
+    minimo = db.execute("SELECT MIN(orden) FROM mensajes WHERE servicio_id=? AND paso=?", (sid, paso)).fetchone()[0]
+    maximo = db.execute("SELECT MAX(orden) FROM mensajes WHERE servicio_id=? AND paso=?", (sid, paso)).fetchone()[0]
+    nombre_srv = catalogo()["servicios"][sid]["title"] if sid else "todos los trámites"
+    if d.get("id"):
+        r = db.execute("SELECT * FROM mensajes WHERE id=?", (numero(d.get("id")),)).fetchone()
+        if not r:
+            return error("Ese mensaje ya no existe.", 404)
+        orden = (minimo - 1) if d.get("defecto") and minimo is not None else r["orden"]
+        db.execute("UPDATE mensajes SET texto=?, orden=?, actualizado=?, usuario=? WHERE id=?",
+                   (texto, orden, ahora(), usuario_actual()["usuario"], r["id"]))
+        registrar("Editó un mensaje preestablecido", None, f"{nombre_srv} · paso {paso}" + (" (por defecto)" if d.get("defecto") else ""))
+    else:
+        orden = ((minimo - 1) if minimo is not None else 0) if d.get("defecto") else ((maximo + 1) if maximo is not None else 0)
+        db.execute("INSERT INTO mensajes (servicio_id, paso, texto, orden, actualizado, usuario) VALUES (?,?,?,?,?,?)",
+                   (sid, paso, texto, orden, ahora(), usuario_actual()["usuario"]))
+        registrar("Agregó un mensaje preestablecido", None, f"{nombre_srv} · paso {paso}")
+    db.commit()
+    return jsonify({"ok": True, "mensajes": mensajes_lista(db)})
+
+
+@app.post("/api/admin/mensajes/quitar")
+@requiere("usuarios")
+def admin_mensaje_quitar():
+    db = get_db()
+    r = db.execute("SELECT * FROM mensajes WHERE id=?", (numero(cuerpo_json().get("id")),)).fetchone()
+    if not r:
+        return error("Ese mensaje ya no existe.", 404)
+    db.execute("DELETE FROM mensajes WHERE id=?", (r["id"],))
+    registrar("Quitó un mensaje preestablecido", None, r["texto"][:80])
+    db.commit()
+    return jsonify({"ok": True, "mensajes": mensajes_lista(db)})
 
 
 @app.get("/api/admin/precios")
