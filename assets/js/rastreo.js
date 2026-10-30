@@ -43,6 +43,13 @@
                 <div class="ti-bar" aria-label="${esc(t('track.s' + it.step))}">${[1, 2, 3, 4].map(i => `<i class="${i <= it.step ? (it.step === 4 ? 'on ok' : 'on') : ''}"></i>`).join('')}</div>
                 <p>${esc(it.detail)}</p>
             </li>`).join('');
+        // Estado del pago: el equipo lo confirma antes de darlo por recibido
+        const pago = data.pago || '';
+        $('trackPago').classList.toggle('hidden', !pago || data.demo);
+        $('trackPago').classList.toggle('ok', pago === 'confirmado');
+        $('trackPago').querySelector('i').className = `fa-solid ${pago === 'confirmado' ? 'fa-circle-check' : 'fa-hourglass-half'}`;
+        $('trackPagoT').textContent = pago === 'confirmado' ? t('track.pago.ok') : t('track.pago.pend');
+        $('trackPagoD').textContent = pago === 'confirmado' ? t('track.pago.ok.d') : t('track.pago.pend.d');
         // Documentos listos para descargar (se piden los últimos 4 del WhatsApp o el correo)
         const nDocs = Number(data.archivos || 0);
         $('trackDocs').classList.toggle('hidden', !nDocs || data.demo);

@@ -619,3 +619,49 @@ def test_mensajes_preestablecidos(client, monkeypatch):
     client.post("/api/admin/cuenta/clave", json={"actual": "temporal-123", "nueva": "maria-clave-1"})
     assert client.get("/api/admin/mensajes").json["ok"]
     assert client.post("/api/admin/mensajes/guardar", json={"servicio": "", "paso": 1, "texto": "Hola hola"}).status_code == 403
+
+
+def test_pagos_por_confirmar(client, monkeypatch):
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    codigo = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                                 "pais": "us", "servicio": "certificacion_solteria", "acepta": True}).json["codigo"]
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    for u, perms in (("gestor", ["expedientes", "pagos"]), ("conta", ["pagos", "resumen", "validar_pagos"])):
+        client.post("/api/admin/usuarios/guardar", json={"usuario": u, "nombre": u.title(), "permisos": perms, "clave": "temporal-123"})
+    def entrar(u):
+        client.post("/api/admin/logout")
+        if client.post("/api/admin/login", json={"usuario": u, "clave": u + "-clave-1"}).status_code != 200:
+            client.post("/api/admin/login", json={"usuario": u, "clave": "temporal-123"})
+            client.post("/api/admin/cuenta/clave", json={"actual": "temporal-123", "nueva": u + "-clave-1"})
+    # el gestor registra un pago: queda por confirmar y no cuenta como cobrado
+    entrar("gestor")
+    r = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": 1000, "metodo": "Transferencia"})
+    assert r.json["estado"] == "pendiente"
+    e = r.json["expediente"]
+    assert e["pagado"] == 0 and e["por_confirmar"] == 1000 and e["pagos"][0]["registrado_por"] == "gestor"
+    pid = e["pagos"][0]["id"]
+    assert client.get(f"/api/rastreo/{codigo}").json["pago"] == "por_confirmar"   # el cliente ve «pendiente por confirmar»
+    assert client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"}).status_code == 403
+    # contabilidad recibe el aviso, rechaza sin motivo (no se puede) y luego confirma
+    entrar("conta")
+    av = client.get("/api/admin/avisos").json
+    assert av["avisos"][0]["tipo"] == "pago" and "1,000.00" in av["avisos"][0]["titulo"]
+    assert client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "rechazar"}).status_code == 400
+    r = client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
+    assert r.json["expediente"]["pagado"] == 1000 and r.json["expediente"]["pagos"][0]["validado_por"] == "conta"
+    assert client.get(f"/api/rastreo/{codigo}").json["pago"] == "confirmado"
+    # un pago rechazado no cuenta; el gestor no puede borrar un pago confirmado
+    entrar("gestor")
+    pid2 = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": 1120, "metodo": "Zelle"}).json["expediente"]["pagos"][-1]["id"]
+    assert client.post("/api/admin/pago/quitar", json={"codigo": codigo, "id": pid}).status_code == 403
+    entrar("conta")
+    r = client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid2, "accion": "rechazar", "motivo": "No llegó la transferencia"})
+    e = r.json["expediente"]
+    assert e["pagado"] == 1000 and e["por_confirmar"] == 0 and e["pagos"][-1]["estado"] == "rechazado"
+    # el gestor (sin permiso de confirmar) no ve avisos de pagos; lo que registra el administrador queda confirmado
+    entrar("gestor")
+    assert all(a["tipo"] != "pago" for a in client.get("/api/admin/avisos").json["avisos"])
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    assert client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "otro", "monto": 50, "metodo": "Efectivo"}).json["estado"] == "confirmado"

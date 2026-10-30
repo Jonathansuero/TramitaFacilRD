@@ -26,6 +26,9 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/nuevo            {nombre, contacto, pais, mensaje?, servicios:[{servicio, titulo?, precio?}]}
     GET  /api/admin/exportar         CSV para Excel
     POST /api/admin/pago             {codigo, tipo, monto, metodo, fecha?, nota?}   · /api/admin/pago/quitar {codigo, id}
+    POST /api/admin/pago/validar     {codigo, id, accion: confirmar|rechazar, motivo?}  (administración y contabilidad)
+Pagos: los registra quien tiene «pagos», pero solo cuentan como cobrados cuando los confirma alguien con
+«validar_pagos» (o un administrador). Mientras tanto el cliente ve «Pago pendiente por confirmar».
     POST /api/admin/nota             {codigo, texto}                                · /api/admin/nota/quitar {codigo, id}
     POST /api/admin/docs             {codigo, tramite, docs:[…]}                    Documentos recibidos
     GET  /api/admin/precios          Precios de todos los servicios + historial
@@ -312,6 +315,12 @@ def migrar(db: sqlite3.Connection) -> None:
     for col in ("eliminado", "eliminado_por", "eliminado_motivo"):  # zafacón: fecha, quién y por qué
         if col not in cols_s:
             db.execute(f"ALTER TABLE seguimiento ADD COLUMN {col} TEXT")
+    cols_p = {r[1] for r in db.execute("PRAGMA table_info(pagos)")}
+    if "estado" not in cols_p:  # los pagos de antes ya se daban por buenos
+        db.execute("ALTER TABLE pagos ADD COLUMN estado TEXT NOT NULL DEFAULT 'confirmado'")
+    for col in ("registrado_por", "validado_por", "validado_en", "motivo"):
+        if col not in cols_p:
+            db.execute(f"ALTER TABLE pagos ADD COLUMN {col} TEXT")
     if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
         db.execute("ALTER TABLE tramites ADD COLUMN docs TEXT")  # documentos recibidos (lista JSON)
     # Expedientes de antes de "varios trámites por código": cada uno pasa a tener su trámite
@@ -631,11 +640,18 @@ def api_rastreo(codigo: str):
         return jsonify({"ok": True, "codigo": codigo, "service": row["servicio"], "client": row["cliente"],
                         "step": row["paso"], "statusText": row["estado"], "detail": row["detalle"],
                         "tone": TONO_POR_PASO.get(row["paso"], "sky"), "updated": row["actualizado"], "items": items,
-                        "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=?", (codigo,)).fetchone()[0]})
+                        "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=?", (codigo,)).fetchone()[0],
+                        "pago": estado_pago_cliente(get_db(), codigo)})
     demo = catalogo()["rastreo_demo"].get(codigo)
     if demo:
         return jsonify({"ok": True, "codigo": codigo, **demo, "demo": True})
     return error("No encontramos ningún expediente con ese código.", 404)
+
+
+def estado_pago_cliente(db: sqlite3.Connection, codigo: str) -> str | None:
+    """Lo que ve el cliente: «por_confirmar» si hay un pago esperando confirmación; «confirmado» si ya hay pagos confirmados."""
+    estados = {r[0] for r in db.execute("SELECT estado FROM pagos WHERE codigo=?", (codigo,))}
+    return "por_confirmar" if "pendiente" in estados else ("confirmado" if "confirmado" in estados else None)
 
 
 @app.post("/api/rastreo/<codigo>/archivos")
@@ -750,6 +766,7 @@ PERMISOS = {
     "pagos": "Ver y registrar pagos",
     "resumen": "Ver el resumen del negocio",
     "precios": "Cambiar precios",
+    "validar_pagos": "Confirmar o rechazar los pagos registrados (administración y contabilidad)",
     "herramientas": "Descargar Excel y respaldos",
     "usuarios": "Administrar usuarios y ver la actividad del equipo",
 }
@@ -803,6 +820,11 @@ def puede(permiso: str) -> bool:
     return bool(u and permiso in u["permisos"])
 
 
+def puede_validar() -> bool:
+    """Confirmar pagos: contabilidad (validar_pagos) o un administrador (usuarios)."""
+    return puede("validar_pagos") or puede("usuarios")
+
+
 def requiere(permiso: str | None = None):
     def deco(fn):
         @wraps(fn)
@@ -835,9 +857,11 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["tramites"] = tramites_de(db, d["codigo"])
     precios = [t["precio"] for t in d["tramites"]]
     d["total_dop"] = sum(precios) if precios and all(p is not None for p in precios) else None
-    d["pagos"] = [dict(r) for r in db.execute("SELECT id, tipo, monto, metodo, fecha, nota FROM pagos WHERE codigo=? ORDER BY fecha, id",
+    d["pagos"] = [dict(r) for r in db.execute("SELECT id, tipo, monto, metodo, fecha, nota, estado, registrado_por, validado_por, validado_en, motivo"
+                                             " FROM pagos WHERE codigo=? ORDER BY fecha, id",
                                              (d["codigo"],))]
-    d["pagado"] = sum(p["monto"] for p in d["pagos"])
+    d["pagado"] = sum(p["monto"] for p in d["pagos"] if p["estado"] == "confirmado")  # solo lo confirmado cuenta
+    d["por_confirmar"] = sum(p["monto"] for p in d["pagos"] if p["estado"] == "pendiente")
     d["pendiente"] = max(0, d["total_dop"] - d["pagado"]) if d["total_dop"] is not None else None
     d["notas"] = [dict(r) for r in db.execute("SELECT id, texto, creado FROM notas WHERE codigo=? ORDER BY id DESC", (d["codigo"],))]
     d["actividad"] = [dict(r) for r in db.execute(
@@ -848,7 +872,7 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["correos"] = [dict(r) for r in db.execute(
         "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
     if has_app_context() and usuario_actual() and not puede("pagos"):
-        d["pagos"], d["pagado"], d["pendiente"] = [], None, None
+        d["pagos"], d["pagado"], d["pendiente"], d["por_confirmar"] = [], None, None, None
     return d
 
 
@@ -1322,13 +1346,72 @@ def admin_pago():
     if monto is None or not 0 < monto <= 50_000_000:
         return error("Escribe el monto recibido.")
     tipo = str(d.get("tipo", "otro")) if str(d.get("tipo")) in TIPOS_PAGO else "otro"
-    db = get_db()
-    db.execute("INSERT INTO pagos (codigo, tipo, monto, metodo, fecha, nota, creado) VALUES (?,?,?,?,?,?,?)",
-               (codigo, tipo, round(monto, 2), str(d.get("metodo", "")).strip()[:40], _fecha_dia(d.get("fecha")),
-                str(d.get("nota", "")).strip()[:200], ahora()))
-    registrar("Registró un pago", codigo, f"RD${monto:,.2f} · {TIPOS_PAGO[tipo]} · {str(d.get('metodo', '')).strip()[:40]}")
+    db, yo = get_db(), usuario_actual()
+    # lo que registra administración o contabilidad ya queda confirmado; lo demás espera su confirmación
+    estado = "confirmado" if puede_validar() else "pendiente"
+    metodo = str(d.get("metodo", "")).strip()[:40]
+    db.execute("INSERT INTO pagos (codigo, tipo, monto, metodo, fecha, nota, creado, estado, registrado_por, validado_por, validado_en)"
+               " VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+               (codigo, tipo, round(monto, 2), metodo, _fecha_dia(d.get("fecha")), str(d.get("nota", "")).strip()[:200], ahora(),
+                estado, yo["usuario"], yo["usuario"] if estado == "confirmado" else None, ahora() if estado == "confirmado" else None))
+    registrar("Registró un pago" + (" (por confirmar)" if estado == "pendiente" else ""), codigo, f"RD${monto:,.2f} · {TIPOS_PAGO[tipo]} · {metodo}")
     db.commit()
-    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
+    if estado == "pendiente":
+        avisar_pago_por_confirmar(db, codigo, monto, metodo, yo["nombre"])
+    return jsonify({"ok": True, "estado": estado, "expediente": un_expediente(db, codigo)}), 201
+
+
+def correos_validadores(db: sqlite3.Connection) -> list[str]:
+    lista = [r["correo"] for r in db.execute("SELECT correo, permisos FROM usuarios WHERE activo=1 AND correo IS NOT NULL AND correo<>''")
+             if {"validar_pagos", "usuarios"} & set(_permisos(r["permisos"]))]
+    if os.environ.get("NOTIFY_TO"):
+        lista.append(os.environ["NOTIFY_TO"])
+    return [c for c in lista if avisos.valido(c)]
+
+
+def avisar_pago_por_confirmar(db: sqlite3.Connection, codigo: str, monto: float, metodo: str, quien: str) -> None:
+    """Aviso en la campana (solo para quien confirma pagos) y correo a administración y contabilidad."""
+    sol = db.execute("SELECT nombre FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    nombre = sol["nombre"] if sol else codigo
+    titulo = f"Pago por confirmar: RD${monto:,.2f}"
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
+               ("pago", titulo, f"{nombre} · {metodo or 'sin método'} · registró {quien}"[:200], codigo, ahora()))
+    db.commit()
+    para = correos_validadores(db)
+    if not para or not avisos.configurado():
+        return
+    texto, html_ = avisos.plantilla(titulo, "Hola:", ["Un gestor registró un pago que necesita tu confirmación. Revisa que el dinero llegó antes de confirmarlo."],
+                                    datos=[("Código", codigo), ("Cliente", nombre), ("Monto", f"RD${monto:,.2f}"), ("Método", metodo or "—"), ("Registró", quien)],
+                                    boton=("Revisar en el panel", f"{avisos.sitio()}/admin"),
+                                    pie="Aviso interno: lo reciben administración y contabilidad.")
+    avisos.enviar(para, f"{titulo} · {codigo}", texto, html_, al_terminar=anotar_correo(codigo, para, titulo, "equipo"))
+
+
+@app.post("/api/admin/pago/validar")
+@requiere("pagos")
+def admin_pago_validar():
+    """Administración o contabilidad confirma o rechaza un pago: {codigo, id, accion: confirmar|rechazar, motivo?}."""
+    if not puede_validar():
+        return error("Solo administración o contabilidad pueden confirmar pagos.", 403)
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    db = get_db()
+    fila = db.execute("SELECT * FROM pagos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).fetchone() if codigo else None
+    if not fila:
+        return error("Ese pago no existe.", 404)
+    accion = str(d.get("accion", ""))
+    motivo = str(d.get("motivo", "") or "").strip()[:200]
+    if accion not in ("confirmar", "rechazar"):
+        return error("Elige confirmar o rechazar.")
+    if accion == "rechazar" and len(motivo) < 3:
+        return error("Escribe por qué se rechaza (por ejemplo: no llegó la transferencia).")
+    estado = "confirmado" if accion == "confirmar" else "rechazado"
+    db.execute("UPDATE pagos SET estado=?, validado_por=?, validado_en=?, motivo=? WHERE id=?",
+               (estado, usuario_actual()["usuario"], ahora(), motivo or None, fila["id"]))
+    registrar("Confirmó un pago" if estado == "confirmado" else "Rechazó un pago", codigo,
+              f"RD${fila['monto']:,.2f} · {TIPOS_PAGO.get(fila['tipo'], fila['tipo'])}" + (f" · {motivo}" if motivo else ""))
+    db.commit()
+    return jsonify({"ok": True, "estado": estado, "expediente": un_expediente(db, codigo)})
 
 
 @app.post("/api/admin/pago/quitar")
@@ -1337,9 +1420,12 @@ def admin_pago_quitar():
     d = cuerpo_json()
     codigo = _codigo_existente(d)
     db = get_db()
-    fila = db.execute("SELECT monto, tipo FROM pagos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).fetchone() if codigo else None
+    fila = db.execute("SELECT monto, tipo, estado, registrado_por FROM pagos WHERE id=? AND codigo=?",
+                      (numero(d.get("id")), codigo)).fetchone() if codigo else None
     if not fila:
         return error("Ese pago no existe.", 404)
+    if not puede_validar() and not (fila["estado"] == "pendiente" and fila["registrado_por"] == usuario_actual()["usuario"]):
+        return error("Solo administración o contabilidad pueden borrar un pago ya confirmado.", 403)
     db.execute("DELETE FROM pagos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo))
     registrar("Borró un pago", codigo, f"RD${fila['monto']:,.2f} · {TIPOS_PAGO.get(fila['tipo'], fila['tipo'])}")
     db.commit()
@@ -1578,18 +1664,21 @@ def admin_restaurar():
 @requiere_admin
 def admin_avisos():
     """Solicitudes nuevas para la campana del panel. Los usuarios de solo lectura no reciben avisos."""
-    if not puede("expedientes"):
+    tipos = (["solicitud"] if puede("expedientes") else []) + (["pago"] if puede_validar() else [])
+    if not tipos:
         return jsonify({"ok": True, "avisos": [], "sin_leer": 0, "ultimo": 0, "solo_lectura": True})
     db = get_db()
     visto = db.execute("SELECT avisos_visto FROM usuarios WHERE id=?", (usuario_actual()["id"],)).fetchone()[0]
+    marcas = ",".join("?" * len(tipos))
     lista = [dict(r) | {"nuevo": r["id"] > visto} for r in db.execute(
-        "SELECT a.* FROM avisos a LEFT JOIN seguimiento s ON s.codigo = a.codigo WHERE s.eliminado IS NULL ORDER BY a.id DESC LIMIT 30")]
-    sin_leer = db.execute("SELECT COUNT(*) FROM avisos WHERE id>?", (visto,)).fetchone()[0]
+        f"SELECT a.* FROM avisos a LEFT JOIN seguimiento s ON s.codigo = a.codigo WHERE s.eliminado IS NULL AND a.tipo IN ({marcas})"
+        " ORDER BY a.id DESC LIMIT 30", tipos)]
+    sin_leer = db.execute(f"SELECT COUNT(*) FROM avisos WHERE id>? AND tipo IN ({marcas})", (visto, *tipos)).fetchone()[0]
     return jsonify({"ok": True, "avisos": lista, "sin_leer": sin_leer, "ultimo": lista[0]["id"] if lista else 0})
 
 
 @app.post("/api/admin/avisos/visto")
-@requiere("expedientes")
+@requiere_admin
 def admin_avisos_visto():
     hasta = int(numero(cuerpo_json().get("hasta")) or 0)
     db = get_db()
