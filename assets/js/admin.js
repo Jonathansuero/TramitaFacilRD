@@ -1,5 +1,5 @@
 /* TramitaFácil RD — panel de administración (admin)
-   Pestañas: Expedientes · Resumen · Pagos · Precios · Herramientas.
+   Pestañas: Inicio (saludo y mapa) · Expedientes · Resumen · Pagos · Precios · Herramientas.
    Un código por cliente con uno o varios trámites; cada trámite avanza por su cuenta.
    Cobro 50/50, notas internas, documentos recibidos, mensajes rápidos por WhatsApp,
    de dónde llega cada solicitud y precios editables. Requiere el servidor (app.py). */
@@ -26,14 +26,16 @@
     const TIPO_PAGO = { anticipo: 'Anticipo 50%', saldo: 'Saldo 50%', otro: 'Otro pago' };
     const METODOS = ['Transferencia', 'Zelle', 'Efectivo', 'Remesa', 'PayPal', 'Tarjeta', 'Otro'];
 
-    let expedientes = [], conteo = {}, cat = null;
+    // Mapa de la isla (Hispaniola) dibujado a mano para un lienzo de 640×380
+    const MAPA = {"rd": "M289.7,136.3 L291.4,151.0 L287.9,174.0 L295.7,192.4 L292.3,212.6 L270.5,233.8 L279.2,248.5 L283.6,266.0 L288.8,290.8 L296.6,302.8 L316.6,330.4 L332.3,302.8 L345.3,274.3 L367.9,261.4 L376.6,255.0 L398.4,275.2 L425.4,270.6 L437.5,255.9 L448.8,251.3 L474.1,252.2 L501.0,252.2 L529.7,255.0 L541.0,259.6 L561.9,260.5 L577.6,255.0 L581.9,247.6 L586.3,237.5 L568.0,223.7 L535.8,206.2 L523.7,203.4 L493.2,196.1 L473.2,192.4 L461.9,185.0 L474.1,180.4 L498.4,183.2 L515.8,174.0 L501.0,170.3 L481.0,172.2 L461.9,174.0 L453.2,166.6 L448.8,142.7 L433.2,141.8 L404.5,132.6 L394.9,131.7 L380.1,128.0 L357.5,118.8 L327.1,121.6 L296.6,123.4 L289.7,136.3Z", "ht": "M288.8,290.8 L283.6,266.0 L279.2,248.5 L270.5,233.8 L292.3,212.6 L295.7,192.4 L287.9,174.0 L291.4,151.0 L289.7,136.3 L286.2,289.9 L220.1,272.4 L145.3,268.8 L113.9,276.1 L99.2,286.2 L57.4,264.2 L53.0,247.6 L54.8,238.4 L81.8,233.8 L127.0,247.6 L171.4,252.2 L211.4,246.7 L236.6,243.9 L218.3,224.6 L205.3,206.2 L205.3,191.5 L206.1,160.2 L174.8,144.6 L146.1,126.2 L194.0,115.1 L248.8,131.7 L280.1,140.0 L289.7,136.3Z", "ciudades": {"Santo Domingo": [446.2, 249.4], "Santiago": [379.3, 160.2], "Puerto Plata": [380.1, 128.9], "Punta Cana": [579.3, 242.1], "La Romana": [529.7, 254.0], "Samaná": [498.4, 182.3], "Barahona": [344.5, 274.3]}};
+    let expedientes = [], conteo = {}, cat = null, animarMapa = false;
     let yo = null, nombresPermisos = {};       // usuario con sesión y descripción de cada permiso
     const puede = p => !!(yo && (yo.permisos || []).includes(p));
     const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
     let usuariosData = null, editandoUsuario = null;
     const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios' };
     const filtro = { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
-    let tab = 'exp', periodo = 30;
+    let tab = 'inicio', periodo = 30;
     let precios = null, preciosQ = '', preciosCat = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
     const docsAbiertos = new Set();  // "CODIGO:idTramite" con la lista de documentos abierta
@@ -195,6 +197,7 @@
         aplicarPermisos();
         $('vLogin').hidden = true; $('vPanel').hidden = false;
         if (yo && yo.cambiar_clave) { abrirCuenta(true); return; }   // primero crea su propia clave
+        animarMapa = true;
         if (!cat) { try { cat = await api('/catalogo'); } catch (e) { /* el panel funciona igual */ } }
         llenarFiltros();
         await cargar();
@@ -250,7 +253,9 @@
     function pintarTodo() {
         const porCobrar = puede('pagos') ? expedientes.filter(e => e.pendiente > 0).length : 0;
         $('numCobro').hidden = !porCobrar; $('numCobro').textContent = porCobrar;
-        if (tab === 'exp') pintar();
+        $('numCobro2').hidden = !porCobrar; $('numCobro2').textContent = porCobrar;
+        if (tab === 'inicio') pintarInicio();
+        else if (tab === 'exp') pintar();
         else if (tab === 'resumen') pintarResumen();
         else if (tab === 'pagos') pintarPagos();
         else if (tab === 'herr') pintarHerramientas();
@@ -258,18 +263,23 @@
 
     /** Muestra solo lo que el usuario puede usar. */
     function aplicarPermisos() {
-        $('yoNombre').textContent = yo ? yo.nombre : 'Mi cuenta';
-        document.querySelectorAll('#tabs .tab').forEach(b => { const p = PERM_TAB[b.dataset.tab]; b.hidden = !!p && !puede(p); });
+        $('yoIniciales').textContent = iniciales(yo && yo.nombre);
+        $('btnCuenta').title = yo ? `${yo.nombre} · Mi cuenta` : 'Mi cuenta';
+        document.querySelectorAll('#tabs .tab, #bottomnav [data-tab], #vMas [data-tab]').forEach(b => { const p = PERM_TAB[b.dataset.tab]; b.hidden = !!p && !puede(p); });
         $('btnExcelTop').hidden = !puede('herramientas');
         $('btnExcelFiltro').hidden = !puede('herramientas');
         $('btnNuevo').hidden = !puede('expedientes');
-        if (PERM_TAB[tab] && !puede(PERM_TAB[tab])) tab = 'exp';
+        if (PERM_TAB[tab] && !puede(PERM_TAB[tab])) tab = 'inicio';
+        $('bottomnav').querySelector('[data-mas]').hidden = !$('vMas').querySelector('[data-tab]:not([hidden])');
     }
 
     function irATab(nuevo) {
         tab = nuevo;
+        $('vMas').hidden = true;
         document.querySelectorAll('#tabs .tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === tab); b.setAttribute('aria-selected', b.dataset.tab === tab); });
-        ['exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios'].forEach(t => { $({ exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
+        const enBarra = !!$('bottomnav').querySelector(`[data-tab="${tab}"]`);
+        $('bottomnav').querySelectorAll('.bn').forEach(b => b.classList.toggle('on', b.dataset.tab ? b.dataset.tab === tab : !enBarra));
+        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios'].forEach(t => { $({ inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
         if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else pintarTodo();
         window.scrollTo({ top: 0 });
     }
@@ -320,7 +330,7 @@
         $('btnDetenidos').textContent = `⚠️ Detenidos${det ? ` (${det})` : ''}`;
         const extras = ['servicio', 'pais', 'origen', 'cobro', 'desde', 'hasta'].filter(k => filtro[k]).length;
         $('btnMas').classList.toggle('on', !$('masFiltros').hidden || extras > 0);
-        $('btnMas').textContent = extras ? `Más filtros (${extras})` : 'Más filtros';
+        $('btnMas').textContent = extras ? `Filtros (${extras})` : 'Filtros';
     }
 
     function bloqueDocs(e, t) {
@@ -793,25 +803,139 @@
         } catch (e) { if (e.message !== 'sesion') { err.hidden = false; err.textContent = e.message; } btn.disabled = false; }
     });
 
+
+    // ------------------------------------------------------------ inicio: saludo, mapa y lo que hay que atender
+    const iniciales = n => String(n || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '··';
+    const BURBUJAS = [   // dónde se dibuja cada grupo de clientes alrededor de la isla
+        { id: 'us', x: 92, y: 62, l: 'Estados Unidos' },
+        { id: 'es', x: 560, y: 58, l: 'España y Europa' },
+        { id: 'mundo', x: 84, y: 318, l: 'Otros países' },
+        { id: 'ext', x: 586, y: 330, l: 'Extranjeros en RD' }
+    ];
+    function saludo() {
+        const h = Number(new Intl.DateTimeFormat('es-DO', { hour: 'numeric', hourCycle: 'h23', timeZone: TZ }).format(new Date()));
+        return h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+    }
+    function mapaSVG(porPais) {
+        const sd = MAPA.ciudades['Santo Domingo'];
+        const max = Math.max(1, ...BURBUJAS.map(b => porPais[b.id] || 0));
+        const POS = { 'Santiago': [-8, -9, 'end'], 'Puerto Plata': [0, -10, 'middle'], 'Samaná': [8, -6, 'start'], 'Punta Cana': [-6, -12, 'end'], 'Barahona': [-8, 4, 'end'] };
+        const ciudades = Object.entries(POS).map(([n, [dx, dy, a]]) => { const [x, y] = MAPA.ciudades[n];
+            return `<g class="m-ciudad"><circle cx="${x}" cy="${y}" r="4"/><text x="${x + dx}" y="${y + dy}" text-anchor="${a}">${esc(n)}</text></g>`; }).join('');
+        const burbujas = BURBUJAS.map((b, i) => {
+            const n = porPais[b.id] || 0, r = 26 + 12 * Math.sqrt(n / max);
+            const cx = (b.x + sd[0]) / 2, cy = Math.min(b.y, sd[1]) - 40;
+            const flag = (cat && cat.paises[b.id] && cat.paises[b.id].bandera) || '';
+            return `<path class="m-arco" style="--i:${i}" d="M${b.x},${b.y} Q${cx},${cy} ${sd[0]},${sd[1]}"/>
+                <g class="m-burbuja" style="--i:${i}" data-pais="${b.id}" tabindex="0" role="button" aria-label="${esc(b.l)}: ${n} ${n === 1 ? 'cliente' : 'clientes'}. Ver sus expedientes">
+                    <circle cx="${b.x}" cy="${b.y}" r="${r.toFixed(1)}"/>
+                    <text class="f" x="${b.x}" y="${b.y - 5}" text-anchor="middle">${flag}</text>
+                    <text class="n" x="${b.x}" y="${b.y + 17}" text-anchor="middle">${n}</text>
+                    <text class="l" x="${b.x}" y="${b.y + r + 18}" text-anchor="middle">${esc(b.l)}</text>
+                </g>`;
+        }).join('');
+        const nRD = porPais.rd || 0;
+        return `<svg viewBox="0 0 640 380" role="group" aria-label="Mapa de clientes de TramitaFácil RD">
+            <g class="m-isla">
+                <path class="m-ht" d="${MAPA.ht}"/>
+                <path class="m-rd" d="${MAPA.rd}" data-pais="rd"><title>República Dominicana: ${nRD} ${nRD === 1 ? 'cliente' : 'clientes'}</title></path>
+                ${ciudades}
+                <g class="m-ciudad m-sd"><circle class="m-pulso" cx="${sd[0]}" cy="${sd[1]}" r="7"/><circle class="c" cx="${sd[0]}" cy="${sd[1]}" r="5"/>
+                    <text class="sd" x="${sd[0]}" y="${sd[1] + 24}" text-anchor="middle">Santo Domingo</text><text class="sd2" x="${sd[0]}" y="${sd[1] + 40}" text-anchor="middle">${nRD} ${nRD === 1 ? 'cliente' : 'clientes'} en RD</text></g>
+            </g>
+            ${burbujas}
+        </svg>`;
+    }
+    function pintarInicio() {
+        const nombre = yo ? String(yo.nombre || yo.usuario).trim().split(/\s+/)[0] : '';
+        const hoy = new Intl.DateTimeFormat('es-DO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: TZ }).format(new Date()).toLowerCase();
+        const porPais = Object.fromEntries(contar(expedientes, e => e.pais || ''));
+        const enProceso = expedientes.filter(e => e.paso < 4), det = expedientes.filter(detenido);
+        const nuevos = expedientes.filter(e => e.paso === 1);
+        const porCobrar = puede('pagos') ? expedientes.filter(e => e.pendiente > 0) : [];
+        const atender = [...det.map(e => [e, 'det']), ...nuevos.filter(e => !detenido(e)).map(e => [e, 'nuevo'])].slice(0, 6);
+        const tile = (n, txt, ir, cls = '') => `<button type="button" class="tile ${cls}" data-ir="${ir}"><b>${n}</b><span>${txt}</span></button>`;
+        $('tInicio').innerHTML = `
+            <div class="hola"><h2>Hola, ${esc(nombre || 'equipo')}</h2><p>${esc(saludo())} · ${esc(hoy)}</p></div>
+            <div class="mapa-card${animarMapa ? ' sube' : ''}">
+                <h3>Dominicanos que confían en TramitaFácil RD</h3>
+                <p class="sub">Toca un país para ver sus expedientes</p>
+                ${mapaSVG(porPais)}
+                <div class="mapa-pie"><span>${expedientes.length} ${expedientes.length === 1 ? 'cliente' : 'clientes'} en total</span><span>Desde cualquier parte del mundo</span></div>
+            </div>
+            <div class="tiles">
+                ${tile(enProceso.length, 'En proceso', 'proceso')}
+                ${tile(nuevos.length, 'Por revisar', 'nuevos')}
+                ${tile(det.length, 'Detenidos', 'detenidos', det.length ? 'alerta' : '')}
+                ${puede('pagos') ? tile(porCobrar.length, 'Por cobrar', 'cobro', porCobrar.length ? 'cobro' : '') : tile(expedientes.filter(e => e.paso === 4).length, 'Listos', 'listos')}
+            </div>
+            ${atender.length ? `<div class="bloque-ini"><h4>Para atender <small>· nuevos y detenidos</small></h4>${atender.map(([e, k]) => `
+                <button type="button" class="fila-ini" data-codigo="${esc(e.codigo)}">
+                    <span class="ini">${esc(iniciales(e.nombre || e.cliente))}</span>
+                    <span class="t"><b>${esc(e.nombre || e.cliente)}</b><small>${bandera(e.pais)} ${esc((e.tramites || []).length > 1 ? `${e.tramites.length} trámites` : (e.servicio_titulo || ((e.tramites || [])[0] || {}).titulo || ''))}</small></span>
+                    <span class="etq${k === 'nuevo' ? ' nuevo' : ''}">${k === 'nuevo' ? 'Nuevo' : `${diasSin(e)} días`}</span>
+                </button>`).join('')}</div>` : `<div class="vacio"><b>Todo al día</b>No hay expedientes nuevos ni detenidos.</div>`}`;
+        animarMapa = false;
+    }
+    function irAExpedientes(cambios) {
+        Object.assign(filtro, { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' }, cambios);
+        [['fServicio', 'servicio'], ['fPais', 'pais'], ['fOrigen', 'origen'], ['fCobro', 'cobro'], ['fDesde', 'desde'], ['fHasta', 'hasta']].forEach(([id, k]) => { $(id).value = filtro[k]; });
+        $('q').value = '';
+        irATab('exp');
+    }
+    $('tInicio').addEventListener('click', ev => {
+        const pais = ev.target.closest('[data-pais]');
+        if (pais) { irAExpedientes({ pais: pais.dataset.pais }); return; }
+        const f = ev.target.closest('[data-codigo]');
+        if (f) { verExpediente(f.dataset.codigo); return; }
+        const t = ev.target.closest('[data-ir]'); if (!t) return;
+        const ir = t.dataset.ir;
+        if (ir === 'nuevos') irAExpedientes({ paso: 1 });
+        else if (ir === 'detenidos') irAExpedientes({ detenidos: true });
+        else if (ir === 'listos') irAExpedientes({ paso: 4 });
+        else if (ir === 'cobro') irATab('pagos');
+        else irAExpedientes({});
+    });
+    $('tInicio').addEventListener('keydown', ev => {
+        if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.closest('.m-burbuja')) { ev.preventDefault(); ev.target.closest('.m-burbuja').dispatchEvent(new MouseEvent('click', { bubbles: true })); }
+    });
+
     // ---------------- mi cuenta (nombre y contraseña). obligatoria = clave temporal: debe crear la suya
     let cuentaObligatoria = false;
+    function pasoCuenta(cual) {   // menu | nombre | seguridad | clave
+        $('cuentaMenu').hidden = cual !== 'menu';
+        $('perfilPermisos').hidden = cual !== 'menu' || cuentaObligatoria;
+        $('fNombre').hidden = cual !== 'nombre';
+        $('seguridadPaso').hidden = cual !== 'seguridad';
+        $('fCuenta').hidden = cual !== 'clave';
+        if (cual === 'nombre') $('cNombre').focus();
+        if (cual === 'clave') { $('fCuenta').reset(); $('cuentaError').hidden = true; $('cActual').focus(); }
+    }
     function abrirCuenta(obligatoria) {
         cuentaObligatoria = !!obligatoria;
         $('fCuenta').reset(); $('cuentaError').hidden = true;
-        $('cuentaInfo').textContent = yo ? `${yo.nombre} · usuario «${yo.usuario}»` : '';
+        $('cuentaInfo').textContent = yo ? `Usuario «${yo.usuario}»` : '';
+        $('perfilIniciales').textContent = iniciales(yo && yo.nombre);
         $('cNombre').value = yo ? yo.nombre : '';
+        const CORTO = { expedientes: 'Expedientes', pagos: 'Pagos', resumen: 'Resumen', precios: 'Precios', herramientas: 'Herramientas', usuarios: 'Usuarios' };
+        $('perfilPermisos').innerHTML = yo ? (yo.permisos || []).map(k => `<span class="chip" title="${esc(nombresPermisos[k] || k)}">${esc(CORTO[k] || k)}</span>`).join('') : '';
         $('cuentaAviso').hidden = !cuentaObligatoria;
-        $('fNombre').hidden = cuentaObligatoria;
         $('btnCerrarCuenta').hidden = cuentaObligatoria;
-        $('tCuenta').textContent = cuentaObligatoria ? 'Crea tu contraseña' : 'Mi cuenta';
-        $('tClave').hidden = cuentaObligatoria;
+        $('tCuenta').textContent = cuentaObligatoria ? 'Crea tu contraseña' : (yo ? yo.nombre : 'Mi cuenta');
         $('lActual').textContent = cuentaObligatoria ? 'Contraseña temporal (la que te dieron)' : 'Contraseña actual';
         $('btnCambiarClave').textContent = cuentaObligatoria ? 'Guardar y entrar' : 'Cambiar contraseña';
-        $('vCuenta').hidden = false; $('cActual').focus();
+        $('vCuenta').hidden = false;
+        pasoCuenta(cuentaObligatoria ? 'clave' : 'menu');
     }
     const cerrarCuenta = () => { if (!cuentaObligatoria) $('vCuenta').hidden = true; };
     $('btnCuenta').addEventListener('click', () => abrirCuenta(false));
-    $('vCuenta').addEventListener('click', ev => { if (ev.target === $('vCuenta') || ev.target.closest('[data-cerrar-cuenta]')) cerrarCuenta(); });
+    $('vCuenta').addEventListener('click', ev => {
+        if (ev.target === $('vCuenta') || ev.target.closest('[data-cerrar-cuenta]')) { cerrarCuenta(); return; }
+        if (ev.target.closest('[data-volver-cuenta]') && !cuentaObligatoria) { pasoCuenta('menu'); return; }
+        const op = ev.target.closest('[data-cuenta]'); if (op) pasoCuenta(op.dataset.cuenta);
+    });
+    $('btnSeguirClave').addEventListener('click', () => pasoCuenta('clave'));
+    $('btnExcelTop').addEventListener('click', () => { $('vCuenta').hidden = true; });
     $('fCuenta').addEventListener('submit', async ev => {
         ev.preventDefault();
         const err = $('cuentaError'); err.hidden = true;
@@ -832,7 +956,8 @@
         try {
             await post('/admin/cuenta/nombre', { nombre: $('cNombre').value });
             yo.nombre = $('cNombre').value.trim(); aplicarPermisos();
-            $('cuentaInfo').textContent = `${yo.nombre} · usuario «${yo.usuario}»`; toast('Nombre guardado');
+            $('tCuenta').textContent = yo.nombre; $('perfilIniciales').textContent = iniciales(yo.nombre);
+            pasoCuenta('menu'); toast('Nombre guardado'); if (tab === 'inicio') pintarInicio();
         } catch (e) { if (e.message !== 'sesion') toast(e.message); }
     });
     // «Mostrar contraseña»
@@ -858,10 +983,18 @@
 
     $('btnSalir').addEventListener('click', async () => {
         try { await post('/admin/logout', {}); } catch (e) { /* igual salimos */ }
-        expedientes = []; precios = null; usuariosData = null; yo = null; tab = 'exp'; editandoUsuario = null; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
+        expedientes = []; precios = null; usuariosData = null; yo = null; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
     });
 
     $('tabs').addEventListener('click', ev => { const b = ev.target.closest('[data-tab]'); if (b) irATab(b.dataset.tab); });
+    $('bottomnav').addEventListener('click', ev => {
+        const b = ev.target.closest('.bn'); if (!b) return;
+        if (b.hasAttribute('data-mas')) $('vMas').hidden = false; else irATab(b.dataset.tab);
+    });
+    $('vMas').addEventListener('click', ev => {
+        const b = ev.target.closest('[data-tab]');
+        if (b) irATab(b.dataset.tab); else if (ev.target === $('vMas')) $('vMas').hidden = true;
+    });
 
     $('filtros').addEventListener('click', ev => {
         const b = ev.target.closest('[data-paso]'); if (!b) return;
@@ -1058,7 +1191,7 @@
     $('nItems').addEventListener('change', ev => { if (ev.target.matches('[data-f="servicio"]')) alCambiarServicio(ev.target); });
     $('nItems').addEventListener('click', ev => { const q = ev.target.closest('.quitar'); if (q) q.closest('.item-nuevo').remove(); });
     $('vNuevo').addEventListener('click', ev => { if (ev.target === $('vNuevo') || ev.target.closest('[data-cerrar]')) cerrarNuevo(); });
-    document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; if (!$('vNuevo').hidden) cerrarNuevo(); cerrarCuenta(); });
+    document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; $('vMas').hidden = true; if (!$('vNuevo').hidden) cerrarNuevo(); cerrarCuenta(); });
 
     $('fNuevo').addEventListener('submit', async ev => {
         ev.preventDefault();
