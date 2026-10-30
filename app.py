@@ -36,6 +36,8 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     GET  /api/admin/usuarios         Usuarios del equipo y actividad reciente (permiso «usuarios»)
     POST /api/admin/usuarios/guardar {id?, usuario, nombre, permisos, activo, clave?}
     POST /api/admin/cuenta/clave     {actual, nueva}  Cambiar mi contraseña
+    POST /api/admin/cuenta/nombre    {nombre}         Cambiar mi nombre
+Cuando el administrador crea un usuario o le pone una clave nueva, esa persona debe crear su propia clave al entrar.
 
 Usuarios: cada persona entra con usuario y clave; los permisos (PERMISOS) deciden qué puede hacer.
 «admin» toma la clave de `tramita clave` (TF_ADMIN_HASH): primer acceso y llave de emergencia.
@@ -241,6 +243,8 @@ def migrar(db: sqlite3.Connection) -> None:
     for col in ("idioma", "pais_detalle", "origen", "origen_detalle", "pagina", "dispositivo"):
         if col not in cols:
             db.execute(f"ALTER TABLE solicitudes ADD COLUMN {col} TEXT")
+    if "cambiar_clave" not in {r[1] for r in db.execute("PRAGMA table_info(usuarios)")}:
+        db.execute("ALTER TABLE usuarios ADD COLUMN cambiar_clave INTEGER NOT NULL DEFAULT 0")  # debe poner su propia clave al entrar
     if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
         db.execute("ALTER TABLE tramites ADD COLUMN docs TEXT")  # documentos recibidos (lista JSON)
     # Expedientes de antes de "varios trámites por código": cada uno pasa a tener su trámite
@@ -605,7 +609,8 @@ def usuario_actual() -> dict | None:
     if uid:
         r = get_db().execute("SELECT * FROM usuarios WHERE id=?", (uid,)).fetchone()
         if r and r["activo"] and r["version"] == session.get("ver"):
-            g.usuario = {"id": r["id"], "usuario": r["usuario"], "nombre": r["nombre"], "permisos": _permisos(r["permisos"])}
+            g.usuario = {"id": r["id"], "usuario": r["usuario"], "nombre": r["nombre"], "permisos": _permisos(r["permisos"]),
+                         "cambiar_clave": bool(r["cambiar_clave"])}
     return g.usuario
 
 
@@ -618,8 +623,11 @@ def requiere(permiso: str | None = None):
     def deco(fn):
         @wraps(fn)
         def envoltura(*args, **kwargs):
-            if not usuario_actual():
+            u = usuario_actual()
+            if not u:
                 return error("Tu sesión terminó. Vuelve a entrar.", 401)
+            if u["cambiar_clave"] and fn.__name__ not in ("admin_mi_clave", "admin_mi_nombre"):
+                return error("Primero crea tu contraseña personal (Mi cuenta).", 403)
             if permiso and not puede(permiso):
                 return error("Tu usuario no tiene permiso para esto. Pídeselo al administrador.", 403)
             return fn(*args, **kwargs)
@@ -738,16 +746,33 @@ def admin_mi_clave():
     nueva = str(d.get("nueva", ""))[:200]
     if len(nueva) < 8:
         return error("La contraseña nueva debe tener al menos 8 caracteres.")
-    db.execute("UPDATE usuarios SET hash=?, version=version+1 WHERE id=?", (generate_password_hash(nueva), u["id"]))
+    if check_password_hash(r["hash"], nueva):
+        return error("La contraseña nueva debe ser distinta de la actual.")
+    db.execute("UPDATE usuarios SET hash=?, version=version+1, cambiar_clave=0 WHERE id=?", (generate_password_hash(nueva), u["id"]))
     session["ver"] = r["version"] + 1
     registrar("Cambió su contraseña")
     db.commit()
     return jsonify({"ok": True})
 
 
+@app.post("/api/admin/cuenta/nombre")
+@requiere()
+def admin_mi_nombre():
+    """Cambiar el nombre que se muestra: {nombre}."""
+    nombre = str(cuerpo_json().get("nombre", "")).strip()[:60]
+    if len(nombre) < 2:
+        return error("Escribe tu nombre.")
+    db = get_db()
+    db.execute("UPDATE usuarios SET nombre=? WHERE id=?", (nombre, usuario_actual()["id"]))
+    registrar("Cambió su nombre", None, nombre)
+    db.commit()
+    return jsonify({"ok": True})
+
+
 def _usuario_publico(r: sqlite3.Row) -> dict:
     return {"id": r["id"], "usuario": r["usuario"], "nombre": r["nombre"], "permisos": _permisos(r["permisos"]),
-            "activo": bool(r["activo"]), "creado": r["creado"], "ultimo_acceso": r["ultimo_acceso"]}
+            "activo": bool(r["activo"]), "creado": r["creado"], "ultimo_acceso": r["ultimo_acceso"],
+            "cambiar_clave": bool(r["cambiar_clave"])}
 
 
 @app.get("/api/admin/usuarios")
@@ -784,15 +809,37 @@ def admin_usuario_guardar():
                                  (r["id"],)).fetchone()[0]
         if (not activo or "usuarios" not in permisos) and not otros_admin:
             return error("Debe quedar al menos un usuario activo que pueda administrar usuarios.")
+        nuevo_usuario = str(d.get("usuario", r["usuario"]) or r["usuario"]).strip().lower()
+        if nuevo_usuario != r["usuario"]:
+            if r["usuario"] == "admin":
+                return error("El usuario «admin» no se puede renombrar (es la llave de emergencia de `tramita clave`).")
+            if not RE_USUARIO.match(nuevo_usuario) or nuevo_usuario == "admin":
+                return error("El usuario debe tener de 3 a 30 letras minúsculas, números, punto, guion o guion bajo (sin espacios).")
+            if db.execute("SELECT 1 FROM usuarios WHERE usuario=? AND id<>?", (nuevo_usuario, r["id"])).fetchone():
+                return error("Ya existe un usuario con ese nombre.")
         cambia_clave = bool(clave)
-        db.execute("UPDATE usuarios SET nombre=?, permisos=?, activo=?" + (", hash=?, version=version+1" if cambia_clave else
-                   (", version=version+1" if not activo else "")) + " WHERE id=?",
-                   (nombre, json.dumps(permisos), activo, *( [generate_password_hash(clave)] if cambia_clave else []), r["id"]))
+        propio = r["id"] == yo["id"]
+        campos = ["usuario=?", "nombre=?", "permisos=?", "activo=?"]
+        valores = [nuevo_usuario, nombre, json.dumps(permisos), activo]
+        if cambia_clave:
+            campos += ["hash=?", "cambiar_clave=?"]
+            valores += [generate_password_hash(clave), 0 if propio else 1]
+        if cambia_clave or not activo or nuevo_usuario != r["usuario"] or permisos != _permisos(r["permisos"]):
+            campos.append("version=version+1")  # cierra sus sesiones abiertas para que entre con lo nuevo
+        db.execute(f"UPDATE usuarios SET {', '.join(campos)} WHERE id=?", (*valores, r["id"]))
+        if propio:
+            session["ver"] = db.execute("SELECT version FROM usuarios WHERE id=?", (r["id"],)).fetchone()[0]
         cambios = [f"permisos: {', '.join(permisos) or 'ninguno'}"]
+        if nuevo_usuario != r["usuario"]:
+            cambios.append(f"usuario: {r['usuario']} → {nuevo_usuario}")
+        if r["nombre"] != nombre:
+            cambios.append(f"nombre: {r['nombre']} → {nombre}")
         if not activo:
             cambios.append("desactivado")
+        elif not r["activo"]:
+            cambios.append("reactivado")
         if cambia_clave:
-            cambios.append("nueva contraseña")
+            cambios.append("contraseña nueva (deberá cambiarla al entrar)" if not propio else "contraseña nueva")
         registrar(f"Editó el usuario {r['usuario']}", None, "; ".join(cambios))
     else:
         usuario = str(d.get("usuario", "")).strip().lower()
@@ -802,7 +849,7 @@ def admin_usuario_guardar():
             return error("Ya existe un usuario con ese nombre.")
         if len(clave) < 8:
             return error("Ponle una contraseña de al menos 8 caracteres.")
-        db.execute("INSERT INTO usuarios (usuario, nombre, hash, permisos, activo, creado) VALUES (?,?,?,?,?,?)",
+        db.execute("INSERT INTO usuarios (usuario, nombre, hash, permisos, activo, creado, cambiar_clave) VALUES (?,?,?,?,?,?,1)",
                    (usuario, nombre, generate_password_hash(clave), json.dumps(permisos), activo, ahora()))
         registrar(f"Creó el usuario {usuario}", None, f"permisos: {', '.join(permisos) or 'ninguno'}")
     db.commit()

@@ -289,8 +289,10 @@
                     <label class="campo" for="clave">Contraseña</label>
                     <input id="clave" class="input" type="password" autocomplete="current-password" required>
                 </div>
+                <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--suave);margin-top:-6px"><input type="checkbox" data-ver-clave="clave"> Mostrar contraseña</label>
                 <div id="loginError" class="msg-error" hidden></div>
                 <button class="btn btn-azul" type="submit" id="btnLogin">Entrar</button>
+                <p style="margin:0;font-size:13px;color:var(--suave);text-align:center">¿Olvidaste tu contraseña? Pídele al administrador que te ponga una nueva.</p>
             </form>
         </div>
     </section>
@@ -415,20 +417,30 @@
 
     <!-- ======================= MI CUENTA ======================= -->
     <div id="vCuenta" class="modal" hidden>
-        <form class="hoja" id="fCuenta" role="dialog" aria-modal="true" aria-labelledby="tCuenta">
+        <div class="hoja" role="dialog" aria-modal="true" aria-labelledby="tCuenta">
             <h3 id="tCuenta">Mi cuenta</h3>
             <p id="cuentaInfo" style="margin:-8px 0 0;color:var(--suave);font-size:14px"></p>
-            <div><label class="campo" for="cActual">Contraseña actual</label><input id="cActual" class="input" type="password" autocomplete="current-password" required></div>
-            <div class="dos">
-                <div><label class="campo" for="cNueva">Contraseña nueva</label><input id="cNueva" class="input" type="password" autocomplete="new-password" minlength="8" required></div>
-                <div><label class="campo" for="cNueva2">Repítela</label><input id="cNueva2" class="input" type="password" autocomplete="new-password" minlength="8" required></div>
-            </div>
-            <div id="cuentaError" class="msg-error" hidden></div>
-            <div class="acciones">
-                <button class="btn btn-azul" type="submit" id="btnCambiarClave">Cambiar contraseña</button>
-                <button class="btn btn-borde" type="button" data-cerrar-cuenta>Cerrar</button>
-            </div>
-        </form>
+            <div id="cuentaAviso" class="creado" style="text-align:left" hidden><b style="color:#065F46">Bienvenido 👋</b><br><span style="font-size:14px;color:#334155">El administrador te dio una contraseña temporal. Crea ahora tu propia contraseña para empezar. Solo tú la sabrás.</span></div>
+            <form id="fNombre" class="bloque" style="gap:8px">
+                <label class="campo" for="cNombre" style="margin:0">Mi nombre</label>
+                <div class="form-nota"><input id="cNombre" class="input" maxlength="60" required><button class="btn btn-borde btn-sm" type="submit">Guardar</button></div>
+            </form>
+            <form id="fCuenta" style="display:grid;gap:14px">
+                <span class="campo" style="margin:0" id="tClave">Cambiar mi contraseña</span>
+                <div><label class="campo" for="cActual" id="lActual">Contraseña actual</label><input id="cActual" class="input" type="password" autocomplete="current-password" required></div>
+                <div class="dos">
+                    <div><label class="campo" for="cNueva">Contraseña nueva</label><input id="cNueva" class="input" type="password" autocomplete="new-password" minlength="8" required></div>
+                    <div><label class="campo" for="cNueva2">Repítela</label><input id="cNueva2" class="input" type="password" autocomplete="new-password" minlength="8" required></div>
+                </div>
+                <label style="display:flex;gap:8px;align-items:center;font-size:13px;color:var(--suave)"><input type="checkbox" data-ver-clave="cActual,cNueva,cNueva2"> Mostrar contraseñas</label>
+                <small style="color:var(--suave);margin-top:-8px">Mínimo 8 caracteres. Mejor si mezclas letras, números y algún símbolo.</small>
+                <div id="cuentaError" class="msg-error" hidden></div>
+                <div class="acciones">
+                    <button class="btn btn-azul" type="submit" id="btnCambiarClave">Cambiar contraseña</button>
+                    <button class="btn btn-borde" type="button" data-cerrar-cuenta id="btnCerrarCuenta">Cerrar</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <div id="toast" class="toast" role="status" hidden></div>

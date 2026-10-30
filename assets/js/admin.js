@@ -194,6 +194,7 @@
         try { const s = await api('/admin/sesion'); yo = s.usuario; nombresPermisos = s.permisos || {}; } catch (e) { /* sigue */ }
         aplicarPermisos();
         $('vLogin').hidden = true; $('vPanel').hidden = false;
+        if (yo && yo.cambiar_clave) { abrirCuenta(true); return; }   // primero crea su propia clave
         if (!cat) { try { cat = await api('/catalogo'); } catch (e) { /* el panel funciona igual */ } }
         llenarFiltros();
         await cargar();
@@ -730,12 +731,12 @@
         return `<form class="card pila" id="fUsuario" data-id="${u ? u.id : ''}" style="gap:14px">
             <h3>${nuevo ? 'Nuevo usuario' : `Editar: ${esc(u.usuario)}`}</h3>
             <div class="dos">
-                <div><label class="campo" for="uUsuario">Usuario (para entrar)</label><input class="input" id="uUsuario" name="usuario" maxlength="30" autocapitalize="none" spellcheck="false" ${nuevo ? 'required placeholder="Ej.: maria"' : `value="${esc(u.usuario)}" disabled`}></div>
+                <div><label class="campo" for="uUsuario">Usuario (para entrar)</label><input class="input" id="uUsuario" name="usuario" maxlength="30" autocapitalize="none" spellcheck="false" required ${nuevo ? 'placeholder="Ej.: maria"' : `value="${esc(u.usuario)}"${u.usuario === 'admin' ? ' disabled title="El usuario admin no se puede renombrar"' : ''}`}></div>
                 <div><label class="campo" for="uNombre">Nombre</label><input class="input" id="uNombre" name="nombre" maxlength="60" required value="${esc(u ? u.nombre : '')}" placeholder="Ej.: María Pérez"></div>
             </div>
-            <div><label class="campo" for="uClave">${nuevo ? 'Contraseña inicial' : 'Nueva contraseña (déjala vacía para no cambiarla)'}</label>
-                <input class="input" id="uClave" name="clave" type="text" minlength="8" autocomplete="off" ${nuevo ? 'required' : ''} placeholder="Mínimo 8 caracteres">
-                <small style="color:var(--suave)">Dásela a la persona por un medio privado. Luego ella la puede cambiar en «Mi cuenta».</small></div>
+            <div><label class="campo" for="uClave">${nuevo ? 'Contraseña temporal' : 'Contraseña temporal nueva (solo si la olvidó; déjala vacía para no cambiarla)'}</label>
+                <div class="form-nota"><input class="input" id="uClave" name="clave" type="text" minlength="8" autocomplete="off" ${nuevo ? 'required' : ''} placeholder="Mínimo 8 caracteres"><button type="button" class="btn btn-borde btn-sm" data-generar-clave>Generar</button></div>
+                <small style="color:var(--suave)">Dásela a la persona por un medio privado. ${u && yo && u.id === yo.id ? 'Como eres tú, quedará como tu contraseña.' : 'Al entrar, el panel le pedirá crear su propia contraseña; así nadie más la conoce.'}</small></div>
             <div><span class="campo">Permisos <span style="font-weight:500;color:var(--suave)">— atajos:</span></span>
                 <div class="chips" style="margin-bottom:8px">${Object.keys(PRESETS).map(n => `<button type="button" class="chip-btn" data-preset="${esc(n)}">${esc(n)}</button>`).join('')}</div>
                 <div class="checks">${Object.entries(nombresPermisos).map(([k, d]) => `<label><input type="checkbox" name="perm" value="${esc(k)}"${permisos.has(k) ? ' checked' : ''}><span><b>${esc(k[0].toUpperCase() + k.slice(1))}</b><span>${esc(d)}</span></span></label>`).join('')}</div>
@@ -755,7 +756,7 @@
             <div class="card"><h3>Equipo (${d.usuarios.length})</h3>
                 ${d.usuarios.map(u => `<div class="usr">
                     <span><b>${esc(u.nombre)}</b> <span class="codigo">${esc(u.usuario)}</span>${u.id === (yo && yo.id) ? ' <small>(tú)</small>' : ''}<br>
-                        <small>${u.activo ? `Último acceso: ${esc(u.ultimo_acceso ? fecha(u.ultimo_acceso) : 'nunca')}` : '<b style="color:var(--rojo)">Desactivado</b>'}</small></span>
+                        <small>${u.activo ? `Último acceso: ${esc(u.ultimo_acceso ? fecha(u.ultimo_acceso) : 'nunca')}` : '<b style="color:var(--rojo)">Desactivado</b>'}${u.activo && u.cambiar_clave ? ' · <b style="color:var(--amber-t)">Pendiente de crear su contraseña</b>' : ''}</small></span>
                     <button type="button" class="btn btn-borde btn-sm" data-editar-usuario="${u.id}">Editar</button>
                     <span class="chips">${u.permisos.length ? u.permisos.map(p => `<span class="perm">${esc(nombreP(p))}</span>`).join('') : '<span class="perm off">Solo ver expedientes</span>'}</span>
                 </div>`).join('')}
@@ -770,6 +771,10 @@
         const ed = ev.target.closest('[data-editar-usuario]');
         if (ed) { editandoUsuario = Number(ed.dataset.editarUsuario); pintarUsuarios(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
         if (ev.target.closest('[data-cancelar-usuario]')) { editandoUsuario = null; pintarUsuarios(); return; }
+        if (ev.target.closest('[data-generar-clave]')) {
+            const abc = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789', a = new Uint32Array(10); crypto.getRandomValues(a);
+            $('uClave').value = Array.from(a, n => abc[n % abc.length]).join(''); $('uClave').select(); return;
+        }
         const pr = ev.target.closest('[data-preset]');
         if (pr) { const set = new Set(PRESETS[pr.dataset.preset]); $('fUsuario').querySelectorAll('[name="perm"]').forEach(c => { c.checked = set.has(c.value); }); }
     });
@@ -779,29 +784,61 @@
         const err = $('usuarioError'); err.hidden = true;
         try {
             const cuerpo = { nombre: f.nombre.value.trim(), clave: f.clave.value, permisos: [...f.querySelectorAll('[name="perm"]:checked')].map(c => c.value) };
-            if (f.dataset.id) Object.assign(cuerpo, { id: Number(f.dataset.id), activo: f.activo.checked }); else cuerpo.usuario = f.usuario.value.trim().toLowerCase();
+            cuerpo.usuario = f.usuario.value.trim().toLowerCase();
+            if (f.dataset.id) Object.assign(cuerpo, { id: Number(f.dataset.id), activo: f.activo.checked });
             await post('/admin/usuarios/guardar', cuerpo);
-            toast(f.dataset.id ? 'Usuario actualizado' : `Usuario creado: ${cuerpo.usuario}`);
+            toast(f.dataset.id ? (cuerpo.clave ? 'Usuario actualizado. Dale la contraseña temporal.' : 'Usuario actualizado') : `Usuario creado: ${cuerpo.usuario}. Dale su contraseña temporal.`);
             editandoUsuario = null; await cargarUsuarios();
             if (f.dataset.id && yo && Number(f.dataset.id) === yo.id) { const s = await api('/admin/sesion'); yo = s.usuario; aplicarPermisos(); }
         } catch (e) { if (e.message !== 'sesion') { err.hidden = false; err.textContent = e.message; } btn.disabled = false; }
     });
 
-    // ---------------- mi cuenta
-    $('btnCuenta').addEventListener('click', () => {
+    // ---------------- mi cuenta (nombre y contraseña). obligatoria = clave temporal: debe crear la suya
+    let cuentaObligatoria = false;
+    function abrirCuenta(obligatoria) {
+        cuentaObligatoria = !!obligatoria;
         $('fCuenta').reset(); $('cuentaError').hidden = true;
         $('cuentaInfo').textContent = yo ? `${yo.nombre} · usuario «${yo.usuario}»` : '';
+        $('cNombre').value = yo ? yo.nombre : '';
+        $('cuentaAviso').hidden = !cuentaObligatoria;
+        $('fNombre').hidden = cuentaObligatoria;
+        $('btnCerrarCuenta').hidden = cuentaObligatoria;
+        $('tCuenta').textContent = cuentaObligatoria ? 'Crea tu contraseña' : 'Mi cuenta';
+        $('tClave').hidden = cuentaObligatoria;
+        $('lActual').textContent = cuentaObligatoria ? 'Contraseña temporal (la que te dieron)' : 'Contraseña actual';
+        $('btnCambiarClave').textContent = cuentaObligatoria ? 'Guardar y entrar' : 'Cambiar contraseña';
         $('vCuenta').hidden = false; $('cActual').focus();
-    });
-    $('vCuenta').addEventListener('click', ev => { if (ev.target === $('vCuenta') || ev.target.closest('[data-cerrar-cuenta]')) $('vCuenta').hidden = true; });
+    }
+    const cerrarCuenta = () => { if (!cuentaObligatoria) $('vCuenta').hidden = true; };
+    $('btnCuenta').addEventListener('click', () => abrirCuenta(false));
+    $('vCuenta').addEventListener('click', ev => { if (ev.target === $('vCuenta') || ev.target.closest('[data-cerrar-cuenta]')) cerrarCuenta(); });
     $('fCuenta').addEventListener('submit', async ev => {
         ev.preventDefault();
         const err = $('cuentaError'); err.hidden = true;
         if ($('cNueva').value !== $('cNueva2').value) { err.hidden = false; err.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
         const btn = $('btnCambiarClave'); btn.disabled = true;
-        try { await post('/admin/cuenta/clave', { actual: $('cActual').value, nueva: $('cNueva').value }); $('vCuenta').hidden = true; toast('Contraseña cambiada'); }
+        try {
+            await post('/admin/cuenta/clave', { actual: $('cActual').value, nueva: $('cNueva').value });
+            const eraObligatoria = cuentaObligatoria;
+            cuentaObligatoria = false; $('vCuenta').hidden = true;
+            toast(eraObligatoria ? '¡Listo! Ya tienes tu contraseña.' : 'Contraseña cambiada');
+            if (eraObligatoria) await mostrarPanel();
+        }
         catch (e) { if (e.message !== 'sesion') { err.hidden = false; err.textContent = e.message; } }
         finally { btn.disabled = false; }
+    });
+    $('fNombre').addEventListener('submit', async ev => {
+        ev.preventDefault();
+        try {
+            await post('/admin/cuenta/nombre', { nombre: $('cNombre').value });
+            yo.nombre = $('cNombre').value.trim(); aplicarPermisos();
+            $('cuentaInfo').textContent = `${yo.nombre} · usuario «${yo.usuario}»`; toast('Nombre guardado');
+        } catch (e) { if (e.message !== 'sesion') toast(e.message); }
+    });
+    // «Mostrar contraseña»
+    document.addEventListener('change', ev => {
+        const c = ev.target.closest && ev.target.closest('[data-ver-clave]'); if (!c) return;
+        c.dataset.verClave.split(',').forEach(id => { const i = $(id); if (i) i.type = c.checked ? 'text' : 'password'; });
     });
 
     // ------------------------------------------------------------ eventos: sesión, pestañas y filtros
@@ -1021,7 +1058,7 @@
     $('nItems').addEventListener('change', ev => { if (ev.target.matches('[data-f="servicio"]')) alCambiarServicio(ev.target); });
     $('nItems').addEventListener('click', ev => { const q = ev.target.closest('.quitar'); if (q) q.closest('.item-nuevo').remove(); });
     $('vNuevo').addEventListener('click', ev => { if (ev.target === $('vNuevo') || ev.target.closest('[data-cerrar]')) cerrarNuevo(); });
-    document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; if (!$('vNuevo').hidden) cerrarNuevo(); $('vCuenta').hidden = true; });
+    document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; if (!$('vNuevo').hidden) cerrarNuevo(); cerrarCuenta(); });
 
     $('fNuevo').addEventListener('submit', async ev => {
         ev.preventDefault();
