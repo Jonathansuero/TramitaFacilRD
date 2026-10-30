@@ -5,7 +5,7 @@
     const { D, state, $, esc, t, waLink, saludo, restart } = TF;
 
     const TONOS = { amber: 'bg-amber-100 text-amber-800', emerald: 'bg-emerald-100 text-emerald-800', sky: 'bg-sky-100 text-sky-800' };
-    let ultimo = null, docsDe = null;
+    let ultimo = null, docsDe = null, compDe = null;
 
     async function consultar() {
         const input = $('trackInput'), code = input.value.trim().toUpperCase();
@@ -50,6 +50,9 @@
         $('trackPago').querySelector('i').className = `fa-solid ${pago === 'confirmado' ? 'fa-circle-check' : 'fa-hourglass-half'}`;
         $('trackPagoT').textContent = pago === 'confirmado' ? t('track.pago.ok') : t('track.pago.pend');
         $('trackPagoD').textContent = pago === 'confirmado' ? t('track.pago.ok.d') : t('track.pago.pend.d');
+        // Comprobante de pago (opcional)
+        $('trackComp').classList.toggle('hidden', !!data.demo || !state.api);
+        if (compDe !== code) { $('trackCompForm').classList.add('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'false'); compDe = code; }
         // Documentos listos para descargar (se piden los últimos 4 del WhatsApp o el correo)
         const nDocs = Number(data.archivos || 0);
         $('trackDocs').classList.toggle('hidden', !nDocs || data.demo);
@@ -80,6 +83,27 @@
         } finally { btn.disabled = false; }
     }
 
+    async function enviarComprobante() {
+        const code = ultimo && ultimo.code, err = $('trackCompError'), btn = $('trackCompBtn');
+        const archivo = $('trackCompArchivo').files[0], monto = Number($('trackCompMonto').value), dato = $('trackCompDato').value.trim();
+        const falta = !archivo ? t('track.comp.e.archivo') : !(monto > 0) ? t('track.comp.e.monto') : !dato ? t('track.docs.aria') : '';
+        if (falta) { err.textContent = falta; err.classList.remove('hidden'); restart(err, 'shake'); return; }
+        if (archivo.size > 10 * 1024 * 1024) { err.textContent = t('track.comp.e.peso'); err.classList.remove('hidden'); return; }
+        const fd = new FormData();
+        fd.append('archivo', archivo, archivo.name); fd.append('monto', String(monto)); fd.append('moneda', $('trackCompMoneda').value);
+        fd.append('metodo', $('trackCompMetodo').value); fd.append('dato', dato); fd.append('nota', $('trackCompNota').value.trim());
+        btn.disabled = true; btn.textContent = t('track.comp.enviando'); err.classList.add('hidden');
+        try {
+            const r = await fetch('/api/rastreo/' + encodeURIComponent(code) + '/comprobante', { method: 'POST', body: fd });
+            const j = await r.json().catch(() => ({}));
+            if (!r.ok || j.ok === false) throw Object.assign(new Error(j.error || 'Error'), { status: r.status });
+            $('trackCompForm').classList.add('hidden'); $('trackCompOk').classList.remove('hidden'); $('trackCompForm').reset();
+            try { const d = await TF.api('/rastreo/' + encodeURIComponent(code)); ultimo = { code, data: d }; mostrar(code, d); $('trackCompOk').classList.remove('hidden'); } catch (e) { /* sigue */ }
+        } catch (e) {
+            err.textContent = e.status === 403 ? t('track.docs.error') : e.message; err.classList.remove('hidden'); restart(err, 'shake');
+        } finally { btn.disabled = false; btn.textContent = t('track.comp.btn'); }
+    }
+
     function actualizarWa() {
         const code = $('trackInput').value.trim().toUpperCase();
         $('trackWa').href = waLink(saludo(code ? t('wa.rastreo', { code }) : t('wa.rastreo.sin')));
@@ -88,6 +112,13 @@
     document.addEventListener('DOMContentLoaded', () => {
         $('trackForm').addEventListener('submit', e => { e.preventDefault(); consultar(); });
         $('trackDocsForm').addEventListener('submit', e => { e.preventDefault(); verDocumentos(); });
+        $('trackCompAbrir').addEventListener('click', () => {
+            const f = $('trackCompForm'), abre = f.classList.contains('hidden');
+            f.classList.toggle('hidden', !abre); $('trackCompOk').classList.add('hidden');
+            $('trackCompAbrir').setAttribute('aria-expanded', String(abre));
+            if (abre) $('trackCompArchivo').focus();
+        });
+        $('trackCompForm').addEventListener('submit', e => { e.preventDefault(); enviarComprobante(); });
         $('trackInput').addEventListener('input', actualizarWa);
         document.addEventListener('click', e => {
             const b = e.target.closest('[data-demo-code]');

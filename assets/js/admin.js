@@ -262,6 +262,9 @@
         await cargar();
         irATab(tab);
         cargarAvisos();
+        revisarPush();
+        const desde = new URLSearchParams(location.search).get('c');   // vino de una notificación
+        if (desde) { try { history.replaceState(history.state, '', location.pathname); } catch (e) { /* sigue */ } verExpediente(desde.toUpperCase()); }
     }
 
     async function cargar() {
@@ -511,12 +514,30 @@
     }
 
     const ESTADO_PAGO = { pendiente: ['Por confirmar', 'pend'], confirmado: ['Confirmado', 'ok'], rechazado: ['Rechazado', 'mal'] };
+    const SIMB = { DOP: 'RD$', USD: 'US$', EUR: '€' };
+    const montoComp = c => `${SIMB[c.moneda || 'DOP'] || 'RD$'}${Number(c.monto || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+    const compNuevos = e => (e.comprobantes || []).filter(c => c.estado === 'nuevo');
+    function bloqueComprobantes(e) {
+        const lista = e.comprobantes || [];
+        if (!lista.length) return '';
+        const EST = { nuevo: ['Nuevo', 'nuevo'], usado: ['Usado en un pago', 'ok'], descartado: ['Descartado', 'mal'] };
+        return `<div class="comprobantes"><span class="ct">${ico('nota', 14)} Comprobantes que envió el cliente (${lista.length})</span>
+            ${lista.map(c => { const [n, k] = EST[c.estado] || [c.estado, ''];
+                return `<div class="comp ${c.estado}">
+                    <div class="comp-cab"><b>${esc(montoComp(c))} · ${esc(c.metodo || '')}</b><span class="ep ${k}">${esc(n)}</span></div>
+                    <small>${esc(fecha(c.creado))}${c.nota ? ` · «${esc(c.nota)}»` : ''}${c.estado === 'descartado' && c.motivo ? ` · ${esc(c.revisado_por || '')}: ${esc(c.motivo)}` : ''}${c.estado === 'usado' && c.revisado_por ? ` · registrado por ${esc(c.revisado_por)}` : ''}</small>
+                    <div class="comp-acc"><a class="btn btn-borde btn-sm" href="/api/admin/comprobante/${c.id}" target="_blank" rel="noopener">Ver comprobante</a>
+                        ${c.estado === 'nuevo' && e.pendiente !== 0 ? `<button type="button" class="btn btn-azul btn-sm" data-usar-comp="${c.id}" data-codigo="${esc(e.codigo)}">Registrar este pago</button>` : ''}
+                        ${c.estado === 'nuevo' && puedeValidar() ? `<button type="button" class="btn btn-borde btn-sm" data-descartar-comp="${c.id}" data-codigo="${esc(e.codigo)}">Descartar</button>` : ''}</div>
+                </div>`; }).join('')}
+        </div>`;
+    }
     function filaPago(e, p) {
         const est = p.estado || 'confirmado', [nombre, clase] = ESTADO_PAGO[est] || [est, ''];
         const puedeBorrar = puedeValidar() || (est === 'pendiente' && yo && p.registrado_por === yo.usuario);
         const quien = est === 'pendiente' ? (p.registrado_por ? `registró ${p.registrado_por}` : '')
             : est === 'confirmado' ? (p.validado_por ? `confirmó ${p.validado_por}` : '') : `rechazó ${p.validado_por || ''}${p.motivo ? `: ${p.motivo}` : ''}`;
-        return `<li class="pago ${clase}"><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''} <span class="ep ${clase}">${esc(nombre)}</span>
+        return `<li class="pago ${clase}"><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''} <span class="ep ${clase}">${esc(nombre)}</span>${p.comprobante_id ? ` <a class="link" href="/api/admin/comprobante/${p.comprobante_id}" target="_blank" rel="noopener">con comprobante del cliente</a>` : ''}
                 <br><small>${esc(diaCorto(p.fecha))}${p.nota ? ` · ${esc(p.nota)}` : ''}${quien ? ` · ${esc(quien)}` : ''}</small>
                 ${est === 'pendiente' && puedeValidar() ? `<span class="validar-btns"><button type="button" class="btn btn-verde btn-sm" data-validar-pago="${p.id}" data-codigo="${esc(e.codigo)}">${ico('ok', 14)} Confirmar</button>
                     <button type="button" class="btn btn-borde btn-sm" data-rechazar-pago="${p.id}" data-codigo="${esc(e.codigo)}">Rechazar</button></span>` : ''}</span>
@@ -550,6 +571,7 @@
             ${total ? `<div class="progreso"><i style="width:${pct}%"></i></div>` : '<small style="color:var(--suave)">Este expediente tiene un trámite sin precio; ponle precio para calcular lo pendiente.</small>'}
             ${e.por_confirmar > 0 ? `<div class="pago-alerta">${ico('validar_pagos', 18)}<span><b>${esc(rd(e.por_confirmar))} por confirmar</b>${puedeValidar() ? 'Revisa que el dinero llegó y confírmalo o recházalo.' : 'Administración o contabilidad debe confirmarlo. El cliente ve «Pago pendiente por confirmar».'}</span></div>` : ''}
             ${pagos.length ? `<ul class="filas pagos-lista">${pagos.map(p => filaPago(e, p)).join('')}</ul>` : ''}
+            ${bloqueComprobantes(e)}
             ${e.pendiente === 0 && pagado > 0 ? `<small style="color:var(--verde);font-weight:700">${ico('ok')} Pagado completo</small>` : `
             <form class="form-pago" data-codigo="${esc(e.codigo)}" data-total="${total ?? ''}" data-pendiente="${e.pendiente ?? ''}">
                 <select class="input" name="tipo" aria-label="Tipo de pago">${Object.entries(TIPO_PAGO).map(([k, n]) => `<option value="${k}"${k === tipo ? ' selected' : ''}>${n}</option>`).join('')}</select>
@@ -667,7 +689,7 @@
                     <div class="acciones"><button class="btn btn-peligro" type="submit">Sí, mover al zafacón</button><button class="btn btn-borde" type="button" data-cancelar-borrar>Cancelar</button></div>
                 </form>` : `<div class="zona-peligro"><button type="button" class="link-rojo" data-eliminar="${esc(e.codigo)}">${ico('zafacon', 14)} Eliminar cliente</button></div>`) : ''}
             </div>`;
-        const cobroChip = !puede('pagos') ? '' : (e.por_confirmar > 0 ? '<span class="chip porconf">Pago por confirmar</span>' : '') + (e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
+        const cobroChip = !puede('pagos') ? '' : (compNuevos(e).length ? '<span class="chip comp-n">Comprobante nuevo</span>' : '') + (e.por_confirmar > 0 ? '<span class="chip porconf">Pago por confirmar</span>' : '') + (e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
             : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : ''));
         return `<article class="exp${recien.has(e.codigo) ? ' recien' : ''}" data-codigo="${esc(e.codigo)}">
             <button type="button" class="exp-cab" aria-expanded="${abierto}">
@@ -843,6 +865,11 @@
                 <div class="kpi"><span>Por cobrar</span><b style="color:var(--rojo)">${esc(rd(porCobrar))}</b><small>${pendientes.length} ${pendientes.length === 1 ? 'cliente' : 'clientes'}</small></div>
                 <div class="kpi${sinAnticipo.length ? ' alerta' : ''}"><span>Sin anticipo todavía</span><b>${sinAnticipo.length}</b><small>expedientes abiertos sin ningún pago</small></div>
             </div>
+            ${(() => { const cs = expedientes.flatMap(e => compNuevos(e).map(c => ({ ...c, e })));
+                return cs.length ? `<div class="card por-confirmar"><h3>${ico('nota', 18)} Comprobantes nuevos de clientes (${cs.length})</h3>
+                <p class="sub">Los subieron los clientes desde la página. Ábrelos para registrar el pago o descartarlos.</p>
+                <ul class="filas">${cs.map(c => `<li><span><b>${esc(c.e.nombre || c.e.cliente)}</b> <span class="codigo">${esc(c.e.codigo)}</span><br><small>${esc(montoComp(c))} · ${esc(c.metodo || '')} · ${esc(fecha(c.creado))}</small></span>
+                    <span class="comp-acc"><a class="btn btn-borde btn-sm" href="/api/admin/comprobante/${c.id}" target="_blank" rel="noopener">Ver</a><button type="button" class="btn btn-azul btn-sm" data-ver="${esc(c.e.codigo)}">Abrir expediente</button></span></li>`).join('')}</ul></div>` : ''; })()}
             ${porConfirmar.length ? `<div class="card por-confirmar"><h3>${ico('validar_pagos', 18)} Pagos por confirmar (${porConfirmar.length})</h3>
                 <p class="sub">${puedeValidar() ? 'Revisa en tu banco o app que el dinero llegó antes de confirmar. Hasta entonces no cuentan como cobrados.' : 'Los registró el equipo; administración o contabilidad debe confirmarlos.'}</p>
                 <ul class="filas pagos-lista">${porConfirmar.map(p => filaPago(p.e, p).replace('<li class="pago pend"><span>', `<li class="pago pend"><span><b class="pc-cli">${esc(p.e.nombre || p.e.cliente)}</b> <span class="codigo">${esc(p.e.codigo)}</span><br>`)).join('')}</ul></div>` : ''}
@@ -1183,11 +1210,13 @@
         const enProceso = expedientes.filter(e => e.paso < 4), det = expedientes.filter(detenido);
         const nuevos = expedientes.filter(e => e.paso === 1);
         const porCobrar = puede('pagos') ? expedientes.filter(e => e.pendiente > 0) : [];
-        const pagosConf = puedeValidar() ? expedientes.filter(e => e.por_confirmar > 0).map(e => [e, 'pago']) : [];
+        const pagosConf = [...(puede('pagos') ? expedientes.filter(e => compNuevos(e).length).map(e => [e, 'comp']) : []),
+            ...(puedeValidar() ? expedientes.filter(e => e.por_confirmar > 0).map(e => [e, 'pago']) : [])];
         const atender = [...pagosConf, ...det.map(e => [e, 'det']), ...nuevos.filter(e => !detenido(e)).map(e => [e, 'nuevo'])].slice(0, 7);
         const tile = (n, txt, ir, cls = '') => `<button type="button" class="tile ${cls}" data-ini="${ir}"><b>${n}</b><span>${txt}</span></button>`;
         $('tInicio').innerHTML = `
             <div class="hola"><h2>Hola, ${esc(nombre || 'equipo')}</h2><p>${esc(saludo())} · ${esc(hoy)}${yo ? ` <span class="rol ${rolDe(yo.permisos).c}">${esc(rolDe(yo.permisos).n)}</span>` : ''}</p></div>
+            ${!pushActivo && (puede('expedientes') || puede('pagos')) && pushSoportado() && 'Notification' in window && Notification.permission === 'default' ? `<div class="notif-banner"><span><b>Recibe los avisos aunque la app esté cerrada</b>Solicitudes nuevas, pagos y comprobantes al momento en este dispositivo.</span><button type="button" class="btn btn-azul btn-sm" data-activar-push>Activar notificaciones</button></div>` : ''}
             ${yo && !puede('expedientes') ? `<div class="aviso-lectura">${ico('escudo', 18)}<span><b>Acceso de consulta</b>Puedes ver los expedientes y su estado. Para hacer cambios, pídele permiso al administrador.</span></div>` : ''}
             <div class="mapa-card${animarMapa ? ' sube' : ''}">
                 <h3>Dominicanos que confían en TramitaFácil RD</h3>
@@ -1205,7 +1234,7 @@
                 <button type="button" class="fila-ini" data-codigo="${esc(e.codigo)}">
                     <span class="ini">${esc(iniciales(e.nombre || e.cliente))}</span>
                     <span class="t"><b>${esc(e.nombre || e.cliente)}</b><small>${bandera(e.pais)} ${esc((e.tramites || []).length > 1 ? `${e.tramites.length} trámites` : (e.servicio_titulo || ((e.tramites || [])[0] || {}).titulo || ''))}</small></span>
-                    <span class="etq${k === 'nuevo' ? ' nuevo' : k === 'pago' ? ' pago' : ''}${recien.has(e.codigo) ? ' ahora' : ''}">${k === 'nuevo' ? 'Nuevo' : k === 'pago' ? `Confirmar ${esc(rd(e.por_confirmar))}` : `${diasSin(e)} días`}</span>
+                    <span class="etq${k === 'nuevo' ? ' nuevo' : k === 'pago' ? ' pago' : k === 'comp' ? ' comp' : ''}${recien.has(e.codigo) ? ' ahora' : ''}">${k === 'nuevo' ? 'Nuevo' : k === 'pago' ? `Confirmar ${esc(rd(e.por_confirmar))}` : k === 'comp' ? 'Comprobante' : `${diasSin(e)} días`}</span>
                 </button>`).join('')}</div>` : `<div class="vacio"><b>Todo al día</b>No hay expedientes nuevos ni detenidos.</div>`}`;
         animarMapa = false;
     }
@@ -1216,6 +1245,7 @@
         irATab('exp');
     }
     $('tInicio').addEventListener('click', ev => {
+        if (ev.target.closest('[data-activar-push]')) { activarPush(false); return; }
         const pais = ev.target.closest('[data-pais]');
         if (pais) { irAExpedientes({ pais: pais.dataset.pais }); return; }
         const f = ev.target.closest('[data-codigo]');
@@ -1260,13 +1290,74 @@
                 <span class="av-t"><b>${esc(a.titulo)}</b><small>${esc(a.detalle || '')}${a.codigo ? ` · ${esc(a.codigo)}` : ''}</small></span>
                 <small class="av-f">${esc(fecha(a.creado))}</small>
             </button>`).join('') : '<p class="ayuda" style="text-align:center;padding:18px 0">No hay avisos todavía. Aquí verás cada solicitud nueva.</p>';
-        const soporta = 'Notification' in window, permiso = soporta ? Notification.permission : 'denied';
-        $('btnNotif').hidden = !soporta || permiso !== 'default';
-        $('notifEstado').textContent = !soporta ? 'Este navegador no permite notificaciones; te llegará el aviso en esta campana y por correo.'
-            : permiso === 'granted' ? 'Las notificaciones están activadas en este dispositivo mientras el panel esté abierto.'
-            : permiso === 'denied' ? 'Las notificaciones están bloqueadas en este navegador. Puedes activarlas en la configuración del sitio.'
-            : 'Activa las notificaciones para enterarte al momento, aunque estés en otra pestaña.';
+        pintarEstadoPush();
     }
+    // ---------------- notificaciones «push»: llegan aunque la app esté cerrada
+    const pushSoportado = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    const esIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const instalada = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    let pushActivo = false;
+    async function registroSW() {
+        if (!('serviceWorker' in navigator)) return null;
+        try { await navigator.serviceWorker.register('sw.js'); return await navigator.serviceWorker.ready; } catch (e) { return null; }
+    }
+    const aBytes = b64 => { const s = atob((b64 + '='.repeat((4 - b64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(s, c => c.charCodeAt(0)); };
+    async function revisarPush() {
+        pushActivo = false;
+        if (!pushSoportado() || Notification.permission !== 'granted') { pintarEstadoPush(); return; }
+        try {
+            const reg = await registroSW(), sub = reg && await reg.pushManager.getSubscription();
+            if (sub) { await post('/admin/push/suscribir', sub.toJSON()); pushActivo = true; }   // la mantiene al día en el servidor
+            else await activarPush(true);
+        } catch (e) { /* sigue con avisos dentro del panel */ }
+        pintarEstadoPush();
+    }
+    async function activarPush(silencioso) {
+        if (!pushSoportado()) { if (!silencioso) toast(esIOS() ? 'En iPhone: agrega el panel a la pantalla de inicio y ábrelo desde ese ícono.' : 'Este navegador no permite notificaciones.'); return; }
+        try {
+            const info = await api('/admin/push/clave');
+            if (!info.disponible) { if (!silencioso) toast('El servidor aún no tiene notificaciones activadas. Corre: tramita actualizar'); return; }
+            const permiso = silencioso ? Notification.permission : await Notification.requestPermission();
+            if (permiso !== 'granted') { if (!silencioso) toast('Sin permiso para notificaciones en este dispositivo.'); pintarEstadoPush(); return; }
+            const reg = await registroSW(); if (!reg) throw new Error('No se pudo preparar el dispositivo.');
+            let sub = await reg.pushManager.getSubscription();
+            if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: aBytes(info.clave) });
+            await post('/admin/push/suscribir', sub.toJSON());
+            pushActivo = true;
+            if (!silencioso) toast('¡Listo! Te llegarán los avisos aunque la app esté cerrada.');
+        } catch (e) { if (!silencioso && e.message !== 'sesion') toast(e.message || 'No se pudieron activar las notificaciones.'); }
+        pintarEstadoPush();
+        if (tab === 'inicio') pintarInicio();
+    }
+    function pintarEstadoPush() {
+        if (!$('notifEstado')) return;
+        const soporta = pushSoportado(), permiso = 'Notification' in window ? Notification.permission : 'denied';
+        $('btnNotif').hidden = pushActivo || (soporta && permiso === 'denied') || (!soporta && !esIOS());
+        $('btnNotif').textContent = !soporta && esIOS() ? 'Cómo activarlas en iPhone' : 'Activar notificaciones en este dispositivo';
+        $('notifAcciones').hidden = !pushActivo;
+        $('notifEstado').textContent = pushActivo ? 'Notificaciones activadas en este dispositivo: te llegan aunque la app o el navegador estén cerrados.'
+            : !soporta && esIOS() ? 'En iPhone, las notificaciones con la app cerrada funcionan si agregas el panel a la pantalla de inicio (Safari → Compartir → Agregar a inicio) y lo abres desde ese ícono.'
+            : !soporta ? 'Este navegador no permite notificaciones; te llegará el aviso en esta campana y por correo.'
+            : permiso === 'denied' ? 'Las notificaciones están bloqueadas para este sitio. Actívalas en la configuración del navegador (el candado junto a la dirección).'
+            : 'Activa las notificaciones para enterarte de solicitudes y pagos aunque la app esté cerrada.';
+    }
+    $('btnNotif').addEventListener('click', () => { if (!pushSoportado() && esIOS()) { toast('Safari → Compartir → «Agregar a pantalla de inicio». Luego abre el panel desde ese ícono.'); return; } activarPush(false); });
+    $('btnNotifProbar').addEventListener('click', async () => {
+        try { const r = await post('/admin/push/probar', {}); toast(`Prueba enviada a ${r.dispositivos} ${r.dispositivos === 1 ? 'dispositivo' : 'dispositivos'}.`); }
+        catch (e) { if (e.message !== 'sesion') toast(e.message); }
+    });
+    $('btnNotifQuitar').addEventListener('click', async () => {
+        try {
+            const reg = await registroSW(), sub = reg && await reg.pushManager.getSubscription();
+            if (sub) { await post('/admin/push/quitar', { endpoint: sub.endpoint }); await sub.unsubscribe(); }
+            pushActivo = false; pintarEstadoPush(); toast('Notificaciones desactivadas en este dispositivo.');
+        } catch (e) { toast('No se pudo desactivar.'); }
+    });
+    // al tocar una notificación con el panel abierto: ir al expediente
+    if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => {
+        const url = ev.data && ev.data.tipo === 'abrir' ? ev.data.url : ''; const c = (url.match(/[?&]c=([A-Z0-9-]+)/) || [])[1];
+        if (c && !$('vPanel').hidden) verExpediente(c);
+    });
     async function notificar(a) {
         toast(a.titulo);
         if (!('Notification' in window) || Notification.permission !== 'granted') return;
@@ -1287,7 +1378,6 @@
     });
     $('vAvisos').addEventListener('click', async ev => {
         if (ev.target === $('vAvisos') || ev.target.closest('[data-cerrar-avisos]')) { $('vAvisos').hidden = true; avisosData.avisos.forEach(a => { a.nuevo = false; }); return; }
-        if (ev.target.closest('#btnNotif')) { try { await Notification.requestPermission(); } catch (e) { /* sin permiso */ } pintarCampana(); return; }
         const f = ev.target.closest('[data-aviso-codigo]');
         if (f) { $('vAvisos').hidden = true; avisosData.avisos.forEach(a => { a.nuevo = false; }); if (f.dataset.avisoCodigo) verExpediente(f.dataset.avisoCodigo); }
     });
@@ -1554,6 +1644,27 @@
         if (ag) { agregando.add(ag.dataset.abrirAgregar); pintar(); const s = document.querySelector(`form.agregar[data-codigo="${ag.dataset.abrirAgregar}"] select`); if (s) s.focus(); return; }
         const cg = ev.target.closest('[data-cerrar-agregar]');
         if (cg) { agregando.delete(cg.dataset.cerrarAgregar); pintar(); return; }
+        const uc = ev.target.closest('[data-usar-comp]');
+        if (uc) {
+            const e = expedientes.find(x => x.codigo === uc.dataset.codigo), c = (e.comprobantes || []).find(x => x.id === Number(uc.dataset.usarComp));
+            const f = document.querySelector(`form.form-pago[data-codigo="${uc.dataset.codigo}"]`);
+            if (!f || !c) return;
+            f.dataset.comprobante = c.id;
+            if ((c.moneda || 'DOP') === 'DOP') f.monto.value = c.monto; else f.monto.value = '';
+            if ([...f.metodo.options].some(o => o.value === c.metodo)) f.metodo.value = c.metodo;
+            f.querySelector('.usando-comp')?.remove();
+            f.insertAdjacentHTML('beforeend', `<span class="usando-comp">Con el comprobante del cliente (${esc(montoComp(c))})${(c.moneda || 'DOP') !== 'DOP' ? ' · escribe el monto en RD$' : ''}</span>`);
+            f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.monto.focus();
+            return;
+        }
+        const dc = ev.target.closest('[data-descartar-comp]');
+        if (dc) {
+            const motivo = window.prompt('¿Por qué se descarta este comprobante? (por ejemplo: ilegible o de otro cliente)') || '';
+            if (!motivo.trim()) return;
+            try { reemplazar((await post('/admin/comprobante/descartar', { codigo: dc.dataset.codigo, id: Number(dc.dataset.descartarComp), motivo })).expediente); pintar(); toast('Comprobante descartado'); }
+            catch (e) { if (e.message !== 'sesion') toast(e.message); }
+            return;
+        }
         const qa = ev.target.closest('[data-quitar-archivo]');
         if (qa) {
             if (!window.confirm('¿Quitar este documento? El cliente ya no podrá descargarlo.')) return;
@@ -1615,7 +1726,7 @@
                 toast('Trámite agregado al mismo código.');
             } else if (form.classList.contains('form-pago')) {
                 const r = await post('/admin/pago', { codigo: form.dataset.codigo, tipo: form.tipo.value, monto: Number(form.monto.value),
-                    metodo: form.metodo.value, fecha: form.fecha.value });
+                    metodo: form.metodo.value, fecha: form.fecha.value, comprobante_id: form.dataset.comprobante ? Number(form.dataset.comprobante) : undefined });
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintarTodo();
                 toast(r.estado === 'pendiente' ? 'Pago registrado. Queda por confirmar por administración o contabilidad.'

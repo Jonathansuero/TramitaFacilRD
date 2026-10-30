@@ -2,7 +2,7 @@
 FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 TF_DB_PATH=/datos/tramitafacil.db
 WORKDIR /app
-RUN pip install --no-cache-dir "Flask>=3.0,<4" "gunicorn>=22.0" \
+RUN pip install --no-cache-dir "Flask>=3.0,<4" "gunicorn>=22.0" "cryptography>=42" \
  && useradd --system --uid 10001 tramita && mkdir -p /datos && chown tramita /datos
 COPY --chown=tramita . /app
 USER tramita

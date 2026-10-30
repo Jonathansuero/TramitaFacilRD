@@ -79,6 +79,39 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <span class="tp-ico"><i class="fa-solid fa-hourglass-half"></i></span>
                             <div><strong id="trackPagoT"></strong><p id="trackPagoD"></p></div>
                         </div>
+                        <div id="trackComp" class="hidden track-comp">
+                            <button type="button" id="trackCompAbrir" class="tc-abrir" aria-expanded="false" aria-controls="trackCompForm">
+                                <span class="tc-ico"><i class="fa-solid fa-receipt"></i></span>
+                                <span class="tc-txt"><strong data-i18n="track.comp.t">¿Ya pagaste? Sube tu comprobante</strong><small data-i18n="track.comp.sub">Opcional: así confirmamos tu pago más rápido. También puedes enviarlo por WhatsApp.</small></span>
+                                <i class="fa-solid fa-chevron-down tc-flecha"></i>
+                            </button>
+                            <form id="trackCompForm" class="hidden tc-form" novalidate>
+                                <label class="tc-campo"><span data-i18n="track.comp.archivo">Foto o PDF del comprobante</span>
+                                    <input type="file" id="trackCompArchivo" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
+                                <div class="tc-fila">
+                                    <label class="tc-campo"><span data-i18n="track.comp.monto">Monto pagado</span>
+                                        <span class="tc-monto"><select id="trackCompMoneda" data-i18n-aria="track.comp.moneda"><option value="DOP">RD$</option><option value="USD">US$</option><option value="EUR">€</option></select>
+                                        <input type="number" id="trackCompMonto" min="1" step="any" inputmode="decimal" required></span></label>
+                                    <label class="tc-campo"><span data-i18n="track.comp.metodo">¿Cómo pagaste?</span>
+                                        <select id="trackCompMetodo">
+                                            <option value="Transferencia" data-i18n="track.comp.m.transferencia">Transferencia</option>
+                                            <option value="Zelle">Zelle</option>
+                                            <option value="Remesa" data-i18n="track.comp.m.remesa">Remesa</option>
+                                            <option value="PayPal">PayPal</option>
+                                            <option value="Tarjeta" data-i18n="track.comp.m.tarjeta">Tarjeta</option>
+                                            <option value="Efectivo" data-i18n="track.comp.m.efectivo">Efectivo</option>
+                                            <option value="Otro" data-i18n="track.comp.m.otro">Otro</option>
+                                        </select></label>
+                                </div>
+                                <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
+                                    <input type="text" id="trackCompDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com" required></label>
+                                <label class="tc-campo"><span data-i18n="track.comp.nota">Nota (opcional)</span>
+                                    <input type="text" id="trackCompNota" maxlength="200"></label>
+                                <p id="trackCompError" class="hidden td-error" role="alert"></p>
+                                <button type="submit" id="trackCompBtn" data-i18n="track.comp.btn">Enviar comprobante</button>
+                            </form>
+                            <p id="trackCompOk" class="hidden tc-ok" role="status"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.comp.ok">Recibimos tu comprobante. Nuestro equipo lo verificará y te avisaremos cuando el pago quede confirmado.</span></p>
+                        </div>
                         <div id="trackItems" class="hidden mt-5">
                             <h3 class="track-items-t" data-i18n="track.items">Tus trámites en este código</h3>
                             <ul id="trackItemsList" class="track-items"></ul>

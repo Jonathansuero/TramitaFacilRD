@@ -27,6 +27,9 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     GET  /api/admin/exportar         CSV para Excel
     POST /api/admin/pago             {codigo, tipo, monto, metodo, fecha?, nota?}   · /api/admin/pago/quitar {codigo, id}
     POST /api/admin/pago/validar     {codigo, id, accion: confirmar|rechazar, motivo?}  (administración y contabilidad)
+    POST /api/rastreo/<codigo>/comprobante  (público, formulario) dato, archivo, monto, metodo, nota?  Comprobante del cliente
+    GET  /api/admin/comprobante/<id> (ver) · POST /api/admin/comprobante/descartar {codigo, id, motivo}
+    GET  /api/admin/push/clave · POST /api/admin/push/suscribir · /quitar · /probar   Notificaciones con la app cerrada
 Pagos: los registra quien tiene «pagos», pero solo cuentan como cobrados cuando los confirma alguien con
 «validar_pagos» (o un administrador). Mientras tanto el cliente ve «Pago pendiente por confirmar».
     POST /api/admin/nota             {codigo, texto}                                · /api/admin/nota/quitar {codigo, id}
@@ -84,6 +87,7 @@ from itsdangerous import BadSignature, URLSafeTimedSerializer
 from werkzeug.security import check_password_hash, generate_password_hash
 
 import avisos
+import push
 import calculos
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -281,6 +285,33 @@ CREATE TABLE IF NOT EXISTS mensajes (
     usuario TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_mensajes ON mensajes (servicio_id, paso, orden);
+CREATE TABLE IF NOT EXISTS comprobantes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    archivo TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    tamano INTEGER NOT NULL,
+    monto REAL,
+    moneda TEXT NOT NULL DEFAULT 'DOP',
+    metodo TEXT,
+    nota TEXT,
+    creado TEXT NOT NULL,
+    estado TEXT NOT NULL DEFAULT 'nuevo',
+    pago_id INTEGER,
+    revisado_por TEXT,
+    motivo TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_comprobantes_codigo ON comprobantes (codigo);
+CREATE TABLE IF NOT EXISTS push_subs (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario_id INTEGER NOT NULL,
+    endpoint TEXT UNIQUE NOT NULL,
+    p256dh TEXT NOT NULL,
+    auth TEXT NOT NULL,
+    creado TEXT NOT NULL,
+    dispositivo TEXT
+);
 CREATE TABLE IF NOT EXISTS ajustes (
     clave TEXT PRIMARY KEY,
     valor TEXT
@@ -321,6 +352,8 @@ def migrar(db: sqlite3.Connection) -> None:
     for col in ("registrado_por", "validado_por", "validado_en", "motivo"):
         if col not in cols_p:
             db.execute(f"ALTER TABLE pagos ADD COLUMN {col} TEXT")
+    if "comprobante_id" not in cols_p:
+        db.execute("ALTER TABLE pagos ADD COLUMN comprobante_id INTEGER")  # comprobante del cliente que respalda el pago
     if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
         db.execute("ALTER TABLE tramites ADD COLUMN docs TEXT")  # documentos recibidos (lista JSON)
     # Expedientes de antes de "varios trámites por código": cada uno pasa a tener su trámite
@@ -480,6 +513,7 @@ def notificar_solicitud(datos: dict) -> None:
     db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
                ("solicitud", titulo[:200], f"{datos['nombre']} · {datos['pais']}"[:200], datos["codigo"], ahora()))
     db.commit()
+    notificar_push(db, lambda perms: "expedientes" in perms, titulo, f"{datos['nombre']} · {datos['pais']} · {datos['codigo']}", datos["codigo"])
     para = correos_equipo(db)
     if not para or not avisos.configurado():
         return
@@ -651,6 +685,8 @@ def api_rastreo(codigo: str):
 def estado_pago_cliente(db: sqlite3.Connection, codigo: str) -> str | None:
     """Lo que ve el cliente: «por_confirmar» si hay un pago esperando confirmación; «confirmado» si ya hay pagos confirmados."""
     estados = {r[0] for r in db.execute("SELECT estado FROM pagos WHERE codigo=?", (codigo,))}
+    if db.execute("SELECT 1 FROM comprobantes WHERE codigo=? AND estado='nuevo'", (codigo,)).fetchone():
+        estados.add("pendiente")
     return "por_confirmar" if "pendiente" in estados else ("confirmado" if "confirmado" in estados else None)
 
 
@@ -685,6 +721,67 @@ def descarga(token: str):
     resp.headers["Cache-Control"] = "private, no-store"
     resp.headers["X-Robots-Tag"] = "noindex, nofollow"
     return resp
+
+
+METODOS_PAGO = ("Transferencia", "Zelle", "Remesa", "PayPal", "Tarjeta", "Efectivo", "Otro")
+
+
+@app.post("/api/rastreo/<codigo>/comprobante")
+def api_comprobante(codigo: str):
+    """El cliente sube su comprobante de pago (opcional). Formulario: dato (últimos 4 del WhatsApp o correo), archivo, monto, metodo, nota."""
+    if limitar("comprobante", 6, 3600):
+        return error("Ya recibimos varios comprobantes. Si necesitas enviar otro, escríbenos por WhatsApp.", 429)
+    codigo = codigo.strip().upper()[:12]
+    db = get_db()
+    sol = db.execute("SELECT o.contacto, o.nombre FROM solicitudes o JOIN seguimiento s ON s.codigo = o.codigo"
+                     " WHERE o.codigo=? AND s.eliminado IS NULL", (codigo,)).fetchone()
+    if not sol or not contacto_coincide(sol["contacto"], request.form.get("dato", "")):
+        return error("Los datos no coinciden con este expediente.", 403)
+    f = request.files.get("archivo")
+    if not f:
+        return error("Elige la foto o el PDF del comprobante.")
+    monto = numero(request.form.get("monto"))
+    if monto is None or not 0 < monto <= 50_000_000:
+        return error("Escribe el monto que pagaste.")
+    metodo = str(request.form.get("metodo", "")).strip()
+    metodo = metodo if metodo in METODOS_PAGO else "Otro"
+    moneda = str(request.form.get("moneda", "DOP")).upper()
+    moneda = moneda if moneda in ("DOP", "USD", "EUR") else "DOP"
+    simbolo = {"DOP": "RD$", "USD": "US$", "EUR": "€"}[moneda]
+    if db.execute("SELECT COUNT(*) FROM comprobantes WHERE codigo=?", (codigo,)).fetchone()[0] >= 10:
+        return error("Este expediente ya tiene muchos comprobantes. Escríbenos por WhatsApp.")
+    nombre = re.sub(r"[^\w.\- ()áéíóúñÁÉÍÓÚÑ]", "_", Path(f.filename or "comprobante").name)[:100] or "comprobante"
+    ext = Path(nombre).suffix.lower()
+    if ext not in TIPOS_ARCHIVO:
+        return error("Sube una foto (JPG, PNG o WEBP) o un PDF.")
+    datos = f.read(MAX_ARCHIVO + 1)
+    if len(datos) > MAX_ARCHIVO:
+        return error("El archivo pesa más de 10 MB.")
+    if not _es_tipo_real(datos[:16], ext):
+        return error("El archivo no parece una foto o un PDF válido.")
+    carpeta = carpeta_archivos() / codigo
+    carpeta.mkdir(parents=True, exist_ok=True)
+    guardado = f"comprobante-{secrets.token_hex(10)}{ext}"
+    (carpeta / guardado).write_bytes(datos)
+    nota = str(request.form.get("nota", "")).strip()[:200]
+    db.execute("INSERT INTO comprobantes (codigo, nombre, archivo, tipo, tamano, monto, moneda, metodo, nota, creado) VALUES (?,?,?,?,?,?,?,?,?,?)",
+               (codigo, nombre, f"{codigo}/{guardado}", TIPOS_ARCHIVO[ext], len(datos), round(monto, 2), moneda, metodo, nota, ahora()))
+    db.execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
+               ("cliente", "Envió un comprobante de pago", codigo, f"{simbolo}{monto:,.2f} · {metodo}", ahora()))
+    titulo = f"Comprobante del cliente: {simbolo}{monto:,.2f}"
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
+               ("comprobante", titulo, f"{sol['nombre']} · {metodo}"[:200], codigo, ahora()))
+    db.commit()
+    quien_cobra = lambda perms: bool({"pagos", "validar_pagos", "usuarios"} & perms)
+    notificar_push(db, quien_cobra, titulo, f"{sol['nombre']} · {metodo} · {codigo}", codigo)
+    para = correos_validadores(db)
+    if para and avisos.configurado():
+        texto, html_ = avisos.plantilla(titulo, "Hola:", ["El cliente subió su comprobante de pago desde la página. Revísalo y registra o confirma el pago en el panel."],
+                                        datos=[("Código", codigo), ("Cliente", sol["nombre"]), ("Monto que indicó", f"{simbolo}{monto:,.2f}"), ("Método", metodo)]
+                                        + ([("Nota", nota)] if nota else []),
+                                        boton=("Revisar en el panel", f"{avisos.sitio()}/admin"), pie="Aviso interno: lo reciben administración y contabilidad.")
+        avisos.enviar(para, f"{titulo} · {codigo}", texto, html_, al_terminar=anotar_correo(codigo, para, titulo, "equipo"))
+    return jsonify({"ok": True}), 201
 
 
 @app.post("/api/solicitud")
@@ -857,7 +954,7 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["tramites"] = tramites_de(db, d["codigo"])
     precios = [t["precio"] for t in d["tramites"]]
     d["total_dop"] = sum(precios) if precios and all(p is not None for p in precios) else None
-    d["pagos"] = [dict(r) for r in db.execute("SELECT id, tipo, monto, metodo, fecha, nota, estado, registrado_por, validado_por, validado_en, motivo"
+    d["pagos"] = [dict(r) for r in db.execute("SELECT id, tipo, monto, metodo, fecha, nota, estado, registrado_por, validado_por, validado_en, motivo, comprobante_id"
                                              " FROM pagos WHERE codigo=? ORDER BY fecha, id",
                                              (d["codigo"],))]
     d["pagado"] = sum(p["monto"] for p in d["pagos"] if p["estado"] == "confirmado")  # solo lo confirmado cuenta
@@ -871,8 +968,11 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
                      for a in archivos_de(db, d["codigo"])]
     d["correos"] = [dict(r) for r in db.execute(
         "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
+    d["comprobantes"] = [dict(r) for r in db.execute(
+        "SELECT id, nombre, tipo, tamano, monto, moneda, metodo, nota, creado, estado, pago_id, revisado_por, motivo FROM comprobantes WHERE codigo=? ORDER BY id",
+        (d["codigo"],))]
     if has_app_context() and usuario_actual() and not puede("pagos"):
-        d["pagos"], d["pagado"], d["pendiente"], d["por_confirmar"] = [], None, None, None
+        d["pagos"], d["pagado"], d["pendiente"], d["por_confirmar"], d["comprobantes"] = [], None, None, None, []
     return d
 
 
@@ -1354,7 +1454,14 @@ def admin_pago():
                " VALUES (?,?,?,?,?,?,?,?,?,?,?)",
                (codigo, tipo, round(monto, 2), metodo, _fecha_dia(d.get("fecha")), str(d.get("nota", "")).strip()[:200], ahora(),
                 estado, yo["usuario"], yo["usuario"] if estado == "confirmado" else None, ahora() if estado == "confirmado" else None))
-    registrar("Registró un pago" + (" (por confirmar)" if estado == "pendiente" else ""), codigo, f"RD${monto:,.2f} · {TIPOS_PAGO[tipo]} · {metodo}")
+    pid = db.execute("SELECT last_insert_rowid()").fetchone()[0]
+    comp = db.execute("SELECT id FROM comprobantes WHERE id=? AND codigo=? AND estado='nuevo'", (numero(d.get("comprobante_id")), codigo)).fetchone() \
+        if d.get("comprobante_id") else None
+    if comp:
+        db.execute("UPDATE pagos SET comprobante_id=? WHERE id=?", (comp["id"], pid))
+        db.execute("UPDATE comprobantes SET estado='usado', pago_id=?, revisado_por=? WHERE id=?", (pid, yo["usuario"], comp["id"]))
+    registrar("Registró un pago" + (" (por confirmar)" if estado == "pendiente" else "") + (" con el comprobante del cliente" if comp else ""), codigo,
+              f"RD${monto:,.2f} · {TIPOS_PAGO[tipo]} · {metodo}")
     db.commit()
     if estado == "pendiente":
         avisar_pago_por_confirmar(db, codigo, monto, metodo, yo["nombre"])
@@ -1377,6 +1484,7 @@ def avisar_pago_por_confirmar(db: sqlite3.Connection, codigo: str, monto: float,
     db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
                ("pago", titulo, f"{nombre} · {metodo or 'sin método'} · registró {quien}"[:200], codigo, ahora()))
     db.commit()
+    notificar_push(db, lambda perms: bool({"validar_pagos", "usuarios"} & perms), titulo, f"{nombre} · {codigo} · registró {quien}", codigo)
     para = correos_validadores(db)
     if not para or not avisos.configurado():
         return
@@ -1576,7 +1684,7 @@ def admin_archivo_enviar():
 
 # ---------------------------------------------------------------- zafacón (solo administradores)
 DIAS_ZAFACON = 7
-TABLAS_CLIENTE = ("tramites", "pagos", "notas", "archivos", "correos", "avisos", "solicitudes", "seguimiento")
+TABLAS_CLIENTE = ("tramites", "pagos", "notas", "archivos", "comprobantes", "correos", "avisos", "solicitudes", "seguimiento")
 
 
 def _digitos_tel(contacto: str | None) -> set[str]:
@@ -1588,7 +1696,7 @@ def purgar_zafacon(db: sqlite3.Connection) -> int:
     limite = (datetime.now(timezone.utc) - timedelta(days=DIAS_ZAFACON)).isoformat(timespec="seconds")
     viejos = [r[0] for r in db.execute("SELECT codigo FROM seguimiento WHERE eliminado IS NOT NULL AND eliminado < ?", (limite,))]
     for codigo in viejos:
-        for a in db.execute("SELECT archivo FROM archivos WHERE codigo=?", (codigo,)).fetchall():
+        for a in db.execute("SELECT archivo FROM archivos WHERE codigo=? UNION ALL SELECT archivo FROM comprobantes WHERE codigo=?", (codigo, codigo)).fetchall():
             (carpeta_archivos() / a[0]).unlink(missing_ok=True)
         try:
             (carpeta_archivos() / codigo).rmdir()
@@ -1660,11 +1768,127 @@ def admin_restaurar():
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
 
+@app.get("/api/admin/comprobante/<int:cid>")
+@requiere("pagos")
+def admin_comprobante_ver(cid: int):
+    r = get_db().execute("SELECT * FROM comprobantes WHERE id=?", (cid,)).fetchone()
+    ruta = carpeta_archivos() / r["archivo"] if r else None
+    if not r or not ruta.is_file():
+        return error("Ese comprobante no existe.", 404)
+    return send_file(ruta, mimetype=r["tipo"], download_name=r["nombre"])
+
+
+@app.post("/api/admin/comprobante/descartar")
+@requiere("pagos")
+def admin_comprobante_descartar():
+    """Marca un comprobante como no válido: {codigo, id, motivo} (administración o contabilidad)."""
+    if not puede_validar():
+        return error("Solo administración o contabilidad pueden descartar un comprobante.", 403)
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    motivo = str(d.get("motivo", "") or "").strip()[:200]
+    db = get_db()
+    r = db.execute("SELECT * FROM comprobantes WHERE id=? AND codigo=? AND estado='nuevo'", (numero(d.get("id")), codigo)).fetchone() if codigo else None
+    if not r:
+        return error("Ese comprobante ya fue revisado o no existe.", 404)
+    if len(motivo) < 3:
+        return error("Escribe por qué se descarta (por ejemplo: comprobante ilegible o de otro cliente).")
+    db.execute("UPDATE comprobantes SET estado='descartado', revisado_por=?, motivo=? WHERE id=?", (usuario_actual()["usuario"], motivo, r["id"]))
+    registrar("Descartó un comprobante del cliente", codigo, f"RD${(r['monto'] or 0):,.2f} · {motivo}")
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+# ---------------------------------------------------------------- notificaciones con la app cerrada (Web Push)
+def claves_vapid(db: sqlite3.Connection) -> tuple[str, str] | None:
+    if not push.DISPONIBLE:
+        return None
+    filas = dict(db.execute("SELECT clave, valor FROM ajustes WHERE clave IN ('vapid_privada', 'vapid_publica')").fetchall())
+    if len(filas) < 2:
+        privada, publica = push.nuevas_claves()
+        db.execute("INSERT OR REPLACE INTO ajustes (clave, valor) VALUES ('vapid_privada', ?)", (privada,))
+        db.execute("INSERT OR REPLACE INTO ajustes (clave, valor) VALUES ('vapid_publica', ?)", (publica,))
+        db.commit()
+        return privada, publica
+    return filas["vapid_privada"], filas["vapid_publica"]
+
+
+def notificar_push(db: sqlite3.Connection, a_quien, titulo: str, cuerpo: str, codigo: str | None = None,
+                   solo_usuario: int | None = None) -> int:
+    """Envía la notificación a los dispositivos de los usuarios activos que cumplen a_quien(permisos)."""
+    claves = claves_vapid(db)
+    if not claves:
+        return 0
+    ids = {r["id"] for r in db.execute("SELECT id, permisos FROM usuarios WHERE activo=1")
+           if (r["id"] == solo_usuario if solo_usuario else a_quien(set(_permisos(r["permisos"]))))}
+    subs = [dict(r) for r in db.execute("SELECT endpoint, p256dh, auth, usuario_id FROM push_subs").fetchall() if r["usuario_id"] in ids]
+    ruta = DB_PATH
+
+    def vencida(endpoint: str) -> None:
+        con = sqlite3.connect(ruta)
+        try:
+            con.execute("DELETE FROM push_subs WHERE endpoint=?", (endpoint,))
+            con.commit()
+        finally:
+            con.close()
+    push.enviar(subs, {"titulo": titulo, "cuerpo": cuerpo, "url": "/admin" + (f"?c={codigo}" if codigo else ""), "tag": f"tf-{codigo or 'aviso'}"},
+                claves[0], "mailto:" + (os.environ.get("NOTIFY_TO") or "Tramitafacilrd@gmail.com"), vencida)
+    return len(subs)
+
+
+@app.get("/api/admin/push/clave")
+@requiere_admin
+def admin_push_clave():
+    claves = claves_vapid(get_db())
+    u = usuario_actual()
+    n = get_db().execute("SELECT COUNT(*) FROM push_subs WHERE usuario_id=?", (u["id"],)).fetchone()[0]
+    return jsonify({"ok": True, "disponible": bool(claves), "clave": claves[1] if claves else None, "dispositivos": n})
+
+
+@app.post("/api/admin/push/suscribir")
+@requiere_admin
+def admin_push_suscribir():
+    d = cuerpo_json()
+    endpoint = str(d.get("endpoint", ""))[:600]
+    llaves = d.get("keys") or {}
+    if not endpoint.startswith("https://") or not llaves.get("p256dh") or not llaves.get("auth"):
+        return error("Suscripción no válida.")
+    db = get_db()
+    db.execute("INSERT INTO push_subs (usuario_id, endpoint, p256dh, auth, creado, dispositivo) VALUES (?,?,?,?,?,?)"
+               " ON CONFLICT(endpoint) DO UPDATE SET usuario_id=excluded.usuario_id, p256dh=excluded.p256dh, auth=excluded.auth",
+               (usuario_actual()["id"], endpoint, str(llaves["p256dh"])[:200], str(llaves["auth"])[:100], ahora(),
+                tipo_dispositivo(request.headers.get("User-Agent", ""))))
+    registrar("Activó las notificaciones en un dispositivo")
+    db.commit()
+    return jsonify({"ok": True})
+
+
+@app.post("/api/admin/push/quitar")
+@requiere_admin
+def admin_push_quitar():
+    db = get_db()
+    db.execute("DELETE FROM push_subs WHERE endpoint=? AND usuario_id=?", (str(cuerpo_json().get("endpoint", ""))[:600], usuario_actual()["id"]))
+    db.commit()
+    return jsonify({"ok": True})
+
+
+@app.post("/api/admin/push/probar")
+@requiere_admin
+def admin_push_probar():
+    u = usuario_actual()
+    n = notificar_push(get_db(), None, "Notificaciones activadas", f"Hola, {u['nombre'].split()[0]}: así te avisaremos de solicitudes y pagos.",
+                       solo_usuario=u["id"])
+    if not n:
+        return error("Este usuario todavía no tiene notificaciones activadas en ningún dispositivo.", 404)
+    return jsonify({"ok": True, "dispositivos": n})
+
+
 @app.get("/api/admin/avisos")
 @requiere_admin
 def admin_avisos():
     """Solicitudes nuevas para la campana del panel. Los usuarios de solo lectura no reciben avisos."""
-    tipos = (["solicitud"] if puede("expedientes") else []) + (["pago"] if puede_validar() else [])
+    tipos = (["solicitud"] if puede("expedientes") else []) + (["pago"] if puede_validar() else []) \
+        + (["comprobante"] if puede("pagos") or puede_validar() else [])
     if not tipos:
         return jsonify({"ok": True, "avisos": [], "sin_leer": 0, "ultimo": 0, "solo_lectura": True})
     db = get_db()
@@ -2000,7 +2224,8 @@ def archivo_raiz(nombre: str):
 
 @app.before_request
 def tamano_maximo():
-    if request.path != "/api/admin/archivo" and (request.content_length or 0) > LIMITE_JSON:
+    grande = request.path == "/api/admin/archivo" or (request.path.startswith("/api/rastreo/") and request.path.endswith("/comprobante"))
+    if not grande and (request.content_length or 0) > LIMITE_JSON:
         return error("La solicitud es demasiado grande.", 413)
     return None
 

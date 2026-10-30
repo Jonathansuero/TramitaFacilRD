@@ -713,3 +713,24 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .track-pago.ok .tp-ico { background: #0E7A52; }
 .track-pago.ok strong { color: #065F46; }
 .track-pago.ok p { color: #065F46; }
+
+/* Rastreo: comprobante de pago del cliente */
+.track-comp { margin-top: 1rem; border: 1px solid #BFD3EE; border-radius: 1rem; background: #fff; overflow: hidden; text-align: left; }
+.tc-abrir { width: 100%; display: flex; gap: .75rem; align-items: center; padding: .85rem 1rem; background: none; border: 0; text-align: left; cursor: pointer; }
+.tc-ico { width: 2.25rem; height: 2.25rem; border-radius: .7rem; background: #002D62; color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.tc-txt { flex: 1; min-width: 0; }
+.tc-txt strong { display: block; color: #002D62; font-size: .9rem; }
+.tc-txt small { display: block; color: #64748B; font-size: .76rem; line-height: 1.4; }
+.tc-flecha { color: #64748B; transition: transform .2s; }
+.tc-abrir[aria-expanded="true"] .tc-flecha { transform: rotate(180deg); }
+.tc-form { display: grid; gap: .75rem; padding: 0 1rem 1rem; }
+.tc-campo { display: grid; gap: .3rem; font-size: .78rem; font-weight: 600; color: #334155; }
+.tc-campo input, .tc-campo select { width: 100%; min-width: 0; padding: .65rem .8rem; border: 1px solid #CBD5E1; border-radius: .7rem; font-size: 16px; background: #fff; }
+.tc-campo input[type=file] { padding: .5rem; font-size: .85rem; }
+.tc-fila { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.tc-monto { display: flex; gap: .4rem; }
+.tc-monto select { width: auto; flex: 0 0 auto; }
+.tc-form button[type=submit] { background: #002D62; color: #fff; font-weight: 700; font-size: .9rem; padding: .8rem 1rem; border-radius: .75rem; border: 0; }
+.tc-form button[type=submit]:disabled { opacity: .6; }
+.tc-ok { margin: 0 1rem 1rem; color: #065F46; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: .75rem; padding: .7rem .85rem; font-size: .82rem; font-weight: 600; }
+@media (max-width: 480px) { .tc-fila { grid-template-columns: 1fr; } }

@@ -6,7 +6,7 @@
    - /api/ nunca se guarda (solicitudes y rastreo siempre en vivo).
    VERSION la actualiza `python manage.py build`; al cambiar, los teléfonos reciben la nueva versión.
    ========================================================== */
-const VERSION = '0b7c0ddae3';
+const VERSION = '70596acf8d';
 const CACHE = `tramitafacil-${VERSION}`;
 const CACHE_EXT = 'tramitafacil-externos';
 
@@ -77,11 +77,23 @@ async function recurso(req, nombre) {
     return guardado || red;
 }
 
-// Al tocar un aviso del panel (solicitud nueva) se abre el panel
+// Notificaciones «push»: llegan aunque la app o el navegador estén cerrados
+self.addEventListener('push', event => {
+    let d = {};
+    try { d = event.data ? event.data.json() : {}; } catch (e) { d = { cuerpo: event.data ? event.data.text() : '' }; }
+    event.waitUntil(self.registration.showNotification(d.titulo || 'TramitaFácil RD', {
+        body: d.cuerpo || '', icon: './assets/img/app/icon-192.png', badge: './assets/img/app/icon-192.png',
+        tag: d.tag || 'tf-aviso', renotify: true, data: { url: d.url || '/admin' }
+    }));
+});
+
+// Al tocar un aviso se abre el panel (en el expediente, si viene un código)
 self.addEventListener('notificationclick', event => {
     event.notification.close();
+    const url = (event.notification.data && event.notification.data.url) || '/admin';
     event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(ventanas => {
         const panel = ventanas.find(v => v.url.includes('/admin'));
-        return panel ? panel.focus() : self.clients.openWindow('/admin');
+        if (panel) { panel.postMessage({ tipo: 'abrir', url }); return panel.focus(); }
+        return self.clients.openWindow(url);
     }));
 });
