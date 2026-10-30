@@ -1117,7 +1117,7 @@ def admin_estado():
     registrar(f"Movió a paso {paso} ({PASOS[paso]})", codigo, f"{titulo}: {detalle}")
     db.commit()
     correo = "desactivado"
-    if d.get("avisar", True) is not False:
+    if d.get("avisar") is True:  # el aviso por correo es opcional: solo si se pide
         correo = correo_estado(db, codigo, titulo, paso, estado, detalle)
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo), "correo": correo})
 

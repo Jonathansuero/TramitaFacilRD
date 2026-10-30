@@ -163,11 +163,23 @@
         return wa(e, lineas);
     }
     function linkListo(e) {
-        const listos = (e.tramites || []).filter(t => t.paso === 4);
-        const lineas = [`Hola ${primerNombre(e)} 🎉`, '', `¡Buenas noticias! ${listos.length > 1 || !listos.length ? 'Tus trámites están listos' : `Tu trámite *${listos[0].titulo}* está listo`} (código *${e.codigo}*).`];
+        const listos = (e.tramites || []).filter(t => t.paso === 4), arch = e.archivos || [];
+        const lineas = [`Hola ${primerNombre(e)} 🎉`, ''];
+        if (listos.length === 1) lineas.push(`¡Buenas noticias! Tu trámite *${listos[0].titulo}* está listo.`);
+        else { lineas.push('¡Buenas noticias! Tus trámites están listos:'); (listos.length ? listos : e.tramites || []).forEach(t => lineas.push(`• ${t.titulo}`)); }
+        lineas.push('', `🔎 Número de seguimiento: *${e.codigo}*`);
+        if (arch.length) { lineas.push('', 'Puedes descargar tus documentos aquí:'); arch.forEach(a => lineas.push(`• ${a.nombre}: ${a.enlace}`)); }
         if (e.pendiente) lineas.push('', `Para la entrega queda pendiente el saldo de *${rd(e.pendiente)}*.`);
-        lineas.push('', 'Escríbenos para coordinar la entrega. ¡Gracias por confiar en nosotros! 🇩🇴', '— TramitaFácil RD');
-        return wa(e, lineas);
+        lineas.push('', `Consulta tu expediente cuando quieras: ${enlaceRastreo(e)}`, arch.length ? '' : 'Escríbenos para coordinar la entrega.', '¡Gracias por confiar en nosotros! 🇩🇴', '— TramitaFácil RD');
+        return wa(e, lineas.filter((x, i, l) => x !== '' || l[i - 1] !== ''));
+    }
+    /** WhatsApp con el avance de un trámite (si quedó listo, el mensaje de «listo»). */
+    function linkAvance(e, tid) {
+        const t = (e.tramites || []).find(x => x.id === tid) || (e.tramites || [])[0];
+        if (!t || t.paso === 4) return linkListo(e);
+        return wa(e, [`Hola ${primerNombre(e)}`, '', 'Te escribimos de *TramitaFácil RD* con una actualización de tu trámite.', '',
+            `📄 Trámite: ${t.titulo}`, `🔎 Número de seguimiento: *${e.codigo}*`, `📍 Estado: ${t.estado} — ${t.detalle}`, '',
+            `Consulta el avance aquí: ${enlaceRastreo(e)}`, '', '— TramitaFácil RD']);
     }
 
     const bandera = pais => (cat && cat.paises[pais] && cat.paises[pais].bandera) || '';
@@ -382,15 +394,16 @@
     function bloqueAvisar(e) {
         const email = e.correo_cliente, tel = telefono(e.contacto), gestiona = puede('expedientes');
         const ultimo = (e.correos || []).find(c => c.tipo === 'aviso' || c.tipo === 'estado');
-        return `<div class="bloque avisar">
-            <div class="bloque-t"><span>${ico('campana')} Avisar al cliente</span>${ultimo ? `<span>último correo: ${esc(fecha(ultimo.fecha))}</span>` : ''}</div>
+        const listo = (e.tramites || []).length > 0 && e.tramites.every(t => t.paso === 4);
+        return `<div class="bloque avisar${listo ? ' listo' : ''}">
+            <div class="bloque-t"><span>${ico(listo ? 'ok' : 'campana')} ${listo ? 'Avisar que está listo' : 'Avisar al cliente'}</span>${ultimo ? `<span>último correo: ${esc(fecha(ultimo.fecha))}</span>` : ''}</div>
             <div class="avisar-btns">
                 ${gestiona ? `<button type="button" class="btn btn-azul" data-avisar-correo="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>
                     ${ico('correo', 18)}<span>Enviar por correo<small>${esc(email || 'Sin correo registrado')}</small></span></button>` : ''}
-                <a class="btn btn-wa" href="${linkWhatsApp(e)}" target="_blank" rel="noopener"${tel ? '' : ' aria-disabled="true"'}>
+                <a class="btn btn-wa" href="${listo ? linkListo(e) : linkWhatsApp(e)}" target="_blank" rel="noopener"${tel ? '' : ' aria-disabled="true"'}>
                     ${ico('chat', 18)}<span>Enviar por WhatsApp<small>${tel ? '+' + esc(tel) : 'Sin WhatsApp registrado'}</small></span></a>
             </div>
-            <small class="ayuda">Le envía el estado actual de todos sus trámites y el enlace para seguir su expediente.${email && !correoActivo && gestiona ? ' El correo aún no está activado en el servidor (tramita correo).' : ''}</small>
+            <small class="ayuda">${listo ? `Le avisa que su trámite está listo, con su número de seguimiento ${esc(e.codigo)}${(e.archivos || []).length ? ' y los enlaces de sus documentos' : ''}.` : `Le envía el estado actual de todos sus trámites con su número de seguimiento ${esc(e.codigo)}.`} Es opcional: úsalo solo cuando quieras avisar.${email && !correoActivo && gestiona ? ' El correo aún no está activado en el servidor (tramita correo).' : ''}</small>
         </div>`;
     }
 
@@ -437,9 +450,16 @@
                     <textarea class="input" id="d-${clave}" name="detalle" maxlength="500" required>${esc(t.detalle)}</textarea></div>
                 <div><label class="campo" for="s-${clave}">Estado (opcional)</label>
                     <input class="input" id="s-${clave}" name="estado" maxlength="60" placeholder="Ej.: Esperando firma del notario"></div>
-                ${e.correo_cliente ? `<label class="check-correo"><input type="checkbox" name="avisar"${correoActivo ? ' checked' : ' disabled'}>
-                    <span>${ico('correo')} ${correoActivo ? `Avisar al cliente por correo <small>${esc(e.correo_cliente)}</small>` : 'Aviso por correo <small>aún no está activado en el servidor</small>'}</span></label>`
-                    : `<p class="ayuda">${ico('correo')} El cliente no tiene correo registrado; avísale por WhatsApp.</p>`}
+                <fieldset class="aviso-opc">
+                    <legend>¿Avisar al cliente al guardar? <small>Opcional</small></legend>
+                    <div class="opc-btns">
+                        <label class="opc"><input type="checkbox" name="avisarCorreo"${!e.correo_cliente || !correoActivo ? ' disabled' : ''}>
+                            <span><b class="opc-t">${ico('correo')} Por correo</b><small>${esc(!e.correo_cliente ? 'Sin correo registrado' : !correoActivo ? 'Correo aún no activado' : e.correo_cliente)}</small></span></label>
+                        <label class="opc"><input type="checkbox" name="avisarWa"${telefono(e.contacto) ? '' : ' disabled'}>
+                            <span><b class="opc-t">${ico('chat')} Por WhatsApp</b><small>${telefono(e.contacto) ? '+' + esc(telefono(e.contacto)) : 'Sin WhatsApp registrado'}</small></span></label>
+                    </div>
+                    <p class="ayuda">Si no marcas nada, solo se cambia el estado: el cliente lo verá en Rastrear con su número de seguimiento. Si eliges «Listo», el aviso dice que está listo e incluye el número de seguimiento.</p>
+                </fieldset>
                 <div class="acciones"><button class="btn btn-azul" type="submit">Guardar</button><button class="btn btn-borde" type="button" data-cancelar>Cancelar</button></div>
             </form>`;
         return `<div class="tr">
@@ -1315,11 +1335,18 @@
         const btn = form.querySelector('[type=submit]'), txt = btn.textContent; btn.disabled = true; btn.textContent = 'Guardando…';
         try {
             if (form.classList.contains('avance')) {
-                const r = await post('/admin/estado', { codigo: form.dataset.codigo, tramite: Number(form.dataset.tramite),
-                    paso: Number(form.paso.value), detalle: form.detalle.value, estado: form.estado.value,
-                    avisar: !!(form.avisar && form.avisar.checked) });
+                const porCorreo = !!(form.avisarCorreo && form.avisarCorreo.checked), porWa = !!(form.avisarWa && form.avisarWa.checked);
+                // la pestaña de WhatsApp se abre ya (si se abre después de guardar, el navegador la bloquea)
+                const ventana = porWa ? window.open('about:blank', '_blank') : null;
+                let r;
+                try {
+                    r = await post('/admin/estado', { codigo: form.dataset.codigo, tramite: Number(form.dataset.tramite),
+                        paso: Number(form.paso.value), detalle: form.detalle.value, estado: form.estado.value, avisar: porCorreo });
+                } catch (e) { if (ventana) ventana.close(); throw e; }
                 editando = null; reemplazar(r.expediente); pintar();
-                toast(r.correo === 'enviando' ? `Guardado. Aviso enviado por correo a ${r.expediente.correo_cliente}.` : 'Guardado. El cliente ya lo ve en Rastrear.');
+                if (ventana) ventana.location.href = linkAvance(r.expediente, Number(form.dataset.tramite));
+                const avisos = [r.correo === 'enviando' ? `correo a ${r.expediente.correo_cliente}` : '', ventana ? 'WhatsApp abierto' : ''].filter(Boolean);
+                toast(avisos.length ? `Estado guardado · aviso por ${avisos.join(' y ')}` : 'Estado guardado (sin aviso). El cliente lo verá en Rastrear.');
             } else if (form.classList.contains('agregar')) {
                 const r = await post('/admin/agregar', { codigo: form.dataset.codigo, ...leerServicio(form) });
                 reemplazar(r.expediente); pintar();

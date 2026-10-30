@@ -514,6 +514,20 @@
         .exp.recien { animation: recien 2.4s ease-out 3; border-color: var(--azul); }
         @keyframes recien { 0% { box-shadow: 0 0 0 0 rgba(0,45,98,.45); } 70% { box-shadow: 0 0 0 10px rgba(0,45,98,0); } 100% { box-shadow: 0 0 0 0 rgba(0,45,98,0); } }
         .fila-ini .etq.ahora { background: var(--rojo); color: #fff; }
+
+        /* aviso opcional al cambiar el estado */
+        .aviso-opc { border: 1px solid var(--borde); border-radius: 14px; padding: 12px 14px; margin: 0; display: grid; gap: 10px; background: #fff; }
+        .aviso-opc legend { padding: 0 6px; font-size: 13px; font-weight: 700; color: #334155; }
+        .aviso-opc legend small { font-weight: 600; color: var(--suave-2); }
+        .opc-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); gap: 8px; }
+        .opc { display: flex; gap: 10px; align-items: flex-start; border: 1.5px solid var(--borde); border-radius: 12px; padding: 10px 12px; cursor: pointer; font-size: 14px; font-weight: 700; color: var(--azul); }
+        .opc input { margin-top: 3px; accent-color: var(--azul); }
+        .opc span { display: grid; gap: 1px; min-width: 0; }
+        .opc-t { display: flex; align-items: center; gap: 6px; }
+        .opc small { font-weight: 500; color: var(--suave); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .opc:has(input:checked) { border-color: var(--azul); background: #F0F6FF; }
+        .opc:has(input:disabled) { opacity: .55; cursor: not-allowed; }
+        .avisar.listo { border-color: #A7F3D0; background: linear-gradient(180deg, #F0FDF7 0%, #fff 70%); }
     </style>
 </head>
 <body>

@@ -457,11 +457,15 @@ def test_correos_documentos_y_avisos(client, monkeypatch, tmp_path):
     exp = next(e for e in client.get("/api/admin/expedientes").json["expedientes"] if e["codigo"] == codigo)
     assert exp["correo_cliente"] == "ana@correo.com"
     tid = exp["tramites"][0]["id"]
-    r = client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 2, "detalle": "Documentos validados"})
+    r = client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 2, "detalle": "Documentos validados",
+                                               "avisar": True})
     assert r.json["correo"] == "enviando" and enviados[-1]["To"] == "ana@correo.com"
     assert "Documentos validados" in enviados[-1].get_body(("plain",)).get_content()
     assert client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 3, "detalle": "En la JCE",
                                                   "avisar": False}).json["correo"] == "desactivado"
+    n = len(enviados)  # sin elegir aviso: solo se cambia el estado
+    assert client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 3, "detalle": "Seguimos en la JCE"}).json["correo"] == "desactivado"
+    assert len(enviados) == n
     # documentos: solo PDF/fotos de verdad
     falso = client.post("/api/admin/archivo", data={"codigo": codigo, "archivo": (io.BytesIO(b"hola"), "acta.pdf")},
                         content_type="multipart/form-data")
@@ -474,7 +478,7 @@ def test_correos_documentos_y_avisos(client, monkeypatch, tmp_path):
     assert r.status_code == 201 and r.json["expediente"]["archivos"][0]["nombre"] == "Acta de soltería.pdf"
     enlace = r.json["expediente"]["archivos"][0]["enlace"]
     # al pasar a Listo el correo lleva el enlace de descarga
-    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar"})
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar", "avisar": True})
     assert "/descarga/" in enviados[-1].get_body(("plain",)).get_content()
     # enviar los documentos por correo (adjuntos)
     assert client.post("/api/admin/archivo/enviar", json={"codigo": codigo}).json["para"] == "ana@correo.com"
