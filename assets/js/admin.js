@@ -323,7 +323,8 @@
         $('bottomnav').querySelector('[data-mas]').hidden = !$('vMas').querySelector('[data-tab]:not([hidden])');
     }
 
-    function irATab(nuevo) {
+    function irATab(nuevo, desdeHistorial) {
+        if (!desdeHistorial && nuevo !== tab) marcarHistorial({ tab: nuevo });   // «atrás» vuelve a la sección anterior
         tab = nuevo;
         $('vMas').hidden = true;
         document.querySelectorAll('#tabs .tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === tab); b.setAttribute('aria-selected', b.dataset.tab === tab); });
@@ -1460,6 +1461,47 @@
     });
 
     // ------------------------------------------------------------ inicio
+    // ------------------------------------------------------------ botón «atrás»: nunca sale del panel
+    // Atrás (navegador, celular o gesto) cierra primero la ventana abierta, luego vuelve a la sección
+    // anterior y, al final, se queda en Inicio. Para salir a la página está «Ver la página web».
+    let historialListo = false;
+    function marcarHistorial(estado) {
+        if (!historialListo) return;
+        try { history.pushState({ tf: 'panel', ...estado }, ''); } catch (e) { /* sin historial */ }
+    }
+    function prepararHistorial() {
+        if (historialListo) return;
+        historialListo = true;
+        try {
+            history.replaceState({ tf: 'raiz' }, '');
+            history.pushState({ tf: 'panel', tab }, '');
+        } catch (e) { /* sin historial */ }
+    }
+    // se arma con el primer toque (los navegadores ignoran entradas creadas sin que la persona haya tocado la página)
+    ['pointerdown', 'keydown', 'touchstart'].forEach(ev => document.addEventListener(ev, prepararHistorial, { capture: true, once: true, passive: true }));
+    // al abrir una ventana (Mi cuenta, Avisos, Más, Nuevo expediente) «atrás» la cierra
+    let cerrandoPorAtras = false;
+    document.querySelectorAll('.modal').forEach(m => new MutationObserver(() => {
+        if (!m.hidden) marcarHistorial({ tab, modal: m.id });
+        else if (!cerrandoPorAtras && historialListo && history.state && history.state.modal === m.id) history.back();   // cerrada con la X: se quita su paso
+    }).observe(m, { attributes: true, attributeFilter: ['hidden'] }));
+    window.addEventListener('popstate', ev => {
+        if (!historialListo) return;
+        const abierta = [...document.querySelectorAll('.modal')].find(m => !m.hidden);
+        if (abierta) {
+            cerrandoPorAtras = true; setTimeout(() => { cerrandoPorAtras = false; }, 0);
+            if (abierta.id === 'vCuenta') cerrarCuenta();
+            else if (abierta.id === 'vNuevo') cerrarNuevo();
+            else abierta.hidden = true;
+        } else if (!$('vPanel').hidden) {
+            const destino = ev.state && ev.state.tf === 'panel' && ev.state.tab ? ev.state.tab : 'inicio';
+            if (editando || editandoCliente.size) { editando = null; editandoCliente.clear(); pintarTodo(); }
+            else if (destino !== tab) irATab(destino, true);
+        }
+        // si llegó al principio, se vuelve a poner un paso para que el siguiente «atrás» tampoco salga
+        if (!ev.state || ev.state.tf === 'raiz') { try { history.pushState({ tf: 'panel', tab }, ''); } catch (e) { /* sin historial */ } }
+    });
+
     (async function iniciar() {
         try {
             const s = await api('/admin/sesion');
