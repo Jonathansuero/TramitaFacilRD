@@ -544,3 +544,49 @@ def test_avisar_al_cliente_con_un_clic(client, monkeypatch, tmp_path):
     assert r.json["para"] == "ana@correo.com" and enviados[-1]["To"] == "ana@correo.com"
     assert "Certificación de Soltería" in enviados[-1].get_body(("plain",)).get_content()
     assert r.json["expediente"]["correos"][0]["tipo"] == "aviso"
+
+
+def test_zafacon_solo_admin_7_dias_y_reactivar(client, monkeypatch, tmp_path):
+    import io
+    import sqlite3
+    import app as app_module
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    monkeypatch.setenv("TF_ARCHIVOS", str(tmp_path / "archivos"))
+    base = {"pais": "us", "servicio": "certificacion_solteria", "acepta": True}
+    c1 = client.post("/api/solicitud", json={**base, "nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com"}).json["codigo"]
+    c2 = client.post("/api/solicitud", json={**base, "nombre": "Luis Peña", "whatsapp": "+1 809 555 9876", "email": "luis@correo.com"}).json["codigo"]
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    client.post("/api/admin/archivo", data={"codigo": c2, "archivo": (io.BytesIO(PDF), "acta.pdf")}, content_type="multipart/form-data")
+    # un gestor no puede eliminar
+    client.post("/api/admin/usuarios/guardar", json={"usuario": "maria", "nombre": "María", "permisos": ["expedientes", "pagos"], "clave": "temporal-123"})
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "maria", "clave": "temporal-123"})
+    client.post("/api/admin/cuenta/clave", json={"actual": "temporal-123", "nueva": "maria-clave-1"})
+    assert client.post("/api/admin/eliminar", json={"codigo": c1}).status_code == 403
+    assert client.get("/api/admin/zafacon").status_code == 403
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    # el administrador lo manda al zafacón: desaparece de la lista, del rastreo y del Excel
+    assert client.post("/api/admin/eliminar", json={"codigo": c1, "motivo": "No respondió"}).json["dias"] == 7
+    assert c1 not in [e["codigo"] for e in client.get("/api/admin/expedientes").json["expedientes"]]
+    assert client.get(f"/api/rastreo/{c1}").status_code == 404
+    assert c1 not in client.get("/api/admin/exportar").data.decode()
+    assert client.post("/api/admin/nota", json={"codigo": c1, "texto": "x"}).status_code == 404
+    z = client.get("/api/admin/zafacon").json["zafacon"]
+    assert z[0]["codigo"] == c1 and z[0]["dias_restantes"] == 7 and z[0]["motivo"] == "No respondió" and not z[0]["volvio"]
+    # el cliente vuelve a escribir (mismo WhatsApp): se marca y se puede reactivar tal cual
+    client.post("/api/solicitud", json={**base, "nombre": "Ana R.", "whatsapp": "+1 809 555 1234", "email": "otra@correo.com"})
+    assert client.get("/api/admin/zafacon").json["zafacon"][0]["volvio"] is True
+    r = client.post("/api/admin/restaurar", json={"codigo": c1})
+    assert r.json["expediente"]["nombre"] == "Ana Rodríguez" and client.get(f"/api/rastreo/{c1}").status_code == 200
+    assert client.get("/api/admin/zafacon").json["zafacon"] == []
+    # a los 7 días se borra por completo, con sus documentos
+    client.post("/api/admin/eliminar", json={"codigo": c2})
+    db = sqlite3.connect(app_module.DB_PATH)
+    db.execute("UPDATE seguimiento SET eliminado='2020-01-01T00:00:00+00:00' WHERE codigo=?", (c2,)); db.commit()
+    assert client.get("/api/admin/zafacon").json["zafacon"] == []
+    for tabla in ("seguimiento", "solicitudes", "tramites", "archivos"):
+        assert db.execute(f"SELECT COUNT(*) FROM {tabla} WHERE codigo=?", (c2,)).fetchone()[0] == 0
+    assert not any((tmp_path / "archivos").rglob("*.pdf"))
+    assert client.post("/api/admin/restaurar", json={"codigo": c2}).status_code == 404

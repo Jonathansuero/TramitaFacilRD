@@ -15,7 +15,8 @@
         3: 'Tu expediente fue depositado en la institución. Te avisaremos de cualquier novedad.',
         4: '¡Tu trámite está listo! Te contactaremos para coordinar la entrega.'
     };
-    const DIAS_ALERTA = 5;   // días sin moverse para marcar un expediente como detenido
+    const DIAS_ALERTA = 5;
+    const DIAS_ZAFACON = 7;   // días que un cliente eliminado se puede reactivar   // días sin moverse para marcar un expediente como detenido
     const TZ = 'America/Santo_Domingo';
     const ORIGEN_N = { instagram: 'Instagram', facebook: 'Facebook', whatsapp: 'WhatsApp', google: 'Google', tiktok: 'TikTok', youtube: 'YouTube',
         bing: 'Bing', x: 'X (Twitter)', referido: 'Recomendado', app: 'App instalada', directo: 'Directo (escribió la dirección)', otro: 'Otro sitio web', '': 'Sin dato' };
@@ -43,6 +44,7 @@
         resumen: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
         precios: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/>',
         herramientas: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+        zafacon: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>',
         usuarios: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/>'
     };
     const ico = (n, s = 16) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n] || ''}</svg>`;
@@ -69,12 +71,13 @@
     const puede = p => !!(yo && (yo.permisos || []).includes(p));
     const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
     let usuariosData = null, editandoUsuario = null;
-    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios' };
+    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios' };
     const filtro = { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
     let tab = 'inicio', periodo = 30;
     let precios = null, preciosQ = '', preciosCat = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
     const recien = new Set();        // solicitudes que acaban de llegar (se resaltan unos segundos)
+    let borrando = null;             // código con la confirmación de «Eliminar cliente» abierta
     const docsAbiertos = new Set();  // "CODIGO:idTramite" con la lista de documentos abierta
     let editando = null;             // "CODIGO:idTramite" con el formulario de avance abierto
 
@@ -330,8 +333,8 @@
         document.querySelectorAll('#tabs .tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === tab); b.setAttribute('aria-selected', b.dataset.tab === tab); });
         const enBarra = !!$('bottomnav').querySelector(`[data-tab="${tab}"]`);
         $('bottomnav').querySelectorAll('.bn').forEach(b => b.classList.toggle('on', b.dataset.tab ? b.dataset.tab === tab : !enBarra));
-        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios'].forEach(t => { $({ inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
-        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else pintarTodo();
+        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios', 'zafacon'].forEach(t => { $({ zafacon: 'tZafacon', inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
+        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else if (tab === 'zafacon') cargarZafacon(); else pintarTodo();
         window.scrollTo({ top: 0 });
     }
     function verExpediente(codigo) {
@@ -591,6 +594,12 @@
                 <div class="acciones">
                     <button class="btn btn-borde" type="button" data-copiar="${esc(e.codigo)}">Copiar código</button>
                 </div>
+                ${puede('usuarios') ? (borrando === e.codigo ? `<form class="confirmar-borrar" data-borrar="${esc(e.codigo)}">
+                    <b>${ico('zafacon')} ¿Eliminar a ${esc(e.nombre || e.cliente)}?</b>
+                    <p>El cliente pasa al zafacón y deja de verse en el panel y en Rastrear. Durante ${DIAS_ZAFACON} días puedes reactivarlo tal como está; después se borra por completo, con sus documentos.</p>
+                    <input class="input" name="motivo" maxlength="200" placeholder="Motivo (opcional). Ej.: No respondió, solicitud duplicada">
+                    <div class="acciones"><button class="btn btn-peligro" type="submit">Sí, mover al zafacón</button><button class="btn btn-borde" type="button" data-cancelar-borrar>Cancelar</button></div>
+                </form>` : `<div class="zona-peligro"><button type="button" class="link-rojo" data-eliminar="${esc(e.codigo)}">${ico('zafacon', 14)} Eliminar cliente</button></div>`) : ''}
             </div>`;
         const cobroChip = !puede('pagos') ? '' : e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
             : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : '');
@@ -933,6 +942,44 @@
     });
 
 
+    // ------------------------------------------------------------ zafacón (solo administradores)
+    let zafaconData = null;
+    async function cargarZafacon() {
+        if (!zafaconData) $('tZafacon').innerHTML = '<div class="vacio"><b>Cargando…</b></div>';
+        try { zafaconData = (await api('/admin/zafacon')).zafacon; pintarZafacon(); }
+        catch (e) { if (e.message !== 'sesion') $('tZafacon').innerHTML = `<div class="vacio"><b>No se pudo cargar</b>${esc(e.message)}</div>`; }
+    }
+    function pintarZafacon() {
+        const lista = zafaconData || [];
+        $('numZafacon').hidden = !lista.length; $('numZafacon').textContent = lista.length;
+        $('tZafacon').innerHTML = `<div class="pila">
+            <div class="cabecera" style="margin:0"><div><h2>Zafacón</h2><p>${lista.length ? `${lista.length} ${lista.length === 1 ? 'cliente eliminado' : 'clientes eliminados'}` : 'Clientes eliminados'}</p></div></div>
+            <div class="zaf-banner">${ico('zafacon', 22)}<span><b>Se guardan ${DIAS_ZAFACON} días</b>Si el cliente vuelve a aparecer, reactívalo y sigue tal como estaba (trámites, pagos, notas y documentos). Pasados los ${DIAS_ZAFACON} días se borra por completo y no se puede recuperar.</span></div>
+            ${lista.length ? `<div class="personas">${lista.map(z => `<article class="persona zaf">
+                <div class="p-cab">${avatar(z.nombre)}
+                    <div class="p-id"><b>${esc(z.nombre)}</b><span class="codigo">${esc(z.codigo)}</span></div>
+                    <span class="vence${z.dias_restantes <= 2 ? ' pronto' : ''}">${z.dias_restantes <= 1 ? 'Se borra en menos de 1 día' : `Se borra en ${z.dias_restantes} días`}</span></div>
+                ${z.volvio ? `<div class="volvio">${ico('ok', 16)}<span>Volvió a escribir: llegó una solicitud nueva con su mismo WhatsApp o correo.</span></div>` : ''}
+                <dl class="p-datos">
+                    <div style="grid-column:1/-1"><dt>${z.tramites.length > 1 ? 'Trámites' : 'Trámite'}</dt><dd>${esc(z.tramites.join(' · '))}</dd></div>
+                    <div><dt>Estado</dt><dd>${bandera(z.pais)} ${esc(z.estado)}</dd></div>
+                    <div><dt>Eliminado</dt><dd>${esc(fecha(z.eliminado))} · ${esc(z.eliminado_por || '')}</dd></div>
+                    ${z.motivo ? `<div style="grid-column:1/-1"><dt>Motivo</dt><dd>${esc(z.motivo)}</dd></div>` : ''}
+                </dl>
+                <button type="button" class="btn btn-azul" data-restaurar="${esc(z.codigo)}">Reactivar solicitud</button>
+            </article>`).join('')}</div>` : '<div class="vacio"><b>El zafacón está vacío</b>Cuando elimines un cliente, aparecerá aquí durante 7 días.</div>'}
+        </div>`;
+    }
+    $('tZafacon').addEventListener('click', async ev => {
+        const b = ev.target.closest('[data-restaurar]'); if (!b) return;
+        b.disabled = true;
+        try {
+            const r = await post('/admin/restaurar', { codigo: b.dataset.restaurar });
+            reemplazar(r.expediente); zafaconData = zafaconData.filter(z => z.codigo !== b.dataset.restaurar); pintarZafacon();
+            toast(`${r.expediente.nombre || r.expediente.cliente} reactivado. Ya está otra vez en Expedientes.`);
+        } catch (e) { if (e.message !== 'sesion') toast(e.message); b.disabled = false; }
+    });
+
     // ------------------------------------------------------------ inicio: saludo, mapa y lo que hay que atender
     const iniciales = n => String(n || '').trim().split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('') || '··';
     const BURBUJAS = [   // dónde se dibuja cada grupo de clientes alrededor de la isla
@@ -1184,7 +1231,7 @@
 
     $('btnSalir').addEventListener('click', async () => {
         try { await post('/admin/logout', {}); } catch (e) { /* igual salimos */ }
-        expedientes = []; precios = null; usuariosData = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
+        expedientes = []; precios = null; usuariosData = null; zafaconData = null; borrando = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
     });
 
     $('tabs').addEventListener('click', ev => { const b = ev.target.closest('[data-tab]'); if (b) irATab(b.dataset.tab); });
@@ -1305,6 +1352,9 @@
             catch (e) { if (e.message !== 'sesion') toast(e.message); }
             return;
         }
+        const el = ev.target.closest('[data-eliminar]');
+        if (el) { borrando = el.dataset.eliminar; pintar(); const f = document.querySelector(`[data-borrar="${borrando}"] [name=motivo]`); if (f) f.focus(); return; }
+        if (ev.target.closest('[data-cancelar-borrar]')) { borrando = null; pintar(); return; }
         const av = ev.target.closest('[data-avisar-correo]');
         if (av) {
             av.disabled = true;
@@ -1364,6 +1414,12 @@
                 editandoCliente.delete(form.dataset.codigo);
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintar(); toast('Datos del cliente actualizados');
+            } else if (form.classList.contains('confirmar-borrar')) {
+                const codigo = form.dataset.borrar;
+                await post('/admin/eliminar', { codigo, motivo: form.motivo.value });
+                borrando = null; abiertos.delete(codigo);
+                expedientes = expedientes.filter(x => x.codigo !== codigo); recontar(); pintarTodo(); zafaconData = null;
+                toast(`Movido al zafacón. Puedes reactivarlo durante ${DIAS_ZAFACON} días.`);
             } else if (form.classList.contains('form-nota')) {
                 const r = await post('/admin/nota', { codigo: form.dataset.codigo, texto: form.texto.value });
                 document.activeElement && document.activeElement.blur();

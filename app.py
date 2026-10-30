@@ -41,6 +41,9 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/archivo/quitar   {codigo, id}     · GET /api/admin/archivo/<id> (ver)
     POST /api/admin/archivo/enviar   {codigo}         Envía los documentos al correo del cliente
     POST /api/admin/avisar           {codigo}         Envía al cliente el estado actual por correo (un clic)
+    POST /api/admin/eliminar         {codigo, motivo?} Mueve el cliente al zafacón (solo administradores)
+    GET  /api/admin/zafacon          Clientes eliminados (se borran por completo a los 7 días)
+    POST /api/admin/restaurar        {codigo}         Reactiva el cliente tal como estaba
     GET  /api/admin/avisos           Avisos de solicitudes nuevas (no los ven los usuarios de solo lectura)
     POST /api/admin/avisos/visto     {hasta}
     POST /api/rastreo/<codigo>/archivos {dato}   (público) últimos 4 del WhatsApp o el correo -> enlaces de descarga
@@ -292,6 +295,10 @@ def migrar(db: sqlite3.Connection) -> None:
         db.execute("ALTER TABLE usuarios ADD COLUMN correo TEXT")  # para recibir avisos de solicitudes nuevas
     if "avisos_visto" not in cols_u:
         db.execute("ALTER TABLE usuarios ADD COLUMN avisos_visto INTEGER NOT NULL DEFAULT 0")
+    cols_s = {r[1] for r in db.execute("PRAGMA table_info(seguimiento)")}
+    for col in ("eliminado", "eliminado_por", "eliminado_motivo"):  # zafacón: fecha, quién y por qué
+        if col not in cols_s:
+            db.execute(f"ALTER TABLE seguimiento ADD COLUMN {col} TEXT")
     if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
         db.execute("ALTER TABLE tramites ADD COLUMN docs TEXT")  # documentos recibidos (lista JSON)
     # Expedientes de antes de "varios trámites por código": cada uno pasa a tener su trámite
@@ -604,7 +611,7 @@ def api_rastreo(codigo: str):
     if limitar("rastreo", 30, 60):
         return error("Demasiadas consultas. Intenta en un minuto.", 429)
     codigo = codigo.strip().upper()[:12]
-    row = get_db().execute("SELECT * FROM seguimiento WHERE codigo = ?", (codigo,)).fetchone()
+    row = get_db().execute("SELECT * FROM seguimiento WHERE codigo = ? AND eliminado IS NULL", (codigo,)).fetchone()
     if row:
         items = [{"service": t["titulo"], "step": t["paso"], "statusText": t["estado"], "detail": t["detalle"],
                   "tone": t["tono"], "updated": t["actualizado"]} for t in tramites_de(get_db(), codigo)]
@@ -625,7 +632,8 @@ def api_rastreo_archivos(codigo: str):
         return error("Demasiados intentos. Espera unos minutos.", 429)
     codigo = codigo.strip().upper()[:12]
     db = get_db()
-    sol = db.execute("SELECT contacto FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    sol = db.execute("SELECT o.contacto FROM solicitudes o JOIN seguimiento s ON s.codigo = o.codigo"
+                     " WHERE o.codigo=? AND s.eliminado IS NULL", (codigo,)).fetchone()
     if not sol or not contacto_coincide(sol["contacto"], cuerpo_json().get("dato", "")):
         return error("Los datos no coinciden con este expediente.", 403)
     lista = [{"nombre": a["nombre"], "tamano": a["tamano"], "url": enlace_descarga(a["id"])} for a in archivos_de(db, codigo)]
@@ -639,7 +647,8 @@ def descarga(token: str):
     except BadSignature:
         return Response("Este enlace no es válido o ya venció. Descarga tus documentos en la página de rastreo con tu código.",
                         status=410, mimetype="text/plain; charset=utf-8")
-    r = get_db().execute("SELECT * FROM archivos WHERE id=?", (int(datos.get("a", 0)),)).fetchone()
+    r = get_db().execute("SELECT a.* FROM archivos a JOIN seguimiento s ON s.codigo = a.codigo"
+                         " WHERE a.id=? AND s.eliminado IS NULL", (int(datos.get("a", 0)),)).fetchone()
     ruta = carpeta_archivos() / r["archivo"] if r else None
     if not r or not ruta.is_file():
         return Response("Este documento ya no está disponible. Escríbenos por WhatsApp.", status=404, mimetype="text/plain; charset=utf-8")
@@ -1078,7 +1087,8 @@ def admin_cliente():
 @requiere_admin
 def admin_expedientes():
     db = get_db()
-    rows = db.execute(CONSULTA_EXPEDIENTES + " ORDER BY s.actualizado DESC LIMIT 1000").fetchall()
+    purgar_zafacon(db)
+    rows = db.execute(CONSULTA_EXPEDIENTES + " WHERE s.eliminado IS NULL ORDER BY s.actualizado DESC LIMIT 1000").fetchall()
     lista = [expediente(db, r) for r in rows]
     conteo = {str(p): sum(1 for e in lista if e["paso"] == p) for p in PASOS}
     return jsonify({"ok": True, "expedientes": lista, "conteo": conteo, "pasos": PASOS})
@@ -1101,7 +1111,7 @@ def admin_estado():
         return error("Escribe un mensaje para el cliente.")
     estado = str(d.get("estado", "")).strip()[:60] or PASOS[paso]
     db = get_db()
-    items = tramites_de(db, codigo)
+    items = tramites_de(db, codigo) if _codigo_existente({"codigo": codigo}) else []
     if not items:
         return error("No existe ese código.", 404)
     try:
@@ -1273,7 +1283,7 @@ def admin_nuevo():
 
 def _codigo_existente(d: dict) -> str | None:
     codigo = str(d.get("codigo", "")).strip().upper()[:12]
-    return codigo if get_db().execute("SELECT 1 FROM seguimiento WHERE codigo=?", (codigo,)).fetchone() else None
+    return codigo if get_db().execute("SELECT 1 FROM seguimiento WHERE codigo=? AND eliminado IS NULL", (codigo,)).fetchone() else None
 
 
 def _fecha_dia(valor) -> str:
@@ -1381,7 +1391,7 @@ def admin_archivo():
     """Sube documentos escaneados (PDF o foto) para entregar al cliente. Formulario: codigo, archivo (uno o varios)."""
     codigo = str(request.form.get("codigo", "")).strip().upper()[:12]
     db = get_db()
-    if not db.execute("SELECT 1 FROM seguimiento WHERE codigo=?", (codigo,)).fetchone():
+    if not db.execute("SELECT 1 FROM seguimiento WHERE codigo=? AND eliminado IS NULL", (codigo,)).fetchone():
         return error("No existe ese código.", 404)
     subidos = request.files.getlist("archivo")
     if not subidos:
@@ -1465,6 +1475,92 @@ def admin_archivo_enviar():
     return jsonify({"ok": True, "para": para, "expediente": un_expediente(db, codigo)})
 
 
+# ---------------------------------------------------------------- zafacón (solo administradores)
+DIAS_ZAFACON = 7
+TABLAS_CLIENTE = ("tramites", "pagos", "notas", "archivos", "correos", "avisos", "solicitudes", "seguimiento")
+
+
+def _digitos_tel(contacto: str | None) -> set[str]:
+    return {re.sub(r"\D", "", x)[-8:] for x in str(contacto or "").split("·") if "@" not in x and len(re.sub(r"\D", "", x)) >= 7}
+
+
+def purgar_zafacon(db: sqlite3.Connection) -> int:
+    """Borra por completo (con sus documentos) lo que lleva más de 7 días en el zafacón."""
+    limite = (datetime.now(timezone.utc) - timedelta(days=DIAS_ZAFACON)).isoformat(timespec="seconds")
+    viejos = [r[0] for r in db.execute("SELECT codigo FROM seguimiento WHERE eliminado IS NOT NULL AND eliminado < ?", (limite,))]
+    for codigo in viejos:
+        for a in db.execute("SELECT archivo FROM archivos WHERE codigo=?", (codigo,)).fetchall():
+            (carpeta_archivos() / a[0]).unlink(missing_ok=True)
+        try:
+            (carpeta_archivos() / codigo).rmdir()
+        except OSError:
+            pass
+        for tabla in TABLAS_CLIENTE:
+            db.execute(f"DELETE FROM {tabla} WHERE codigo=?", (codigo,))
+        db.execute("DELETE FROM actividad WHERE codigo=?", (codigo,))  # el historial tenía datos personales
+        db.execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
+                   ("sistema", "Borró definitivamente un cliente del zafacón", None, f"{codigo} (pasaron {DIAS_ZAFACON} días)", ahora()))
+    if viejos:
+        db.commit()
+    return len(viejos)
+
+
+@app.post("/api/admin/eliminar")
+@requiere("usuarios")
+def admin_eliminar():
+    """Mueve un cliente al zafacón: {codigo, motivo?}. Se puede reactivar durante 7 días."""
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    if not codigo:
+        return error("No existe ese código.", 404)
+    motivo = str(d.get("motivo", "") or "").strip()[:200]
+    db = get_db()
+    db.execute("UPDATE seguimiento SET eliminado=?, eliminado_por=?, eliminado_motivo=? WHERE codigo=?",
+               (ahora(), usuario_actual()["usuario"], motivo or None, codigo))
+    registrar("Movió el cliente al zafacón", codigo, motivo or f"se borrará en {DIAS_ZAFACON} días si no se reactiva")
+    db.commit()
+    return jsonify({"ok": True, "dias": DIAS_ZAFACON})
+
+
+@app.get("/api/admin/zafacon")
+@requiere("usuarios")
+def admin_zafacon():
+    db = get_db()
+    purgar_zafacon(db)
+    filas = db.execute("SELECT codigo FROM seguimiento WHERE eliminado IS NOT NULL ORDER BY eliminado DESC").fetchall()
+    activos = db.execute("SELECT o.contacto, o.creado FROM solicitudes o JOIN seguimiento s ON s.codigo = o.codigo WHERE s.eliminado IS NULL").fetchall()
+    lista = []
+    for f in filas:
+        e = un_expediente(db, f["codigo"])
+        s = db.execute("SELECT eliminado, eliminado_por, eliminado_motivo FROM seguimiento WHERE codigo=?", (f["codigo"],)).fetchone()
+        vence = datetime.fromisoformat(s["eliminado"]) + timedelta(days=DIAS_ZAFACON)
+        quedan = max(0, (vence - datetime.now(timezone.utc)).total_seconds())
+        # ¿volvió a aparecer? otra solicitud activa, después de eliminarlo, con el mismo correo o el mismo WhatsApp
+        correo, tels = avisos.correo_de(e.get("contacto")), _digitos_tel(e.get("contacto"))
+        volvio = any((o["creado"] or "") >= s["eliminado"] and ((correo and avisos.correo_de(o["contacto"]) == correo) or (tels & _digitos_tel(o["contacto"])))
+                     for o in activos)
+        lista.append({"codigo": e["codigo"], "nombre": e.get("nombre") or e.get("cliente"), "contacto": e.get("contacto"), "pais": e.get("pais"),
+                      "tramites": [t["titulo"] for t in e["tramites"]], "paso": e["paso"], "estado": e["estado"],
+                      "eliminado": s["eliminado"], "eliminado_por": s["eliminado_por"], "motivo": s["eliminado_motivo"],
+                      "vence": vence.isoformat(timespec="seconds"), "dias_restantes": int(quedan // 86400) + (1 if quedan % 86400 else 0),
+                      "volvio": volvio})
+    return jsonify({"ok": True, "zafacon": lista, "dias": DIAS_ZAFACON})
+
+
+@app.post("/api/admin/restaurar")
+@requiere("usuarios")
+def admin_restaurar():
+    """Reactiva un cliente del zafacón tal como estaba: {codigo}."""
+    codigo = str(cuerpo_json().get("codigo", "")).strip().upper()[:12]
+    db = get_db()
+    if not db.execute("SELECT 1 FROM seguimiento WHERE codigo=? AND eliminado IS NOT NULL", (codigo,)).fetchone():
+        return error("Ese cliente ya no está en el zafacón.", 404)
+    db.execute("UPDATE seguimiento SET eliminado=NULL, eliminado_por=NULL, eliminado_motivo=NULL WHERE codigo=?", (codigo,))
+    registrar("Reactivó el cliente desde el zafacón", codigo)
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
 @app.get("/api/admin/avisos")
 @requiere_admin
 def admin_avisos():
@@ -1473,7 +1569,8 @@ def admin_avisos():
         return jsonify({"ok": True, "avisos": [], "sin_leer": 0, "ultimo": 0, "solo_lectura": True})
     db = get_db()
     visto = db.execute("SELECT avisos_visto FROM usuarios WHERE id=?", (usuario_actual()["id"],)).fetchone()[0]
-    lista = [dict(r) | {"nuevo": r["id"] > visto} for r in db.execute("SELECT * FROM avisos ORDER BY id DESC LIMIT 30")]
+    lista = [dict(r) | {"nuevo": r["id"] > visto} for r in db.execute(
+        "SELECT a.* FROM avisos a LEFT JOIN seguimiento s ON s.codigo = a.codigo WHERE s.eliminado IS NULL ORDER BY a.id DESC LIMIT 30")]
     sin_leer = db.execute("SELECT COUNT(*) FROM avisos WHERE id>?", (visto,)).fetchone()[0]
     return jsonify({"ok": True, "avisos": lista, "sin_leer": sin_leer, "ultimo": lista[0]["id"] if lista else 0})
 
@@ -1563,6 +1660,7 @@ def admin_exportar():
     rows = db.execute("""SELECT t.*, o.nombre, o.contacto, o.pais, o.mensaje, o.creado, o.origen, s.cliente
                          FROM tramites t JOIN seguimiento s ON s.codigo = t.codigo
                          LEFT JOIN solicitudes o ON o.codigo = t.codigo
+                         WHERE s.eliminado IS NULL
                          ORDER BY COALESCE(o.creado, s.actualizado), t.id""").fetchall()
     salida = io.StringIO()
     w = csv.writer(salida)
