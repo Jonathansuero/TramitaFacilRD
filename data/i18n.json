@@ -2102,7 +2102,7 @@
       "Calculer le coût"
     ],
     "casos.inicia": [
-      "Inicia Solicitud",
+      "Iniciar Solicitud",
       "Start Request",
       "Lancer la demande"
     ],
@@ -2177,8 +2177,8 @@
       "Reprendre"
     ],
     "crs.iniciar": [
-      "Iniciar solicitud",
-      "Start request",
+      "Iniciar Solicitud",
+      "Start Request",
       "Lancer la demande"
     ]
   },

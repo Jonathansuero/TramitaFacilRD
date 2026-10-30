@@ -76,6 +76,7 @@
         if (CASOS[0]) TF.cotizador.seleccionar(CASOS[0].servicio);
 
         TF.carrusel.mount('casosCarrusel', {
+            simple: true,
             onCalcular: k => { TF.cotizador.seleccionar(k); $('cotizador').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
             onIniciar: irAFormulario
         });
