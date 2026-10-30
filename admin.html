@@ -326,13 +326,12 @@
             .cabecera p { font-size: 13px; }
             .cab-acc .btn-rojo span { display: none; }
             .cab-acc .btn-rojo { width: 44px; height: 44px; padding: 0; }
-            .filtros { display: flex; overflow-x: auto; scrollbar-width: none; gap: 6px; margin: 0 -16px 12px; padding: 0 16px; }
-            .filtros::-webkit-scrollbar { display: none; }
-            .filtros .filtro { flex: 0 0 auto; display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 999px; }
-            .filtros .filtro b { font-size: 15px; }
-            .filtros .filtro span { font-size: 13px; }
-            .filtros .filtro.on { background: var(--azul); box-shadow: none; }
-            .filtros .filtro.on b, .filtros .filtro.on span { color: #fff; }
+            /* como en la computadora (cajitas con el número arriba), en tamaño compacto */
+            .filtros { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; margin-bottom: 12px; }
+            .filtros .filtro:first-child { grid-column: auto; }
+            .filtros .filtro { padding: 8px 2px 7px; border-radius: 12px; }
+            .filtros .filtro b { font-size: 18px; }
+            .filtros .filtro span { display: block; font-size: 10px; line-height: 1.15; letter-spacing: -.01em; }
         }
 
         /* hojas: menú «Más» y mi cuenta */
@@ -568,6 +567,58 @@
         .msj-lista { display: grid; gap: 8px; }
         .msj-form { display: grid; gap: 10px; border: 1.5px solid var(--azul); border-radius: 12px; padding: 12px; background: #fff; }
         .msj-form textarea { min-height: 90px; }
+
+        /* ================= celular: más ligero y dinámico ================= */
+        @media (max-width: 759px) {
+            /* el iPhone agranda la pantalla al tocar un campo con letra menor de 16 px: así no se descuadra */
+            .input, select.input, textarea.input, .buscar .input, .mas .input, .form-pago .input, .form-nota .input, .precio-fila .input { font-size: 16px; }
+            body { font-size: 14.5px; }
+            main { padding-top: 30px; }
+            .cabecera { margin-bottom: 14px; }
+            .cabecera h2 { font-size: 21px; }
+            .exp-cab { padding: 14px 15px; }
+            .exp-nombre { font-size: 15.5px; }
+            .exp-serv { font-size: 13px; }
+            .exp-cuerpo { padding: 0 14px 16px; }
+            .bloque { padding: 12px; }
+            .btn { padding: 10px 14px; }
+            .hola h2 { font-size: 24px; }
+            .tile b { font-size: 22px; }
+            .top .wrap { height: 56px; }
+            .tabs { top: calc(56px + env(safe-area-inset-top)); }
+        }
+        /* movimiento suave: al cambiar de sección, al abrir un expediente y al tocar */
+        @media (prefers-reduced-motion: no-preference) {
+            #vPanel main > section:not([hidden]) { animation: entra .28s ease-out; }
+            .exp-cuerpo { animation: abre .22s ease-out; }
+            .exp, .tile, .filtro, .persona, .preset, .opc, .fila-ini, .menu-item { transition: transform .12s ease, box-shadow .15s ease, border-color .15s ease; }
+            .exp-cab:active, .tile:active, .filtro:active, .fila-ini:active, .menu-item:active, .bn:active { transform: scale(.98); }
+            .bn svg { transition: transform .2s ease; }
+            .bn.on svg { transform: translateY(-2px); }
+        }
+        @keyframes entra { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        @keyframes abre { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+
+        /* cambio de estado con un toque */
+        .rapido { border-color: #C9DAF2; }
+        .rapido-f { display: grid; gap: 10px; }
+        .rapido-f + .rapido-f { border-top: 1px solid #EEF2F7; padding-top: 12px; }
+        .rp-t { font-size: 13.5px; color: var(--texto); }
+        .rp-pasos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+        .rp { border: 1.5px solid var(--borde); background: #fff; border-radius: 12px; padding: 8px 4px; display: grid; justify-items: center; gap: 3px; font-size: 11.5px; font-weight: 700; color: #475569; line-height: 1.15; text-align: center; }
+        .rp em { font-style: normal; width: 22px; height: 22px; border-radius: 50%; background: #EEF2F7; color: var(--azul); display: grid; place-items: center; font-size: 12px; }
+        .rp.hecho em { background: #DCE7F5; }
+        .rp.actual { border-color: #9DB5D6; }
+        .rp.sel { border-color: var(--azul); background: var(--azul); color: #fff; }
+        .rp.sel em { background: var(--oro); color: var(--azul); }
+        .rp-pie { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .rp-pie small { color: var(--suave); font-size: 12px; flex: 1 1 180px; }
+        .rp-guardar:disabled { opacity: .45; cursor: default; }
+        details.datos-cli summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--suave); }
+        details.datos-cli summary::-webkit-details-marker { display: none; }
+        details.datos-cli summary::after { content: "Ver ▾"; text-transform: none; letter-spacing: 0; color: var(--azul); font-size: 13px; }
+        details.datos-cli[open] summary::after { content: "Ocultar ▴"; }
+        details.datos-cli[open] summary { margin-bottom: 12px; }
     </style>
 </head>
 <body>
