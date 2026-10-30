@@ -975,7 +975,8 @@ def pagina(nombre: str):
         if serv:
             ruta = f"/servicio?id={sid}"
             titulo = f"{serv['title']} | TramitaFácil RD"
-            desc = " ".join(serv.get("desc", "").split())[:300]
+            # texto pensado para Google (data/catalogo.json → "seo"); si falta, la descripción del servicio
+            desc = " ".join((serv.get("seo") or serv.get("desc", "")).split())[:300]
             html = re.sub(r"<title>.*?</title>", f"<title>{_atr(titulo)}</title>", html, count=1, flags=re.S)
             html = re.sub(r'<meta name="description" content="[^"]*"', f'<meta name="description" content="{_atr(desc)}"', html, count=1)
         else:

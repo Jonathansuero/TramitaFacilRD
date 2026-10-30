@@ -327,3 +327,11 @@ def test_panel_cobros_precios_origen(client):
         assert r.status_code == 200 and r.data[:15] == b"SQLite format 3"
     finally:
         os.environ.pop("TF_ADMIN_HASH", None)
+
+
+def test_descripcion_para_google_por_servicio(client):
+    for sid, s in CAT["servicios"].items():
+        assert 110 <= len(s["seo"]) <= 160, sid          # largo que Google muestra completo
+    html = client.get("/servicio?id=pasaporte_normal").get_data(as_text=True)
+    seo = CAT["servicios"]["pasaporte_normal"]["seo"]
+    assert f'<meta name="description" content="{seo}"' in html and f'<meta property="og:description" content="{seo}"' in html

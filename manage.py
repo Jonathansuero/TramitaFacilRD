@@ -47,7 +47,9 @@ def cmd_build(_args):
     problemas = traducciones.verificar(cat, traducciones.cargar())
     if problemas:
         print(f"⚠ {len(problemas)} traducciones pendientes (se mostrará el español). Detalle: python manage.py i18n")
-    datos = {**cat, "i18n": traducciones.cargar()}
+    # los textos "seo" solo los usa el servidor (Google); no hace falta enviarlos en data.js
+    datos = {**cat, "servicios": {k: {c: v for c, v in s.items() if c != "seo"} for k, s in cat["servicios"].items()},
+             "i18n": traducciones.cargar()}
     datos["i18n"].pop("_formato", None)
     DATA_JS.parent.mkdir(parents=True, exist_ok=True)
     DATA_JS.write_text(
