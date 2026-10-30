@@ -204,9 +204,28 @@
         correoValido: e => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e)
     };
 
+    // ---------------- de dónde llegó la visita (Instagram, Google, WhatsApp…): se guarda con la solicitud
+    const ORIGEN = (function () {
+        try { const g = sessionStorage.getItem('tf_origen'); if (g) return g; } catch (e) { /* sin almacenamiento */ }
+        const q = new URLSearchParams(location.search);
+        let o = q.get('utm_source') || q.get('src') || q.get('ref') || '';
+        if (!o && q.get('fbclid')) o = 'facebook';
+        if (!o && q.get('gclid')) o = 'google';
+        if (!o && document.referrer) {
+            try { const h = new URL(document.referrer).hostname.replace(/^www\./, ''); if (h && h !== location.hostname.replace(/^www\./, '')) o = h; } catch (e) { /* referencia rara */ }
+        }
+        if (!o && window.matchMedia && matchMedia('(display-mode: standalone)').matches) o = 'app';
+        o = (o || 'directo').toLowerCase().slice(0, 60);
+        try { sessionStorage.setItem('tf_origen', o); } catch (e) { /* sin almacenamiento */ }
+        return o;
+    })();
+
     // ---------------- API (opcional, solo con app.py)
     async function api(path, opts = {}) {
         if (!state.api) throw new Error('offline');
+        if (path === '/solicitud' && opts.body) {
+            try { opts = { ...opts, body: JSON.stringify({ ...JSON.parse(opts.body), origen: ORIGEN, pagina: location.pathname }) }; } catch (e) { /* se envía tal cual */ }
+        }
         const r = await fetch('/api' + path, { headers: { 'Content-Type': 'application/json' }, ...opts });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) { const e = new Error(j.error || 'Error'); e.status = r.status; throw e; }
@@ -221,6 +240,14 @@
         apiDetectada(state.api);
         if (!state.api) return;
         emit('api', true);
+        // precios cambiados desde el panel: se aplican encima del catálogo y se vuelven a dibujar
+        api('/precios').then(r => {
+            let cambio = false;
+            Object.entries((r && r.precios) || {}).forEach(([k, v]) => {
+                if (SERV[k] && (SERV[k].tax !== v.tax || SERV[k].fee !== v.fee)) { SERV[k].tax = v.tax; SERV[k].fee = v.fee; cambio = true; }
+            });
+            if (cambio) emit('moneda', state.moneda);
+        }).catch(() => { /* precios del catálogo */ });
         try {
             const r = await api('/tasas');
             state.rates = { DOP: 1, USD: r.USD, EUR: r.EUR };

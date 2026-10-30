@@ -25,6 +25,13 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/quitar           {codigo, tramite}
     POST /api/admin/nuevo            {nombre, contacto, pais, mensaje?, servicios:[{servicio, titulo?, precio?}]}
     GET  /api/admin/exportar         CSV para Excel
+    POST /api/admin/pago             {codigo, tipo, monto, metodo, fecha?, nota?}   · /api/admin/pago/quitar {codigo, id}
+    POST /api/admin/nota             {codigo, texto}                                · /api/admin/nota/quitar {codigo, id}
+    POST /api/admin/docs             {codigo, tramite, docs:[…]}                    Documentos recibidos
+    GET  /api/admin/precios          Precios de todos los servicios + historial
+    POST /api/admin/precio           {servicio, tax, fee} o {servicio, restaurar: true}
+    GET  /api/admin/respaldo         Copia de la base de datos
+    GET  /api/precios                (público) precios cambiados desde el panel
 """
 from __future__ import annotations
 
@@ -45,7 +52,7 @@ from email.message import EmailMessage
 from functools import wraps
 from pathlib import Path
 
-from flask import Flask, Response, abort, g, jsonify, redirect, request, send_from_directory, session
+from flask import Flask, Response, abort, g, has_app_context, jsonify, redirect, request, send_from_directory, session
 from werkzeug.security import check_password_hash
 
 import calculos
@@ -69,12 +76,50 @@ app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Strict"
 _catalogo_cache = {"mtime": 0.0, "data": None}
 
 
-def catalogo() -> dict:
+def catalogo_base() -> dict:
     """Recarga data/catalogo.json automáticamente si cambió (no hace falta reiniciar)."""
     mtime = calculos.CATALOGO_PATH.stat().st_mtime
     if mtime != _catalogo_cache["mtime"]:
         _catalogo_cache.update(mtime=mtime, data=calculos.cargar_catalogo())
     return _catalogo_cache["data"]
+
+
+_catalogo_precios = {"clave": None, "data": None}
+
+
+def precios_guardados() -> dict[str, tuple[float, float]]:
+    """Precios cambiados desde el panel (tabla `precios`): {servicio: (tasa, honorario)}."""
+    try:
+        if has_app_context():
+            rows = get_db().execute("SELECT servicio_id, tax, fee FROM precios").fetchall()
+        else:
+            if not DB_PATH.exists():
+                return {}
+            with sqlite3.connect(DB_PATH) as db:
+                db.executescript(SCHEMA)
+                rows = db.execute("SELECT servicio_id, tax, fee FROM precios").fetchall()
+    except sqlite3.Error:
+        return {}
+    return {r[0]: (r[1], r[2]) for r in rows}
+
+
+def _entero(v: float):
+    return int(v) if float(v).is_integer() else v
+
+
+def catalogo() -> dict:
+    """Catálogo con los precios del panel aplicados (lo que usan la API y la página)."""
+    base = catalogo_base()
+    guardados = {k: v for k, v in precios_guardados().items() if k in base["servicios"]}
+    if not guardados:
+        return base
+    clave = (_catalogo_cache["mtime"], tuple(sorted(guardados.items())))
+    if _catalogo_precios["clave"] != clave:
+        servicios = dict(base["servicios"])
+        for sid, (tax, fee) in guardados.items():
+            servicios[sid] = {**servicios[sid], "tax": _entero(tax), "fee": _entero(fee)}
+        _catalogo_precios.update(clave=clave, data={**base, "servicios": servicios})
+    return _catalogo_precios["data"]
 
 
 # ---------------------------------------------------------------- base de datos
@@ -114,6 +159,37 @@ CREATE TABLE IF NOT EXISTS seguimiento (
     detalle TEXT NOT NULL,
     actualizado TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS precios (
+    servicio_id TEXT PRIMARY KEY,
+    tax REAL NOT NULL,
+    fee REAL NOT NULL,
+    actualizado TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS precios_historial (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    servicio_id TEXT NOT NULL,
+    tax_antes REAL, fee_antes REAL,
+    tax REAL NOT NULL, fee REAL NOT NULL,
+    fecha TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS pagos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    monto REAL NOT NULL,
+    metodo TEXT,
+    fecha TEXT NOT NULL,
+    nota TEXT,
+    creado TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_pagos_codigo ON pagos (codigo);
+CREATE TABLE IF NOT EXISTS notas (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT NOT NULL,
+    texto TEXT NOT NULL,
+    creado TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_notas_codigo ON notas (codigo);
 """
 
 
@@ -130,9 +206,11 @@ def get_db() -> sqlite3.Connection:
 def migrar(db: sqlite3.Connection) -> None:
     """Agrega columnas nuevas a bases de datos creadas con versiones anteriores."""
     cols = {r[1] for r in db.execute("PRAGMA table_info(solicitudes)")}
-    for col in ("idioma", "pais_detalle"):
+    for col in ("idioma", "pais_detalle", "origen", "origen_detalle", "pagina", "dispositivo"):
         if col not in cols:
             db.execute(f"ALTER TABLE solicitudes ADD COLUMN {col} TEXT")
+    if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
+        db.execute("ALTER TABLE tramites ADD COLUMN docs TEXT")  # documentos recibidos (lista JSON)
     # Expedientes de antes de "varios trámites por código": cada uno pasa a tener su trámite
     db.execute("""INSERT INTO tramites (codigo, servicio_id, titulo, paso, estado, detalle, precio, actualizado)
                   SELECT s.codigo, o.servicio, s.servicio, s.paso, s.estado, s.detalle, NULL, s.actualizado
@@ -147,7 +225,15 @@ DETALLE_INICIAL = "Recibimos tu solicitud. Un gestor te contactará para validar
 
 def tramites_de(db: sqlite3.Connection, codigo: str) -> list[dict]:
     rows = db.execute("SELECT * FROM tramites WHERE codigo=? ORDER BY id", (codigo,)).fetchall()
-    return [{**dict(r), "tono": TONO_POR_PASO.get(r["paso"], "sky")} for r in rows]
+    return [{**dict(r), "tono": TONO_POR_PASO.get(r["paso"], "sky"), "docs": _lista_json(r["docs"])} for r in rows]
+
+
+def _lista_json(texto) -> list:
+    try:
+        v = json.loads(texto or "[]")
+        return v if isinstance(v, list) else []
+    except (TypeError, ValueError):
+        return []
 
 
 def agregar_tramite(db: sqlite3.Connection, codigo: str, servicio_id: str | None, titulo: str,
@@ -270,6 +356,37 @@ def notificar_solicitud(datos: dict) -> None:
     threading.Thread(target=_enviar, daemon=True).start()
 
 
+# ---------------------------------------------------------------- de dónde llega cada solicitud
+ORIGENES = {  # palabra en utm_source o en el sitio que envió la visita -> categoría
+    "instagram": ("instagram", "ig"), "facebook": ("facebook", "fb", "fbclid"), "whatsapp": ("whatsapp", "wa.me", "wa"),
+    "google": ("google",), "tiktok": ("tiktok",), "youtube": ("youtube", "youtu.be"), "bing": ("bing",),
+    "x": ("twitter", "t.co", "x.com", "x"), "referido": ("referido",), "app": ("app",), "directo": ("directo", "direct"),
+}
+
+
+def clasificar_origen(texto: str) -> str:
+    t = (texto or "").lower().strip()
+    if not t:
+        return "directo"
+    for cat, palabras in ORIGENES.items():
+        for w in palabras:
+            if t == w or (len(w) > 3 and w in t):
+                return cat
+    return "otro"
+
+
+def tipo_dispositivo(ua: str) -> str:
+    ua = ua or ""
+    if re.search(r"iPad|Tablet", ua):
+        return "tablet"
+    return "movil" if re.search(r"Mobi|Android|iPhone|iPod", ua) else "escritorio"
+
+
+def nombre_pagina(ruta: str) -> str:
+    n = (ruta or "").strip().split("?")[0].strip("/").rsplit("/", 1)[-1].removesuffix(".html")
+    return "inicio" if n in ("", "index") else (n if n in PAGINAS else "otra")
+
+
 # ---------------------------------------------------------------- API
 @app.get("/api/salud")
 def salud():
@@ -279,6 +396,14 @@ def salud():
 @app.get("/api/catalogo")
 def api_catalogo():
     return jsonify(catalogo())
+
+
+@app.get("/api/precios")
+def api_precios():
+    """Precios cambiados desde el panel; la página los aplica encima de data.js."""
+    base = catalogo_base()["servicios"]
+    return jsonify({"ok": True, "precios": {k: {"tax": _entero(t), "fee": _entero(f)}
+                                            for k, (t, f) in precios_guardados().items() if k in base}})
 
 
 @app.get("/api/tasas")
@@ -352,6 +477,10 @@ def api_solicitud():
     moneda = str(d.get("moneda", "DOP")).upper()
     idioma = str(d.get("idioma", "es"))[:2] if str(d.get("idioma", "es"))[:2] in ("es", "en", "fr") else "es"
     pais_detalle = "".join(ch for ch in str(d.get("pais_detalle", "")).upper() if ch.isalpha())[:2]
+    origen_detalle = re.sub(r"[^\w.\- /:]", "", str(d.get("origen", "")))[:80]
+    origen = clasificar_origen(origen_detalle)
+    pagina_origen = nombre_pagina(str(d.get("pagina", "")))
+    dispositivo = tipo_dispositivo(request.headers.get("User-Agent", ""))
     cat = catalogo()
 
     if len(nombre) < 2:
@@ -376,8 +505,9 @@ def api_solicitud():
     titulo = cat["servicios"][servicio]["title"]
     ts = ahora()
     db.execute("INSERT INTO solicitudes (codigo, nombre, pais, servicio, contacto, mensaje, moneda, total_estimado, creado,"
-               " idioma, pais_detalle) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-               (codigo, nombre, pais, servicio, contacto, mensaje, cot["moneda"], cot["total"], ts, idioma, pais_detalle))
+               " idioma, pais_detalle, origen, origen_detalle, pagina, dispositivo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+               (codigo, nombre, pais, servicio, contacto, mensaje, cot["moneda"], cot["total"], ts, idioma, pais_detalle,
+                origen, origen_detalle, pagina_origen, dispositivo))
     db.execute("INSERT INTO seguimiento (codigo, servicio, cliente, paso, estado, detalle, actualizado)"
                " VALUES (?,?,?,?,?,?,?)",
                (codigo, titulo, calculos.nombre_publico(nombre), 1, "Solicitud Recibida", DETALLE_INICIAL, ts))
@@ -388,6 +518,7 @@ def api_solicitud():
     notificar_solicitud({"codigo": codigo, "nombre": nombre, "idioma": idioma.upper(),
                          "pais": cat["paises"][pais]["nombre"] + (f" ({pais_detalle})" if pais_detalle else ""),
                          "servicio_titulo": titulo, "contacto": contacto, "mensaje": mensaje,
+                         "origen": f"{origen} ({origen_detalle})" if origen_detalle else origen, "pagina": pagina_origen,
                          "total_estimado": f"{cot['total']} {cot['moneda']}"})
     return jsonify({"ok": True, "codigo": codigo, "servicio": titulo}), 201
 
@@ -412,13 +543,18 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["tramites"] = tramites_de(db, d["codigo"])
     precios = [t["precio"] for t in d["tramites"]]
     d["total_dop"] = sum(precios) if precios and all(p is not None for p in precios) else None
+    d["pagos"] = [dict(r) for r in db.execute("SELECT id, tipo, monto, metodo, fecha, nota FROM pagos WHERE codigo=? ORDER BY fecha, id",
+                                             (d["codigo"],))]
+    d["pagado"] = sum(p["monto"] for p in d["pagos"])
+    d["pendiente"] = max(0, d["total_dop"] - d["pagado"]) if d["total_dop"] is not None else None
+    d["notas"] = [dict(r) for r in db.execute("SELECT id, texto, creado FROM notas WHERE codigo=? ORDER BY id DESC", (d["codigo"],))]
     return d
 
 
 CONSULTA_EXPEDIENTES = """
 SELECT s.codigo, s.servicio AS servicio_titulo, s.cliente, s.paso, s.estado, s.detalle, s.actualizado,
        o.nombre, o.contacto, o.pais, o.pais_detalle, o.mensaje, o.total_estimado, o.moneda, o.creado,
-       o.idioma, o.servicio AS servicio_id
+       o.idioma, o.servicio AS servicio_id, o.origen, o.origen_detalle, o.pagina, o.dispositivo
 FROM seguimiento s LEFT JOIN solicitudes o ON o.codigo = s.codigo
 """
 
@@ -562,6 +698,7 @@ def admin_nuevo():
     contacto = str(d.get("contacto", "")).strip()[:120]
     pais = str(d.get("pais", "rd")).strip()
     mensaje = str(d.get("mensaje", "")).strip()[:1000]
+    origen = str(d.get("origen", "")).strip()[:40]
     cat = catalogo()
     if len(nombre) < 2:
         return error("Escribe el nombre del cliente.")
@@ -583,8 +720,9 @@ def admin_nuevo():
     total = sum(precios) if all(x is not None for x in precios) else None
     ts = ahora()
     db.execute("INSERT INTO solicitudes (codigo, nombre, pais, servicio, contacto, mensaje, moneda, total_estimado, creado,"
-               " idioma, pais_detalle) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-               (codigo, nombre, pais, pedidos[0][0], contacto, mensaje, "DOP", total, ts, "es", ""))
+               " idioma, pais_detalle, origen, origen_detalle, pagina, dispositivo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+               (codigo, nombre, pais, pedidos[0][0], contacto, mensaje, "DOP", total, ts, "es", "",
+                clasificar_origen(origen) if origen else "whatsapp", origen or "creado en el panel", "panel", ""))
     db.execute("INSERT INTO seguimiento (codigo, servicio, cliente, paso, estado, detalle, actualizado)"
                " VALUES (?,?,?,?,?,?,?)",
                (codigo, pedidos[0][1], calculos.nombre_publico(nombre), 1, "Solicitud Recibida", DETALLE_INICIAL, ts))
@@ -595,23 +733,186 @@ def admin_nuevo():
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
 
 
+def _codigo_existente(d: dict) -> str | None:
+    codigo = str(d.get("codigo", "")).strip().upper()[:12]
+    return codigo if get_db().execute("SELECT 1 FROM seguimiento WHERE codigo=?", (codigo,)).fetchone() else None
+
+
+def _fecha_dia(valor) -> str:
+    """'2026-10-29' (si no viene o es inválida, hoy)."""
+    try:
+        return datetime.strptime(str(valor)[:10], "%Y-%m-%d").strftime("%Y-%m-%d")
+    except ValueError:
+        return datetime.now(timezone(timedelta(hours=-4))).strftime("%Y-%m-%d")  # hoy en República Dominicana
+
+
+TIPOS_PAGO = {"anticipo": "Anticipo 50%", "saldo": "Saldo 50%", "otro": "Otro pago"}
+
+
+@app.post("/api/admin/pago")
+@requiere_admin
+def admin_pago():
+    """Registra un pago del cliente: {codigo, tipo (anticipo|saldo|otro), monto, metodo, fecha?, nota?}."""
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    if not codigo:
+        return error("No existe ese código.", 404)
+    monto = numero(d.get("monto"))
+    if monto is None or not 0 < monto <= 50_000_000:
+        return error("Escribe el monto recibido.")
+    tipo = str(d.get("tipo", "otro")) if str(d.get("tipo")) in TIPOS_PAGO else "otro"
+    db = get_db()
+    db.execute("INSERT INTO pagos (codigo, tipo, monto, metodo, fecha, nota, creado) VALUES (?,?,?,?,?,?,?)",
+               (codigo, tipo, round(monto, 2), str(d.get("metodo", "")).strip()[:40], _fecha_dia(d.get("fecha")),
+                str(d.get("nota", "")).strip()[:200], ahora()))
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
+
+
+@app.post("/api/admin/pago/quitar")
+@requiere_admin
+def admin_pago_quitar():
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    db = get_db()
+    if not codigo or not db.execute("DELETE FROM pagos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).rowcount:
+        return error("Ese pago no existe.", 404)
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/nota")
+@requiere_admin
+def admin_nota():
+    """Nota interna del expediente (el cliente no la ve): {codigo, texto}."""
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    if not codigo:
+        return error("No existe ese código.", 404)
+    texto = str(d.get("texto", "")).strip()[:1000]
+    if len(texto) < 2:
+        return error("Escribe la nota.")
+    db = get_db()
+    db.execute("INSERT INTO notas (codigo, texto, creado) VALUES (?,?,?)", (codigo, texto, ahora()))
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
+
+
+@app.post("/api/admin/nota/quitar")
+@requiere_admin
+def admin_nota_quitar():
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    db = get_db()
+    if not codigo or not db.execute("DELETE FROM notas WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).rowcount:
+        return error("Esa nota no existe.", 404)
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/docs")
+@requiere_admin
+def admin_docs():
+    """Documentos recibidos de un trámite: {codigo, tramite, docs: ["Pasaporte…", …]}."""
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    if not codigo:
+        return error("No existe ese código.", 404)
+    docs = d.get("docs")
+    if not isinstance(docs, list):
+        return error("Lista de documentos inválida.")
+    docs = [str(x).strip()[:160] for x in docs if str(x).strip()][:30]
+    db = get_db()
+    if not db.execute("UPDATE tramites SET docs=? WHERE id=? AND codigo=?",
+                      (json.dumps(docs, ensure_ascii=False), numero(d.get("tramite")), codigo)).rowcount:
+        return error("Ese trámite no existe.", 404)
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.get("/api/admin/precios")
+@requiere_admin
+def admin_precios():
+    """Precios de todos los servicios (catálogo + cambios del panel) y el historial de cambios."""
+    base, guardados = catalogo_base(), precios_guardados()
+    servicios = []
+    for sid, s in base["servicios"].items():
+        tax, fee = guardados.get(sid, (s["tax"], s["fee"]))
+        servicios.append({"id": sid, "title": s["title"], "category": s["category"], "tax": _entero(tax), "fee": _entero(fee),
+                          "tax_base": s["tax"], "fee_base": s["fee"], "modificado": sid in guardados})
+    historial = [dict(r) for r in get_db().execute(
+        "SELECT * FROM precios_historial ORDER BY id DESC LIMIT 100").fetchall()]
+    for h in historial:
+        h["title"] = base["servicios"].get(h["servicio_id"], {}).get("title", h["servicio_id"])
+    return jsonify({"ok": True, "servicios": servicios, "historial": historial,
+                    "categorias": {k: v.get("label", k) for k, v in base["categorias"].items()}})
+
+
+@app.post("/api/admin/precio")
+@requiere_admin
+def admin_precio():
+    """Cambia la tasa oficial y el honorario de un servicio: {servicio, tax, fee} o {servicio, restaurar: true}."""
+    d = cuerpo_json()
+    base = catalogo_base()["servicios"]
+    sid = str(d.get("servicio", ""))
+    if sid not in base:
+        return error("Ese servicio no existe.", 404)
+    antes = catalogo()["servicios"][sid]
+    if d.get("restaurar"):
+        tax, fee = base[sid]["tax"], base[sid]["fee"]
+    else:
+        tax, fee = numero(d.get("tax")), numero(d.get("fee"))
+        if tax is None or fee is None or not (0 <= tax <= 10_000_000 and 0 <= fee <= 10_000_000):
+            return error("Escribe la tasa y el honorario en pesos (números de 0 en adelante).")
+        tax, fee = round(tax, 2), round(fee, 2)
+    if (tax, fee) == (antes["tax"], antes["fee"]):
+        return error("Ese servicio ya tiene esos precios.")
+    db = get_db()
+    if (tax, fee) == (base[sid]["tax"], base[sid]["fee"]):
+        db.execute("DELETE FROM precios WHERE servicio_id=?", (sid,))
+    else:
+        db.execute("INSERT INTO precios (servicio_id, tax, fee, actualizado) VALUES (?,?,?,?) ON CONFLICT(servicio_id)"
+                   " DO UPDATE SET tax=excluded.tax, fee=excluded.fee, actualizado=excluded.actualizado", (sid, tax, fee, ahora()))
+    db.execute("INSERT INTO precios_historial (servicio_id, tax_antes, fee_antes, tax, fee, fecha) VALUES (?,?,?,?,?,?)",
+               (sid, antes["tax"], antes["fee"], tax, fee, ahora()))
+    db.commit()
+    return jsonify({"ok": True, "servicio": {"id": sid, "tax": _entero(tax), "fee": _entero(fee),
+                                             "modificado": (tax, fee) != (base[sid]["tax"], base[sid]["fee"])}})
+
+
+@app.get("/api/admin/respaldo")
+@requiere_admin
+def admin_respaldo():
+    """Copia completa de la base de datos (se abre con cualquier visor de SQLite)."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as tmp:
+        destino = Path(tmp) / "respaldo.db"
+        copia = sqlite3.connect(destino)
+        get_db().backup(copia)
+        copia.close()
+        datos = destino.read_bytes()
+    nombre = f"tramitafacil-respaldo-{datetime.now().strftime('%Y-%m-%d')}.db"
+    return Response(datos, mimetype="application/octet-stream",
+                    headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
+
+
 @app.get("/api/admin/exportar")
 @requiere_admin
 def admin_exportar():
     """Excel: una fila por trámite (los trámites del mismo cliente comparten el código)."""
     db = get_db()
-    rows = db.execute("""SELECT t.*, o.nombre, o.contacto, o.pais, o.mensaje, o.creado, s.cliente
+    rows = db.execute("""SELECT t.*, o.nombre, o.contacto, o.pais, o.mensaje, o.creado, o.origen, s.cliente
                          FROM tramites t JOIN seguimiento s ON s.codigo = t.codigo
                          LEFT JOIN solicitudes o ON o.codigo = t.codigo
                          ORDER BY COALESCE(o.creado, s.actualizado), t.id""").fetchall()
     salida = io.StringIO()
     w = csv.writer(salida)
     w.writerow(["Código", "Nombre", "Contacto", "País", "Trámite", "Paso", "Estado", "Mensaje al cliente",
-                "Precio (RD$)", "Nota del cliente", "Creado", "Última actualización"])
+                "Precio (RD$)", "Nota del cliente", "Llegó por", "Creado", "Última actualización"])
     for r in rows:
         w.writerow([r["codigo"], r["nombre"] or r["cliente"], r["contacto"] or "", r["pais"] or "", r["titulo"],
                     r["paso"], r["estado"], r["detalle"], "" if r["precio"] is None else r["precio"],
-                    r["mensaje"] or "", (r["creado"] or "")[:16], (r["actualizado"] or "")[:16]])
+                    r["mensaje"] or "", r["origen"] or "", (r["creado"] or "")[:16], (r["actualizado"] or "")[:16]])
     nombre = f"solicitudes-{datetime.now().strftime('%Y-%m-%d')}.csv"
     return Response("\ufeff" + salida.getvalue(), mimetype="text/csv",
                     headers={"Content-Disposition": f'attachment; filename="{nombre}"'})

@@ -8,9 +8,9 @@ manage.py — Herramientas de administración de TramitaFácil RD.
     python manage.py estado RD-7KQ4MX 3 "Expediente depositado en la DGM"
                                                  Actualiza el paso (1-4) que ve el cliente al rastrear
     python manage.py precio residencia_dominicana --tasa 15000 --honorario 10000
-                                                 Cambia precios sin tocar el código
+                                                 Cambia precios (igual que «Precios» en el panel)
 
-Después de editar data/catalogo.json (a mano o con `precio`), corre `build`
+Después de editar data/catalogo.json a mano, corre `build`
 para que la versión estática (sin servidor) también tenga los cambios.
 """
 from __future__ import annotations
@@ -147,17 +147,27 @@ def cmd_estado(args):
 
 
 def cmd_precio(args):
-    cat = calculos.cargar_catalogo()
-    s = cat["servicios"].get(args.servicio)
+    """Igual que «Precios» en el panel: se guarda en la base de datos y la página lo usa al momento."""
+    import app as servidor
+    base = calculos.cargar_catalogo()["servicios"]
+    s = base.get(args.servicio)
     if not s:
         sys.exit(f"No existe el servicio '{args.servicio}'.")
-    if args.tasa is not None:
-        s["tax"] = args.tasa
-    if args.honorario is not None:
-        s["fee"] = args.honorario
-    calculos.CATALOGO_PATH.write_text(json.dumps(cat, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"✓ {s['title']}: tasas RD$ {s['tax']:,} · honorarios RD$ {s['fee']:,}")
-    cmd_build(args)
+    db = conectar()
+    fila = db.execute("SELECT tax, fee FROM precios WHERE servicio_id=?", (args.servicio,)).fetchone()
+    antes = (fila["tax"], fila["fee"]) if fila else (s["tax"], s["fee"])
+    tax = args.tasa if args.tasa is not None else antes[0]
+    fee = args.honorario if args.honorario is not None else antes[1]
+    if (tax, fee) == (s["tax"], s["fee"]):
+        db.execute("DELETE FROM precios WHERE servicio_id=?", (args.servicio,))
+    else:
+        db.execute("INSERT INTO precios (servicio_id, tax, fee, actualizado) VALUES (?,?,?,?) ON CONFLICT(servicio_id)"
+                   " DO UPDATE SET tax=excluded.tax, fee=excluded.fee, actualizado=excluded.actualizado",
+                   (args.servicio, tax, fee, ahora()))
+    db.execute("INSERT INTO precios_historial (servicio_id, tax_antes, fee_antes, tax, fee, fecha) VALUES (?,?,?,?,?,?)",
+               (args.servicio, antes[0], antes[1], tax, fee, ahora()))
+    db.commit()
+    print(f"✓ {s['title']}: tasas RD$ {servidor._entero(tax):,} · honorarios RD$ {servidor._entero(fee):,} (ya se ve en la página)")
 
 
 def main():

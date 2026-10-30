@@ -265,3 +265,62 @@ def test_seo_canonical_y_vista_previa(client):
     w = client.get("/servicios?cat=viajes", headers={"Host": "www.tramitafacilrd.com"})
     assert w.status_code == 301 and w.headers["Location"] == "https://tramitafacilrd.com/servicios?cat=viajes"
     assert client.get("/assets/img/og-tramitafacil.png").status_code == 200
+
+
+# ------------------------------------------------ panel: cobros, notas, documentos, precios y origen
+def test_panel_cobros_precios_origen(client):
+    from werkzeug.security import generate_password_hash
+    os.environ["TF_ADMIN_HASH"] = generate_password_hash("clave-de-prueba")
+    try:
+        assert client.get("/api/admin/precios").status_code == 401
+        assert client.post("/api/admin/pago", json={}).status_code == 401
+        client.post("/api/admin/login", json={"clave": "clave-de-prueba"})
+
+        # la solicitud guarda de dónde llegó, desde qué página y en qué dispositivo
+        r = client.post("/api/solicitud", json={"nombre": "Luis Peña", "contacto": "+1 809 555 1111", "pais": "us",
+                                                "servicio": "apostilla_documentos", "acepta": True,
+                                                "origen": "l.instagram.com", "pagina": "/casos"},
+                        headers={"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) Mobile/15E148"})
+        codigo = r.json["codigo"]
+        e = client.get("/api/admin/expedientes").json["expedientes"][0]
+        assert (e["origen"], e["origen_detalle"], e["pagina"], e["dispositivo"]) == ("instagram", "l.instagram.com", "casos", "movil")
+        assert e["total_dop"] == 1720 and e["pagado"] == 0 and e["pendiente"] == 1720
+
+        # cobro 50 / 50
+        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": 860, "metodo": "Zelle",
+                                                 "fecha": "2026-10-20"}).json["expediente"]
+        assert e["pagado"] == 860 and e["pendiente"] == 860 and e["pagos"][0]["metodo"] == "Zelle"
+        assert client.post("/api/admin/pago", json={"codigo": codigo, "monto": -5}).status_code == 400
+        assert client.post("/api/admin/pago", json={"codigo": "RD-NADA", "monto": 5}).status_code == 404
+        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": 860}).json["expediente"]
+        assert e["pendiente"] == 0
+        e = client.post("/api/admin/pago/quitar", json={"codigo": codigo, "id": e["pagos"][1]["id"]}).json["expediente"]
+        assert e["pendiente"] == 860
+
+        # notas internas (no salen en el rastreo) y documentos recibidos
+        e = client.post("/api/admin/nota", json={"codigo": codigo, "texto": "Falta copia de cédula"}).json["expediente"]
+        assert e["notas"][0]["texto"] == "Falta copia de cédula"
+        assert "Falta copia" not in client.get(f"/api/rastreo/{codigo}").get_data(as_text=True)
+        tid = e["tramites"][0]["id"]
+        e = client.post("/api/admin/docs", json={"codigo": codigo, "tramite": tid, "docs": ["Pasaporte"]}).json["expediente"]
+        assert e["tramites"][0]["docs"] == ["Pasaporte"]
+        client.post("/api/admin/nota/quitar", json={"codigo": codigo, "id": e["notas"][0]["id"]})
+
+        # precios desde el panel: la API pública y la cotización usan el nuevo precio
+        assert client.post("/api/admin/precio", json={"servicio": "apostilla_documentos", "tax": 700, "fee": 1300}).json["ok"]
+        assert client.get("/api/precios").json["precios"]["apostilla_documentos"] == {"tax": 700, "fee": 1300}
+        assert client.post("/api/cotizar", json={"servicio": "apostilla_documentos"}).json["total"] == 2000
+        p = client.get("/api/admin/precios").json
+        s = next(x for x in p["servicios"] if x["id"] == "apostilla_documentos")
+        assert s["modificado"] and s["tax_base"] == 620 and p["historial"][0]["tax"] == 700
+        assert client.post("/api/admin/precio", json={"servicio": "apostilla_documentos", "tax": -1, "fee": 1}).status_code == 400
+        assert client.post("/api/admin/precio", json={"servicio": "apostilla_documentos", "restaurar": True}).json["ok"]
+        assert client.get("/api/precios").json["precios"] == {}
+
+        # expediente del panel: origen elegido a mano · respaldo descargable
+        e = client.post("/api/admin/nuevo", json={"nombre": "Rosa Díaz", "servicio": "creacion_cv", "origen": "referido"}).json["expediente"]
+        assert e["origen"] == "referido" and e["pagina"] == "panel"
+        r = client.get("/api/admin/respaldo")
+        assert r.status_code == 200 and r.data[:15] == b"SQLite format 3"
+    finally:
+        os.environ.pop("TF_ADMIN_HASH", None)
