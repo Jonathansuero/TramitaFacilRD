@@ -145,6 +145,7 @@
         .tab { background: none; border: 0; border-bottom: 3px solid transparent; padding: 13px 12px 10px; font-weight: 700; font-size: 14px; color: var(--suave); white-space: nowrap; display: inline-flex; align-items: center; gap: 7px; }
         .tab:hover { color: var(--azul); }
         .tab.on { color: var(--azul); border-bottom-color: var(--rojo); }
+        .tab svg { opacity: .85; }
         .tab .num { background: var(--rojo); color: #fff; font-size: 11px; border-radius: 99px; padding: 1px 7px; }
 
         /* ---------- tarjetas de secciones, indicadores y gráficas */
@@ -292,11 +293,11 @@
 
         <nav class="tabs" aria-label="Secciones del panel">
             <div class="wrap" id="tabs" role="tablist">
-                <button type="button" class="tab on" data-tab="exp" role="tab">📂 Expedientes</button>
-                <button type="button" class="tab" data-tab="resumen" role="tab">📊 Resumen</button>
-                <button type="button" class="tab" data-tab="pagos" role="tab">💵 Pagos <span class="num" id="numCobro" hidden></span></button>
-                <button type="button" class="tab" data-tab="precios" role="tab">🏷️ Precios</button>
-                <button type="button" class="tab" data-tab="herr" role="tab">🧰 Herramientas</button>
+                <button type="button" class="tab on" data-tab="exp" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Expedientes</button>
+                <button type="button" class="tab" data-tab="resumen" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Resumen</button>
+                <button type="button" class="tab" data-tab="pagos" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>Pagos <span class="num" id="numCobro" hidden></span></button>
+                <button type="button" class="tab" data-tab="precios" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg>Precios</button>
+                <button type="button" class="tab" data-tab="herr" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>Herramientas</button>
             </div>
         </nav>
 
