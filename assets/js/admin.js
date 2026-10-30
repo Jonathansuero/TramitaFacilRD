@@ -44,6 +44,7 @@
         resumen: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
         precios: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/>',
         herramientas: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+        validar_pagos: '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
         zafacon: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>',
         usuarios: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/>'
     };
@@ -69,6 +70,9 @@
     let expedientes = [], conteo = {}, cat = null, animarMapa = false;
     let yo = null, nombresPermisos = {}, correoActivo = false;       // usuario con sesión y descripción de cada permiso
     const puede = p => !!(yo && (yo.permisos || []).includes(p));
+    /** Confirmar pagos: contabilidad (validar_pagos) o un administrador. */
+    const puedeValidar = () => puede('validar_pagos') || puede('usuarios');
+    const confirmados = pagos => (pagos || []).filter(p => !p.estado || p.estado === 'confirmado');
     const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
     let usuariosData = null, editandoUsuario = null;
     const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios', mensajes: 'usuarios' };
@@ -494,6 +498,31 @@
         </div>`;
     }
 
+    const ESTADO_PAGO = { pendiente: ['Por confirmar', 'pend'], confirmado: ['Confirmado', 'ok'], rechazado: ['Rechazado', 'mal'] };
+    function filaPago(e, p) {
+        const est = p.estado || 'confirmado', [nombre, clase] = ESTADO_PAGO[est] || [est, ''];
+        const puedeBorrar = puedeValidar() || (est === 'pendiente' && yo && p.registrado_por === yo.usuario);
+        const quien = est === 'pendiente' ? (p.registrado_por ? `registró ${p.registrado_por}` : '')
+            : est === 'confirmado' ? (p.validado_por ? `confirmó ${p.validado_por}` : '') : `rechazó ${p.validado_por || ''}${p.motivo ? `: ${p.motivo}` : ''}`;
+        return `<li class="pago ${clase}"><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''} <span class="ep ${clase}">${esc(nombre)}</span>
+                <br><small>${esc(diaCorto(p.fecha))}${p.nota ? ` · ${esc(p.nota)}` : ''}${quien ? ` · ${esc(quien)}` : ''}</small>
+                ${est === 'pendiente' && puedeValidar() ? `<span class="validar-btns"><button type="button" class="btn btn-verde btn-sm" data-validar-pago="${p.id}" data-codigo="${esc(e.codigo)}">${ico('ok', 14)} Confirmar</button>
+                    <button type="button" class="btn btn-borde btn-sm" data-rechazar-pago="${p.id}" data-codigo="${esc(e.codigo)}">Rechazar</button></span>` : ''}</span>
+            ${puedeBorrar ? `<button type="button" class="x" data-quitar-pago="${p.id}" data-codigo="${esc(e.codigo)}" title="Borrar este pago" aria-label="Borrar este pago">×</button>` : ''}</li>`;
+    }
+    async function validarPago(btn, accion) {
+        let motivo = '';
+        if (accion === 'rechazar') {
+            motivo = window.prompt('¿Por qué se rechaza este pago? (por ejemplo: no llegó la transferencia)') || '';
+            if (!motivo.trim()) return;
+        }
+        btn.disabled = true;
+        try {
+            const r = await post('/admin/pago/validar', { codigo: btn.dataset.codigo, id: Number(btn.dataset.validarPago || btn.dataset.rechazarPago), accion, motivo });
+            reemplazar(r.expediente);
+            toast(accion === 'confirmar' ? 'Pago confirmado. Ya cuenta como cobrado.' : 'Pago rechazado. No cuenta como cobrado.');
+        } catch (e) { if (e.message !== 'sesion') toast(e.message); btn.disabled = false; }
+    }
     function bloqueCobro(e) {
         const pagos = e.pagos || [], total = e.total_dop, pagado = e.pagado || 0;
         const pct = total ? Math.min(100, Math.round(pagado / total * 100)) : 0;
@@ -507,8 +536,8 @@
                 <div class="${e.pendiente > 0 ? 'pend' : 'ok'}"><small>Pendiente</small><b>${esc(total == null ? '—' : rd(e.pendiente))}</b></div>
             </div>
             ${total ? `<div class="progreso"><i style="width:${pct}%"></i></div>` : '<small style="color:var(--suave)">Este expediente tiene un trámite sin precio; ponle precio para calcular lo pendiente.</small>'}
-            ${pagos.length ? `<ul class="filas">${pagos.map(p => `<li><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''}<br><small>${esc(diaCorto(p.fecha))}${p.nota ? ` · ${esc(p.nota)}` : ''}</small></span>
-                <button type="button" class="x" data-quitar-pago="${p.id}" data-codigo="${esc(e.codigo)}" title="Borrar este pago" aria-label="Borrar este pago">×</button></li>`).join('')}</ul>` : ''}
+            ${e.por_confirmar > 0 ? `<div class="pago-alerta">${ico('validar_pagos', 18)}<span><b>${esc(rd(e.por_confirmar))} por confirmar</b>${puedeValidar() ? 'Revisa que el dinero llegó y confírmalo o recházalo.' : 'Administración o contabilidad debe confirmarlo. El cliente ve «Pago pendiente por confirmar».'}</span></div>` : ''}
+            ${pagos.length ? `<ul class="filas pagos-lista">${pagos.map(p => filaPago(e, p)).join('')}</ul>` : ''}
             ${e.pendiente === 0 && pagado > 0 ? `<small style="color:var(--verde);font-weight:700">${ico('ok')} Pagado completo</small>` : `
             <form class="form-pago" data-codigo="${esc(e.codigo)}" data-total="${total ?? ''}" data-pendiente="${e.pendiente ?? ''}">
                 <select class="input" name="tipo" aria-label="Tipo de pago">${Object.entries(TIPO_PAGO).map(([k, n]) => `<option value="${k}"${k === tipo ? ' selected' : ''}>${n}</option>`).join('')}</select>
@@ -625,8 +654,8 @@
                     <div class="acciones"><button class="btn btn-peligro" type="submit">Sí, mover al zafacón</button><button class="btn btn-borde" type="button" data-cancelar-borrar>Cancelar</button></div>
                 </form>` : `<div class="zona-peligro"><button type="button" class="link-rojo" data-eliminar="${esc(e.codigo)}">${ico('zafacon', 14)} Eliminar cliente</button></div>`) : ''}
             </div>`;
-        const cobroChip = !puede('pagos') ? '' : e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
-            : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : '');
+        const cobroChip = !puede('pagos') ? '' : (e.por_confirmar > 0 ? '<span class="chip porconf">Pago por confirmar</span>' : '') + (e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
+            : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : ''));
         return `<article class="exp${recien.has(e.codigo) ? ' recien' : ''}" data-codigo="${esc(e.codigo)}">
             <button type="button" class="exp-cab" aria-expanded="${abierto}">
                 <span class="exp-nombre">${esc(e.nombre || e.cliente)}</span>
@@ -718,7 +747,7 @@
         const det = expedientes.filter(detenido).length;
         const listosP = enP.filter(e => e.paso === 4).length;
         const cotizado = enP.reduce((s, e) => s + (e.total_dop || 0), 0);
-        const pagosP = expedientes.flatMap(e => (e.pagos || []).filter(p => enPeriodo(p.fecha, dias)));
+        const pagosP = expedientes.flatMap(e => confirmados(e.pagos).filter(p => enPeriodo(p.fecha, dias)));
         const cobrado = pagosP.reduce((s, p) => s + p.monto, 0);
         const porCobrar = expedientes.reduce((s, e) => s + (e.pendiente || 0), 0);
         const cambio = antes == null ? '' : (antes === 0 ? (enP.length ? '<small class="sube">▲ nuevo</small>' : '<small>igual</small>')
@@ -774,7 +803,9 @@
     // ============================================================ PAGOS
     function pintarPagos() {
         const hoy = hoyRD(), mes = hoy.slice(0, 7);
-        const todos = expedientes.flatMap(e => (e.pagos || []).map(p => ({ ...p, e })));
+        const todosConEstado = expedientes.flatMap(e => (e.pagos || []).map(p => ({ ...p, e })));
+        const porConfirmar = todosConEstado.filter(p => p.estado === 'pendiente').sort((a, b) => String(a.fecha).localeCompare(String(b.fecha)));
+        const todos = todosConEstado.filter(p => !p.estado || p.estado === 'confirmado');
         const delMes = todos.filter(p => String(p.fecha).startsWith(mes));
         const cobradoMes = delMes.reduce((s, p) => s + p.monto, 0);
         const pendientes = expedientes.filter(e => e.pendiente > 0).sort((a, b) => b.pendiente - a.pendiente);
@@ -795,13 +826,17 @@
             <div class="cabecera" style="margin:0"><div><h2>Pagos</h2><p>Anticipo del 50% para iniciar y 50% al terminar</p></div></div>
             <div class="kpis">
                 <div class="kpi dinero"><span>Cobrado en ${esc(nombreMes)}</span><b>${esc(rd(cobradoMes))}</b><small>${delMes.length} ${delMes.length === 1 ? 'pago' : 'pagos'}</small></div>
+                ${porConfirmar.length ? `<div class="kpi alerta"><span>Por confirmar</span><b>${esc(rd(porConfirmar.reduce((s, p) => s + p.monto, 0)))}</b><small>${porConfirmar.length} ${porConfirmar.length === 1 ? 'pago' : 'pagos'} sin confirmar</small></div>` : ''}
                 <div class="kpi"><span>Por cobrar</span><b style="color:var(--rojo)">${esc(rd(porCobrar))}</b><small>${pendientes.length} ${pendientes.length === 1 ? 'cliente' : 'clientes'}</small></div>
                 <div class="kpi${sinAnticipo.length ? ' alerta' : ''}"><span>Sin anticipo todavía</span><b>${sinAnticipo.length}</b><small>expedientes abiertos sin ningún pago</small></div>
             </div>
+            ${porConfirmar.length ? `<div class="card por-confirmar"><h3>${ico('validar_pagos', 18)} Pagos por confirmar (${porConfirmar.length})</h3>
+                <p class="sub">${puedeValidar() ? 'Revisa en tu banco o app que el dinero llegó antes de confirmar. Hasta entonces no cuentan como cobrados.' : 'Los registró el equipo; administración o contabilidad debe confirmarlos.'}</p>
+                <ul class="filas pagos-lista">${porConfirmar.map(p => filaPago(p.e, p).replace('<li class="pago pend"><span>', `<li class="pago pend"><span><b class="pc-cli">${esc(p.e.nombre || p.e.cliente)}</b> <span class="codigo">${esc(p.e.codigo)}</span><br>`)).join('')}</ul></div>` : ''}
             <div class="card"><h3>Pendientes de cobro</h3><p class="sub">De mayor a menor. Toca «Registrar pago» para anotar lo que recibiste.</p>
                 ${pendientes.length ? `<ul class="filas">${pendientes.map(fila).join('')}</ul>` : '<p class="rank-vacio">Nadie te debe nada.</p>'}</div>
             <div class="grid-2">
-                <div class="card"><h3>Pagos recientes</h3><p class="sub">Los últimos 20 que registraste</p>
+                <div class="card"><h3>Pagos recientes</h3><p class="sub">Los últimos 20 confirmados</p>
                     ${todos.length ? `<ul class="filas">${todos.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)) || b.id - a.id).slice(0, 20).map(p => `<li><span><b>${esc(p.e.nombre || p.e.cliente)}</b><br><small>${esc(diaCorto(p.fecha))} · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''}</small></span><b style="color:var(--verde)">${esc(rd(p.monto))}</b></li>`).join('')}</ul>` : '<p class="rank-vacio">Todavía no has registrado pagos.</p>'}</div>
                 ${ranking(`Cómo te pagan (${esc(nombreMes)})`, 'Método de pago de este mes', contar(delMes, p => p.metodo || 'Sin dato'), k => k)}
             </div>
@@ -871,10 +906,10 @@
 
     // ============================================================ USUARIOS
     const PRESETS = {
-        'Dueño (todo)': Object.keys({ expedientes: 1, pagos: 1, resumen: 1, precios: 1, herramientas: 1, usuarios: 1 }),
+        'Dueño (todo)': Object.keys({ expedientes: 1, pagos: 1, validar_pagos: 1, resumen: 1, precios: 1, herramientas: 1, usuarios: 1 }),
         'Gestor': ['expedientes'],
         'Gestor + cobros': ['expedientes', 'pagos'],
-        'Contabilidad': ['pagos', 'resumen', 'herramientas'],
+        'Contabilidad': ['pagos', 'validar_pagos', 'resumen', 'herramientas'],
         'Solo lectura': []
     };
     async function cargarUsuarios() {
@@ -1135,8 +1170,9 @@
         const enProceso = expedientes.filter(e => e.paso < 4), det = expedientes.filter(detenido);
         const nuevos = expedientes.filter(e => e.paso === 1);
         const porCobrar = puede('pagos') ? expedientes.filter(e => e.pendiente > 0) : [];
-        const atender = [...det.map(e => [e, 'det']), ...nuevos.filter(e => !detenido(e)).map(e => [e, 'nuevo'])].slice(0, 6);
-        const tile = (n, txt, ir, cls = '') => `<button type="button" class="tile ${cls}" data-ir="${ir}"><b>${n}</b><span>${txt}</span></button>`;
+        const pagosConf = puedeValidar() ? expedientes.filter(e => e.por_confirmar > 0).map(e => [e, 'pago']) : [];
+        const atender = [...pagosConf, ...det.map(e => [e, 'det']), ...nuevos.filter(e => !detenido(e)).map(e => [e, 'nuevo'])].slice(0, 7);
+        const tile = (n, txt, ir, cls = '') => `<button type="button" class="tile ${cls}" data-ini="${ir}"><b>${n}</b><span>${txt}</span></button>`;
         $('tInicio').innerHTML = `
             <div class="hola"><h2>Hola, ${esc(nombre || 'equipo')}</h2><p>${esc(saludo())} · ${esc(hoy)}${yo ? ` <span class="rol ${rolDe(yo.permisos).c}">${esc(rolDe(yo.permisos).n)}</span>` : ''}</p></div>
             ${yo && !puede('expedientes') ? `<div class="aviso-lectura">${ico('escudo', 18)}<span><b>Acceso de consulta</b>Puedes ver los expedientes y su estado. Para hacer cambios, pídele permiso al administrador.</span></div>` : ''}
@@ -1152,11 +1188,11 @@
                 ${tile(det.length, 'Detenidos', 'detenidos', det.length ? 'alerta' : '')}
                 ${puede('pagos') ? tile(porCobrar.length, 'Por cobrar', 'cobro', porCobrar.length ? 'cobro' : '') : tile(expedientes.filter(e => e.paso === 4).length, 'Listos', 'listos')}
             </div>
-            ${atender.length ? `<div class="bloque-ini"><h4>Para atender <small>· nuevos y detenidos</small></h4>${atender.map(([e, k]) => `
+            ${atender.length ? `<div class="bloque-ini"><h4>Para atender <small>· ${puedeValidar() ? 'pagos por confirmar, ' : ''}nuevos y detenidos</small></h4>${atender.map(([e, k]) => `
                 <button type="button" class="fila-ini" data-codigo="${esc(e.codigo)}">
                     <span class="ini">${esc(iniciales(e.nombre || e.cliente))}</span>
                     <span class="t"><b>${esc(e.nombre || e.cliente)}</b><small>${bandera(e.pais)} ${esc((e.tramites || []).length > 1 ? `${e.tramites.length} trámites` : (e.servicio_titulo || ((e.tramites || [])[0] || {}).titulo || ''))}</small></span>
-                    <span class="etq${k === 'nuevo' ? ' nuevo' : ''}${recien.has(e.codigo) ? ' ahora' : ''}">${k === 'nuevo' ? 'Nuevo' : `${diasSin(e)} días`}</span>
+                    <span class="etq${k === 'nuevo' ? ' nuevo' : k === 'pago' ? ' pago' : ''}${recien.has(e.codigo) ? ' ahora' : ''}">${k === 'nuevo' ? 'Nuevo' : k === 'pago' ? `Confirmar ${esc(rd(e.por_confirmar))}` : `${diasSin(e)} días`}</span>
                 </button>`).join('')}</div>` : `<div class="vacio"><b>Todo al día</b>No hay expedientes nuevos ni detenidos.</div>`}`;
         animarMapa = false;
     }
@@ -1171,8 +1207,8 @@
         if (pais) { irAExpedientes({ pais: pais.dataset.pais }); return; }
         const f = ev.target.closest('[data-codigo]');
         if (f) { verExpediente(f.dataset.codigo); return; }
-        const t = ev.target.closest('[data-ir]'); if (!t) return;
-        const ir = t.dataset.ir;
+        const t = ev.target.closest('[data-ini]'); if (!t) return;
+        const ir = t.dataset.ini;
         if (ir === 'nuevos') irAExpedientes({ paso: 1 });
         else if (ir === 'detenidos') irAExpedientes({ detenidos: true });
         else if (ir === 'listos') irAExpedientes({ paso: 4 });
@@ -1186,7 +1222,7 @@
     // ---------------- avisos: solicitudes nuevas (no para usuarios de solo lectura)
     let avisosData = { avisos: [], sin_leer: 0, ultimo: 0 }, ultimoVisto = null;
     async function cargarAvisos() {
-        const ok = !!(yo && puede('expedientes'));
+        const ok = !!(yo && (puede('expedientes') || puedeValidar()));
         $('btnAvisos').hidden = !ok;
         if (!ok || $('vPanel').hidden) return;
         try {
@@ -1372,6 +1408,17 @@
         const ir = ev.target.closest('[data-ir]');
         if (ir) { ev.preventDefault(); irATab(ir.dataset.ir); return; }
         if (ev.target.closest('[data-ver-detenidos]')) { ev.preventDefault(); filtro.detenidos = true; filtro.paso = 0; $('q').value = ''; irATab('exp'); return; }
+        if (ev.target.closest('#tPagos')) {   // confirmar, rechazar o borrar pagos desde la pestaña Pagos
+            const vp = ev.target.closest('[data-validar-pago]'), rp2 = ev.target.closest('[data-rechazar-pago]');
+            if (vp || rp2) { await validarPago(vp || rp2, vp ? 'confirmar' : 'rechazar'); pintarPagos(); return; }
+            const qp = ev.target.closest('[data-quitar-pago]');
+            if (qp) {
+                if (!window.confirm('¿Borrar este pago?')) return;
+                try { reemplazar((await post('/admin/pago/quitar', { codigo: qp.dataset.codigo, id: Number(qp.dataset.quitarPago) })).expediente); pintarPagos(); toast('Pago borrado'); }
+                catch (e) { if (e.message !== 'sesion') toast(e.message); }
+                return;
+            }
+        }
         const ver = ev.target.closest('[data-ver]');
         if (ver) { verExpediente(ver.dataset.ver); return; }
         const cp = ev.target.closest('[data-copiar-txt]');
@@ -1497,6 +1544,8 @@
             catch (e) { if (e.message !== 'sesion') toast(e.message); ed2.disabled = false; }
             return;
         }
+        const vp = ev.target.closest('[data-validar-pago]'), rp2 = ev.target.closest('[data-rechazar-pago]');
+        if (vp || rp2) { await validarPago(vp || rp2, vp ? 'confirmar' : 'rechazar'); pintarTodo(); return; }
         const qn = ev.target.closest('[data-quitar-nota]');
         if (qn) {
             try { reemplazar((await post('/admin/nota/quitar', { codigo: qn.dataset.codigo, id: Number(qn.dataset.quitarNota) })).expediente); pintar(); toast('Nota borrada'); }
@@ -1535,7 +1584,8 @@
                     metodo: form.metodo.value, fecha: form.fecha.value });
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintarTodo();
-                toast(r.expediente.pendiente === 0 ? '¡Pagado completo!' : `Pago registrado. Pendiente: ${rd(r.expediente.pendiente)}`);
+                toast(r.estado === 'pendiente' ? 'Pago registrado. Queda por confirmar por administración o contabilidad.'
+                    : r.expediente.pendiente === 0 ? '¡Pagado completo!' : `Pago registrado. Pendiente: ${rd(r.expediente.pendiente)}`);
             } else if (form.classList.contains('form-cliente')) {
                 const contacto = [form.wa.value.trim(), form.email.value.trim()].filter(Boolean).join(' · ');
                 const r = await post('/admin/cliente', { codigo: form.dataset.codigo, nombre: form.nombre.value, contacto, pais: form.pais.value });

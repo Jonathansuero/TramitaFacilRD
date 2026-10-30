@@ -619,6 +619,20 @@
         details.datos-cli summary::after { content: "Ver ▾"; text-transform: none; letter-spacing: 0; color: var(--azul); font-size: 13px; }
         details.datos-cli[open] summary::after { content: "Ocultar ▴"; }
         details.datos-cli[open] summary { margin-bottom: 12px; }
+
+        /* pagos por confirmar */
+        .chip.porconf { background: #FEF3C7; color: #92400E; }
+        .pago-alerta { display: flex; gap: 10px; align-items: flex-start; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 10px 12px; color: #92400E; font-size: 13px; }
+        .pago-alerta b { display: block; font-size: 14px; color: #78350F; }
+        .ep { display: inline-block; font-size: 11px; font-weight: 700; border-radius: 99px; padding: 1px 8px; vertical-align: 1px; }
+        .ep.pend { background: #FEF3C7; color: #92400E; } .ep.ok { background: var(--emerald); color: var(--emerald-t); } .ep.mal { background: #FEE2E2; color: #991B1B; }
+        .pago.mal > span > b { text-decoration: line-through; color: var(--suave); }
+        .validar-btns { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .btn-verde { background: var(--verde); color: #fff; } .btn-verde:hover { background: #0B6644; }
+        .por-confirmar { border-color: #FDE68A; background: linear-gradient(180deg, #FFFBEB 0%, #fff 60%); }
+        .por-confirmar h3 { display: flex; gap: 8px; align-items: center; color: #92400E; }
+        .pc-cli { color: var(--texto); }
+        .fila-ini .etq.pago { background: #FEF3C7; color: #92400E; }
     </style>
 </head>
 <body>

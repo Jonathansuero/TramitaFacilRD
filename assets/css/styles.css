@@ -703,3 +703,13 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 
 /* Campos obligatorios del formulario de solicitud */
 .oblig { color: #CE1126; font-weight: 800; }
+
+/* Rastreo: estado del pago */
+.track-pago { margin-top: 1rem; display: flex; gap: .75rem; align-items: flex-start; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 1rem; padding: .85rem 1rem; text-align: left; }
+.track-pago .tp-ico { width: 2.25rem; height: 2.25rem; border-radius: .7rem; background: #F59E0B; color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.track-pago strong { display: block; color: #92400E; font-size: .9rem; }
+.track-pago p { margin: .15rem 0 0; color: #78350F; font-size: .78rem; line-height: 1.45; }
+.track-pago.ok { background: #ECFDF5; border-color: #A7F3D0; }
+.track-pago.ok .tp-ico { background: #0E7A52; }
+.track-pago.ok strong { color: #065F46; }
+.track-pago.ok p { color: #065F46; }

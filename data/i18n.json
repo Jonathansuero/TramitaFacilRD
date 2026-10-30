@@ -856,6 +856,26 @@
       "No file found with that code. Please check and try again.",
       "Aucun dossier avec ce code. Vérifiez et réessayez."
     ],
+    "track.pago.pend": [
+      "Pago pendiente por confirmar",
+      "Payment pending confirmation",
+      "Paiement en attente de confirmation"
+    ],
+    "track.pago.pend.d": [
+      "Recibimos el registro de tu pago. Nuestro equipo está verificando que llegó; te avisaremos cuando quede confirmado.",
+      "We have your payment on record. Our team is verifying it arrived; we will let you know once it is confirmed.",
+      "Nous avons enregistré votre paiement. Notre équipe vérifie sa réception ; nous vous préviendrons dès qu'il sera confirmé."
+    ],
+    "track.pago.ok": [
+      "Pago confirmado",
+      "Payment confirmed",
+      "Paiement confirmé"
+    ],
+    "track.pago.ok.d": [
+      "Tu pago fue verificado por nuestro equipo. ¡Gracias!",
+      "Our team has verified your payment. Thank you!",
+      "Notre équipe a vérifié votre paiement. Merci !"
+    ],
     "track.docs.t": [
       "Tus documentos están listos",
       "Your documents are ready",
