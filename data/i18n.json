@@ -2180,6 +2180,21 @@
       "Iniciar Solicitud",
       "Start Request",
       "Lancer la demande"
+    ],
+    "casos.crs.eyebrow": [
+      "Desliza y descubre",
+      "Swipe and discover",
+      "Faites défiler"
+    ],
+    "casos.crs.t": [
+      "Casos que resolvemos todos los días",
+      "Cases we solve every day",
+      "Des cas que nous résolvons chaque jour"
+    ],
+    "casos.crs.sub": [
+      "Toca las flechas o desliza para ver cada caso. Cuando encuentres el tuyo, inicia tu solicitud.",
+      "Tap the arrows or swipe to see each case. When you find yours, start your request.",
+      "Touchez les flèches ou faites défiler pour voir chaque cas. Quand vous trouvez le vôtre, lancez votre demande."
     ]
   },
   "contenido": {

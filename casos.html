@@ -32,7 +32,7 @@
 <body data-page="casos" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen">
 <div id="tf-header"></div>
 <main id="main">
-    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white pt-10 pb-24 relative overflow-hidden">
+    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white pt-10 pb-16 relative overflow-hidden">
         <div class="hero-grid absolute inset-0 pointer-events-none"></div>
         <div class="max-w-4xl mx-auto px-4 sm:px-6 relative text-center">
             <nav class="breadcrumb justify-center" aria-label="breadcrumb"><a href="/" data-i18n="foot.inicio">Inicio</a><span>›</span><span data-i18n="nav.casos">Casos reales</span></nav>
@@ -42,8 +42,15 @@
         </div>
     </section>
 
-    <section class="-mt-14 pb-10 relative z-10">
+    <section class="pt-12 md:pt-16 pb-12 relative">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="crs-cabecera">
+                <div>
+                    <span class="eyebrow bg-red-100 text-domRed" data-i18n="casos.crs.eyebrow">Desliza y descubre</span>
+                    <h2 class="section-title text-left mt-2" data-i18n="casos.crs.t">Casos que resolvemos todos los días</h2>
+                    <p class="text-slate-600 text-sm mt-1" data-i18n="casos.crs.sub">Toca las flechas o desliza para ver cada caso. Cuando encuentres el tuyo, inicia tu solicitud.</p>
+                </div>
+            </div>
             <div id="casosCarrusel"></div>
             <p class="text-center text-xs text-slate-500 mt-6" data-i18n="casos.nota">Los nombres de las conversaciones son ilustrativos; las situaciones son las que vemos todos los días.</p>
         </div>
