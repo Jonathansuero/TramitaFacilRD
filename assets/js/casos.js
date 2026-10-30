@@ -29,11 +29,9 @@
         const err = [];
         $$('#kForm .input').forEach(i => i.classList.remove('is-invalid'));
         if (d.nombre.length < 2) { err.push(t('sol.e.nombre')); $('kNombre').classList.add('is-invalid'); }
-        if (!d.whatsapp && !d.email) { err.push(t('sol.e.contacto')); $('kTel').classList.add('is-invalid'); $('kEmail').classList.add('is-invalid'); }
-        else {
-            if (d.whatsapp && !ct.waValido(d.whatsapp)) { err.push(t('sol.e.wa')); $('kTel').classList.add('is-invalid'); }
-            if (d.email && !ct.correoValido(d.email)) { err.push(t('sol.e.email')); $('kEmail').classList.add('is-invalid'); }
-        }
+        // WhatsApp y correo son obligatorios; el comentario es opcional
+        if (!d.whatsapp || !ct.waValido(d.whatsapp)) { err.push(t('sol.e.wa')); $('kTel').classList.add('is-invalid'); }
+        if (!d.email || !ct.correoValido(d.email)) { err.push(t('sol.e.email')); $('kEmail').classList.add('is-invalid'); }
         if (!d.acepta) err.push(t('sol.e.acepta'));
         return err.length ? t('sol.e.falta', { lista: err.join(', ') }) : '';
     }

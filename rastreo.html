@@ -79,6 +79,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <h3 class="track-items-t" data-i18n="track.items">Tus trámites en este código</h3>
                             <ul id="trackItemsList" class="track-items"></ul>
                         </div>
+                        <div id="trackDocs" class="hidden track-docs">
+                            <div class="td-cab"><span class="td-ico"><i class="fa-solid fa-file-arrow-down"></i></span>
+                                <div><strong data-i18n="track.docs.t">Tus documentos están listos</strong><small id="trackDocsN"></small>
+                                <p data-i18n="track.docs.sub">Para descargarlos, confirma los últimos 4 dígitos de tu WhatsApp o tu correo.</p></div></div>
+                            <form id="trackDocsForm" class="td-form">
+                                <input type="text" id="trackDocsDato" data-i18n-aria="track.docs.aria" placeholder="1234 · tu@correo.com" autocomplete="off" maxlength="120" required>
+                                <button type="submit" data-i18n="track.docs.btn">Ver documentos</button>
+                            </form>
+                            <p id="trackDocsError" class="hidden td-error" data-i18n="track.docs.error">Los datos no coinciden con este expediente. Revisa e intenta de nuevo.</p>
+                            <ul id="trackDocsList" class="td-lista"></ul>
+                            <p id="trackDocsVence" class="hidden td-nota" data-i18n="track.docs.vence">Los enlaces son personales y vencen en 30 días.</p>
+                        </div>
                     </div>
                     <div id="trackError" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 text-center text-red-700 text-xs" data-i18n="track.error">No encontramos ningún expediente con ese código. Verifica e intenta de nuevo.</div>
                 </div>

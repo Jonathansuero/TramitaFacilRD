@@ -84,15 +84,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div><label for="kNombre" class="form-label" data-i18n="sol.nombre">Nombre completo</label><input id="kNombre" required maxlength="80" autocomplete="name" class="input"></div>
                 <div class="grid sm:grid-cols-2 gap-4">
                     <div>
-                        <label for="kTel" class="form-label"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i><span data-i18n="sol.whatsapp">WhatsApp</span></label>
+                        <label for="kTel" class="form-label"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1" aria-hidden="true"></i><span data-i18n="sol.whatsapp">WhatsApp</span> <span class="oblig" aria-hidden="true">*</span></label>
                         <div class="tel-grupo">
                             <select id="kPrefijo" class="input tel-prefijo" data-i18n-aria="sol.prefijo"></select>
-                            <input id="kTel" type="tel" inputmode="tel" maxlength="20" autocomplete="tel-national" placeholder="809 555 1234" class="input">
+                            <input id="kTel" type="tel" inputmode="tel" maxlength="20" autocomplete="tel-national" placeholder="809 555 1234" required aria-required="true" class="input">
                         </div>
                     </div>
-                    <div><label for="kEmail" class="form-label"><i class="fa-regular fa-envelope text-domBlue mr-1" aria-hidden="true"></i><span data-i18n="sol.email">Correo electrónico</span></label><input id="kEmail" type="email" inputmode="email" maxlength="120" autocomplete="email" placeholder="tu@correo.com" class="input"></div>
+                    <div><label for="kEmail" class="form-label"><i class="fa-regular fa-envelope text-domBlue mr-1" aria-hidden="true"></i><span data-i18n="sol.email">Correo electrónico</span> <span class="oblig" aria-hidden="true">*</span></label><input id="kEmail" type="email" inputmode="email" maxlength="120" autocomplete="email" placeholder="tu@correo.com" required aria-required="true" class="input"></div>
                 </div>
-                <p class="text-[11px] text-slate-500 -mt-2" data-i18n="sol.contacto.ayuda">Déjanos tu WhatsApp, tu correo o ambos.</p>
+                <p class="text-[11px] text-slate-500 -mt-2" data-i18n="sol.contacto.ayuda">Ambos son obligatorios: por WhatsApp te atendemos y por correo te avisamos de cada avance y te enviamos tus documentos.</p>
                 <div><label for="kPais" class="form-label" data-i18n="sol.pais">¿Dónde resides?</label><select id="kPais" class="input"></select></div>
                 <div><label for="kMensaje" class="form-label" data-i18n="sol.detalles">Detalles (opcional)</label><textarea id="kMensaje" rows="3" maxlength="1000" class="input" data-i18n-ph="sol.ph"></textarea></div>
                 <input type="text" id="kWeb" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">

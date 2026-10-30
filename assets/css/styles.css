@@ -678,3 +678,28 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 /* Carrusel del inicio: solo «Iniciar solicitud» */
 .crs-pie-simple { justify-content: flex-start; }
 .crs-btn-grande { min-height: 52px; padding: .75rem 1.5rem; font-size: .95rem; }
+
+/* Rastreo: documentos listos para descargar */
+.track-docs { margin-top: 1.25rem; background: #fff; border: 1px solid #BFD3EE; border-radius: 1rem; padding: 1rem; display: grid; gap: .75rem; text-align: left; }
+.td-cab { display: flex; gap: .75rem; align-items: flex-start; }
+.td-ico { width: 2.5rem; height: 2.5rem; border-radius: .75rem; background: #002D62; color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.td-cab strong { display: block; color: #002D62; font-size: .95rem; }
+.td-cab small { display: block; color: #0E7A52; font-weight: 700; font-size: .75rem; }
+.td-cab p { margin: .25rem 0 0; color: #64748B; font-size: .8rem; line-height: 1.45; }
+.td-form { display: flex; gap: .5rem; flex-wrap: wrap; }
+.td-form input { flex: 1 1 12rem; min-width: 0; padding: .7rem .9rem; border: 1px solid #CBD5E1; border-radius: .75rem; font-size: .875rem; }
+.td-form input:focus { outline: 2px solid #002D62; outline-offset: 1px; }
+.td-form button { background: #002D62; color: #fff; font-weight: 700; font-size: .875rem; padding: .7rem 1.1rem; border-radius: .75rem; border: 0; }
+.td-form button:disabled { opacity: .6; }
+.td-error { margin: 0; color: #B91C1C; font-size: .8rem; font-weight: 600; }
+.td-lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.td-lista a { display: flex; align-items: center; gap: .75rem; padding: .75rem .9rem; border: 1px solid #E2E8F0; border-radius: .75rem; color: #0F172A; text-decoration: none; font-size: .875rem; font-weight: 600; }
+.td-lista a:hover { border-color: #002D62; background: #F8FBFF; }
+.td-lista a > i:first-child { color: #CE1126; font-size: 1.25rem; }
+.td-lista a > i:last-child { color: #002D62; margin-left: auto; }
+.td-lista span { min-width: 0; overflow-wrap: anywhere; }
+.td-lista small { display: block; color: #64748B; font-weight: 500; font-size: .75rem; }
+.td-nota { margin: 0; color: #64748B; font-size: .75rem; }
+
+/* Campos obligatorios del formulario de solicitud */
+.oblig { color: #CE1126; font-weight: 800; }

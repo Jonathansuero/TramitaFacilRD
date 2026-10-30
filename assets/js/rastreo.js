@@ -5,7 +5,7 @@
     const { D, state, $, esc, t, waLink, saludo, restart } = TF;
 
     const TONOS = { amber: 'bg-amber-100 text-amber-800', emerald: 'bg-emerald-100 text-emerald-800', sky: 'bg-sky-100 text-sky-800' };
-    let ultimo = null;
+    let ultimo = null, docsDe = null;
 
     async function consultar() {
         const input = $('trackInput'), code = input.value.trim().toUpperCase();
@@ -43,6 +43,11 @@
                 <div class="ti-bar" aria-label="${esc(t('track.s' + it.step))}">${[1, 2, 3, 4].map(i => `<i class="${i <= it.step ? (it.step === 4 ? 'on ok' : 'on') : ''}"></i>`).join('')}</div>
                 <p>${esc(it.detail)}</p>
             </li>`).join('');
+        // Documentos listos para descargar (se piden los últimos 4 del WhatsApp o el correo)
+        const nDocs = Number(data.archivos || 0);
+        $('trackDocs').classList.toggle('hidden', !nDocs || data.demo);
+        $('trackDocsN').textContent = !nDocs ? '' : nDocs === 1 ? t('track.docs.n1') : t('track.docs.n', { n: nDocs });
+        if (!docsDe || docsDe !== code) { $('trackDocsList').innerHTML = ''; $('trackDocsForm').classList.remove('hidden'); $('trackDocsVence').classList.add('hidden'); $('trackDocsError').classList.add('hidden'); docsDe = null; }
         $('trackLineFill').style.width = '0%';
         requestAnimationFrame(() => $('trackLineFill').style.width = ((data.step - 1) / 3 * 100) + '%');
         for (let i = 1; i <= 4; i++) {
@@ -52,6 +57,22 @@
         }
     }
 
+    async function verDocumentos() {
+        const code = ultimo && ultimo.code, dato = $('trackDocsDato').value.trim(), btn = $('trackDocsForm').querySelector('button');
+        if (!code || !dato) return;
+        btn.disabled = true; $('trackDocsError').classList.add('hidden');
+        try {
+            const r = await TF.api('/rastreo/' + encodeURIComponent(code) + '/archivos', { method: 'POST', body: JSON.stringify({ dato }) });
+            const kb = b => b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(b / 1024)) + ' KB';
+            $('trackDocsList').innerHTML = r.archivos.map(a => `<li><a href="${esc(a.url)}" rel="nofollow noopener" download>
+                <i class="fa-solid ${/\.pdf$/i.test(a.nombre) ? 'fa-file-pdf' : 'fa-file-image'}"></i><span>${esc(a.nombre)}<small>${kb(a.tamano)}</small></span><i class="fa-solid fa-download"></i></a></li>`).join('');
+            $('trackDocsForm').classList.add('hidden'); $('trackDocsVence').classList.remove('hidden'); docsDe = code;
+        } catch (e) {
+            const err = $('trackDocsError'); err.textContent = e.status === 429 ? e.message : t('track.docs.error');
+            err.classList.remove('hidden'); restart(err, 'shake');
+        } finally { btn.disabled = false; }
+    }
+
     function actualizarWa() {
         const code = $('trackInput').value.trim().toUpperCase();
         $('trackWa').href = waLink(saludo(code ? t('wa.rastreo', { code }) : t('wa.rastreo.sin')));
@@ -59,6 +80,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         $('trackForm').addEventListener('submit', e => { e.preventDefault(); consultar(); });
+        $('trackDocsForm').addEventListener('submit', e => { e.preventDefault(); verDocumentos(); });
         $('trackInput').addEventListener('input', actualizarWa);
         document.addEventListener('click', e => {
             const b = e.target.closest('[data-demo-code]');

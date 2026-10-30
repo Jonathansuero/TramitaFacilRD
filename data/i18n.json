@@ -856,6 +856,46 @@
       "No file found with that code. Please check and try again.",
       "Aucun dossier avec ce code. Vérifiez et réessayez."
     ],
+    "track.docs.t": [
+      "Tus documentos están listos",
+      "Your documents are ready",
+      "Vos documents sont prêts"
+    ],
+    "track.docs.sub": [
+      "Para descargarlos, confirma los últimos 4 dígitos de tu WhatsApp o tu correo.",
+      "To download them, confirm the last 4 digits of your WhatsApp number or your email.",
+      "Pour les télécharger, confirmez les 4 derniers chiffres de votre WhatsApp ou votre e-mail."
+    ],
+    "track.docs.aria": [
+      "Últimos 4 dígitos de tu WhatsApp o tu correo",
+      "Last 4 digits of your WhatsApp or your email",
+      "4 derniers chiffres de votre WhatsApp ou votre e-mail"
+    ],
+    "track.docs.btn": [
+      "Ver documentos",
+      "Show documents",
+      "Voir les documents"
+    ],
+    "track.docs.n1": [
+      "1 documento disponible",
+      "1 document available",
+      "1 document disponible"
+    ],
+    "track.docs.n": [
+      "{n} documentos disponibles",
+      "{n} documents available",
+      "{n} documents disponibles"
+    ],
+    "track.docs.error": [
+      "Los datos no coinciden con este expediente. Revisa e intenta de nuevo.",
+      "The details don't match this request. Check and try again.",
+      "Les données ne correspondent pas à ce dossier. Vérifiez et réessayez."
+    ],
+    "track.docs.vence": [
+      "Los enlaces son personales y vencen en 30 días. Puedes volver a esta página cuando quieras.",
+      "Links are personal and expire in 30 days. You can come back to this page anytime.",
+      "Les liens sont personnels et expirent dans 30 jours. Vous pouvez revenir sur cette page à tout moment."
+    ],
     "sol.eyebrow": [
       "Empieza hoy",
       "Start today",
@@ -897,9 +937,9 @@
       "Indicatif du pays"
     ],
     "sol.contacto.ayuda": [
-      "Déjanos tu WhatsApp, tu correo o ambos.",
-      "Leave your WhatsApp, your email, or both.",
-      "Laissez votre WhatsApp, votre e-mail ou les deux."
+      "Ambos son obligatorios: por WhatsApp te atendemos y por correo te avisamos de cada avance y te enviamos tus documentos.",
+      "Both are required: we assist you on WhatsApp and email you every update and your documents.",
+      "Les deux sont obligatoires : nous vous répondons sur WhatsApp et vous envoyons chaque avancée et vos documents par e-mail."
     ],
     "sol.pais": [
       "¿Dónde resides?",
@@ -952,14 +992,14 @@
       "un WhatsApp ou e-mail"
     ],
     "sol.e.wa": [
-      "un WhatsApp válido",
-      "a valid WhatsApp number",
-      "un numéro WhatsApp valide"
+      "tu WhatsApp (con código de país)",
+      "your WhatsApp number (with country code)",
+      "votre WhatsApp (avec l'indicatif du pays)"
     ],
     "sol.e.email": [
-      "un correo válido",
-      "a valid email",
-      "un e-mail valide"
+      "tu correo electrónico",
+      "your email address",
+      "votre adresse e-mail"
     ],
     "sol.e.acepta": [
       "aceptar el uso de tus datos",
