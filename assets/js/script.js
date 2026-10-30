@@ -253,12 +253,10 @@
         const err = [];
         $$('#solicitudForm .input').forEach(i => i.classList.remove('is-invalid'));
         if (d.nombre.length < 2) { err.push(t('sol.e.nombre')); $('fNombre').classList.add('is-invalid'); }
+        // WhatsApp y correo son obligatorios; el comentario es opcional
         const dig = d.whatsapp.replace(/\D/g, '');
-        if (!d.whatsapp && !d.email) { err.push(t('sol.e.contacto')); $('fTel').classList.add('is-invalid'); $('fEmail').classList.add('is-invalid'); }
-        else {
-            if (d.whatsapp && (dig.length < 8 || dig.length > 15)) { err.push(t('sol.e.wa')); $('fTel').classList.add('is-invalid'); }
-            if (d.email && !correoValido(d.email)) { err.push(t('sol.e.email')); $('fEmail').classList.add('is-invalid'); }
-        }
+        if (!d.whatsapp || dig.length < 8 || dig.length > 15) { err.push(t('sol.e.wa')); $('fTel').classList.add('is-invalid'); }
+        if (!d.email || !correoValido(d.email)) { err.push(t('sol.e.email')); $('fEmail').classList.add('is-invalid'); }
         if (!d.acepta) err.push(t('sol.e.acepta'));
         return err.length ? t('sol.e.falta', { lista: err.join(', ') }) : '';
     }

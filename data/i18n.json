@@ -937,9 +937,9 @@
       "Indicatif du pays"
     ],
     "sol.contacto.ayuda": [
-      "Déjanos tu WhatsApp, tu correo o ambos.",
-      "Leave your WhatsApp, your email, or both.",
-      "Laissez votre WhatsApp, votre e-mail ou les deux."
+      "Ambos son obligatorios: por WhatsApp te atendemos y por correo te avisamos de cada avance y te enviamos tus documentos.",
+      "Both are required: we assist you on WhatsApp and email you every update and your documents.",
+      "Les deux sont obligatoires : nous vous répondons sur WhatsApp et vous envoyons chaque avancée et vos documents par e-mail."
     ],
     "sol.pais": [
       "¿Dónde resides?",
@@ -992,14 +992,14 @@
       "un WhatsApp ou e-mail"
     ],
     "sol.e.wa": [
-      "un WhatsApp válido",
-      "a valid WhatsApp number",
-      "un numéro WhatsApp valide"
+      "tu WhatsApp (con código de país)",
+      "your WhatsApp number (with country code)",
+      "votre WhatsApp (avec l'indicatif du pays)"
     ],
     "sol.e.email": [
-      "un correo válido",
-      "a valid email",
-      "un e-mail valide"
+      "tu correo electrónico",
+      "your email address",
+      "votre adresse e-mail"
     ],
     "sol.e.acepta": [
       "aceptar el uso de tus datos",

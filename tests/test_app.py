@@ -74,7 +74,7 @@ def test_sitio_y_api_basica(client):
 
 
 def test_solicitud_y_rastreo(client):
-    r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "contacto": "+34 600 000 000",
+    r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "contacto": "+34 600 000 000 · ana@correo.com",
                                             "pais": "es", "servicio": "certificacion_solteria",
                                             "moneda": "EUR", "acepta": True})
     assert r.status_code == 201
@@ -123,7 +123,7 @@ def test_paginas_nuevas(client):
 
 
 def test_solicitud_desde_otro_pais_en_frances(client):
-    r = client.post("/api/solicitud", json={"nombre": "Luca Pérez", "contacto": "+39 333 000 0000", "pais": "es",
+    r = client.post("/api/solicitud", json={"nombre": "Luca Pérez", "contacto": "+39 333 000 0000 · luca@correo.com", "pais": "es",
                                             "pais_detalle": "IT", "idioma": "fr", "servicio": "apostilla_documentos",
                                             "acepta": True})
     assert r.status_code == 201
@@ -156,7 +156,7 @@ def test_panel_admin(client):
         assert client.get("/api/admin/sesion").json["admin"]
 
         # una solicitud del formulario aparece en el panel con sus datos completos
-        r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "contacto": "+1 809 555 0000",
+        r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "contacto": "+1 809 555 0000 · ana@correo.com",
                                                 "pais": "rd", "servicio": "apostilla_documentos", "acepta": True})
         codigo = r.json["codigo"]
         lista = client.get("/api/admin/expedientes").json
@@ -280,7 +280,7 @@ def test_panel_cobros_precios_origen(client):
         client.post("/api/admin/login", json={"clave": "clave-de-prueba"})
 
         # la solicitud guarda de dónde llegó, desde qué página y en qué dispositivo
-        r = client.post("/api/solicitud", json={"nombre": "Luis Peña", "contacto": "+1 809 555 1111", "pais": "us",
+        r = client.post("/api/solicitud", json={"nombre": "Luis Peña", "contacto": "+1 809 555 1111 · luis@correo.com", "pais": "us",
                                                 "servicio": "apostilla_documentos", "acepta": True,
                                                 "origen": "l.instagram.com", "pagina": "/casos"},
                         headers={"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0) Mobile/15E148"})
@@ -371,7 +371,7 @@ def test_usuarios_permisos_y_datos_del_cliente(client):
                                                              "clave": "clave-maria-1", "permisos": ["expedientes"]})
         assert r.json["ok"]
         assert client.post("/api/admin/usuarios/guardar", json={"usuario": "Maria Mal", "nombre": "x y", "clave": "12345678"}).status_code == 400
-        sol = client.post("/api/solicitud", json={"nombre": "Ana Pérez", "contacto": "+1 809 555 0000", "pais": "rd",
+        sol = client.post("/api/solicitud", json={"nombre": "Ana Pérez", "contacto": "+1 809 555 0000 · ana@correo.com", "pais": "rd",
                                                   "servicio": "apostilla_documentos", "acepta": True}).json["codigo"]
         client.post("/api/admin/logout")
 
@@ -505,7 +505,38 @@ def test_sin_smtp_no_se_envia(client, monkeypatch):
     for k in ("SMTP_HOST", "SMTP_USER", "SMTP_FROM"):
         monkeypatch.delenv(k, raising=False)
     monkeypatch.setattr(avisos, "_smtp_enviar", lambda msg: (_ for _ in ()).throw(AssertionError("no debía enviar")))
-    r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "contacto": "ana@correo.com",
+    r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 7777", "email": "ana@correo.com",
                                             "pais": "us", "servicio": "certificacion_solteria", "acepta": True})
     assert r.status_code == 201
     assert client.post("/api/solicitud", data="x" * 40000, content_type="application/json").status_code == 413
+
+
+def test_solicitud_pide_whatsapp_y_correo(client):
+    base = {"nombre": "Ana Rodríguez", "pais": "us", "servicio": "certificacion_solteria", "acepta": True}
+    solo_tel = client.post("/api/solicitud", json={**base, "contacto": "+1 809 555 1234"})
+    assert solo_tel.status_code == 400 and "correo" in solo_tel.json["error"]
+    solo_correo = client.post("/api/solicitud", json={**base, "whatsapp": "", "email": "ana@correo.com"})
+    assert solo_correo.status_code == 400 and "WhatsApp" in solo_correo.json["error"]
+    malo = client.post("/api/solicitud", json={**base, "whatsapp": "+1 809 555 1234", "email": "ana@correo"})
+    assert malo.status_code == 400
+    ok = client.post("/api/solicitud", json={**base, "whatsapp": "+1 809 555 1234", "email": "Ana@Correo.com"})
+    assert ok.status_code == 201  # el comentario es opcional
+
+
+def test_avisar_al_cliente_con_un_clic(client, monkeypatch, tmp_path):
+    import avisos
+    from werkzeug.security import generate_password_hash
+    enviados = []
+    monkeypatch.setattr(avisos, "_smtp_enviar", lambda msg: enviados.append(msg))
+    for k, v in {"SMTP_HOST": "smtp.prueba", "SMTP_USER": "info@tramitafacilrd.com", "TF_CORREO_SINCRONO": "1",
+                 "TF_ADMIN_HASH": generate_password_hash("clave-del-dueno")}.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.delenv("NOTIFY_TO", raising=False)
+    codigo = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                                 "pais": "us", "servicio": "certificacion_solteria", "acepta": True}).json["codigo"]
+    assert client.post("/api/admin/avisar", json={"codigo": codigo}).status_code == 401
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    r = client.post("/api/admin/avisar", json={"codigo": codigo})
+    assert r.json["para"] == "ana@correo.com" and enviados[-1]["To"] == "ana@correo.com"
+    assert "Certificación de Soltería" in enviados[-1].get_body(("plain",)).get_content()
+    assert r.json["expediente"]["correos"][0]["tipo"] == "aviso"

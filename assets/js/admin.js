@@ -74,6 +74,7 @@
     let tab = 'inicio', periodo = 30;
     let precios = null, preciosQ = '', preciosCat = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
+    const recien = new Set();        // solicitudes que acaban de llegar (se resaltan unos segundos)
     const docsAbiertos = new Set();  // "CODIGO:idTramite" con la lista de documentos abierta
     let editando = null;             // "CODIGO:idTramite" con el formulario de avance abierto
 
@@ -276,7 +277,7 @@
         } catch (e) { /* sin conexión: se intenta en la próxima vuelta */ }
         finally { revisando = false; }
     }
-    setInterval(revisar, 15000);
+    setInterval(revisar, 10000);
     window.addEventListener('focus', revisar);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) revisar(); });
 
@@ -377,6 +378,22 @@
         lineas.push('', `Los enlaces son personales y vencen en 30 días. También puedes descargarlos en ${enlaceRastreo(e)} con tu código y los últimos 4 dígitos de tu WhatsApp.`, '', '— TramitaFácil RD');
         return wa(e, lineas);
     }
+    /** Avisar al cliente del estado actual con un clic: por correo (lo envía el servidor) o por WhatsApp. */
+    function bloqueAvisar(e) {
+        const email = e.correo_cliente, tel = telefono(e.contacto), gestiona = puede('expedientes');
+        const ultimo = (e.correos || []).find(c => c.tipo === 'aviso' || c.tipo === 'estado');
+        return `<div class="bloque avisar">
+            <div class="bloque-t"><span>${ico('campana')} Avisar al cliente</span>${ultimo ? `<span>último correo: ${esc(fecha(ultimo.fecha))}</span>` : ''}</div>
+            <div class="avisar-btns">
+                ${gestiona ? `<button type="button" class="btn btn-azul" data-avisar-correo="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>
+                    ${ico('correo', 18)}<span>Enviar por correo<small>${esc(email || 'Sin correo registrado')}</small></span></button>` : ''}
+                <a class="btn btn-wa" href="${linkWhatsApp(e)}" target="_blank" rel="noopener"${tel ? '' : ' aria-disabled="true"'}>
+                    ${ico('chat', 18)}<span>Enviar por WhatsApp<small>${tel ? '+' + esc(tel) : 'Sin WhatsApp registrado'}</small></span></a>
+            </div>
+            <small class="ayuda">Le envía el estado actual de todos sus trámites y el enlace para seguir su expediente.${email && !correoActivo && gestiona ? ' El correo aún no está activado en el servidor (tramita correo).' : ''}</small>
+        </div>`;
+    }
+
     function bloqueEntrega(e) {
         const arch = e.archivos || [], hayListo = (e.tramites || []).some(t => t.paso === 4);
         if (!hayListo && !arch.length) return '';
@@ -528,6 +545,7 @@
                 </dl>
                 ${puede('expedientes') ? bloqueDatosCliente(e) : ''}
                 <div class="actual"><small>Lo que ve el cliente arriba · ${esc(fecha(e.actualizado))}</small><b>${esc(e.estado)}:</b> ${esc(e.detalle)}</div>
+                ${bloqueAvisar(e)}
                 <div class="tramites">
                     <p class="tramites-t">Trámites en este código (${items.length})</p>
                     ${items.map(t => bloqueTramite(e, t, items.length > 1)).join('')}
@@ -550,13 +568,12 @@
                     </div>
                 </div>
                 <div class="acciones">
-                    <a class="btn btn-wa" href="${linkWhatsApp(e)}" target="_blank" rel="noopener" style="flex:1 1 200px">Avisar por WhatsApp</a>
                     <button class="btn btn-borde" type="button" data-copiar="${esc(e.codigo)}">Copiar código</button>
                 </div>
             </div>`;
         const cobroChip = !puede('pagos') ? '' : e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
             : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : '');
-        return `<article class="exp" data-codigo="${esc(e.codigo)}">
+        return `<article class="exp${recien.has(e.codigo) ? ' recien' : ''}" data-codigo="${esc(e.codigo)}">
             <button type="button" class="exp-cab" aria-expanded="${abierto}">
                 <span class="exp-nombre">${esc(e.nombre || e.cliente)}</span>
                 <span class="chip ${tono(e.paso)}">${esc(items.length > 1 ? e.estado : (e.paso === 3 ? 'En institución' : PASOS[e.paso] || e.estado))}</span>
@@ -965,7 +982,7 @@
                 <button type="button" class="fila-ini" data-codigo="${esc(e.codigo)}">
                     <span class="ini">${esc(iniciales(e.nombre || e.cliente))}</span>
                     <span class="t"><b>${esc(e.nombre || e.cliente)}</b><small>${bandera(e.pais)} ${esc((e.tramites || []).length > 1 ? `${e.tramites.length} trámites` : (e.servicio_titulo || ((e.tramites || [])[0] || {}).titulo || ''))}</small></span>
-                    <span class="etq${k === 'nuevo' ? ' nuevo' : ''}">${k === 'nuevo' ? 'Nuevo' : `${diasSin(e)} días`}</span>
+                    <span class="etq${k === 'nuevo' ? ' nuevo' : ''}${recien.has(e.codigo) ? ' ahora' : ''}">${k === 'nuevo' ? 'Nuevo' : `${diasSin(e)} días`}</span>
                 </button>`).join('')}</div>` : `<div class="vacio"><b>Todo al día</b>No hay expedientes nuevos ni detenidos.</div>`}`;
         animarMapa = false;
     }
@@ -1000,8 +1017,14 @@
         if (!ok || $('vPanel').hidden) return;
         try {
             const r = await api('/admin/avisos');
-            if (ultimoVisto !== null) r.avisos.filter(a => a.id > ultimoVisto && a.nuevo).slice(0, 3).reverse().forEach(notificar);
+            const llegaron = ultimoVisto !== null ? r.avisos.filter(a => a.id > ultimoVisto) : [];
             ultimoVisto = r.ultimo; avisosData = r; pintarCampana();
+            if (llegaron.length) {
+                llegaron.forEach(a => { if (a.codigo) recien.add(a.codigo); });
+                await actualizarYa();   // la solicitud nueva aparece en la lista sin recargar
+                llegaron.filter(a => a.nuevo).slice(0, 3).reverse().forEach(notificar);
+                setTimeout(() => { llegaron.forEach(a => recien.delete(a.codigo)); document.querySelectorAll('.exp.recien').forEach(x => x.classList.remove('recien')); }, 12000);
+            }
         } catch (e) { /* sin conexión */ }
     }
     function pintarCampana() {
@@ -1045,7 +1068,16 @@
         const f = ev.target.closest('[data-aviso-codigo]');
         if (f) { $('vAvisos').hidden = true; avisosData.avisos.forEach(a => { a.nuevo = false; }); if (f.dataset.avisoCodigo) verExpediente(f.dataset.avisoCodigo); }
     });
-    setInterval(() => { if (!document.hidden) cargarAvisos(); }, 20000);
+    /** Trae los expedientes ya mismo (si está escribiendo, se muestra el aviso «Toca para verlas» y no se le borra nada). */
+    async function actualizarYa() {
+        if (editando || editandoCliente.size || !$('vNuevo').hidden) { await revisar(); return; }
+        try {
+            const r = await api('/admin/expedientes');
+            expedientes = r.expedientes; conteo = r.conteo; pendiente = null;
+            $('avisoNuevas').hidden = true; pintarTodo();
+        } catch (e) { /* sin conexión: lo intenta en la próxima vuelta */ }
+    }
+    setInterval(() => { if (!document.hidden) cargarAvisos(); }, 5000);   // revisa cada 5 s si llegó algo nuevo
     document.addEventListener('visibilitychange', () => { if (!document.hidden) cargarAvisos(); });
 
     // ---------------- mi cuenta (nombre y contraseña). obligatoria = clave temporal: debe crear la suya
@@ -1250,6 +1282,13 @@
             if (!window.confirm('¿Quitar este documento? El cliente ya no podrá descargarlo.')) return;
             try { reemplazar((await post('/admin/archivo/quitar', { codigo: qa.dataset.codigo, id: Number(qa.dataset.quitarArchivo) })).expediente); pintar(); toast('Documento quitado'); }
             catch (e) { if (e.message !== 'sesion') toast(e.message); }
+            return;
+        }
+        const av = ev.target.closest('[data-avisar-correo]');
+        if (av) {
+            av.disabled = true;
+            try { const r = await post('/admin/avisar', { codigo: av.dataset.avisarCorreo }); reemplazar(r.expediente); pintar(); toast(`Aviso enviado por correo a ${r.para}`); }
+            catch (e) { if (e.message !== 'sesion') toast(e.message); av.disabled = false; }
             return;
         }
         const ed2 = ev.target.closest('[data-enviar-docs]');

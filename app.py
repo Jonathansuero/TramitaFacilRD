@@ -13,7 +13,7 @@ Endpoints:
     POST /api/ipi                    {valor}
     POST /api/traspaso               {valor}
     GET  /api/rastreo/<codigo>       Estado de un expediente
-    POST /api/solicitud              Registra una solicitud y devuelve un código de seguimiento
+    POST /api/solicitud              {nombre, whatsapp, email, pais, servicio, mensaje?, acepta} -> código de seguimiento
 
 Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/login            {clave}
@@ -40,6 +40,7 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/archivo          (formulario) codigo, archivo[]  Documentos escaneados para entregar al cliente
     POST /api/admin/archivo/quitar   {codigo, id}     · GET /api/admin/archivo/<id> (ver)
     POST /api/admin/archivo/enviar   {codigo}         Envía los documentos al correo del cliente
+    POST /api/admin/avisar           {codigo}         Envía al cliente el estado actual por correo (un clic)
     GET  /api/admin/avisos           Avisos de solicitudes nuevas (no los ven los usuarios de solo lectura)
     POST /api/admin/avisos/visto     {hasta}
     POST /api/rastreo/<codigo>/archivos {dato}   (público) últimos 4 del WhatsApp o el correo -> enlaces de descarga
@@ -657,7 +658,15 @@ def api_solicitud():
         return jsonify({"ok": True, "codigo": "RD-000000"})
 
     nombre = str(d.get("nombre", "")).strip()[:80]
-    contacto = str(d.get("contacto", "")).strip()[:120]
+    # WhatsApp y correo son obligatorios (para avisarle de cada avance y enviarle sus documentos)
+    if "whatsapp" in d or "email" in d:
+        wa_cliente = str(d.get("whatsapp", "") or "").strip()[:40]
+        correo_cliente = str(d.get("email", "") or "").strip().lower()[:80]
+    else:  # versiones anteriores del formulario mandaban todo junto en «contacto»
+        partes = [x.strip() for x in str(d.get("contacto", "")).split("·")]
+        wa_cliente = " ".join(x for x in partes if "@" not in x)[:40]
+        correo_cliente = avisos.correo_de(d.get("contacto"))
+    contacto = f"{wa_cliente} · {correo_cliente}"[:120]
     mensaje = str(d.get("mensaje", "")).strip()[:1000]
     pais = str(d.get("pais", "")).strip()
     servicio = str(d.get("servicio", "")).strip()
@@ -672,8 +681,10 @@ def api_solicitud():
 
     if len(nombre) < 2:
         return error("Escribe tu nombre.")
-    if len(contacto) < 6:
-        return error("Indica un WhatsApp o correo para contactarte.")
+    if not 8 <= len(re.sub(r"\D", "", wa_cliente)) <= 15:
+        return error("Escribe tu número de WhatsApp con el código de país.")
+    if not avisos.valido(correo_cliente):
+        return error("Escribe un correo electrónico válido.")
     if pais not in calculos.PAISES_VALIDOS:
         return error("Selecciona desde dónde nos escribes.")
     if servicio not in cat["servicios"]:
@@ -1136,6 +1147,39 @@ def correo_estado(db: sqlite3.Connection, codigo: str, titulo: str, paso: int, e
     registrar("Envió un correo al cliente", codigo, f"{asunto} → {para}")
     db.commit()
     return "enviando"
+
+
+@app.post("/api/admin/avisar")
+@requiere("expedientes")
+def admin_avisar():
+    """Envía al cliente, con un clic, el estado actual de su expediente por correo: {codigo}."""
+    codigo = str(cuerpo_json().get("codigo", "")).strip().upper()[:12]
+    db = get_db()
+    sol = db.execute("SELECT nombre, contacto, idioma FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    items = tramites_de(db, codigo)
+    if not items:
+        return error("No existe ese código.", 404)
+    para = avisos.correo_de(sol["contacto"]) if sol else ""
+    if not para:
+        return error("Este cliente no tiene correo. Agrégalo en «Editar datos del cliente» o avísale por WhatsApp.")
+    if not avisos.configurado():
+        return error("El envío de correos aún no está activado. En el servidor escribe: tramita correo", 503)
+    T = avisos.textos(sol["idioma"])
+    listo = all(t["paso"] == 4 for t in items)
+    archivos = archivos_de(db, codigo) if any(t["paso"] == 4 for t in items) else []
+    datos = [(T["codigo"], codigo)]
+    for t in items:
+        datos += [(T["tramite"], t["titulo"]), (T["estado"], f"{t['estado']} · {T['paso'].format(n=t['paso'])}"), (T["mensaje"], t["detalle"])]
+    texto, html_ = avisos.plantilla(
+        T["listo_t"] if listo else T["titulo"], T["hola"].format(nombre=sol["nombre"].split()[0]),
+        [T["listo"] if archivos else (T["listo_sin"] if listo else T["intro"])], datos=datos,
+        enlaces=[(a["nombre"], enlace_descarga(a["id"])) for a in archivos],
+        boton=(T["boton"], f"{avisos.sitio()}/rastreo?c={codigo}"), pie=(T["vence"] + " " if archivos else "") + T["pie"])
+    asunto = T["asunto"].format(codigo=codigo)
+    avisos.enviar([para], asunto, texto, html_, al_terminar=anotar_correo(codigo, [para], asunto, "aviso"))
+    registrar("Envió un correo al cliente", codigo, f"{asunto} → {para}")
+    db.commit()
+    return jsonify({"ok": True, "para": para, "expediente": un_expediente(db, codigo)})
 
 
 @app.post("/api/admin/agregar")

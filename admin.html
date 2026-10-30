@@ -502,6 +502,18 @@
         .l-f { color: var(--suave); font-size: 12px; white-space: nowrap; }
         .mapa-card::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 36px 36px; pointer-events: none; }
         .mapa-card > * { position: relative; }
+
+        /* avisar al cliente con un clic · solicitudes recién llegadas */
+        .avisar { border-color: #C9DAF2; }
+        .avisar-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 10px; }
+        .avisar-btns .btn { justify-content: flex-start; text-align: left; padding: 12px 16px; gap: 12px; text-decoration: none; }
+        .avisar-btns .btn span { display: grid; font-size: 15px; line-height: 1.25; }
+        .avisar-btns .btn small { font-size: 12px; font-weight: 500; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .avisar-btns .btn:disabled { background: #E2E8F0; color: #64748B; cursor: not-allowed; }
+        .avisar-btns [aria-disabled="true"] { opacity: .55; }
+        .exp.recien { animation: recien 2.4s ease-out 3; border-color: var(--azul); }
+        @keyframes recien { 0% { box-shadow: 0 0 0 0 rgba(0,45,98,.45); } 70% { box-shadow: 0 0 0 10px rgba(0,45,98,0); } 100% { box-shadow: 0 0 0 0 rgba(0,45,98,0); } }
+        .fila-ini .etq.ahora { background: var(--rojo); color: #fff; }
     </style>
 </head>
 <body>
