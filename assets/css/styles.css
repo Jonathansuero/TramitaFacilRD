@@ -212,6 +212,8 @@ mark { background: #fef08a; padding: 0 .1em; border-radius: 2px; }
 .foot-h { font-size: .7rem; font-weight: 800; color: #e2e8f0; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .75rem; }
 .foot-ul { display: grid; gap: .5rem; font-size: .75rem; color: #94a3b8; }
 .foot-ul a:hover { color: #fff; }
+.foot-equipo { transition: color .15s, border-color .15s; }
+.foot-equipo:hover { color: #fff; border-color: #64748b; }
 .foot-flag { width: 2.2rem; height: 2.2rem; border-radius: .6rem; background: rgba(255,255,255,.06); transition: all .2s; }
 .foot-flag:hover, .foot-flag.is-active { background: rgba(255,255,255,.18); transform: translateY(-2px); }
 

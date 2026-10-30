@@ -399,8 +399,8 @@
     </div>
     <div class="mt-8 max-w-3xl mx-auto">${avisoOficial('aviso-oficial-oscuro')}</div>
     <p class="mt-8 text-[11px] text-slate-400 leading-relaxed max-w-4xl mx-auto text-center" data-i18n="foot.legal"></p>
-    <div class="mt-4 text-center text-xs text-slate-500">© ${new Date().getFullYear()} TramitaFácil RD. <span data-i18n="foot.derechos"></span>
-      <span class="mx-1" aria-hidden="true">·</span><a href="admin" class="hover:text-white underline-offset-2 hover:underline"><i class="fa-solid fa-lock mr-1" aria-hidden="true"></i><span data-i18n="foot.equipo"></span></a></div>
+    <div class="mt-4 text-center text-xs text-slate-500">© ${new Date().getFullYear()} TramitaFácil RD. <span data-i18n="foot.derechos"></span></div>
+    <div class="mt-3 text-center text-xs"><a href="admin" class="foot-equipo inline-flex items-center gap-2 whitespace-nowrap text-slate-400 border border-slate-800 rounded-full px-3 py-2"><i class="fa-solid fa-lock" aria-hidden="true"></i><span data-i18n="foot.equipo"></span></a></div>
   </div>
 </footer>
 <a id="floatWa" href="#" target="_blank" rel="noopener" data-i18n-aria="a11y.wa" class="wa-pulse fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-3xl shadow-xl transition-transform hover:scale-110"><i class="fa-brands fa-whatsapp"></i></a>
