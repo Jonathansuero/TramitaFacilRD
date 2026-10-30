@@ -232,6 +232,25 @@
         .enlace code { display: block; font-size: 12px; color: var(--suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .herr { display: flex; flex-wrap: wrap; gap: 8px; }
 
+        /* ---------- usuarios */
+        .usr { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--borde); }
+        .usr:last-child { border-bottom: 0; }
+        .usr b { font-size: 15px; }
+        .usr small { color: var(--suave); font-size: 12px; }
+        .usr .chips { grid-column: 1 / -1; }
+        .perm { font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 99px; background: #EEF3FA; color: var(--azul); }
+        .perm.off { background: #FEE2E2; color: #991B1B; }
+        .checks { display: grid; gap: 8px; }
+        .checks label { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; background: #F8FAFC; border: 1px solid var(--borde); border-radius: 10px; padding: 9px 11px; cursor: pointer; }
+        .checks input { margin-top: 3px; accent-color: var(--azul); }
+        .checks b { display: block; font-size: 14px; }
+        .checks span { color: var(--suave); font-size: 13px; }
+        .form-cliente { display: grid; gap: 10px; border-top: 1px dashed var(--borde); padding-top: 10px; }
+        details.hist summary { cursor: pointer; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--suave-2); list-style: none; }
+        details.hist summary::-webkit-details-marker { display: none; }
+        details.hist[open] summary { margin-bottom: 8px; }
+        .btn-top.yo { max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
         @media (min-width: 640px) { .modal { place-items: center; padding: 16px; } .hoja { border-radius: 24px; } }
         @media (max-width: 560px) {
             .filtros { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
@@ -263,6 +282,10 @@
             <p>Solicitudes y seguimiento de tus clientes.</p>
             <form id="fLogin">
                 <div>
+                    <label class="campo" for="usuario">Usuario</label>
+                    <input id="usuario" class="input" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="Ej.: admin">
+                </div>
+                <div>
                     <label class="campo" for="clave">Contraseña</label>
                     <input id="clave" class="input" type="password" autocomplete="current-password" required>
                 </div>
@@ -281,7 +304,10 @@
                     <span>TramitaFácil<span class="rd">RD</span><small>Panel</small></span>
                 </a>
                 <div class="top-acc">
-                    <a class="btn-top" href="/api/admin/exportar" title="Descargar en Excel">
+                    <button class="btn-top yo" id="btnCuenta" type="button" title="Mi cuenta">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg><span class="txt" id="yoNombre">Mi cuenta</span>
+                    </button>
+                    <a class="btn-top" href="/api/admin/exportar" title="Descargar en Excel" id="btnExcelTop" data-perm="herramientas">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span class="txt">Excel</span>
                     </a>
                     <button class="btn-top" id="btnSalir" type="button" title="Cerrar sesión">
@@ -298,6 +324,7 @@
                 <button type="button" class="tab" data-tab="pagos" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>Pagos <span class="num" id="numCobro" hidden></span></button>
                 <button type="button" class="tab" data-tab="precios" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/></svg>Precios</button>
                 <button type="button" class="tab" data-tab="herr" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/></svg>Herramientas</button>
+                <button type="button" class="tab" data-tab="usuarios" role="tab"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/></svg>Usuarios</button>
             </div>
         </nav>
 
@@ -350,6 +377,7 @@
           <section id="tPagos" hidden></section>
           <section id="tPrecios" hidden></section>
           <section id="tHerr" hidden></section>
+          <section id="tUsuarios" hidden></section>
         </main>
     </div>
 
@@ -382,6 +410,24 @@
                 </div>
             </div>
             <div id="nuevoListo" hidden></div>
+        </form>
+    </div>
+
+    <!-- ======================= MI CUENTA ======================= -->
+    <div id="vCuenta" class="modal" hidden>
+        <form class="hoja" id="fCuenta" role="dialog" aria-modal="true" aria-labelledby="tCuenta">
+            <h3 id="tCuenta">Mi cuenta</h3>
+            <p id="cuentaInfo" style="margin:-8px 0 0;color:var(--suave);font-size:14px"></p>
+            <div><label class="campo" for="cActual">Contraseña actual</label><input id="cActual" class="input" type="password" autocomplete="current-password" required></div>
+            <div class="dos">
+                <div><label class="campo" for="cNueva">Contraseña nueva</label><input id="cNueva" class="input" type="password" autocomplete="new-password" minlength="8" required></div>
+                <div><label class="campo" for="cNueva2">Repítela</label><input id="cNueva2" class="input" type="password" autocomplete="new-password" minlength="8" required></div>
+            </div>
+            <div id="cuentaError" class="msg-error" hidden></div>
+            <div class="acciones">
+                <button class="btn btn-azul" type="submit" id="btnCambiarClave">Cambiar contraseña</button>
+                <button class="btn btn-borde" type="button" data-cerrar-cuenta>Cerrar</button>
+            </div>
         </form>
     </div>
 

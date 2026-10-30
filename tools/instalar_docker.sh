@@ -111,10 +111,11 @@ case "${1:-ayuda}" in
     [ "${#c1}" -ge 8 ] || { echo "Debe tener al menos 8 caracteres."; exit 1; }
     h="$(docker run --rm -e C="$c1" tramitafacil:latest python -c 'import os; from werkzeug.security import generate_password_hash as g; print(g(os.environ["C"]))')"
     sed -i '/^TF_ADMIN_HASH=/d' "$ENVF" && echo "TF_ADMIN_HASH=$h" >> "$ENVF"
-    arrancar && echo "Contraseña cambiada. Entra en https://$DOMINIO/admin" ;;
+    arrancar && echo "Contraseña cambiada. Entra en https://$DOMINIO/admin con el usuario: admin" ;;
   correo) ${EDITOR:-nano} "$ENVF" && arrancar && echo "Listo." ;;
   solicitudes) shift; m solicitudes "$@" ;;
   estado) shift; m estado "$@" ;;
+  usuarios) m usuarios ;;
   respaldo)
     mkdir -p /var/backups/tramitafacil
     docker exec "$NOMBRE" python -c "import sqlite3; s=sqlite3.connect('/datos/tramitafacil.db'); d=sqlite3.connect('/datos/respaldo.db'); s.backup(d); d.close()"
@@ -128,7 +129,8 @@ Comandos de TramitaFácil RD (Docker):
   tramita pausar         Poner la página en pausa ("Volvemos pronto")
   tramita reanudar       Volver a poner la página en servicio
   tramita actualizar     Traer los últimos cambios de GitHub
-  tramita clave          Cambiar la contraseña del panel (/admin)
+  tramita clave          Cambiar la contraseña del usuario «admin» del panel (también sirve si la olvidas)
+  tramita usuarios       Ver los usuarios del panel y sus permisos
   tramita correo         Configurar el aviso por correo
   tramita solicitudes    Ver las últimas solicitudes
   tramita respaldo       Hacer un respaldo ahora
@@ -155,7 +157,7 @@ else
 fi
 echo "  El candado https tarda 1-3 minutos en aparecer (lo pide nginx-proxy solo)."
 echo "  Página:  https://$DOMINIO"
-echo "  Panel:   https://$DOMINIO/admin"
-[ -n "$CLAVE_PANEL" ] && printf '  Contraseña del panel: \033[1;33m%s\033[0m  (anótala; cámbiala con: tramita clave)\n' "$CLAVE_PANEL"
+echo "  Panel:   https://$DOMINIO/admin   (usuario: admin)"
+[ -n "$CLAVE_PANEL" ] && printf '  Contraseña de admin: \033[1;33m%s\033[0m  (anótala; cámbiala con: tramita clave)\n' "$CLAVE_PANEL"
 echo "  Ayuda:   tramita ayuda"
 ( sleep 60; /usr/local/bin/tramita buscadores >/dev/null 2>&1 ) &

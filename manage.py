@@ -172,6 +172,17 @@ def cmd_precio(args):
     print(f"✓ {s['title']}: tasas RD$ {servidor._entero(tax):,} · honorarios RD$ {servidor._entero(fee):,} (ya se ve en la página)")
 
 
+def cmd_usuarios(_args):
+    """Lista los usuarios del panel (para crear o editar usuarios, usa la pestaña Usuarios del panel)."""
+    rows = conectar().execute("SELECT usuario, nombre, permisos, activo, ultimo_acceso FROM usuarios ORDER BY usuario").fetchall()
+    if not rows:
+        print("Aún no hay usuarios. Entra al panel con el usuario «admin» y la clave de `tramita clave`.")
+    for r in rows:
+        estado = "activo" if r["activo"] else "DESACTIVADO"
+        print(f"{r['usuario']:<16} {r['nombre']:<24} {estado:<12} último acceso: {(r['ultimo_acceso'] or 'nunca')[:16]}"
+              f"  permisos: {', '.join(json.loads(r['permisos']))}")
+
+
 def main():
     p = argparse.ArgumentParser(description="Administración de TramitaFácil RD")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -186,6 +197,7 @@ def main():
     s.add_argument("--estado"); s.add_argument("--servicio"); s.add_argument("--cliente")
     s.add_argument("--tramite", type=int, help="Número del trámite cuando el código tiene varios (1, 2, 3…)")
     s.set_defaults(fn=cmd_estado)
+    sub.add_parser("usuarios").set_defaults(fn=cmd_usuarios)
     s = sub.add_parser("precio")
     s.add_argument("servicio"); s.add_argument("--tasa", type=int); s.add_argument("--honorario", type=int)
     s.set_defaults(fn=cmd_precio)

@@ -32,6 +32,13 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/precio           {servicio, tax, fee} o {servicio, restaurar: true}
     GET  /api/admin/respaldo         Copia de la base de datos
     GET  /api/precios                (público) precios cambiados desde el panel
+    POST /api/admin/cliente          {codigo, nombre, contacto, pais, pais_detalle?}  Corregir datos del cliente
+    GET  /api/admin/usuarios         Usuarios del equipo y actividad reciente (permiso «usuarios»)
+    POST /api/admin/usuarios/guardar {id?, usuario, nombre, permisos, activo, clave?}
+    POST /api/admin/cuenta/clave     {actual, nueva}  Cambiar mi contraseña
+
+Usuarios: cada persona entra con usuario y clave; los permisos (PERMISOS) deciden qué puede hacer.
+«admin» toma la clave de `tramita clave` (TF_ADMIN_HASH): primer acceso y llave de emergencia.
 """
 from __future__ import annotations
 
@@ -53,7 +60,7 @@ from functools import wraps
 from pathlib import Path
 
 from flask import Flask, Response, abort, g, has_app_context, jsonify, redirect, request, send_from_directory, session
-from werkzeug.security import check_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import calculos
 
@@ -64,6 +71,7 @@ TONO_POR_PASO = {1: "sky", 2: "sky", 3: "amber", 4: "emerald"}
 
 app = Flask(__name__, static_folder=None)
 app.json.ensure_ascii = False  # acentos legibles en las respuestas JSON
+app.json.sort_keys = False     # conserva el orden (por ejemplo, el de los permisos)
 app.config["MAX_CONTENT_LENGTH"] = 32 * 1024  # las solicitudes son JSON pequeños
 # Sesión del panel de administración (cookie firmada, solo HTTP, solo este sitio)
 app.secret_key = os.environ.get("TF_SECRET_KEY") or secrets.token_hex(32)
@@ -190,6 +198,30 @@ CREATE TABLE IF NOT EXISTS notas (
     creado TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_notas_codigo ON notas (codigo);
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario TEXT UNIQUE NOT NULL,
+    nombre TEXT NOT NULL,
+    hash TEXT NOT NULL,
+    permisos TEXT NOT NULL,
+    activo INTEGER NOT NULL DEFAULT 1,
+    version INTEGER NOT NULL DEFAULT 1,
+    creado TEXT NOT NULL,
+    ultimo_acceso TEXT
+);
+CREATE TABLE IF NOT EXISTS actividad (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario TEXT,
+    accion TEXT NOT NULL,
+    codigo TEXT,
+    detalle TEXT,
+    fecha TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_actividad_codigo ON actividad (codigo);
+CREATE TABLE IF NOT EXISTS ajustes (
+    clave TEXT PRIMARY KEY,
+    valor TEXT
+);
 """
 
 
@@ -523,18 +555,86 @@ def api_solicitud():
     return jsonify({"ok": True, "codigo": codigo, "servicio": titulo}), 201
 
 
-# ---------------------------------------------------------------- panel de administración
+# ---------------------------------------------------------------- panel de administración: usuarios y permisos
+# Cada persona del equipo entra con su usuario y su clave. Lo que puede hacer depende de sus permisos.
+PERMISOS = {
+    "expedientes": "Trabajar expedientes: avance, documentos, notas, datos del cliente y expedientes nuevos",
+    "pagos": "Ver y registrar pagos",
+    "resumen": "Ver el resumen del negocio",
+    "precios": "Cambiar precios",
+    "herramientas": "Descargar Excel y respaldos",
+    "usuarios": "Administrar usuarios y ver la actividad del equipo",
+}
+RE_USUARIO = re.compile(r"^[a-z0-9._-]{3,30}$")
+
+
+def _permisos(texto) -> list[str]:
+    return [x for x in _lista_json(texto) if x in PERMISOS]
+
+
+def sincronizar_dueno(db: sqlite3.Connection) -> None:
+    """La clave de `tramita clave` (TF_ADMIN_HASH) es la del usuario «admin», con todos los permisos.
+    Sirve para el primer acceso y como llave de emergencia si se olvida la clave."""
+    h = os.environ.get("TF_ADMIN_HASH")
+    if not h:
+        return
+    fila = db.execute("SELECT valor FROM ajustes WHERE clave='admin_hash'").fetchone()
+    if fila and fila[0] == h and db.execute("SELECT 1 FROM usuarios WHERE usuario='admin'").fetchone():
+        return
+    ts = ahora()
+    if db.execute("SELECT 1 FROM usuarios WHERE usuario='admin'").fetchone():
+        db.execute("UPDATE usuarios SET hash=?, activo=1, permisos=?, version=version+1 WHERE usuario='admin'",
+                   (h, json.dumps(list(PERMISOS))))
+    else:
+        db.execute("INSERT INTO usuarios (usuario, nombre, hash, permisos, activo, creado) VALUES (?,?,?,?,1,?)",
+                   ("admin", "Administrador", h, json.dumps(list(PERMISOS)), ts))
+    db.execute("INSERT INTO ajustes (clave, valor) VALUES ('admin_hash', ?) ON CONFLICT(clave) DO UPDATE SET valor=excluded.valor", (h,))
+    db.commit()
+
+
 def admin_configurado() -> bool:
-    return bool(os.environ.get("TF_ADMIN_HASH"))
+    return bool(os.environ.get("TF_ADMIN_HASH")) or get_db().execute("SELECT 1 FROM usuarios LIMIT 1").fetchone() is not None
 
 
-def requiere_admin(fn):
-    @wraps(fn)
-    def envoltura(*args, **kwargs):
-        if not session.get("admin"):
-            return error("Tu sesión terminó. Vuelve a entrar.", 401)
-        return fn(*args, **kwargs)
-    return envoltura
+def usuario_actual() -> dict | None:
+    """El usuario de esta sesión (si sigue activo y no le cambiaron la clave)."""
+    if "usuario" in g:
+        return g.usuario
+    g.usuario = None
+    uid = session.get("uid")
+    if uid:
+        r = get_db().execute("SELECT * FROM usuarios WHERE id=?", (uid,)).fetchone()
+        if r and r["activo"] and r["version"] == session.get("ver"):
+            g.usuario = {"id": r["id"], "usuario": r["usuario"], "nombre": r["nombre"], "permisos": _permisos(r["permisos"])}
+    return g.usuario
+
+
+def puede(permiso: str) -> bool:
+    u = usuario_actual()
+    return bool(u and permiso in u["permisos"])
+
+
+def requiere(permiso: str | None = None):
+    def deco(fn):
+        @wraps(fn)
+        def envoltura(*args, **kwargs):
+            if not usuario_actual():
+                return error("Tu sesión terminó. Vuelve a entrar.", 401)
+            if permiso and not puede(permiso):
+                return error("Tu usuario no tiene permiso para esto. Pídeselo al administrador.", 403)
+            return fn(*args, **kwargs)
+        return envoltura
+    return deco
+
+
+requiere_admin = requiere()  # cualquier usuario con sesión
+
+
+def registrar(accion: str, codigo: str | None = None, detalle: str = "") -> None:
+    """Anota quién hizo qué (se guarda con el siguiente commit)."""
+    u = usuario_actual()
+    get_db().execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
+                     (u["usuario"] if u else "sistema", accion, codigo, str(detalle)[:300], ahora()))
 
 
 def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
@@ -548,6 +648,10 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["pagado"] = sum(p["monto"] for p in d["pagos"])
     d["pendiente"] = max(0, d["total_dop"] - d["pagado"]) if d["total_dop"] is not None else None
     d["notas"] = [dict(r) for r in db.execute("SELECT id, texto, creado FROM notas WHERE codigo=? ORDER BY id DESC", (d["codigo"],))]
+    d["actividad"] = [dict(r) for r in db.execute(
+        "SELECT usuario, accion, detalle, fecha FROM actividad WHERE codigo=? ORDER BY id DESC LIMIT 20", (d["codigo"],))]
+    if has_app_context() and usuario_actual() and not puede("pagos"):
+        d["pagos"], d["pagado"], d["pendiente"] = [], None, None
     return d
 
 
@@ -580,21 +684,39 @@ def servicio_pedido(item: dict, cat: dict) -> tuple[str, str, float | None] | st
 
 @app.get("/api/admin/sesion")
 def admin_sesion():
-    return jsonify({"ok": True, "admin": bool(session.get("admin")), "configurado": admin_configurado()})
+    u = usuario_actual()
+    return jsonify({"ok": True, "admin": bool(u), "usuario": u, "configurado": admin_configurado(), "permisos": PERMISOS})
 
 
 @app.post("/api/admin/login")
 def admin_login():
+    """{usuario, clave}. Sin usuario se entiende «admin» (como antes, solo con contraseña)."""
+    db = get_db()
+    sincronizar_dueno(db)
     if not admin_configurado():
         return error("El panel no está activado. En el servidor escribe: tramita clave", 503)
-    if limitar("login", 5, 900):
+    ip = request.headers.get("X-Forwarded-For", request.remote_addr or "?").split(",")[0].strip()
+    fallos = _hits[f"login:{ip}"]
+    while fallos and time.time() - fallos[0] > 900:
+        fallos.popleft()
+    if len(fallos) >= 8:  # solo cuentan los intentos fallidos
         return error("Demasiados intentos. Espera 15 minutos e inténtalo de nuevo.", 429)
-    clave = str(cuerpo_json().get("clave", ""))[:200]
-    if not clave or not check_password_hash(os.environ["TF_ADMIN_HASH"], clave):
-        return error("Contraseña incorrecta.", 401)
+    d = cuerpo_json()
+    nombre = str(d.get("usuario", "")).strip().lower()[:30] or "admin"
+    clave = str(d.get("clave", ""))[:200]
+    r = db.execute("SELECT * FROM usuarios WHERE usuario=?", (nombre,)).fetchone()
+    if not r or not clave or not check_password_hash(r["hash"], clave):
+        fallos.append(time.time())
+        return error("Usuario o contraseña incorrectos.", 401)
+    if not r["activo"]:
+        return error("Este usuario está desactivado. Habla con el administrador.", 403)
     session.clear()
     session.permanent = True
-    session["admin"] = True
+    session["uid"], session["ver"] = r["id"], r["version"]
+    db.execute("UPDATE usuarios SET ultimo_acceso=? WHERE id=?", (ahora(), r["id"]))
+    g.pop("usuario", None)
+    registrar("Entró al panel")
+    db.commit()
     return jsonify({"ok": True})
 
 
@@ -602,6 +724,126 @@ def admin_login():
 def admin_logout():
     session.clear()
     return jsonify({"ok": True})
+
+
+@app.post("/api/admin/cuenta/clave")
+@requiere()
+def admin_mi_clave():
+    """Cambiar mi propia contraseña: {actual, nueva}."""
+    d = cuerpo_json()
+    db, u = get_db(), usuario_actual()
+    r = db.execute("SELECT * FROM usuarios WHERE id=?", (u["id"],)).fetchone()
+    if not check_password_hash(r["hash"], str(d.get("actual", ""))[:200]):
+        return error("La contraseña actual no es correcta.")
+    nueva = str(d.get("nueva", ""))[:200]
+    if len(nueva) < 8:
+        return error("La contraseña nueva debe tener al menos 8 caracteres.")
+    db.execute("UPDATE usuarios SET hash=?, version=version+1 WHERE id=?", (generate_password_hash(nueva), u["id"]))
+    session["ver"] = r["version"] + 1
+    registrar("Cambió su contraseña")
+    db.commit()
+    return jsonify({"ok": True})
+
+
+def _usuario_publico(r: sqlite3.Row) -> dict:
+    return {"id": r["id"], "usuario": r["usuario"], "nombre": r["nombre"], "permisos": _permisos(r["permisos"]),
+            "activo": bool(r["activo"]), "creado": r["creado"], "ultimo_acceso": r["ultimo_acceso"]}
+
+
+@app.get("/api/admin/usuarios")
+@requiere("usuarios")
+def admin_usuarios():
+    db = get_db()
+    lista = [_usuario_publico(r) for r in db.execute("SELECT * FROM usuarios ORDER BY activo DESC, usuario")]
+    actividad = [dict(r) for r in db.execute("SELECT * FROM actividad ORDER BY id DESC LIMIT 100")]
+    return jsonify({"ok": True, "usuarios": lista, "actividad": actividad, "permisos": PERMISOS})
+
+
+@app.post("/api/admin/usuarios/guardar")
+@requiere("usuarios")
+def admin_usuario_guardar():
+    """Crear o editar un usuario: {id?, usuario, nombre, permisos:[…], activo, clave?}."""
+    d = cuerpo_json()
+    db, yo = get_db(), usuario_actual()
+    nombre = str(d.get("nombre", "")).strip()[:60]
+    permisos = [x for x in (d.get("permisos") or []) if x in PERMISOS] if isinstance(d.get("permisos"), list) else []
+    activo = 1 if d.get("activo", True) else 0
+    clave = str(d.get("clave", "") or "")[:200]
+    if len(nombre) < 2:
+        return error("Escribe el nombre de la persona.")
+    if clave and len(clave) < 8:
+        return error("La contraseña debe tener al menos 8 caracteres.")
+    uid = d.get("id")
+    if uid:
+        r = db.execute("SELECT * FROM usuarios WHERE id=?", (numero(uid),)).fetchone()
+        if not r:
+            return error("Ese usuario no existe.", 404)
+        if r["id"] == yo["id"] and (not activo or "usuarios" not in permisos):
+            return error("No puedes quitarte a ti mismo el acceso ni el permiso de administrar usuarios.")
+        otros_admin = db.execute("SELECT COUNT(*) FROM usuarios WHERE activo=1 AND id<>? AND permisos LIKE '%\"usuarios\"%'",
+                                 (r["id"],)).fetchone()[0]
+        if (not activo or "usuarios" not in permisos) and not otros_admin:
+            return error("Debe quedar al menos un usuario activo que pueda administrar usuarios.")
+        cambia_clave = bool(clave)
+        db.execute("UPDATE usuarios SET nombre=?, permisos=?, activo=?" + (", hash=?, version=version+1" if cambia_clave else
+                   (", version=version+1" if not activo else "")) + " WHERE id=?",
+                   (nombre, json.dumps(permisos), activo, *( [generate_password_hash(clave)] if cambia_clave else []), r["id"]))
+        cambios = [f"permisos: {', '.join(permisos) or 'ninguno'}"]
+        if not activo:
+            cambios.append("desactivado")
+        if cambia_clave:
+            cambios.append("nueva contraseña")
+        registrar(f"Editó el usuario {r['usuario']}", None, "; ".join(cambios))
+    else:
+        usuario = str(d.get("usuario", "")).strip().lower()
+        if not RE_USUARIO.match(usuario):
+            return error("El usuario debe tener de 3 a 30 letras minúsculas, números, punto, guion o guion bajo (sin espacios).")
+        if db.execute("SELECT 1 FROM usuarios WHERE usuario=?", (usuario,)).fetchone():
+            return error("Ya existe un usuario con ese nombre.")
+        if len(clave) < 8:
+            return error("Ponle una contraseña de al menos 8 caracteres.")
+        db.execute("INSERT INTO usuarios (usuario, nombre, hash, permisos, activo, creado) VALUES (?,?,?,?,?,?)",
+                   (usuario, nombre, generate_password_hash(clave), json.dumps(permisos), activo, ahora()))
+        registrar(f"Creó el usuario {usuario}", None, f"permisos: {', '.join(permisos) or 'ninguno'}")
+    db.commit()
+    return jsonify({"ok": True})
+
+
+@app.post("/api/admin/cliente")
+@requiere("expedientes")
+def admin_cliente():
+    """Corrige los datos del cliente: {codigo, nombre, contacto, pais, pais_detalle?}."""
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    if not codigo:
+        return error("No existe ese código.", 404)
+    nombre = str(d.get("nombre", "")).strip()[:80]
+    contacto = str(d.get("contacto", "")).strip()[:120]
+    pais = str(d.get("pais", "")).strip()
+    pais_detalle = "".join(ch for ch in str(d.get("pais_detalle", "")).upper() if ch.isalpha())[:2]
+    if len(nombre) < 2:
+        return error("Escribe el nombre del cliente.")
+    if pais not in calculos.PAISES_VALIDOS:
+        return error("Elige el país.")
+    db = get_db()
+    antes = db.execute("SELECT nombre, contacto, pais FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    if antes:
+        db.execute("UPDATE solicitudes SET nombre=?, contacto=?, pais=?, pais_detalle=? WHERE codigo=?",
+                   (nombre, contacto, pais, pais_detalle, codigo))
+    else:  # expediente viejo creado solo con el rastreo
+        s = db.execute("SELECT * FROM seguimiento WHERE codigo=?", (codigo,)).fetchone()
+        db.execute("INSERT INTO solicitudes (codigo, nombre, pais, servicio, contacto, mensaje, moneda, total_estimado, creado,"
+                   " idioma, pais_detalle, origen, origen_detalle, pagina, dispositivo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                   (codigo, nombre, pais, "", contacto, "", "DOP", None, s["actualizado"], "es", pais_detalle, "", "", "", ""))
+    db.execute("UPDATE seguimiento SET cliente=? WHERE codigo=?", (calculos.nombre_publico(nombre), codigo))
+    cambios = []
+    if antes:
+        for campo, nuevo in (("nombre", nombre), ("contacto", contacto), ("pais", pais)):
+            if (antes[campo] or "") != nuevo:
+                cambios.append(f"{campo}: «{antes[campo] or '—'}» → «{nuevo or '—'}»")
+    registrar("Editó los datos del cliente", codigo, "; ".join(cambios) or "sin cambios")
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
 
 @app.get("/api/admin/expedientes")
@@ -615,7 +857,7 @@ def admin_expedientes():
 
 
 @app.post("/api/admin/estado")
-@requiere_admin
+@requiere("expedientes")
 def admin_estado():
     """Mueve un trámite del expediente: {codigo, tramite (id), paso, detalle, estado?}."""
     d = cuerpo_json()
@@ -643,12 +885,14 @@ def admin_estado():
     db.execute("UPDATE tramites SET paso=?, estado=?, detalle=?, actualizado=? WHERE id=? AND codigo=?",
                (paso, estado, detalle, ahora(), tid, codigo))
     recalcular(db, codigo)
+    titulo = next(t["titulo"] for t in items if t["id"] == tid)
+    registrar(f"Movió a paso {paso} ({PASOS[paso]})", codigo, f"{titulo}: {detalle}")
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
 
 @app.post("/api/admin/agregar")
-@requiere_admin
+@requiere("expedientes")
 def admin_agregar():
     """Agrega otro trámite al mismo código: {codigo, servicio, titulo?, precio?}."""
     d = cuerpo_json()
@@ -663,12 +907,13 @@ def admin_agregar():
         return error("Un expediente puede tener hasta 15 trámites.")
     agregar_tramite(db, codigo, *pedido, ahora())
     recalcular(db, codigo)
+    registrar("Agregó un trámite", codigo, pedido[1])
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
 
 
 @app.post("/api/admin/quitar")
-@requiere_admin
+@requiere("expedientes")
 def admin_quitar():
     """Quita un trámite agregado por error (el expediente debe quedar con al menos uno)."""
     d = cuerpo_json()
@@ -685,12 +930,13 @@ def admin_quitar():
         return error("El expediente debe tener al menos un trámite.")
     db.execute("DELETE FROM tramites WHERE id=? AND codigo=?", (tid, codigo))
     recalcular(db, codigo)
+    registrar("Quitó un trámite", codigo, next(t["titulo"] for t in items if t["id"] == tid))
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
 
 @app.post("/api/admin/nuevo")
-@requiere_admin
+@requiere("expedientes")
 def admin_nuevo():
     """Crea un expediente (uno o varios trámites con un solo código) para un cliente de WhatsApp."""
     d = cuerpo_json()
@@ -729,6 +975,7 @@ def admin_nuevo():
     for sid, titulo, precio in pedidos:
         agregar_tramite(db, codigo, sid, titulo, precio, ts)
     recalcular(db, codigo)
+    registrar("Creó el expediente", codigo, f"{nombre}: " + ", ".join(p[1] for p in pedidos))
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
 
@@ -750,7 +997,7 @@ TIPOS_PAGO = {"anticipo": "Anticipo 50%", "saldo": "Saldo 50%", "otro": "Otro pa
 
 
 @app.post("/api/admin/pago")
-@requiere_admin
+@requiere("pagos")
 def admin_pago():
     """Registra un pago del cliente: {codigo, tipo (anticipo|saldo|otro), monto, metodo, fecha?, nota?}."""
     d = cuerpo_json()
@@ -765,24 +1012,28 @@ def admin_pago():
     db.execute("INSERT INTO pagos (codigo, tipo, monto, metodo, fecha, nota, creado) VALUES (?,?,?,?,?,?,?)",
                (codigo, tipo, round(monto, 2), str(d.get("metodo", "")).strip()[:40], _fecha_dia(d.get("fecha")),
                 str(d.get("nota", "")).strip()[:200], ahora()))
+    registrar("Registró un pago", codigo, f"RD${monto:,.2f} · {TIPOS_PAGO[tipo]} · {str(d.get('metodo', '')).strip()[:40]}")
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
 
 
 @app.post("/api/admin/pago/quitar")
-@requiere_admin
+@requiere("pagos")
 def admin_pago_quitar():
     d = cuerpo_json()
     codigo = _codigo_existente(d)
     db = get_db()
-    if not codigo or not db.execute("DELETE FROM pagos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).rowcount:
+    fila = db.execute("SELECT monto, tipo FROM pagos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).fetchone() if codigo else None
+    if not fila:
         return error("Ese pago no existe.", 404)
+    db.execute("DELETE FROM pagos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo))
+    registrar("Borró un pago", codigo, f"RD${fila['monto']:,.2f} · {TIPOS_PAGO.get(fila['tipo'], fila['tipo'])}")
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
 
 @app.post("/api/admin/nota")
-@requiere_admin
+@requiere("expedientes")
 def admin_nota():
     """Nota interna del expediente (el cliente no la ve): {codigo, texto}."""
     d = cuerpo_json()
@@ -794,24 +1045,26 @@ def admin_nota():
         return error("Escribe la nota.")
     db = get_db()
     db.execute("INSERT INTO notas (codigo, texto, creado) VALUES (?,?,?)", (codigo, texto, ahora()))
+    registrar("Agregó una nota", codigo, texto[:120])
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
 
 
 @app.post("/api/admin/nota/quitar")
-@requiere_admin
+@requiere("expedientes")
 def admin_nota_quitar():
     d = cuerpo_json()
     codigo = _codigo_existente(d)
     db = get_db()
     if not codigo or not db.execute("DELETE FROM notas WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).rowcount:
         return error("Esa nota no existe.", 404)
+    registrar("Borró una nota", codigo)
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
 
 @app.post("/api/admin/docs")
-@requiere_admin
+@requiere("expedientes")
 def admin_docs():
     """Documentos recibidos de un trámite: {codigo, tramite, docs: ["Pasaporte…", …]}."""
     d = cuerpo_json()
@@ -826,12 +1079,13 @@ def admin_docs():
     if not db.execute("UPDATE tramites SET docs=? WHERE id=? AND codigo=?",
                       (json.dumps(docs, ensure_ascii=False), numero(d.get("tramite")), codigo)).rowcount:
         return error("Ese trámite no existe.", 404)
+    registrar("Actualizó documentos recibidos", codigo, f"{len(docs)} recibidos")
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
 
 @app.get("/api/admin/precios")
-@requiere_admin
+@requiere("precios")
 def admin_precios():
     """Precios de todos los servicios (catálogo + cambios del panel) y el historial de cambios."""
     base, guardados = catalogo_base(), precios_guardados()
@@ -849,7 +1103,7 @@ def admin_precios():
 
 
 @app.post("/api/admin/precio")
-@requiere_admin
+@requiere("precios")
 def admin_precio():
     """Cambia la tasa oficial y el honorario de un servicio: {servicio, tax, fee} o {servicio, restaurar: true}."""
     d = cuerpo_json()
@@ -875,13 +1129,14 @@ def admin_precio():
                    " DO UPDATE SET tax=excluded.tax, fee=excluded.fee, actualizado=excluded.actualizado", (sid, tax, fee, ahora()))
     db.execute("INSERT INTO precios_historial (servicio_id, tax_antes, fee_antes, tax, fee, fecha) VALUES (?,?,?,?,?,?)",
                (sid, antes["tax"], antes["fee"], tax, fee, ahora()))
+    registrar("Cambió un precio", None, f"{base[sid]['title']}: RD${antes['tax'] + antes['fee']:,.0f} → RD${tax + fee:,.0f}")
     db.commit()
     return jsonify({"ok": True, "servicio": {"id": sid, "tax": _entero(tax), "fee": _entero(fee),
                                              "modificado": (tax, fee) != (base[sid]["tax"], base[sid]["fee"])}})
 
 
 @app.get("/api/admin/respaldo")
-@requiere_admin
+@requiere("herramientas")
 def admin_respaldo():
     """Copia completa de la base de datos (se abre con cualquier visor de SQLite)."""
     import tempfile
@@ -897,7 +1152,7 @@ def admin_respaldo():
 
 
 @app.get("/api/admin/exportar")
-@requiere_admin
+@requiere("herramientas")
 def admin_exportar():
     """Excel: una fila por trámite (los trámites del mismo cliente comparten el código)."""
     db = get_db()

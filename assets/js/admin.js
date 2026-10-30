@@ -27,6 +27,11 @@
     const METODOS = ['Transferencia', 'Zelle', 'Efectivo', 'Remesa', 'PayPal', 'Tarjeta', 'Otro'];
 
     let expedientes = [], conteo = {}, cat = null;
+    let yo = null, nombresPermisos = {};       // usuario con sesión y descripción de cada permiso
+    const puede = p => !!(yo && (yo.permisos || []).includes(p));
+    const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
+    let usuariosData = null, editandoUsuario = null;
+    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios' };
     const filtro = { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
     let tab = 'exp', periodo = 30;
     let precios = null, preciosQ = '', preciosCat = '';
@@ -182,14 +187,17 @@
         $('vPanel').hidden = true; $('vNuevo').hidden = true; $('vLogin').hidden = false;
         const err = $('loginError');
         err.hidden = !msg; err.textContent = msg || '';
-        setTimeout(() => $('clave').focus(), 50);
+        setTimeout(() => ($('usuario').value ? $('clave') : $('usuario')).focus(), 50);
     }
 
     async function mostrarPanel() {
+        try { const s = await api('/admin/sesion'); yo = s.usuario; nombresPermisos = s.permisos || {}; } catch (e) { /* sigue */ }
+        aplicarPermisos();
         $('vLogin').hidden = true; $('vPanel').hidden = false;
         if (!cat) { try { cat = await api('/catalogo'); } catch (e) { /* el panel funciona igual */ } }
         llenarFiltros();
         await cargar();
+        irATab(tab);
     }
 
     async function cargar() {
@@ -207,7 +215,7 @@
     let pendiente = null, revisando = false;
     const huella = lista => lista.map(e => e.codigo + '@' + e.actualizado + '@' + (e.pagos || []).length + '@' + (e.notas || []).length).join('|');
     /** ¿Está escribiendo o con una ventana abierta? Entonces no le cambiamos la lista de golpe. */
-    const ocupado = () => editando || !$('vNuevo').hidden || (document.activeElement && document.activeElement.closest('#vPanel main form, #tPrecios'));
+    const ocupado = () => editando || editandoCliente.size || !$('vNuevo').hidden || !$('vCuenta').hidden || (document.activeElement && document.activeElement.closest('#vPanel main form, #tPrecios'));
     async function revisar() {
         if (revisando || $('vPanel').hidden || document.hidden) return;
         revisando = true;
@@ -239,7 +247,7 @@
     }
 
     function pintarTodo() {
-        const porCobrar = expedientes.filter(e => e.pendiente > 0).length;
+        const porCobrar = puede('pagos') ? expedientes.filter(e => e.pendiente > 0).length : 0;
         $('numCobro').hidden = !porCobrar; $('numCobro').textContent = porCobrar;
         if (tab === 'exp') pintar();
         else if (tab === 'resumen') pintarResumen();
@@ -247,11 +255,21 @@
         else if (tab === 'herr') pintarHerramientas();
     }
 
+    /** Muestra solo lo que el usuario puede usar. */
+    function aplicarPermisos() {
+        $('yoNombre').textContent = yo ? yo.nombre : 'Mi cuenta';
+        document.querySelectorAll('#tabs .tab').forEach(b => { const p = PERM_TAB[b.dataset.tab]; b.hidden = !!p && !puede(p); });
+        $('btnExcelTop').hidden = !puede('herramientas');
+        $('btnExcelFiltro').hidden = !puede('herramientas');
+        $('btnNuevo').hidden = !puede('expedientes');
+        if (PERM_TAB[tab] && !puede(PERM_TAB[tab])) tab = 'exp';
+    }
+
     function irATab(nuevo) {
         tab = nuevo;
         document.querySelectorAll('#tabs .tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === tab); b.setAttribute('aria-selected', b.dataset.tab === tab); });
-        ['exp', 'resumen', 'pagos', 'precios', 'herr'].forEach(t => { $({ exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr' }[t]).hidden = t !== tab; });
-        if (tab === 'precios') cargarPrecios(); else pintarTodo();
+        ['exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios'].forEach(t => { $({ exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
+        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else pintarTodo();
         window.scrollTo({ top: 0 });
     }
     function verExpediente(codigo) {
@@ -330,7 +348,7 @@
             <div class="tr-top"><div><b>${esc(t.titulo)}</b><small>${esc(rd(t.precio))} · ${esc(fecha(t.actualizado))}</small></div><span class="chip ${tono(t.paso)}">${esc(t.paso === 3 ? 'En institución' : PASOS[t.paso])}</span></div>
             ${barra(t.paso)}
             <p>${esc(t.detalle)}</p>
-            ${abierto ? form : `<div class="tr-acc"><button type="button" class="link" data-editar="${esc(clave)}">Actualizar avance</button>${bloqueDocs(e, t)}${varios ? `<button type="button" class="link rojo" data-quitar="${t.id}" data-codigo="${esc(e.codigo)}">Quitar</button>` : ''}</div>`}
+            ${abierto ? form : (puede('expedientes') ? `<div class="tr-acc"><button type="button" class="link" data-editar="${esc(clave)}">Actualizar avance</button>${bloqueDocs(e, t)}${varios ? `<button type="button" class="link rojo" data-quitar="${t.id}" data-codigo="${esc(e.codigo)}">Quitar</button>` : ''}</div>` : '')}
         </div>`;
     }
 
@@ -363,7 +381,7 @@
     function bloqueNotas(e) {
         const notas = e.notas || [];
         return `<div class="bloque">
-            <div class="bloque-t"><span>📝 Notas internas</span><span style="text-transform:none;letter-spacing:0">solo las ves tú</span></div>
+            <div class="bloque-t"><span>📝 Notas internas</span><span style="text-transform:none;letter-spacing:0">el cliente no las ve</span></div>
             ${notas.length ? `<ul class="filas">${notas.map(n => `<li><span>${esc(n.texto)}<br><small>${esc(fecha(n.creado))}</small></span>
                 <button type="button" class="x" data-quitar-nota="${n.id}" data-codigo="${esc(e.codigo)}" title="Borrar nota" aria-label="Borrar nota">×</button></li>`).join('')}</ul>` : ''}
             <form class="form-nota" data-codigo="${esc(e.codigo)}">
@@ -371,6 +389,36 @@
                 <button class="btn btn-borde btn-sm" type="submit">Guardar</button>
             </form>
         </div>`;
+    }
+
+    /** Separa «+1 809… · correo@…» en WhatsApp y correo. */
+    function partesContacto(c) {
+        const partes = String(c || '').split('·').map(x => x.trim()).filter(Boolean);
+        return { wa: partes.filter(x => !x.includes('@')).join(' '), email: partes.find(x => x.includes('@')) || '' };
+    }
+    function bloqueDatosCliente(e) {
+        if (!editandoCliente.has(e.codigo)) return `<div><button type="button" class="link" data-editar-cliente="${esc(e.codigo)}">✏️ Editar datos del cliente (nombre, WhatsApp, correo, país)</button></div>`;
+        const c = partesContacto(e.contacto);
+        return `<form class="bloque form-cliente" data-codigo="${esc(e.codigo)}">
+            <div class="bloque-t"><span>Datos del cliente</span></div>
+            <div class="dos">
+                <div><label class="campo" for="cn-${esc(e.codigo)}">Nombre</label><input class="input" id="cn-${esc(e.codigo)}" name="nombre" maxlength="80" required value="${esc(e.nombre || e.cliente || '')}"></div>
+                <div><label class="campo" for="cp-${esc(e.codigo)}">País donde vive</label><select class="input" id="cp-${esc(e.codigo)}" name="pais">${cat ? Object.entries(cat.paises).map(([id, p]) => `<option value="${esc(id)}"${id === e.pais ? ' selected' : ''}>${p.bandera} ${esc(p.nombre)}</option>`).join('') : ''}</select></div>
+            </div>
+            <div class="dos">
+                <div><label class="campo" for="cw-${esc(e.codigo)}">WhatsApp</label><input class="input" id="cw-${esc(e.codigo)}" name="wa" maxlength="40" inputmode="tel" placeholder="+1 809 555 0000" value="${esc(c.wa)}"></div>
+                <div><label class="campo" for="ce-${esc(e.codigo)}">Correo</label><input class="input" id="ce-${esc(e.codigo)}" name="email" type="email" maxlength="80" value="${esc(c.email)}"></div>
+            </div>
+            <small style="color:var(--suave)">El cambio queda anotado en el historial con tu usuario.</small>
+            <div class="acciones"><button class="btn btn-azul btn-sm" type="submit">Guardar datos</button><button class="btn btn-borde btn-sm" type="button" data-cancelar-cliente="${esc(e.codigo)}">Cancelar</button></div>
+        </form>`;
+    }
+    function bloqueHistorial(e) {
+        const act = e.actividad || [];
+        if (!act.length) return '';
+        return `<details class="bloque hist"><summary>🕘 Historial del expediente (${act.length})</summary>
+            <ul class="filas">${act.map(a => `<li><span><b>${esc(a.accion)}</b>${a.detalle ? `<br><small>${esc(a.detalle)}</small>` : ''}</span>
+                <small style="text-align:right;white-space:nowrap">${esc(a.usuario)}<br>${esc(fecha(a.fecha))}</small></li>`).join('')}</ul></details>`;
     }
 
     function tarjeta(e) {
@@ -393,23 +441,25 @@
                     <div><dt>Creado</dt><dd>${esc(fecha(creado(e)))}${e.idioma && e.idioma !== 'es' ? ` · ${esc(IDIOMA_N[e.idioma] || e.idioma)}` : ''}</dd></div>
                     ${e.mensaje ? `<div style="grid-column:1/-1"><dt>Nota del cliente</dt><dd>${esc(e.mensaje)}</dd></div>` : ''}
                 </dl>
+                ${puede('expedientes') ? bloqueDatosCliente(e) : ''}
                 <div class="actual"><small>Lo que ve el cliente arriba · ${esc(fecha(e.actualizado))}</small><b>${esc(e.estado)}:</b> ${esc(e.detalle)}</div>
                 <div class="tramites">
                     <p class="tramites-t">Trámites en este código (${items.length})</p>
                     ${items.map(t => bloqueTramite(e, t, items.length > 1)).join('')}
-                    <form class="agregar" data-codigo="${esc(e.codigo)}">
+                    ${puede('expedientes') ? `<form class="agregar" data-codigo="${esc(e.codigo)}">
                         <span class="campo" style="margin:0">Agregar otro trámite a este código</span>
                         ${campoServicio()}
                         <button class="btn btn-borde btn-sm" type="submit">+ Agregar trámite</button>
-                    </form>
+                    </form>` : ''}
                 </div>
-                ${bloqueCobro(e)}
-                ${bloqueNotas(e)}
+                ${puede('pagos') ? bloqueCobro(e) : ''}
+                ${puede('expedientes') ? bloqueNotas(e) : ''}
+                ${bloqueHistorial(e)}
                 <div class="bloque">
                     <div class="bloque-t"><span>💬 Mensajes rápidos por WhatsApp</span></div>
                     <div class="rapidos">
                         <a href="${linkDocs(e)}" target="_blank" rel="noopener">📎 Pedir documentos</a>
-                        <a href="${linkPago(e)}" target="_blank" rel="noopener">💵 Recordar pago</a>
+                        ${puede('pagos') ? `<a href="${linkPago(e)}" target="_blank" rel="noopener">💵 Recordar pago</a>` : ''}
                         <a href="${linkListo(e)}" target="_blank" rel="noopener">🎉 Trámite listo</a>
                     </div>
                 </div>
@@ -418,7 +468,7 @@
                     <button class="btn btn-borde" type="button" data-copiar="${esc(e.codigo)}">Copiar código</button>
                 </div>
             </div>`;
-        const cobroChip = e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
+        const cobroChip = !puede('pagos') ? '' : e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
             : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : '');
         return `<article class="exp" data-codigo="${esc(e.codigo)}">
             <button type="button" class="exp-cab" aria-expanded="${abierto}">
@@ -528,11 +578,11 @@
                 <div class="kpi"><span>En proceso ahora</span><b>${num(enProceso)}</b><small>${num(listosP)} completados en el período</small></div>
                 <div class="kpi${det ? ' alerta' : ''}"><span>Detenidos (${DIAS_ALERTA}+ días)</span><b>${num(det)}</b>${det ? '<small><a href="#" data-ver-detenidos>Ver cuáles →</a></small>' : '<small>todo al día ✅</small>'}</div>
             </div>
-            <div class="kpis">
+            ${!puede('pagos') ? '' : `<div class="kpis">
                 <div class="kpi"><span>Cotizado (${esc(nP)})</span><b>${esc(rd(cotizado))}</b><small>suma de los precios de los trámites</small></div>
                 <div class="kpi dinero"><span>Cobrado (${esc(nP)})</span><b>${esc(rd(cobrado))}</b><small>${pagosP.length} ${pagosP.length === 1 ? 'pago' : 'pagos'} registrados</small></div>
                 <div class="kpi"><span>Por cobrar (todos)</span><b style="color:var(--rojo)">${esc(rd(porCobrar))}</b><small><a href="#" data-ir="pagos">Ver pendientes →</a></small></div>
-            </div>
+            </div>`}
             <div class="card"><h3>Solicitudes por ${dias ? 'día' : 'mes'}</h3><p class="sub">Formulario de la página + expedientes que creas en el panel. Pasa el dedo o el ratón por las barras.</p>
                 <div class="grafica" id="graf">${graficaDias(expedientes, dias)}</div></div>
             <div class="grid-2">
@@ -662,12 +712,106 @@
         </div>`;
     }
 
+    // ============================================================ USUARIOS
+    const PRESETS = {
+        'Dueño (todo)': Object.keys({ expedientes: 1, pagos: 1, resumen: 1, precios: 1, herramientas: 1, usuarios: 1 }),
+        'Gestor': ['expedientes'],
+        'Gestor + cobros': ['expedientes', 'pagos'],
+        'Contabilidad': ['pagos', 'resumen', 'herramientas'],
+        'Solo ver': []
+    };
+    async function cargarUsuarios() {
+        if (!usuariosData) $('tUsuarios').innerHTML = '<div class="vacio"><b>Cargando usuarios…</b></div>';
+        try { usuariosData = await api('/admin/usuarios'); pintarUsuarios(); }
+        catch (e) { if (e.message !== 'sesion') $('tUsuarios').innerHTML = `<div class="vacio"><b>No se pudo cargar</b>${esc(e.message)}</div>`; }
+    }
+    function formUsuario(u) {
+        const nuevo = !u, permisos = new Set(u ? u.permisos : ['expedientes']);
+        return `<form class="card pila" id="fUsuario" data-id="${u ? u.id : ''}" style="gap:14px">
+            <h3>${nuevo ? 'Nuevo usuario' : `Editar: ${esc(u.usuario)}`}</h3>
+            <div class="dos">
+                <div><label class="campo" for="uUsuario">Usuario (para entrar)</label><input class="input" id="uUsuario" name="usuario" maxlength="30" autocapitalize="none" spellcheck="false" ${nuevo ? 'required placeholder="Ej.: maria"' : `value="${esc(u.usuario)}" disabled`}></div>
+                <div><label class="campo" for="uNombre">Nombre</label><input class="input" id="uNombre" name="nombre" maxlength="60" required value="${esc(u ? u.nombre : '')}" placeholder="Ej.: María Pérez"></div>
+            </div>
+            <div><label class="campo" for="uClave">${nuevo ? 'Contraseña inicial' : 'Nueva contraseña (déjala vacía para no cambiarla)'}</label>
+                <input class="input" id="uClave" name="clave" type="text" minlength="8" autocomplete="off" ${nuevo ? 'required' : ''} placeholder="Mínimo 8 caracteres">
+                <small style="color:var(--suave)">Dásela a la persona por un medio privado. Luego ella la puede cambiar en «Mi cuenta».</small></div>
+            <div><span class="campo">Permisos <span style="font-weight:500;color:var(--suave)">— atajos:</span></span>
+                <div class="chips" style="margin-bottom:8px">${Object.keys(PRESETS).map(n => `<button type="button" class="chip-btn" data-preset="${esc(n)}">${esc(n)}</button>`).join('')}</div>
+                <div class="checks">${Object.entries(nombresPermisos).map(([k, d]) => `<label><input type="checkbox" name="perm" value="${esc(k)}"${permisos.has(k) ? ' checked' : ''}><span><b>${esc(k[0].toUpperCase() + k.slice(1))}</b><span>${esc(d)}</span></span></label>`).join('')}</div>
+                <small style="color:var(--suave)">Todos pueden ver la lista de expedientes. Sin «Pagos» no ven los montos cobrados.</small></div>
+            ${nuevo ? '' : `<label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" name="activo"${u.activo ? ' checked' : ''}> Usuario activo (si lo desmarcas, ya no podrá entrar)</label>`}
+            <div id="usuarioError" class="msg-error" hidden></div>
+            <div class="acciones"><button class="btn btn-azul" type="submit">${nuevo ? 'Crear usuario' : 'Guardar cambios'}</button><button class="btn btn-borde" type="button" data-cancelar-usuario>Cancelar</button></div>
+        </form>`;
+    }
+    function pintarUsuarios() {
+        const d = usuariosData;
+        const nombreP = k => k[0].toUpperCase() + k.slice(1);
+        $('tUsuarios').innerHTML = `<div class="pila">
+            <div class="cabecera" style="margin:0"><div><h2>Usuarios</h2><p>Cada persona entra con su usuario y su clave, y solo ve lo que le permites</p></div>
+                ${editandoUsuario === null ? '<button class="btn btn-rojo" type="button" data-nuevo-usuario>+ Nuevo usuario</button>' : ''}</div>
+            ${editandoUsuario !== null ? formUsuario(editandoUsuario === 'nuevo' ? null : d.usuarios.find(u => u.id === editandoUsuario)) : ''}
+            <div class="card"><h3>Equipo (${d.usuarios.length})</h3>
+                ${d.usuarios.map(u => `<div class="usr">
+                    <span><b>${esc(u.nombre)}</b> <span class="codigo">${esc(u.usuario)}</span>${u.id === (yo && yo.id) ? ' <small>(tú)</small>' : ''}<br>
+                        <small>${u.activo ? `Último acceso: ${esc(u.ultimo_acceso ? fecha(u.ultimo_acceso) : 'nunca')}` : '<b style="color:var(--rojo)">Desactivado</b>'}</small></span>
+                    <button type="button" class="btn btn-borde btn-sm" data-editar-usuario="${u.id}">Editar</button>
+                    <span class="chips">${u.permisos.length ? u.permisos.map(p => `<span class="perm">${esc(nombreP(p))}</span>`).join('') : '<span class="perm off">Solo ver expedientes</span>'}</span>
+                </div>`).join('')}
+            </div>
+            <div class="card"><h3>Actividad del equipo</h3><p class="sub">Quién hizo qué, lo más reciente primero</p>
+                ${d.actividad.length ? `<ul class="filas">${d.actividad.slice(0, 60).map(a => `<li><span><b>${esc(a.usuario)}</b> · ${esc(a.accion)}${a.codigo ? ` <span class="codigo">${esc(a.codigo)}</span>` : ''}${a.detalle ? `<br><small>${esc(a.detalle)}</small>` : ''}</span><small style="white-space:nowrap">${esc(fecha(a.fecha))}</small></li>`).join('')}</ul>` : '<p class="rank-vacio">Todavía no hay actividad.</p>'}
+            </div>
+        </div>`;
+    }
+    $('tUsuarios').addEventListener('click', ev => {
+        if (ev.target.closest('[data-nuevo-usuario]')) { editandoUsuario = 'nuevo'; pintarUsuarios(); $('uUsuario').focus(); return; }
+        const ed = ev.target.closest('[data-editar-usuario]');
+        if (ed) { editandoUsuario = Number(ed.dataset.editarUsuario); pintarUsuarios(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+        if (ev.target.closest('[data-cancelar-usuario]')) { editandoUsuario = null; pintarUsuarios(); return; }
+        const pr = ev.target.closest('[data-preset]');
+        if (pr) { const set = new Set(PRESETS[pr.dataset.preset]); $('fUsuario').querySelectorAll('[name="perm"]').forEach(c => { c.checked = set.has(c.value); }); }
+    });
+    $('tUsuarios').addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const f = ev.target, btn = f.querySelector('[type=submit]'); btn.disabled = true;
+        const err = $('usuarioError'); err.hidden = true;
+        try {
+            const cuerpo = { nombre: f.nombre.value.trim(), clave: f.clave.value, permisos: [...f.querySelectorAll('[name="perm"]:checked')].map(c => c.value) };
+            if (f.dataset.id) Object.assign(cuerpo, { id: Number(f.dataset.id), activo: f.activo.checked }); else cuerpo.usuario = f.usuario.value.trim().toLowerCase();
+            await post('/admin/usuarios/guardar', cuerpo);
+            toast(f.dataset.id ? 'Usuario actualizado' : `Usuario creado: ${cuerpo.usuario}`);
+            editandoUsuario = null; await cargarUsuarios();
+            if (f.dataset.id && yo && Number(f.dataset.id) === yo.id) { const s = await api('/admin/sesion'); yo = s.usuario; aplicarPermisos(); }
+        } catch (e) { if (e.message !== 'sesion') { err.hidden = false; err.textContent = e.message; } btn.disabled = false; }
+    });
+
+    // ---------------- mi cuenta
+    $('btnCuenta').addEventListener('click', () => {
+        $('fCuenta').reset(); $('cuentaError').hidden = true;
+        $('cuentaInfo').textContent = yo ? `${yo.nombre} · usuario «${yo.usuario}»` : '';
+        $('vCuenta').hidden = false; $('cActual').focus();
+    });
+    $('vCuenta').addEventListener('click', ev => { if (ev.target === $('vCuenta') || ev.target.closest('[data-cerrar-cuenta]')) $('vCuenta').hidden = true; });
+    $('fCuenta').addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const err = $('cuentaError'); err.hidden = true;
+        if ($('cNueva').value !== $('cNueva2').value) { err.hidden = false; err.textContent = 'Las contraseñas nuevas no coinciden.'; return; }
+        const btn = $('btnCambiarClave'); btn.disabled = true;
+        try { await post('/admin/cuenta/clave', { actual: $('cActual').value, nueva: $('cNueva').value }); $('vCuenta').hidden = true; toast('Contraseña cambiada'); }
+        catch (e) { if (e.message !== 'sesion') { err.hidden = false; err.textContent = e.message; } }
+        finally { btn.disabled = false; }
+    });
+
     // ------------------------------------------------------------ eventos: sesión, pestañas y filtros
+    try { $('usuario').value = localStorage.getItem('tf_admin_usuario') || ''; } catch (e) { /* sin almacenamiento */ }
+    $('usuario').addEventListener('change', () => { try { localStorage.setItem('tf_admin_usuario', $('usuario').value.trim().toLowerCase()); } catch (e) { /* sin almacenamiento */ } });
     $('fLogin').addEventListener('submit', async ev => {
         ev.preventDefault();
         const btn = $('btnLogin'); btn.disabled = true; btn.textContent = 'Entrando…';
         try {
-            await post('/admin/login', { clave: $('clave').value });
+            await post('/admin/login', { usuario: $('usuario').value.trim().toLowerCase(), clave: $('clave').value });
             $('clave').value = '';
             await mostrarPanel();
         } catch (e) {
@@ -677,7 +821,7 @@
 
     $('btnSalir').addEventListener('click', async () => {
         try { await post('/admin/logout', {}); } catch (e) { /* igual salimos */ }
-        expedientes = []; precios = null; abiertos.clear(); editando = null; mostrarLogin();
+        expedientes = []; precios = null; usuariosData = null; yo = null; tab = 'exp'; editandoUsuario = null; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
     });
 
     $('tabs').addEventListener('click', ev => { const b = ev.target.closest('[data-tab]'); if (b) irATab(b.dataset.tab); });
@@ -735,6 +879,10 @@
             abiertos.has(c) ? abiertos.delete(c) : abiertos.add(c);
             pintar(); return;
         }
+        const ec = ev.target.closest('[data-editar-cliente]');
+        if (ec) { editandoCliente.add(ec.dataset.editarCliente); pintar(); const i = document.getElementById('cw-' + ec.dataset.editarCliente); if (i) i.focus(); return; }
+        const cc = ev.target.closest('[data-cancelar-cliente]');
+        if (cc) { editandoCliente.delete(cc.dataset.cancelarCliente); pintar(); return; }
         const da = ev.target.closest('[data-docs-abrir]');
         if (da) { const k = da.dataset.docsAbrir; docsAbiertos.has(k) ? docsAbiertos.delete(k) : docsAbiertos.add(k); pintar(); return; }
         const ed = ev.target.closest('[data-editar]');
@@ -792,6 +940,12 @@
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintarTodo();
                 toast(r.expediente.pendiente === 0 ? '¡Pagado completo! ✅' : `Pago registrado. Pendiente: ${rd(r.expediente.pendiente)}`);
+            } else if (form.classList.contains('form-cliente')) {
+                const contacto = [form.wa.value.trim(), form.email.value.trim()].filter(Boolean).join(' · ');
+                const r = await post('/admin/cliente', { codigo: form.dataset.codigo, nombre: form.nombre.value, contacto, pais: form.pais.value });
+                editandoCliente.delete(form.dataset.codigo);
+                document.activeElement && document.activeElement.blur();
+                reemplazar(r.expediente); pintar(); toast('Datos del cliente actualizados');
             } else if (form.classList.contains('form-nota')) {
                 const r = await post('/admin/nota', { codigo: form.dataset.codigo, texto: form.texto.value });
                 document.activeElement && document.activeElement.blur();
@@ -867,7 +1021,7 @@
     $('nItems').addEventListener('change', ev => { if (ev.target.matches('[data-f="servicio"]')) alCambiarServicio(ev.target); });
     $('nItems').addEventListener('click', ev => { const q = ev.target.closest('.quitar'); if (q) q.closest('.item-nuevo').remove(); });
     $('vNuevo').addEventListener('click', ev => { if (ev.target === $('vNuevo') || ev.target.closest('[data-cerrar]')) cerrarNuevo(); });
-    document.addEventListener('keydown', ev => { if (ev.key === 'Escape' && !$('vNuevo').hidden) cerrarNuevo(); });
+    document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; if (!$('vNuevo').hidden) cerrarNuevo(); $('vCuenta').hidden = true; });
 
     $('fNuevo').addEventListener('submit', async ev => {
         ev.preventDefault();

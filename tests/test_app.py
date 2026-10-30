@@ -350,3 +350,53 @@ def test_assetlinks_app_android(client):
     r = client.get("/.well-known/assetlinks.json")
     assert r.status_code == 200 and r.mimetype == "application/json"
     assert r.json[0]["target"]["namespace"] == "android_app"
+
+
+def test_usuarios_permisos_y_datos_del_cliente(client):
+    from werkzeug.security import generate_password_hash
+    os.environ["TF_ADMIN_HASH"] = generate_password_hash("clave-del-dueno")
+    try:
+        # el dueño entra como «admin» con la clave de `tramita clave`
+        assert client.post("/api/admin/login", json={"usuario": "admin", "clave": "mala"}).status_code == 401
+        assert client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"}).json["ok"]
+        s = client.get("/api/admin/sesion").json
+        assert s["usuario"]["usuario"] == "admin" and "usuarios" in s["usuario"]["permisos"]
+
+        # crea una gestora que solo trabaja expedientes
+        r = client.post("/api/admin/usuarios/guardar", json={"usuario": "maria", "nombre": "María Gestora",
+                                                             "clave": "clave-maria-1", "permisos": ["expedientes"]})
+        assert r.json["ok"]
+        assert client.post("/api/admin/usuarios/guardar", json={"usuario": "Maria Mal", "nombre": "x y", "clave": "12345678"}).status_code == 400
+        sol = client.post("/api/solicitud", json={"nombre": "Ana Pérez", "contacto": "+1 809 555 0000", "pais": "rd",
+                                                  "servicio": "apostilla_documentos", "acepta": True}).json["codigo"]
+        client.post("/api/admin/logout")
+
+        assert client.post("/api/admin/login", json={"usuario": "maria", "clave": "clave-maria-1"}).json["ok"]
+        # puede corregir el contacto del cliente (y queda anotado quién lo hizo)
+        e = client.post("/api/admin/cliente", json={"codigo": sol, "nombre": "Ana Pérez", "contacto": "+1 829 555 9999",
+                                                    "pais": "us"}).json["expediente"]
+        assert e["contacto"] == "+1 829 555 9999" and e["pais"] == "us"
+        assert e["actividad"][0]["usuario"] == "maria" and "contacto" in e["actividad"][0]["detalle"]
+        # no puede cobrar, cambiar precios, descargar ni administrar usuarios; y no ve los pagos
+        assert client.post("/api/admin/pago", json={"codigo": sol, "monto": 100}).status_code == 403
+        assert client.get("/api/admin/precios").status_code == 403
+        assert client.get("/api/admin/respaldo").status_code == 403
+        assert client.get("/api/admin/usuarios").status_code == 403
+        assert client.get("/api/admin/expedientes").json["expedientes"][0]["pagado"] is None
+        # cambia su contraseña
+        assert client.post("/api/admin/cuenta/clave", json={"actual": "clave-maria-1", "nueva": "otra-clave-2"}).json["ok"]
+        client.post("/api/admin/logout")
+
+        # el dueño la desactiva: ya no puede entrar
+        client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+        u = client.get("/api/admin/usuarios").json
+        maria = next(x for x in u["usuarios"] if x["usuario"] == "maria")
+        assert any(a["accion"] == "Editó los datos del cliente" for a in u["actividad"])
+        assert client.post("/api/admin/usuarios/guardar", json={**maria, "activo": False}).json["ok"]
+        # no se puede quitar el último administrador
+        yo = next(x for x in u["usuarios"] if x["usuario"] == "admin")
+        assert client.post("/api/admin/usuarios/guardar", json={**yo, "permisos": ["expedientes"]}).status_code == 400
+        client.post("/api/admin/logout")
+        assert client.post("/api/admin/login", json={"usuario": "maria", "clave": "otra-clave-2"}).status_code == 403
+    finally:
+        os.environ.pop("TF_ADMIN_HASH", None)
