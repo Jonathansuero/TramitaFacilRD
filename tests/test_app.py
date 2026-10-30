@@ -235,6 +235,9 @@ def test_direcciones_limpias_y_redireccion(client):
     assert client.get("/index.html").headers["Location"].endswith("/")
     assert client.get("/servicio?id=e_ticket").status_code == 200
     assert b"GTM-PTD3KJ4Q" in client.get("/servicios").data
+    pagina = client.get("/").data
+    assert b"'gtm.start'" in pagina and b"ns.html?id=GTM-PTD3KJ4Q" in pagina   # instalación oficial de Tag Manager
+    assert b"GTM-PTD3KJ4Q" not in client.get("/admin").data
     assert client.get("/app.py").status_code == 404
     assert client.get("/nada.html").status_code == 404
 
