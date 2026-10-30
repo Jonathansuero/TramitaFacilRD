@@ -21,7 +21,43 @@
         bing: 'Bing', x: 'X (Twitter)', referido: 'Recomendado', app: 'App instalada', directo: 'Directo (escribió la dirección)', otro: 'Otro sitio web', '': 'Sin dato' };
     const PAGINA_N = { inicio: 'Inicio', servicio: 'Página de un servicio', servicios: 'Catálogo', casos: 'Casos reales', calculadora: 'Calculadora',
         diaspora: 'Diáspora', instituciones: 'Instituciones', preguntas: 'Preguntas', rastreo: 'Rastreo', panel: 'Creado por ti en el panel', otra: 'Otra', '': 'Sin dato' };
-    const DISP_N = { movil: '📱 Celular', escritorio: '💻 Computadora', tablet: '📟 Tablet', '': 'Sin dato' };
+    const DISP_N = { movil: 'Celular', escritorio: 'Computadora', tablet: 'Tablet', '': 'Sin dato' };
+    // Íconos de línea (formales, en vez de emojis)
+    const ICO = {
+        clip: '<path d="M21 11.5 12.6 20a5 5 0 0 1-7.1-7.1L14 4.4a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4L15.6 7.4"/>',
+        cash: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+        nota: '<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+        editar: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+        reloj: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+        chat: '<path d="M21 12a8 8 0 0 1-11.7 7.1L3 21l1.9-6.2A8 8 0 1 1 21 12z"/>',
+        entrega: '<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+        subir: '<path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/>',
+        correo: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
+        alerta: '<path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17h.01"/>',
+        ok: '<path d="M20 6 9 17l-5-5"/>',
+        campana: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/>',
+        usuario: '<circle cx="12" cy="8" r="4"/><path d="M4 21c1.2-4 4.3-6 8-6s6.8 2 8 6"/>',
+        escudo: '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/>',
+        expedientes: '<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+        pagos: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+        resumen: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+        precios: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/>',
+        herramientas: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
+        usuarios: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/>'
+    };
+    const ico = (n, s = 16) => `<svg class="ico" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO[n] || ''}</svg>`;
+    /** Rol que se muestra según los permisos. */
+    function rolDe(perms) {
+        const s = new Set(perms || []);
+        if (s.has('usuarios')) return { n: 'Administrador', c: 'admin' };
+        if (s.has('expedientes') && s.has('pagos')) return { n: 'Gestor y cobros', c: 'gestor' };
+        if (s.has('expedientes')) return { n: 'Gestor', c: 'gestor' };
+        if (s.has('pagos') || s.has('resumen') || s.has('herramientas')) return { n: 'Contabilidad', c: 'conta' };
+        return { n: 'Solo lectura', c: 'lectura' };
+    }
+    const COLORES = ['#002D62', '#0E7A52', '#7C3AED', '#B45309', '#0369A1', '#BE123C', '#4D7C0F', '#334155'];
+    const colorDe = s => COLORES[[...String(s || '')].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % COLORES.length];
+    const peso = b => b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`;
     const IDIOMA_N = { es: 'Español', en: 'Inglés', fr: 'Francés', '': 'Sin dato' };
     const TIPO_PAGO = { anticipo: 'Anticipo 50%', saldo: 'Saldo 50%', otro: 'Otro pago' };
     const METODOS = ['Transferencia', 'Zelle', 'Efectivo', 'Remesa', 'PayPal', 'Tarjeta', 'Otro'];
@@ -29,7 +65,7 @@
     // Mapa de la isla (Hispaniola) dibujado a mano para un lienzo de 640×380
     const MAPA = {"rd": "M289.7,136.3 L291.4,151.0 L287.9,174.0 L295.7,192.4 L292.3,212.6 L270.5,233.8 L279.2,248.5 L283.6,266.0 L288.8,290.8 L296.6,302.8 L316.6,330.4 L332.3,302.8 L345.3,274.3 L367.9,261.4 L376.6,255.0 L398.4,275.2 L425.4,270.6 L437.5,255.9 L448.8,251.3 L474.1,252.2 L501.0,252.2 L529.7,255.0 L541.0,259.6 L561.9,260.5 L577.6,255.0 L581.9,247.6 L586.3,237.5 L568.0,223.7 L535.8,206.2 L523.7,203.4 L493.2,196.1 L473.2,192.4 L461.9,185.0 L474.1,180.4 L498.4,183.2 L515.8,174.0 L501.0,170.3 L481.0,172.2 L461.9,174.0 L453.2,166.6 L448.8,142.7 L433.2,141.8 L404.5,132.6 L394.9,131.7 L380.1,128.0 L357.5,118.8 L327.1,121.6 L296.6,123.4 L289.7,136.3Z", "ht": "M288.8,290.8 L283.6,266.0 L279.2,248.5 L270.5,233.8 L292.3,212.6 L295.7,192.4 L287.9,174.0 L291.4,151.0 L289.7,136.3 L286.2,289.9 L220.1,272.4 L145.3,268.8 L113.9,276.1 L99.2,286.2 L57.4,264.2 L53.0,247.6 L54.8,238.4 L81.8,233.8 L127.0,247.6 L171.4,252.2 L211.4,246.7 L236.6,243.9 L218.3,224.6 L205.3,206.2 L205.3,191.5 L206.1,160.2 L174.8,144.6 L146.1,126.2 L194.0,115.1 L248.8,131.7 L280.1,140.0 L289.7,136.3Z", "ciudades": {"Santo Domingo": [446.2, 249.4], "Santiago": [379.3, 160.2], "Puerto Plata": [380.1, 128.9], "Punta Cana": [579.3, 242.1], "La Romana": [529.7, 254.0], "Samaná": [498.4, 182.3], "Barahona": [344.5, 274.3]}};
     let expedientes = [], conteo = {}, cat = null, animarMapa = false;
-    let yo = null, nombresPermisos = {};       // usuario con sesión y descripción de cada permiso
+    let yo = null, nombresPermisos = {}, correoActivo = false;       // usuario con sesión y descripción de cada permiso
     const puede = p => !!(yo && (yo.permisos || []).includes(p));
     const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
     let usuariosData = null, editandoUsuario = null;
@@ -193,7 +229,7 @@
     }
 
     async function mostrarPanel() {
-        try { const s = await api('/admin/sesion'); yo = s.usuario; nombresPermisos = s.permisos || {}; } catch (e) { /* sigue */ }
+        try { const s = await api('/admin/sesion'); yo = s.usuario; nombresPermisos = s.permisos || {}; correoActivo = !!s.correo_activo; } catch (e) { /* sigue */ }
         aplicarPermisos();
         $('vLogin').hidden = true; $('vPanel').hidden = false;
         if (yo && yo.cambiar_clave) { abrirCuenta(true); return; }   // primero crea su propia clave
@@ -202,6 +238,7 @@
         llenarFiltros();
         await cargar();
         irATab(tab);
+        cargarAvisos();
     }
 
     async function cargar() {
@@ -327,17 +364,47 @@
         const total = expedientes.length, enProceso = total - (conteo['4'] || 0), det = expedientes.filter(detenido).length;
         $('resumen').textContent = total ? `${total} ${total === 1 ? 'cliente' : 'clientes'} · ${enProceso} en proceso${det ? ` · ${det} detenido${det === 1 ? '' : 's'}` : ''}` : 'Todavía no hay expedientes';
         $('btnDetenidos').classList.toggle('on', filtro.detenidos);
-        $('btnDetenidos').textContent = `⚠️ Detenidos${det ? ` (${det})` : ''}`;
+        $('btnDetenidos').textContent = `Detenidos${det ? ` (${det})` : ''}`;
         const extras = ['servicio', 'pais', 'origen', 'cobro', 'desde', 'hasta'].filter(k => filtro[k]).length;
         $('btnMas').classList.toggle('on', !$('masFiltros').hidden || extras > 0);
         $('btnMas').textContent = extras ? `Filtros (${extras})` : 'Filtros';
+    }
+
+    function linkEntrega(e) {
+        const arch = e.archivos || [];
+        const lineas = [`Hola ${primerNombre(e)}`, '', `Te escribimos de *TramitaFácil RD*. Los documentos de tu expediente *${e.codigo}* están listos.`, '', 'Puedes descargarlos aquí:'];
+        arch.forEach(a => lineas.push(`• ${a.nombre}: ${a.enlace}`));
+        lineas.push('', `Los enlaces son personales y vencen en 30 días. También puedes descargarlos en ${enlaceRastreo(e)} con tu código y los últimos 4 dígitos de tu WhatsApp.`, '', '— TramitaFácil RD');
+        return wa(e, lineas);
+    }
+    function bloqueEntrega(e) {
+        const arch = e.archivos || [], hayListo = (e.tramites || []).some(t => t.paso === 4);
+        if (!hayListo && !arch.length) return '';
+        const email = e.correo_cliente, gestiona = puede('expedientes');
+        return `<div class="bloque entrega">
+            <div class="bloque-t"><span>${ico('entrega')} Documentos para entregar</span><span>${arch.length} ${arch.length === 1 ? 'archivo' : 'archivos'}</span></div>
+            ${arch.length ? `<ul class="archivos">${arch.map(a => `<li>
+                <span class="ar-tipo ${a.tipo === 'application/pdf' ? 'pdf' : 'img'}">${a.tipo === 'application/pdf' ? 'PDF' : 'IMG'}</span>
+                <span class="ar-t"><a href="/api/admin/archivo/${a.id}" target="_blank" rel="noopener">${esc(a.nombre)}</a><small>${esc(peso(a.tamano))} · ${esc(fecha(a.creado))}${a.usuario ? ` · ${esc(a.usuario)}` : ''}</small></span>
+                ${gestiona ? `<button type="button" class="x" data-quitar-archivo="${a.id}" data-codigo="${esc(e.codigo)}" title="Quitar documento" aria-label="Quitar documento">×</button>` : ''}
+            </li>`).join('')}</ul>` : '<p class="ayuda">Sube el documento escaneado (PDF o foto) para que el cliente lo reciba y pueda descargarlo con su número de expediente.</p>'}
+            ${gestiona ? `<label class="subir">
+                <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" multiple data-subir="${esc(e.codigo)}">
+                ${ico('subir', 20)}<span><b>Subir documentos escaneados</b><small>PDF, JPG o PNG · hasta 10 MB cada uno</small></span>
+            </label>` : ''}
+            ${arch.length ? `<div class="acciones">
+                ${gestiona ? `<button type="button" class="btn btn-azul btn-sm" data-enviar-docs="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>${ico('correo')} Enviar por correo</button>` : ''}
+                <a class="btn btn-wa btn-sm" href="${linkEntrega(e)}" target="_blank" rel="noopener">${ico('chat')} Enviar por WhatsApp</a>
+            </div>
+            <small class="ayuda">${!email ? 'El cliente no tiene correo registrado: agrégalo en «Editar datos del cliente» o envíalos por WhatsApp. ' : !correoActivo ? 'El envío de correos aún no está activado en el servidor (tramita correo). ' : `El correo se enviará a ${esc(email)} con los documentos adjuntos. `}El cliente también puede descargarlos en Rastrear con su código y los últimos 4 dígitos de su WhatsApp. Los enlaces vencen en 30 días.</small>` : ''}
+        </div>`;
     }
 
     function bloqueDocs(e, t) {
         const clave = `${e.codigo}:${t.id}`, lista = checklist(t), tengo = new Set(t.docs || []);
         const listos = lista.filter(d => tengo.has(d)).length;
         const abierto = docsAbiertos.has(clave);
-        return `<button type="button" class="link" data-docs-abrir="${esc(clave)}">📎 Documentos ${listos}/${lista.length} ${abierto ? '▴' : '▾'}</button>
+        return `<button type="button" class="link" data-docs-abrir="${esc(clave)}">${ico('clip', 14)} Documentos recibidos ${listos}/${lista.length} ${abierto ? '▴' : '▾'}</button>
             ${abierto ? `<div class="docs" data-docs="${esc(clave)}" data-codigo="${esc(e.codigo)}" data-tramite="${t.id}">
                 ${lista.map(d => `<label class="${tengo.has(d) ? 'ok' : ''}"><input type="checkbox" value="${esc(d)}"${tengo.has(d) ? ' checked' : ''}><span>${esc(d)}</span></label>`).join('')}
             </div>` : ''}`;
@@ -353,6 +420,9 @@
                     <textarea class="input" id="d-${clave}" name="detalle" maxlength="500" required>${esc(t.detalle)}</textarea></div>
                 <div><label class="campo" for="s-${clave}">Estado (opcional)</label>
                     <input class="input" id="s-${clave}" name="estado" maxlength="60" placeholder="Ej.: Esperando firma del notario"></div>
+                ${e.correo_cliente ? `<label class="check-correo"><input type="checkbox" name="avisar"${correoActivo ? ' checked' : ' disabled'}>
+                    <span>${ico('correo')} ${correoActivo ? `Avisar al cliente por correo <small>${esc(e.correo_cliente)}</small>` : 'Aviso por correo <small>aún no está activado en el servidor</small>'}</span></label>`
+                    : `<p class="ayuda">${ico('correo')} El cliente no tiene correo registrado; avísale por WhatsApp.</p>`}
                 <div class="acciones"><button class="btn btn-azul" type="submit">Guardar</button><button class="btn btn-borde" type="button" data-cancelar>Cancelar</button></div>
             </form>`;
         return `<div class="tr">
@@ -369,7 +439,7 @@
         const tipo = !pagado ? 'anticipo' : 'saldo';
         const sugerido = total == null ? '' : (tipo === 'anticipo' ? Math.round(total / 2) : e.pendiente || '');
         return `<div class="bloque">
-            <div class="bloque-t"><span>💵 Cobro 50% / 50%</span><span>${total ? `${pct}% cobrado` : ''}</span></div>
+            <div class="bloque-t"><span>${ico('cash')} Cobro 50% / 50%</span><span>${total ? `${pct}% cobrado` : ''}</span></div>
             <div class="cobro-nums">
                 <div><small>Total</small><b>${esc(rd(total))}</b></div>
                 <div class="ok"><small>Recibido</small><b>${esc(rd(pagado))}</b></div>
@@ -378,7 +448,7 @@
             ${total ? `<div class="progreso"><i style="width:${pct}%"></i></div>` : '<small style="color:var(--suave)">Este expediente tiene un trámite sin precio; ponle precio para calcular lo pendiente.</small>'}
             ${pagos.length ? `<ul class="filas">${pagos.map(p => `<li><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''}<br><small>${esc(diaCorto(p.fecha))}${p.nota ? ` · ${esc(p.nota)}` : ''}</small></span>
                 <button type="button" class="x" data-quitar-pago="${p.id}" data-codigo="${esc(e.codigo)}" title="Borrar este pago" aria-label="Borrar este pago">×</button></li>`).join('')}</ul>` : ''}
-            ${e.pendiente === 0 && pagado > 0 ? '<small style="color:var(--verde);font-weight:700">✅ Pagado completo</small>' : `
+            ${e.pendiente === 0 && pagado > 0 ? `<small style="color:var(--verde);font-weight:700">${ico('ok')} Pagado completo</small>` : `
             <form class="form-pago" data-codigo="${esc(e.codigo)}" data-total="${total ?? ''}" data-pendiente="${e.pendiente ?? ''}">
                 <select class="input" name="tipo" aria-label="Tipo de pago">${Object.entries(TIPO_PAGO).map(([k, n]) => `<option value="${k}"${k === tipo ? ' selected' : ''}>${n}</option>`).join('')}</select>
                 <input class="input" name="monto" type="number" min="1" step="any" inputmode="decimal" placeholder="Monto RD$" value="${sugerido}" aria-label="Monto recibido" required>
@@ -392,7 +462,7 @@
     function bloqueNotas(e) {
         const notas = e.notas || [];
         return `<div class="bloque">
-            <div class="bloque-t"><span>📝 Notas internas</span><span style="text-transform:none;letter-spacing:0">el cliente no las ve</span></div>
+            <div class="bloque-t"><span>${ico('nota')} Notas internas</span><span style="text-transform:none;letter-spacing:0">el cliente no las ve</span></div>
             ${notas.length ? `<ul class="filas">${notas.map(n => `<li><span>${esc(n.texto)}<br><small>${esc(fecha(n.creado))}</small></span>
                 <button type="button" class="x" data-quitar-nota="${n.id}" data-codigo="${esc(e.codigo)}" title="Borrar nota" aria-label="Borrar nota">×</button></li>`).join('')}</ul>` : ''}
             <form class="form-nota" data-codigo="${esc(e.codigo)}">
@@ -408,7 +478,7 @@
         return { wa: partes.filter(x => !x.includes('@')).join(' '), email: partes.find(x => x.includes('@')) || '' };
     }
     function bloqueDatosCliente(e) {
-        if (!editandoCliente.has(e.codigo)) return `<div><button type="button" class="link" data-editar-cliente="${esc(e.codigo)}">✏️ Editar datos del cliente (nombre, WhatsApp, correo, país)</button></div>`;
+        if (!editandoCliente.has(e.codigo)) return `<div><button type="button" class="link" data-editar-cliente="${esc(e.codigo)}">${ico('editar', 14)} Editar datos del cliente (nombre, WhatsApp, correo, país)</button></div>`;
         const c = partesContacto(e.contacto);
         return `<form class="bloque form-cliente" data-codigo="${esc(e.codigo)}">
             <div class="bloque-t"><span>Datos del cliente</span></div>
@@ -424,10 +494,14 @@
             <div class="acciones"><button class="btn btn-azul btn-sm" type="submit">Guardar datos</button><button class="btn btn-borde btn-sm" type="button" data-cancelar-cliente="${esc(e.codigo)}">Cancelar</button></div>
         </form>`;
     }
+    const ESTADO_CORREO = { enviado: ['Enviado', 'ok'], fallido: ['No se pudo enviar', 'mal'], enviando: ['Enviando', 'va'] };
     function bloqueHistorial(e) {
-        const act = e.actividad || [];
-        if (!act.length) return '';
-        return `<details class="bloque hist"><summary>🕘 Historial del expediente (${act.length})</summary>
+        const act = e.actividad || [], cor = e.correos || [];
+        if (!act.length && !cor.length) return '';
+        return `<details class="bloque hist"><summary>${ico('reloj')} Historial del expediente (${act.length})${cor.length ? ` · ${cor.length} ${cor.length === 1 ? 'correo' : 'correos'}` : ''}</summary>
+            ${cor.length ? `<p class="hist-t">${ico('correo', 14)} Correos al cliente</p><ul class="filas">${cor.map(c => { const [n, k] = ESTADO_CORREO[c.estado] || [c.estado, 'va'];
+                return `<li><span><b>${esc(c.asunto)}</b><br><small>${esc(c.para)}</small></span><small style="text-align:right;white-space:nowrap"><span class="ec ${k}">${esc(n)}</span><br>${esc(fecha(c.fecha))}</small></li>`; }).join('')}</ul>
+            <p class="hist-t">${ico('reloj', 14)} Movimientos</p>` : ''}
             <ul class="filas">${act.map(a => `<li><span><b>${esc(a.accion)}</b>${a.detalle ? `<br><small>${esc(a.detalle)}</small>` : ''}</span>
                 <small style="text-align:right;white-space:nowrap">${esc(a.usuario)}<br>${esc(fecha(a.fecha))}</small></li>`).join('')}</ul></details>`;
     }
@@ -465,13 +539,14 @@
                 </div>
                 ${puede('pagos') ? bloqueCobro(e) : ''}
                 ${puede('expedientes') ? bloqueNotas(e) : ''}
+                ${bloqueEntrega(e)}
                 ${bloqueHistorial(e)}
                 <div class="bloque">
-                    <div class="bloque-t"><span>💬 Mensajes rápidos por WhatsApp</span></div>
+                    <div class="bloque-t"><span>${ico('chat')} Mensajes rápidos por WhatsApp</span></div>
                     <div class="rapidos">
-                        <a href="${linkDocs(e)}" target="_blank" rel="noopener">📎 Pedir documentos</a>
-                        ${puede('pagos') ? `<a href="${linkPago(e)}" target="_blank" rel="noopener">💵 Recordar pago</a>` : ''}
-                        <a href="${linkListo(e)}" target="_blank" rel="noopener">🎉 Trámite listo</a>
+                        <a href="${linkDocs(e)}" target="_blank" rel="noopener">${ico('clip', 14)} Pedir documentos</a>
+                        ${puede('pagos') ? `<a href="${linkPago(e)}" target="_blank" rel="noopener">${ico('cash', 14)} Recordar pago</a>` : ''}
+                        <a href="${linkListo(e)}" target="_blank" rel="noopener">${ico('ok', 14)} Trámite listo</a>
                     </div>
                 </div>
                 <div class="acciones">
@@ -487,7 +562,7 @@
                 <span class="chip ${tono(e.paso)}">${esc(items.length > 1 ? e.estado : (e.paso === 3 ? 'En institución' : PASOS[e.paso] || e.estado))}</span>
                 <span class="exp-serv">${esc(titulo)}</span>
                 <span class="exp-meta"><span class="codigo">${esc(e.codigo)}</span>${items.length > 1 ? `<span>${items.length} trámites</span>` : ''}${bandera(e.pais)} <span>· ${esc(fecha(e.actualizado))}</span>
-                    ${detenido(e) ? `<span class="chip alerta">⚠️ ${dias} días sin moverse</span>` : ''}${cobroChip}</span>
+                    ${detenido(e) ? `<span class="chip alerta">${dias} días sin moverse</span>` : ''}${cobroChip}</span>
                 ${barra(e.paso)}
             </button>${cuerpo}
         </article>`;
@@ -642,7 +717,7 @@
                     <small>${esc((e.tramites || []).map(t => t.titulo).join(' · '))}</small></span>
                     <span style="text-align:right;white-space:nowrap"><b style="color:var(--rojo)">${esc(rd(e.pendiente))}</b><br><small>de ${esc(rd(e.total_dop))}</small></span></div>
                 <div class="progreso"><i style="width:${pct}%"></i></div>
-                <div class="rapidos"><a href="${linkPago(e)}" target="_blank" rel="noopener">💵 Recordar por WhatsApp</a>
+                <div class="rapidos"><a href="${linkPago(e)}" target="_blank" rel="noopener">${ico('cash', 14)} Recordar por WhatsApp</a>
                     <button type="button" class="link" data-ver="${esc(e.codigo)}">Registrar pago →</button></div></li>`;
         };
         $('tPagos').innerHTML = `<div class="pila">
@@ -653,7 +728,7 @@
                 <div class="kpi${sinAnticipo.length ? ' alerta' : ''}"><span>Sin anticipo todavía</span><b>${sinAnticipo.length}</b><small>expedientes abiertos sin ningún pago</small></div>
             </div>
             <div class="card"><h3>Pendientes de cobro</h3><p class="sub">De mayor a menor. Toca «Registrar pago» para anotar lo que recibiste.</p>
-                ${pendientes.length ? `<ul class="filas">${pendientes.map(fila).join('')}</ul>` : '<p class="rank-vacio">Nadie te debe nada. 🎉</p>'}</div>
+                ${pendientes.length ? `<ul class="filas">${pendientes.map(fila).join('')}</ul>` : '<p class="rank-vacio">Nadie te debe nada.</p>'}</div>
             <div class="grid-2">
                 <div class="card"><h3>Pagos recientes</h3><p class="sub">Los últimos 20 que registraste</p>
                     ${todos.length ? `<ul class="filas">${todos.sort((a, b) => String(b.fecha).localeCompare(String(a.fecha)) || b.id - a.id).slice(0, 20).map(p => `<li><span><b>${esc(p.e.nombre || p.e.cliente)}</b><br><small>${esc(diaCorto(p.fecha))} · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''}</small></span><b style="color:var(--verde)">${esc(rd(p.monto))}</b></li>`).join('')}</ul>` : '<p class="rank-vacio">Todavía no has registrado pagos.</p>'}</div>
@@ -707,18 +782,18 @@
             ['Estados de WhatsApp', 'whatsapp'], ['Catálogo de WhatsApp Business', 'whatsapp&utm_campaign=catalogo'], ['TikTok', 'tiktok'], ['Google (perfil del negocio)', 'google']];
         $('tHerr').innerHTML = `<div class="pila">
             <div class="cabecera" style="margin:0"><div><h2>Herramientas</h2><p>Para el día a día</p></div></div>
-            <div class="card"><h3>🔗 Enlaces para saber de dónde llegan</h3>
+            <div class="card"><h3>Enlaces para saber de dónde llegan</h3>
                 <p class="sub">Usa estos enlaces en vez del normal. Cuando alguien entre por uno y haga una solicitud, el panel te dirá por dónde llegó (pestaña Resumen → «¿Por dónde te encontraron?»).</p>
                 ${enlaces.map(([n, s]) => { const u = `${base}/?utm_source=${s}`; return `<div class="enlace"><span><b>${esc(n)}</b><code>${esc(u)}</code></span><button type="button" class="btn btn-borde btn-sm" data-copiar-txt="${esc(u)}">Copiar</button></div>`; }).join('')}
             </div>
-            <div class="card"><h3>⬇ Descargas</h3><p class="sub">Guarda una copia de tus datos cuando quieras (además del respaldo automático diario del servidor).</p>
+            <div class="card"><h3>Descargas</h3><p class="sub">Guarda una copia de tus datos cuando quieras (además del respaldo automático diario del servidor).</p>
                 <div class="herr">
                     <a class="btn btn-borde" href="/api/admin/exportar">Excel de todos los trámites</a>
                     <button type="button" class="btn btn-borde" id="btnExcelTodo">Excel con cobros y origen</button>
                     <a class="btn btn-azul" href="/api/admin/respaldo">Respaldo completo de la base de datos</a>
                 </div>
             </div>
-            <div class="card"><h3>⚠️ Alerta de expedientes detenidos</h3><p class="sub">Un expediente se marca en amarillo cuando lleva ${DIAS_ALERTA} días o más sin actualizar su avance y aún no está listo.</p>
+            <div class="card"><h3>Alerta de expedientes detenidos</h3><p class="sub">Un expediente se marca en amarillo cuando lleva ${DIAS_ALERTA} días o más sin actualizar su avance y aún no está listo.</p>
                 <button type="button" class="btn btn-borde" data-ver-detenidos>Ver detenidos (${expedientes.filter(detenido).length})</button></div>
         </div>`;
     }
@@ -729,7 +804,7 @@
         'Gestor': ['expedientes'],
         'Gestor + cobros': ['expedientes', 'pagos'],
         'Contabilidad': ['pagos', 'resumen', 'herramientas'],
-        'Solo ver': []
+        'Solo lectura': []
     };
     async function cargarUsuarios() {
         if (!usuariosData) $('tUsuarios').innerHTML = '<div class="vacio"><b>Cargando usuarios…</b></div>';
@@ -744,35 +819,51 @@
                 <div><label class="campo" for="uUsuario">Usuario (para entrar)</label><input class="input" id="uUsuario" name="usuario" maxlength="30" autocapitalize="none" spellcheck="false" required ${nuevo ? 'placeholder="Ej.: maria"' : `value="${esc(u.usuario)}"${u.usuario === 'admin' ? ' disabled title="El usuario admin no se puede renombrar"' : ''}`}></div>
                 <div><label class="campo" for="uNombre">Nombre</label><input class="input" id="uNombre" name="nombre" maxlength="60" required value="${esc(u ? u.nombre : '')}" placeholder="Ej.: María Pérez"></div>
             </div>
+            <div><label class="campo" for="uCorreo">Correo para avisos <span style="font-weight:500;color:var(--suave)">(opcional)</span></label>
+                <input class="input" id="uCorreo" name="correo" type="email" maxlength="120" value="${esc(u ? u.correo || '' : '')}" placeholder="Ej.: maria@tramitafacilrd.com">
+                <small style="color:var(--suave)">Si tiene permiso de Expedientes, le llegará un correo cada vez que entre una solicitud nueva.</small></div>
             <div><label class="campo" for="uClave">${nuevo ? 'Contraseña temporal' : 'Contraseña temporal nueva (solo si la olvidó; déjala vacía para no cambiarla)'}</label>
                 <div class="form-nota"><input class="input" id="uClave" name="clave" type="text" minlength="8" autocomplete="off" ${nuevo ? 'required' : ''} placeholder="Mínimo 8 caracteres"><button type="button" class="btn btn-borde btn-sm" data-generar-clave>Generar</button></div>
                 <small style="color:var(--suave)">Dásela a la persona por un medio privado. ${u && yo && u.id === yo.id ? 'Como eres tú, quedará como tu contraseña.' : 'Al entrar, el panel le pedirá crear su propia contraseña; así nadie más la conoce.'}</small></div>
             <div><span class="campo">Permisos <span style="font-weight:500;color:var(--suave)">— atajos:</span></span>
                 <div class="chips" style="margin-bottom:8px">${Object.keys(PRESETS).map(n => `<button type="button" class="chip-btn" data-preset="${esc(n)}">${esc(n)}</button>`).join('')}</div>
                 <div class="checks">${Object.entries(nombresPermisos).map(([k, d]) => `<label><input type="checkbox" name="perm" value="${esc(k)}"${permisos.has(k) ? ' checked' : ''}><span><b>${esc(k[0].toUpperCase() + k.slice(1))}</b><span>${esc(d)}</span></span></label>`).join('')}</div>
-                <small style="color:var(--suave)">Todos pueden ver la lista de expedientes. Sin «Pagos» no ven los montos cobrados.</small></div>
+                <small style="color:var(--suave)">Todos pueden ver la lista de expedientes. Sin ningún permiso el usuario es de solo lectura: consulta el estado y no recibe avisos.</small></div>
             ${nuevo ? '' : `<label style="display:flex;gap:8px;align-items:center;font-size:14px"><input type="checkbox" name="activo"${u.activo ? ' checked' : ''}> Usuario activo (si lo desmarcas, ya no podrá entrar)</label>`}
             <div id="usuarioError" class="msg-error" hidden></div>
             <div class="acciones"><button class="btn btn-azul" type="submit">${nuevo ? 'Crear usuario' : 'Guardar cambios'}</button><button class="btn btn-borde" type="button" data-cancelar-usuario>Cancelar</button></div>
         </form>`;
     }
+    const avatar = (nombre, clase = '') => `<span class="avatar-u ${clase}" style="background:${colorDe(nombre)}">${esc(iniciales(nombre))}</span>`;
     function pintarUsuarios() {
-        const d = usuariosData;
-        const nombreP = k => k[0].toUpperCase() + k.slice(1);
+        const d = usuariosData, activos = d.usuarios.filter(u => u.activo);
+        const roles = {}; activos.forEach(u => { const r = rolDe(u.permisos).n; roles[r] = (roles[r] || 0) + 1; });
+        const nombreDe = Object.fromEntries(d.usuarios.map(u => [u.usuario, u.nombre]));
         $('tUsuarios').innerHTML = `<div class="pila">
-            <div class="cabecera" style="margin:0"><div><h2>Usuarios</h2><p>Cada persona entra con su usuario y su clave, y solo ve lo que le permites</p></div>
-                ${editandoUsuario === null ? '<button class="btn btn-rojo" type="button" data-nuevo-usuario>+ Nuevo usuario</button>' : ''}</div>
-            ${editandoUsuario !== null ? formUsuario(editandoUsuario === 'nuevo' ? null : d.usuarios.find(u => u.id === editandoUsuario)) : ''}
-            <div class="card"><h3>Equipo (${d.usuarios.length})</h3>
-                ${d.usuarios.map(u => `<div class="usr">
-                    <span><b>${esc(u.nombre)}</b> <span class="codigo">${esc(u.usuario)}</span>${u.id === (yo && yo.id) ? ' <small>(tú)</small>' : ''}<br>
-                        <small>${u.activo ? `Último acceso: ${esc(u.ultimo_acceso ? fecha(u.ultimo_acceso) : 'nunca')}` : '<b style="color:var(--rojo)">Desactivado</b>'}${u.activo && u.cambiar_clave ? ' · <b style="color:var(--amber-t)">Pendiente de crear su contraseña</b>' : ''}</small></span>
-                    <button type="button" class="btn btn-borde btn-sm" data-editar-usuario="${u.id}">Editar</button>
-                    <span class="chips">${u.permisos.length ? u.permisos.map(p => `<span class="perm">${esc(nombreP(p))}</span>`).join('') : '<span class="perm off">Solo ver expedientes</span>'}</span>
-                </div>`).join('')}
+            <div class="equipo-banner">
+                <div class="eb-txt"><p class="eb-eyebrow">Panel del equipo</p><h2>Equipo de TramitaFácil RD</h2>
+                    <p>${activos.length} ${activos.length === 1 ? 'persona activa' : 'personas activas'} · ${Object.entries(roles).map(([n, k]) => `${k} ${n.toLowerCase()}`).join(' · ') || 'sin usuarios'}</p></div>
+                ${editandoUsuario === null ? `<button class="btn btn-blanco" type="button" data-nuevo-usuario>${ico('usuario')} Nuevo usuario</button>` : ''}
             </div>
+            ${editandoUsuario !== null ? formUsuario(editandoUsuario === 'nuevo' ? null : d.usuarios.find(u => u.id === editandoUsuario)) : ''}
+            <div class="personas">${d.usuarios.map(u => { const rol = rolDe(u.permisos);
+                const estado = !u.activo ? ['Desactivado', 'off'] : u.cambiar_clave ? ['Pendiente de activar', 'pend'] : ['Activo', 'on'];
+                return `<article class="persona${u.activo ? '' : ' inactiva'}">
+                    <div class="p-cab">${avatar(u.nombre)}
+                        <div class="p-id"><b>${esc(u.nombre)}${u.id === (yo && yo.id) ? ' <small>(tú)</small>' : ''}</b><span>@${esc(u.usuario)}</span></div>
+                        <span class="rol ${rol.c}">${esc(rol.n)}</span></div>
+                    <dl class="p-datos">
+                        <div><dt>Estado</dt><dd><i class="punto ${estado[1]}"></i>${esc(estado[0])}</dd></div>
+                        <div><dt>Último acceso</dt><dd>${esc(u.ultimo_acceso ? fecha(u.ultimo_acceso) : 'Nunca')}</dd></div>
+                        <div style="grid-column:1/-1"><dt>Correo para avisos</dt><dd>${u.correo ? `${ico('correo', 14)} ${esc(u.correo)}` : '<span class="tenue">Sin correo</span>'}</dd></div>
+                    </dl>
+                    <div class="p-perm">${Object.keys(nombresPermisos).map(k => `<span class="pp${u.permisos.includes(k) ? ' si' : ''}" title="${esc(nombresPermisos[k])}">${ico(k, 14)}${esc(k[0].toUpperCase() + k.slice(1))}</span>`).join('')}</div>
+                    <button type="button" class="btn btn-borde btn-sm p-editar" data-editar-usuario="${u.id}">${ico('editar', 14)} Editar</button>
+                </article>`; }).join('')}</div>
             <div class="card"><h3>Actividad del equipo</h3><p class="sub">Quién hizo qué, lo más reciente primero</p>
-                ${d.actividad.length ? `<ul class="filas">${d.actividad.slice(0, 60).map(a => `<li><span><b>${esc(a.usuario)}</b> · ${esc(a.accion)}${a.codigo ? ` <span class="codigo">${esc(a.codigo)}</span>` : ''}${a.detalle ? `<br><small>${esc(a.detalle)}</small>` : ''}</span><small style="white-space:nowrap">${esc(fecha(a.fecha))}</small></li>`).join('')}</ul>` : '<p class="rank-vacio">Todavía no hay actividad.</p>'}
+                ${d.actividad.length ? `<ul class="linea">${d.actividad.slice(0, 60).map(a => `<li>${avatar(nombreDe[a.usuario] || a.usuario, 'mini')}
+                    <span class="l-t"><b>${esc(nombreDe[a.usuario] || a.usuario)}</b> ${esc(a.accion.charAt(0).toLowerCase() + a.accion.slice(1))}${a.codigo ? ` <span class="codigo">${esc(a.codigo)}</span>` : ''}${a.detalle ? `<small>${esc(a.detalle)}</small>` : ''}</span>
+                    <small class="l-f">${esc(fecha(a.fecha))}</small></li>`).join('')}</ul>` : '<p class="rank-vacio">Todavía no hay actividad.</p>'}
             </div>
         </div>`;
     }
@@ -793,7 +884,7 @@
         const f = ev.target, btn = f.querySelector('[type=submit]'); btn.disabled = true;
         const err = $('usuarioError'); err.hidden = true;
         try {
-            const cuerpo = { nombre: f.nombre.value.trim(), clave: f.clave.value, permisos: [...f.querySelectorAll('[name="perm"]:checked')].map(c => c.value) };
+            const cuerpo = { nombre: f.nombre.value.trim(), correo: f.correo.value.trim(), clave: f.clave.value, permisos: [...f.querySelectorAll('[name="perm"]:checked')].map(c => c.value) };
             cuerpo.usuario = f.usuario.value.trim().toLowerCase();
             if (f.dataset.id) Object.assign(cuerpo, { id: Number(f.dataset.id), activo: f.activo.checked });
             await post('/admin/usuarios/guardar', cuerpo);
@@ -856,7 +947,8 @@
         const atender = [...det.map(e => [e, 'det']), ...nuevos.filter(e => !detenido(e)).map(e => [e, 'nuevo'])].slice(0, 6);
         const tile = (n, txt, ir, cls = '') => `<button type="button" class="tile ${cls}" data-ir="${ir}"><b>${n}</b><span>${txt}</span></button>`;
         $('tInicio').innerHTML = `
-            <div class="hola"><h2>Hola, ${esc(nombre || 'equipo')}</h2><p>${esc(saludo())} · ${esc(hoy)}</p></div>
+            <div class="hola"><h2>Hola, ${esc(nombre || 'equipo')}</h2><p>${esc(saludo())} · ${esc(hoy)}${yo ? ` <span class="rol ${rolDe(yo.permisos).c}">${esc(rolDe(yo.permisos).n)}</span>` : ''}</p></div>
+            ${yo && !puede('expedientes') ? `<div class="aviso-lectura">${ico('escudo', 18)}<span><b>Acceso de consulta</b>Puedes ver los expedientes y su estado. Para hacer cambios, pídele permiso al administrador.</span></div>` : ''}
             <div class="mapa-card${animarMapa ? ' sube' : ''}">
                 <h3>Dominicanos que confían en TramitaFácil RD</h3>
                 <p class="sub">Toca un país para ver sus expedientes</p>
@@ -900,6 +992,62 @@
         if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.closest('.m-burbuja')) { ev.preventDefault(); ev.target.closest('.m-burbuja').dispatchEvent(new MouseEvent('click', { bubbles: true })); }
     });
 
+    // ---------------- avisos: solicitudes nuevas (no para usuarios de solo lectura)
+    let avisosData = { avisos: [], sin_leer: 0, ultimo: 0 }, ultimoVisto = null;
+    async function cargarAvisos() {
+        const ok = !!(yo && puede('expedientes'));
+        $('btnAvisos').hidden = !ok;
+        if (!ok || $('vPanel').hidden) return;
+        try {
+            const r = await api('/admin/avisos');
+            if (ultimoVisto !== null) r.avisos.filter(a => a.id > ultimoVisto && a.nuevo).slice(0, 3).reverse().forEach(notificar);
+            ultimoVisto = r.ultimo; avisosData = r; pintarCampana();
+        } catch (e) { /* sin conexión */ }
+    }
+    function pintarCampana() {
+        const n = avisosData.sin_leer || 0;
+        $('numAvisos').hidden = !n; $('numAvisos').textContent = n > 9 ? '9+' : n;
+        $('btnAvisos').setAttribute('aria-label', n ? `Avisos: ${n} sin leer` : 'Avisos');
+        $('avisosLista').innerHTML = avisosData.avisos.length ? avisosData.avisos.map(a => `
+            <button type="button" class="aviso-fila${a.nuevo ? ' nuevo' : ''}" data-aviso-codigo="${esc(a.codigo || '')}">
+                <span class="av-ico">${ico('expedientes', 18)}</span>
+                <span class="av-t"><b>${esc(a.titulo)}</b><small>${esc(a.detalle || '')}${a.codigo ? ` · ${esc(a.codigo)}` : ''}</small></span>
+                <small class="av-f">${esc(fecha(a.creado))}</small>
+            </button>`).join('') : '<p class="ayuda" style="text-align:center;padding:18px 0">No hay avisos todavía. Aquí verás cada solicitud nueva.</p>';
+        const soporta = 'Notification' in window, permiso = soporta ? Notification.permission : 'denied';
+        $('btnNotif').hidden = !soporta || permiso !== 'default';
+        $('notifEstado').textContent = !soporta ? 'Este navegador no permite notificaciones; te llegará el aviso en esta campana y por correo.'
+            : permiso === 'granted' ? 'Las notificaciones están activadas en este dispositivo mientras el panel esté abierto.'
+            : permiso === 'denied' ? 'Las notificaciones están bloqueadas en este navegador. Puedes activarlas en la configuración del sitio.'
+            : 'Activa las notificaciones para enterarte al momento, aunque estés en otra pestaña.';
+    }
+    async function notificar(a) {
+        toast(a.titulo);
+        if (!('Notification' in window) || Notification.permission !== 'granted') return;
+        const opciones = { body: [a.detalle, a.codigo].filter(Boolean).join(' · '), icon: 'assets/img/app/icon-192.png', tag: 'tf-aviso-' + a.id };
+        try {
+            const reg = navigator.serviceWorker && await navigator.serviceWorker.getRegistration();
+            if (reg) { await reg.showNotification(a.titulo, opciones); return; }
+            const n = new Notification(a.titulo, opciones);
+            n.onclick = () => { window.focus(); if (a.codigo) verExpediente(a.codigo); n.close(); };
+        } catch (e) { /* algunos navegadores no lo permiten */ }
+    }
+    $('btnAvisos').addEventListener('click', async () => {
+        pintarCampana(); $('vAvisos').hidden = false;
+        if (avisosData.sin_leer) {
+            try { await post('/admin/avisos/visto', { hasta: avisosData.ultimo }); } catch (e) { /* sigue */ }
+            avisosData.sin_leer = 0; $('numAvisos').hidden = true;
+        }
+    });
+    $('vAvisos').addEventListener('click', async ev => {
+        if (ev.target === $('vAvisos') || ev.target.closest('[data-cerrar-avisos]')) { $('vAvisos').hidden = true; avisosData.avisos.forEach(a => { a.nuevo = false; }); return; }
+        if (ev.target.closest('#btnNotif')) { try { await Notification.requestPermission(); } catch (e) { /* sin permiso */ } pintarCampana(); return; }
+        const f = ev.target.closest('[data-aviso-codigo]');
+        if (f) { $('vAvisos').hidden = true; avisosData.avisos.forEach(a => { a.nuevo = false; }); if (f.dataset.avisoCodigo) verExpediente(f.dataset.avisoCodigo); }
+    });
+    setInterval(() => { if (!document.hidden) cargarAvisos(); }, 20000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) cargarAvisos(); });
+
     // ---------------- mi cuenta (nombre y contraseña). obligatoria = clave temporal: debe crear la suya
     let cuentaObligatoria = false;
     function pasoCuenta(cual) {   // menu | nombre | seguridad | clave
@@ -916,7 +1064,7 @@
         $('fCuenta').reset(); $('cuentaError').hidden = true;
         $('cuentaInfo').textContent = yo ? `Usuario «${yo.usuario}»` : '';
         $('perfilIniciales').textContent = iniciales(yo && yo.nombre);
-        $('cNombre').value = yo ? yo.nombre : '';
+        $('cNombre').value = yo ? yo.nombre : ''; $('cCorreo').value = yo ? yo.correo || '' : '';
         const CORTO = { expedientes: 'Expedientes', pagos: 'Pagos', resumen: 'Resumen', precios: 'Precios', herramientas: 'Herramientas', usuarios: 'Usuarios' };
         $('perfilPermisos').innerHTML = yo ? (yo.permisos || []).map(k => `<span class="chip" title="${esc(nombresPermisos[k] || k)}">${esc(CORTO[k] || k)}</span>`).join('') : '';
         $('cuentaAviso').hidden = !cuentaObligatoria;
@@ -954,10 +1102,10 @@
     $('fNombre').addEventListener('submit', async ev => {
         ev.preventDefault();
         try {
-            await post('/admin/cuenta/nombre', { nombre: $('cNombre').value });
-            yo.nombre = $('cNombre').value.trim(); aplicarPermisos();
+            await post('/admin/cuenta/nombre', { nombre: $('cNombre').value, correo: $('cCorreo').value.trim() });
+            yo.nombre = $('cNombre').value.trim(); yo.correo = $('cCorreo').value.trim().toLowerCase(); aplicarPermisos();
             $('tCuenta').textContent = yo.nombre; $('perfilIniciales').textContent = iniciales(yo.nombre);
-            pasoCuenta('menu'); toast('Nombre guardado'); if (tab === 'inicio') pintarInicio();
+            pasoCuenta('menu'); toast('Datos guardados'); if (tab === 'inicio') pintarInicio();
         } catch (e) { if (e.message !== 'sesion') toast(e.message); }
     });
     // «Mostrar contraseña»
@@ -983,7 +1131,7 @@
 
     $('btnSalir').addEventListener('click', async () => {
         try { await post('/admin/logout', {}); } catch (e) { /* igual salimos */ }
-        expedientes = []; precios = null; usuariosData = null; yo = null; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
+        expedientes = []; precios = null; usuariosData = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
     });
 
     $('tabs').addEventListener('click', ev => { const b = ev.target.closest('[data-tab]'); if (b) irATab(b.dataset.tab); });
@@ -1042,6 +1190,24 @@
         }
     });
 
+    $('lista').addEventListener('change', async ev => {
+        const inp = ev.target.closest && ev.target.closest('[data-subir]');
+        if (!inp || !inp.files.length) return;
+        const fd = new FormData(); fd.append('codigo', inp.dataset.subir);
+        for (const f of inp.files) {
+            if (f.size > 10 * 1024 * 1024) { toast(`«${f.name}» pesa más de 10 MB`); inp.value = ''; return; }
+            fd.append('archivo', f, f.name);
+        }
+        const lbl = inp.closest('.subir'); lbl.classList.add('cargando');
+        try {
+            const r = await fetch('/api/admin/archivo', { method: 'POST', body: fd, credentials: 'same-origin' });
+            let d = {}; try { d = await r.json(); } catch (e) { /* sin JSON */ }
+            if (r.status === 401) { mostrarLogin('Tu sesión terminó. Vuelve a entrar.'); return; }
+            if (!r.ok || d.ok === false) throw new Error(d.error || (r.status === 413 ? 'Los archivos pesan demasiado.' : 'No se pudo subir.'));
+            reemplazar(d.expediente); pintar(); toast(inp.files.length > 1 ? 'Documentos subidos' : 'Documento subido');
+        } catch (e) { toast(e.message); lbl.classList.remove('cargando'); inp.value = ''; }
+    });
+
     $('lista').addEventListener('click', async ev => {
         const cab = ev.target.closest('.exp-cab');
         if (cab) {
@@ -1079,6 +1245,20 @@
             catch (e) { if (e.message !== 'sesion') toast(e.message); }
             return;
         }
+        const qa = ev.target.closest('[data-quitar-archivo]');
+        if (qa) {
+            if (!window.confirm('¿Quitar este documento? El cliente ya no podrá descargarlo.')) return;
+            try { reemplazar((await post('/admin/archivo/quitar', { codigo: qa.dataset.codigo, id: Number(qa.dataset.quitarArchivo) })).expediente); pintar(); toast('Documento quitado'); }
+            catch (e) { if (e.message !== 'sesion') toast(e.message); }
+            return;
+        }
+        const ed2 = ev.target.closest('[data-enviar-docs]');
+        if (ed2) {
+            ed2.disabled = true;
+            try { const r = await post('/admin/archivo/enviar', { codigo: ed2.dataset.enviarDocs }); reemplazar(r.expediente); pintar(); toast(`Documentos enviados por correo a ${r.para}`); }
+            catch (e) { if (e.message !== 'sesion') toast(e.message); ed2.disabled = false; }
+            return;
+        }
         const qn = ev.target.closest('[data-quitar-nota]');
         if (qn) {
             try { reemplazar((await post('/admin/nota/quitar', { codigo: qn.dataset.codigo, id: Number(qn.dataset.quitarNota) })).expediente); pintar(); toast('Nota borrada'); }
@@ -1097,9 +1277,10 @@
         try {
             if (form.classList.contains('avance')) {
                 const r = await post('/admin/estado', { codigo: form.dataset.codigo, tramite: Number(form.dataset.tramite),
-                    paso: Number(form.paso.value), detalle: form.detalle.value, estado: form.estado.value });
+                    paso: Number(form.paso.value), detalle: form.detalle.value, estado: form.estado.value,
+                    avisar: !!(form.avisar && form.avisar.checked) });
                 editando = null; reemplazar(r.expediente); pintar();
-                toast('Guardado. El cliente ya lo ve en Rastrear.');
+                toast(r.correo === 'enviando' ? `Guardado. Aviso enviado por correo a ${r.expediente.correo_cliente}.` : 'Guardado. El cliente ya lo ve en Rastrear.');
             } else if (form.classList.contains('agregar')) {
                 const r = await post('/admin/agregar', { codigo: form.dataset.codigo, ...leerServicio(form) });
                 reemplazar(r.expediente); pintar();
@@ -1109,7 +1290,7 @@
                     metodo: form.metodo.value, fecha: form.fecha.value });
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintarTodo();
-                toast(r.expediente.pendiente === 0 ? '¡Pagado completo! ✅' : `Pago registrado. Pendiente: ${rd(r.expediente.pendiente)}`);
+                toast(r.expediente.pendiente === 0 ? '¡Pagado completo!' : `Pago registrado. Pendiente: ${rd(r.expediente.pendiente)}`);
             } else if (form.classList.contains('form-cliente')) {
                 const contacto = [form.wa.value.trim(), form.email.value.trim()].filter(Boolean).join(' · ');
                 const r = await post('/admin/cliente', { codigo: form.dataset.codigo, nombre: form.nombre.value, contacto, pais: form.pais.value });
@@ -1191,7 +1372,7 @@
     $('nItems').addEventListener('change', ev => { if (ev.target.matches('[data-f="servicio"]')) alCambiarServicio(ev.target); });
     $('nItems').addEventListener('click', ev => { const q = ev.target.closest('.quitar'); if (q) q.closest('.item-nuevo').remove(); });
     $('vNuevo').addEventListener('click', ev => { if (ev.target === $('vNuevo') || ev.target.closest('[data-cerrar]')) cerrarNuevo(); });
-    document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; $('vMas').hidden = true; if (!$('vNuevo').hidden) cerrarNuevo(); cerrarCuenta(); });
+    document.addEventListener('keydown', ev => { if (ev.key !== 'Escape') return; $('vMas').hidden = true; $('vAvisos').hidden = true; if (!$('vNuevo').hidden) cerrarNuevo(); cerrarCuenta(); });
 
     $('fNuevo').addEventListener('submit', async ev => {
         ev.preventDefault();

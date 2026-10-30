@@ -183,6 +183,25 @@ def cmd_usuarios(_args):
               f"  permisos: {', '.join(json.loads(r['permisos']))}")
 
 
+def cmd_correo_prueba(args):
+    """Envía un correo de prueba para confirmar que SMTP funciona (lo usa `tramita correo`)."""
+    import avisos
+    if not avisos.configurado():
+        print("El correo no está configurado. Escribe: tramita correo")
+        sys.exit(1)
+    texto, html = avisos.plantilla("Correo de prueba", "Hola:", [
+        "Si lees esto, los correos automáticos de TramitaFácil RD ya funcionan.",
+        "Tus clientes recibirán un aviso cada vez que cambies el estado de su trámite, y el equipo cuando llegue una solicitud nueva."])
+    msg = avisos.armar([args.para], "Prueba de correo · TramitaFácil RD", texto, html)
+    try:
+        avisos._smtp_enviar(msg)
+    except Exception as exc:  # noqa: BLE001
+        print(f"No se pudo enviar: {exc}")
+        print("Revisa el servidor, el puerto, el usuario y la contraseña con: tramita correo")
+        sys.exit(1)
+    print(f"Enviado a {args.para}. Revisa la bandeja de entrada (y la carpeta de spam la primera vez).")
+
+
 def main():
     p = argparse.ArgumentParser(description="Administración de TramitaFácil RD")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -198,6 +217,7 @@ def main():
     s.add_argument("--tramite", type=int, help="Número del trámite cuando el código tiene varios (1, 2, 3…)")
     s.set_defaults(fn=cmd_estado)
     sub.add_parser("usuarios").set_defaults(fn=cmd_usuarios)
+    s = sub.add_parser("correo_prueba"); s.add_argument("para"); s.set_defaults(fn=cmd_correo_prueba)
     s = sub.add_parser("precio")
     s.add_argument("servicio"); s.add_argument("--tasa", type=int); s.add_argument("--honorario", type=int)
     s.set_defaults(fn=cmd_precio)

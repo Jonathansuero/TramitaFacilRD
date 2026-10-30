@@ -417,3 +417,95 @@ def test_usuarios_permisos_y_datos_del_cliente(client):
         assert client.post("/api/admin/login", json={"usuario": "maria.p", "clave": "otra-clave-2"}).status_code == 403
     finally:
         os.environ.pop("TF_ADMIN_HASH", None)
+
+
+# ------------------------------------------------ correos, documentos y avisos al equipo
+PDF = b"%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n"
+
+
+def test_correos_documentos_y_avisos(client, monkeypatch, tmp_path):
+    import io
+    import app as app_module
+    import avisos
+    from werkzeug.security import generate_password_hash
+    enviados = []
+    monkeypatch.setattr(avisos, "_smtp_enviar", lambda msg: enviados.append(msg))
+    for k, v in {"SMTP_HOST": "smtp.prueba", "SMTP_USER": "info@tramitafacilrd.com", "TF_CORREO_SINCRONO": "1",
+                 "TF_ARCHIVOS": str(tmp_path / "archivos"), "TF_ADMIN_HASH": generate_password_hash("clave-del-dueno")}.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.delenv("NOTIFY_TO", raising=False)
+    assert client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"}).json["ok"]
+    assert client.get("/api/admin/sesion").json["correo_activo"] is True
+    # el equipo: un gestor con correo (recibe avisos) y uno de solo lectura (no)
+    assert client.post("/api/admin/usuarios/guardar", json={"usuario": "maria", "nombre": "María", "permisos": ["expedientes"],
+                                                           "clave": "temporal-123", "correo": "maria@ejemplo.com"}).json["ok"]
+    assert client.post("/api/admin/usuarios/guardar", json={"usuario": "pedro", "nombre": "Pedro", "permisos": [],
+                                                           "clave": "temporal-123", "correo": "pedro@ejemplo.com"}).json["ok"]
+    assert client.post("/api/admin/usuarios/guardar", json={"usuario": "malo", "nombre": "Malo", "permisos": [],
+                                                           "clave": "temporal-123", "correo": "no-es-correo"}).status_code == 400
+    # llega una solicitud: aviso en la campana + correo solo a quien gestiona
+    r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "contacto": "+1 809 555 1234 · Ana@Correo.com",
+                                            "pais": "us", "servicio": "certificacion_solteria", "acepta": True})
+    codigo = r.json["codigo"]
+    assert len(enviados) == 1 and enviados[0]["To"] == "maria@ejemplo.com"
+    assert enviados[0]["Subject"].startswith("Nueva solicitud: ")
+    av = client.get("/api/admin/avisos").json
+    assert av["sin_leer"] == 1 and av["avisos"][0]["codigo"] == codigo and av["avisos"][0]["titulo"].startswith("Nueva solicitud")
+    assert client.post("/api/admin/avisos/visto", json={"hasta": av["ultimo"]}).json["ok"]
+    assert client.get("/api/admin/avisos").json["sin_leer"] == 0
+    # cambio de estado -> correo al cliente
+    exp = next(e for e in client.get("/api/admin/expedientes").json["expedientes"] if e["codigo"] == codigo)
+    assert exp["correo_cliente"] == "ana@correo.com"
+    tid = exp["tramites"][0]["id"]
+    r = client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 2, "detalle": "Documentos validados"})
+    assert r.json["correo"] == "enviando" and enviados[-1]["To"] == "ana@correo.com"
+    assert "Documentos validados" in enviados[-1].get_body(("plain",)).get_content()
+    assert client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 3, "detalle": "En la JCE",
+                                                  "avisar": False}).json["correo"] == "desactivado"
+    # documentos: solo PDF/fotos de verdad
+    falso = client.post("/api/admin/archivo", data={"codigo": codigo, "archivo": (io.BytesIO(b"hola"), "acta.pdf")},
+                        content_type="multipart/form-data")
+    assert falso.status_code == 400
+    exe = client.post("/api/admin/archivo", data={"codigo": codigo, "archivo": (io.BytesIO(PDF), "virus.exe")},
+                      content_type="multipart/form-data")
+    assert exe.status_code == 400
+    r = client.post("/api/admin/archivo", data={"codigo": codigo, "archivo": (io.BytesIO(PDF), "Acta de soltería.pdf")},
+                    content_type="multipart/form-data")
+    assert r.status_code == 201 and r.json["expediente"]["archivos"][0]["nombre"] == "Acta de soltería.pdf"
+    enlace = r.json["expediente"]["archivos"][0]["enlace"]
+    # al pasar a Listo el correo lleva el enlace de descarga
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar"})
+    assert "/descarga/" in enviados[-1].get_body(("plain",)).get_content()
+    # enviar los documentos por correo (adjuntos)
+    assert client.post("/api/admin/archivo/enviar", json={"codigo": codigo}).json["para"] == "ana@correo.com"
+    assert [a.get_filename() for a in enviados[-1].iter_attachments()] == ["Acta de soltería.pdf"]
+    # el cliente: el rastreo dice cuántos hay; para descargarlos debe confirmar su WhatsApp o su correo
+    assert client.get(f"/api/rastreo/{codigo}").json["archivos"] == 1
+    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "9999"}).status_code == 403
+    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"}).json["archivos"][0]["nombre"] == "Acta de soltería.pdf"
+    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "ana@correo.com"}).json["ok"]
+    d = client.get("/descarga/" + enlace.split("/descarga/")[1])
+    assert d.status_code == 200 and d.data == PDF and "attachment" in d.headers["Content-Disposition"]
+    assert client.get("/descarga/inventado").status_code == 410
+    # historial de correos en el expediente
+    exp = next(e for e in client.get("/api/admin/expedientes").json["expedientes"] if e["codigo"] == codigo)
+    assert {c["tipo"] for c in exp["correos"]} == {"estado", "documentos"} and all(c["estado"] == "enviado" for c in exp["correos"])
+    # quitar documento
+    aid = exp["archivos"][0]["id"]
+    assert client.post("/api/admin/archivo/quitar", json={"codigo": codigo, "id": aid}).json["expediente"]["archivos"] == []
+    # un usuario de solo lectura no recibe avisos
+    client.post("/api/admin/logout")
+    assert client.post("/api/admin/login", json={"usuario": "pedro", "clave": "temporal-123"}).json["ok"]
+    client.post("/api/admin/cuenta/clave", json={"actual": "temporal-123", "nueva": "pedro-clave-1"})
+    assert client.get("/api/admin/avisos").json["solo_lectura"] is True
+
+
+def test_sin_smtp_no_se_envia(client, monkeypatch):
+    import avisos
+    for k in ("SMTP_HOST", "SMTP_USER", "SMTP_FROM"):
+        monkeypatch.delenv(k, raising=False)
+    monkeypatch.setattr(avisos, "_smtp_enviar", lambda msg: (_ for _ in ()).throw(AssertionError("no debía enviar")))
+    r = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "contacto": "ana@correo.com",
+                                            "pais": "us", "servicio": "certificacion_solteria", "acepta": True})
+    assert r.status_code == 201
+    assert client.post("/api/solicitud", data="x" * 40000, content_type="application/json").status_code == 413

@@ -36,7 +36,15 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     GET  /api/admin/usuarios         Usuarios del equipo y actividad reciente (permiso «usuarios»)
     POST /api/admin/usuarios/guardar {id?, usuario, nombre, permisos, activo, clave?}
     POST /api/admin/cuenta/clave     {actual, nueva}  Cambiar mi contraseña
-    POST /api/admin/cuenta/nombre    {nombre}         Cambiar mi nombre
+    POST /api/admin/cuenta/nombre    {nombre, correo?} Cambiar mi nombre y mi correo para avisos
+    POST /api/admin/archivo          (formulario) codigo, archivo[]  Documentos escaneados para entregar al cliente
+    POST /api/admin/archivo/quitar   {codigo, id}     · GET /api/admin/archivo/<id> (ver)
+    POST /api/admin/archivo/enviar   {codigo}         Envía los documentos al correo del cliente
+    GET  /api/admin/avisos           Avisos de solicitudes nuevas (no los ven los usuarios de solo lectura)
+    POST /api/admin/avisos/visto     {hasta}
+    POST /api/rastreo/<codigo>/archivos {dato}   (público) últimos 4 del WhatsApp o el correo -> enlaces de descarga
+    GET  /descarga/<token>           (público) descarga con enlace firmado (vence en 30 días)
+Correos (avisos.py): al cliente cuando cambia el estado y al equipo cuando llega una solicitud. Se activan con `tramita correo`.
 Cuando el administrador crea un usuario o le pone una clave nueva, esa persona debe crear su propia clave al entrar.
 
 Usuarios: cada persona entra con usuario y clave; los permisos (PERMISOS) deciden qué puede hacer.
@@ -61,9 +69,11 @@ from email.message import EmailMessage
 from functools import wraps
 from pathlib import Path
 
-from flask import Flask, Response, abort, g, has_app_context, jsonify, redirect, request, send_from_directory, session
+from flask import Flask, Response, abort, g, has_app_context, jsonify, redirect, request, send_file, send_from_directory, session
+from itsdangerous import BadSignature, URLSafeTimedSerializer
 from werkzeug.security import check_password_hash, generate_password_hash
 
+import avisos
 import calculos
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -74,7 +84,8 @@ TONO_POR_PASO = {1: "sky", 2: "sky", 3: "amber", 4: "emerald"}
 app = Flask(__name__, static_folder=None)
 app.json.ensure_ascii = False  # acentos legibles en las respuestas JSON
 app.json.sort_keys = False     # conserva el orden (por ejemplo, el de los permisos)
-app.config["MAX_CONTENT_LENGTH"] = 32 * 1024  # las solicitudes son JSON pequeños
+app.config["MAX_CONTENT_LENGTH"] = 26 * 1024 * 1024  # solo la subida de documentos llega a esto (ver tamano_maximo)
+LIMITE_JSON = 32 * 1024  # el resto son JSON pequeños
 # Sesión del panel de administración (cookie firmada, solo HTTP, solo este sitio)
 app.secret_key = os.environ.get("TF_SECRET_KEY") or secrets.token_hex(32)
 app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Strict",
@@ -220,6 +231,36 @@ CREATE TABLE IF NOT EXISTS actividad (
     fecha TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_actividad_codigo ON actividad (codigo);
+CREATE TABLE IF NOT EXISTS archivos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    archivo TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    tamano INTEGER NOT NULL,
+    creado TEXT NOT NULL,
+    usuario TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_archivos_codigo ON archivos (codigo);
+CREATE TABLE IF NOT EXISTS avisos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tipo TEXT NOT NULL,
+    titulo TEXT NOT NULL,
+    detalle TEXT,
+    codigo TEXT,
+    creado TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS correos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT,
+    para TEXT NOT NULL,
+    asunto TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    estado TEXT NOT NULL,
+    error TEXT,
+    fecha TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_correos_codigo ON correos (codigo);
 CREATE TABLE IF NOT EXISTS ajustes (
     clave TEXT PRIMARY KEY,
     valor TEXT
@@ -243,8 +284,13 @@ def migrar(db: sqlite3.Connection) -> None:
     for col in ("idioma", "pais_detalle", "origen", "origen_detalle", "pagina", "dispositivo"):
         if col not in cols:
             db.execute(f"ALTER TABLE solicitudes ADD COLUMN {col} TEXT")
-    if "cambiar_clave" not in {r[1] for r in db.execute("PRAGMA table_info(usuarios)")}:
+    cols_u = {r[1] for r in db.execute("PRAGMA table_info(usuarios)")}
+    if "cambiar_clave" not in cols_u:
         db.execute("ALTER TABLE usuarios ADD COLUMN cambiar_clave INTEGER NOT NULL DEFAULT 0")  # debe poner su propia clave al entrar
+    if "correo" not in cols_u:
+        db.execute("ALTER TABLE usuarios ADD COLUMN correo TEXT")  # para recibir avisos de solicitudes nuevas
+    if "avisos_visto" not in cols_u:
+        db.execute("ALTER TABLE usuarios ADD COLUMN avisos_visto INTEGER NOT NULL DEFAULT 0")
     if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
         db.execute("ALTER TABLE tramites ADD COLUMN docs TEXT")  # documentos recibidos (lista JSON)
     # Expedientes de antes de "varios trámites por código": cada uno pasa a tener su trámite
@@ -367,29 +413,102 @@ def obtener_tasas() -> dict:
     return data
 
 
-# ---------------------------------------------------------------- notificación opcional
-def notificar_solicitud(datos: dict) -> None:
-    """Envía un correo si SMTP_HOST, SMTP_USER, SMTP_PASS y NOTIFY_TO están configurados."""
-    host, to = os.environ.get("SMTP_HOST"), os.environ.get("NOTIFY_TO")
-    if not host or not to:
-        return
+# ---------------------------------------------------------------- correos y avisos
+def anotar_correo(codigo: str | None, para: list[str], asunto: str, tipo: str):
+    """Anota el correo como «enviando» y devuelve la función que guarda cómo terminó (corre en otro hilo)."""
+    db = get_db()
+    cid = db.execute("INSERT INTO correos (codigo, para, asunto, tipo, estado, fecha) VALUES (?,?,?,?,?,?)",
+                     (codigo, ", ".join(para), asunto[:200], tipo, "enviando", ahora())).lastrowid
+    db.commit()
+    ruta = DB_PATH
 
-    def _enviar():
+    def terminar(ok: bool, err: str) -> None:
+        con = sqlite3.connect(ruta)
         try:
-            msg = EmailMessage()
-            msg["Subject"] = f"Nueva solicitud {datos['codigo']} — {datos['servicio_titulo']}"
-            msg["From"] = os.environ.get("SMTP_USER", to)
-            msg["To"] = to
-            msg.set_content("\n".join(f"{k}: {v}" for k, v in datos.items()))
-            with smtplib.SMTP(host, int(os.environ.get("SMTP_PORT", 587)), timeout=10) as s:
-                s.starttls()
-                if os.environ.get("SMTP_USER"):
-                    s.login(os.environ["SMTP_USER"], os.environ.get("SMTP_PASS", ""))
-                s.send_message(msg)
-        except Exception as exc:  # nunca debe romper la respuesta al cliente
-            app.logger.warning("No se pudo enviar el correo: %s", exc)
+            con.execute("UPDATE correos SET estado=?, error=? WHERE id=?", ("enviado" if ok else "fallido", err or None, cid))
+            con.commit()
+        finally:
+            con.close()
+        if not ok:
+            app.logger.warning("Correo %s no enviado: %s", cid, err)
+    return terminar
 
-    threading.Thread(target=_enviar, daemon=True).start()
+
+def correos_equipo(db: sqlite3.Connection) -> list[str]:
+    """A quién avisar de una solicitud nueva: usuarios activos que trabajan expedientes (no los de solo lectura)."""
+    lista = [r["correo"] for r in db.execute("SELECT correo, permisos FROM usuarios WHERE activo=1 AND correo IS NOT NULL AND correo<>''")
+             if "expedientes" in _permisos(r["permisos"])]
+    if os.environ.get("NOTIFY_TO"):
+        lista.append(os.environ["NOTIFY_TO"])
+    return [c for c in lista if avisos.valido(c)]
+
+
+def notificar_solicitud(datos: dict) -> None:
+    """Solicitud nueva: queda un aviso en el panel (campana) y llega un correo al equipo."""
+    db = get_db()
+    titulo = f"Nueva solicitud: {datos['servicio_titulo']}"
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
+               ("solicitud", titulo[:200], f"{datos['nombre']} · {datos['pais']}"[:200], datos["codigo"], ahora()))
+    db.commit()
+    para = correos_equipo(db)
+    if not para or not avisos.configurado():
+        return
+    texto, html_ = avisos.plantilla(
+        titulo, "Hola, equipo:", ["Llegó una solicitud nueva desde la página. Entra al panel para atenderla."],
+        datos=[("Trámite", datos["servicio_titulo"]), ("Código", datos["codigo"]), ("Cliente", datos["nombre"]),
+               ("Desde", datos["pais"]), ("Contacto", datos["contacto"]), ("Total estimado", datos["total_estimado"]),
+               ("Llegó por", datos["origen"])] + ([("Nota del cliente", datos["mensaje"])] if datos.get("mensaje") else []),
+        boton=("Abrir el panel", f"{avisos.sitio()}/admin"),
+        pie="Aviso interno del panel de TramitaFácil RD. Lo reciben los usuarios que gestionan expedientes.")
+    avisos.enviar(para, f"{titulo} · {datos['codigo']}", texto, html_,
+                  al_terminar=anotar_correo(datos["codigo"], para, titulo, "equipo"))
+
+
+# ---------------------------------------------------------------- documentos para entregar al cliente
+TIPOS_ARCHIVO = {".pdf": "application/pdf", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".webp": "image/webp"}
+MAX_ARCHIVO = 10 * 1024 * 1024
+MAX_ARCHIVOS_CODIGO = 20
+DIAS_ENLACE = 30
+
+
+def carpeta_archivos() -> Path:
+    return Path(os.environ.get("TF_ARCHIVOS") or DB_PATH.parent / "archivos")
+
+
+def _firmador() -> URLSafeTimedSerializer:
+    return URLSafeTimedSerializer(app.secret_key, salt="tf-descarga")
+
+
+def enlace_descarga(archivo_id: int) -> str:
+    return f"{avisos.sitio()}/descarga/{_firmador().dumps({'a': archivo_id})}"
+
+
+def _es_tipo_real(cabeza: bytes, ext: str) -> bool:
+    """Revisa los primeros bytes: que un .pdf sea de verdad un PDF, etc."""
+    if ext == ".pdf":
+        return cabeza.startswith(b"%PDF")
+    if ext in (".jpg", ".jpeg"):
+        return cabeza.startswith(b"\xff\xd8\xff")
+    if ext == ".png":
+        return cabeza.startswith(b"\x89PNG\r\n\x1a\n")
+    if ext == ".webp":
+        return cabeza[:4] == b"RIFF" and cabeza[8:12] == b"WEBP"
+    return False
+
+
+def archivos_de(db: sqlite3.Connection, codigo: str) -> list[dict]:
+    return [dict(r) for r in db.execute("SELECT id, nombre, tipo, tamano, creado, usuario, archivo FROM archivos WHERE codigo=? ORDER BY id",
+                                         (codigo,))]
+
+
+def contacto_coincide(contacto: str, dato: str) -> bool:
+    """El cliente demuestra que es él: los últimos 4 dígitos de su WhatsApp o su correo completo."""
+    dato = str(dato or "").strip().lower()
+    if "@" in dato:
+        return bool(dato) and dato == avisos.correo_de(contacto)
+    dig = re.sub(r"\D", "", dato)
+    partes = [re.sub(r"\D", "", x) for x in str(contacto or "").split("·") if "@" not in x]
+    return len(dig) >= 4 and any(len(p) >= 7 and p.endswith(dig[-4:]) for p in partes)
 
 
 # ---------------------------------------------------------------- de dónde llega cada solicitud
@@ -490,11 +609,43 @@ def api_rastreo(codigo: str):
                   "tone": t["tono"], "updated": t["actualizado"]} for t in tramites_de(get_db(), codigo)]
         return jsonify({"ok": True, "codigo": codigo, "service": row["servicio"], "client": row["cliente"],
                         "step": row["paso"], "statusText": row["estado"], "detail": row["detalle"],
-                        "tone": TONO_POR_PASO.get(row["paso"], "sky"), "updated": row["actualizado"], "items": items})
+                        "tone": TONO_POR_PASO.get(row["paso"], "sky"), "updated": row["actualizado"], "items": items,
+                        "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=?", (codigo,)).fetchone()[0]})
     demo = catalogo()["rastreo_demo"].get(codigo)
     if demo:
         return jsonify({"ok": True, "codigo": codigo, **demo, "demo": True})
     return error("No encontramos ningún expediente con ese código.", 404)
+
+
+@app.post("/api/rastreo/<codigo>/archivos")
+def api_rastreo_archivos(codigo: str):
+    """{dato}: últimos 4 dígitos del WhatsApp o el correo del cliente -> enlaces para descargar sus documentos."""
+    if limitar("verificar", 8, 600):
+        return error("Demasiados intentos. Espera unos minutos.", 429)
+    codigo = codigo.strip().upper()[:12]
+    db = get_db()
+    sol = db.execute("SELECT contacto FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    if not sol or not contacto_coincide(sol["contacto"], cuerpo_json().get("dato", "")):
+        return error("Los datos no coinciden con este expediente.", 403)
+    lista = [{"nombre": a["nombre"], "tamano": a["tamano"], "url": enlace_descarga(a["id"])} for a in archivos_de(db, codigo)]
+    return jsonify({"ok": True, "archivos": lista})
+
+
+@app.get("/descarga/<token>")
+def descarga(token: str):
+    try:
+        datos = _firmador().loads(token, max_age=DIAS_ENLACE * 86400)
+    except BadSignature:
+        return Response("Este enlace no es válido o ya venció. Descarga tus documentos en la página de rastreo con tu código.",
+                        status=410, mimetype="text/plain; charset=utf-8")
+    r = get_db().execute("SELECT * FROM archivos WHERE id=?", (int(datos.get("a", 0)),)).fetchone()
+    ruta = carpeta_archivos() / r["archivo"] if r else None
+    if not r or not ruta.is_file():
+        return Response("Este documento ya no está disponible. Escríbenos por WhatsApp.", status=404, mimetype="text/plain; charset=utf-8")
+    resp = send_file(ruta, mimetype=r["tipo"], as_attachment=True, download_name=r["nombre"])
+    resp.headers["Cache-Control"] = "private, no-store"
+    resp.headers["X-Robots-Tag"] = "noindex, nofollow"
+    return resp
 
 
 @app.post("/api/solicitud")
@@ -554,8 +705,8 @@ def api_solicitud():
     notificar_solicitud({"codigo": codigo, "nombre": nombre, "idioma": idioma.upper(),
                          "pais": cat["paises"][pais]["nombre"] + (f" ({pais_detalle})" if pais_detalle else ""),
                          "servicio_titulo": titulo, "contacto": contacto, "mensaje": mensaje,
-                         "origen": f"{origen} ({origen_detalle})" if origen_detalle else origen, "pagina": pagina_origen,
-                         "total_estimado": f"{cot['total']} {cot['moneda']}"})
+                         "origen": (f"{origen} ({origen_detalle})" if origen_detalle else origen).capitalize(), "pagina": pagina_origen,
+                         "total_estimado": (("RD$" if cot["moneda"] == "DOP" else cot["moneda"] + " ") + f"{cot['total']:,.2f}".removesuffix(".00")) if cot["total"] is not None else "Por cotizar"})
     return jsonify({"ok": True, "codigo": codigo, "servicio": titulo}), 201
 
 
@@ -610,7 +761,7 @@ def usuario_actual() -> dict | None:
         r = get_db().execute("SELECT * FROM usuarios WHERE id=?", (uid,)).fetchone()
         if r and r["activo"] and r["version"] == session.get("ver"):
             g.usuario = {"id": r["id"], "usuario": r["usuario"], "nombre": r["nombre"], "permisos": _permisos(r["permisos"]),
-                         "cambiar_clave": bool(r["cambiar_clave"])}
+                         "cambiar_clave": bool(r["cambiar_clave"]), "correo": r["correo"] or ""}
     return g.usuario
 
 
@@ -658,6 +809,11 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["notas"] = [dict(r) for r in db.execute("SELECT id, texto, creado FROM notas WHERE codigo=? ORDER BY id DESC", (d["codigo"],))]
     d["actividad"] = [dict(r) for r in db.execute(
         "SELECT usuario, accion, detalle, fecha FROM actividad WHERE codigo=? ORDER BY id DESC LIMIT 20", (d["codigo"],))]
+    d["correo_cliente"] = avisos.correo_de(d.get("contacto"))
+    d["archivos"] = [{k: a[k] for k in ("id", "nombre", "tipo", "tamano", "creado", "usuario")} | {"enlace": enlace_descarga(a["id"])}
+                     for a in archivos_de(db, d["codigo"])]
+    d["correos"] = [dict(r) for r in db.execute(
+        "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
     if has_app_context() and usuario_actual() and not puede("pagos"):
         d["pagos"], d["pagado"], d["pendiente"] = [], None, None
     return d
@@ -693,7 +849,8 @@ def servicio_pedido(item: dict, cat: dict) -> tuple[str, str, float | None] | st
 @app.get("/api/admin/sesion")
 def admin_sesion():
     u = usuario_actual()
-    return jsonify({"ok": True, "admin": bool(u), "usuario": u, "configurado": admin_configurado(), "permisos": PERMISOS})
+    return jsonify({"ok": True, "admin": bool(u), "usuario": u, "configurado": admin_configurado(), "permisos": PERMISOS,
+                    "correo_activo": avisos.configurado() if u else None})
 
 
 @app.post("/api/admin/login")
@@ -758,13 +915,19 @@ def admin_mi_clave():
 @app.post("/api/admin/cuenta/nombre")
 @requiere()
 def admin_mi_nombre():
-    """Cambiar el nombre que se muestra: {nombre}."""
-    nombre = str(cuerpo_json().get("nombre", "")).strip()[:60]
+    """Cambiar el nombre que se muestra y, si viene, el correo para avisos: {nombre, correo?}."""
+    d = cuerpo_json()
+    nombre = str(d.get("nombre", "")).strip()[:60]
     if len(nombre) < 2:
         return error("Escribe tu nombre.")
-    db = get_db()
-    db.execute("UPDATE usuarios SET nombre=? WHERE id=?", (nombre, usuario_actual()["id"]))
-    registrar("Cambió su nombre", None, nombre)
+    db, u = get_db(), usuario_actual()
+    db.execute("UPDATE usuarios SET nombre=? WHERE id=?", (nombre, u["id"]))
+    if "correo" in d:
+        correo = str(d.get("correo") or "").strip().lower()[:120]
+        if correo and not avisos.valido(correo):
+            return error("El correo no es válido.")
+        db.execute("UPDATE usuarios SET correo=? WHERE id=?", (correo or None, u["id"]))
+    registrar("Actualizó sus datos", None, nombre)
     db.commit()
     return jsonify({"ok": True})
 
@@ -772,7 +935,7 @@ def admin_mi_nombre():
 def _usuario_publico(r: sqlite3.Row) -> dict:
     return {"id": r["id"], "usuario": r["usuario"], "nombre": r["nombre"], "permisos": _permisos(r["permisos"]),
             "activo": bool(r["activo"]), "creado": r["creado"], "ultimo_acceso": r["ultimo_acceso"],
-            "cambiar_clave": bool(r["cambiar_clave"])}
+            "cambiar_clave": bool(r["cambiar_clave"]), "correo": r["correo"] or ""}
 
 
 @app.get("/api/admin/usuarios")
@@ -794,8 +957,11 @@ def admin_usuario_guardar():
     permisos = [x for x in (d.get("permisos") or []) if x in PERMISOS] if isinstance(d.get("permisos"), list) else []
     activo = 1 if d.get("activo", True) else 0
     clave = str(d.get("clave", "") or "")[:200]
+    correo = str(d.get("correo", "") or "").strip().lower()[:120]
     if len(nombre) < 2:
         return error("Escribe el nombre de la persona.")
+    if correo and not avisos.valido(correo):
+        return error("El correo no es válido.")
     if clave and len(clave) < 8:
         return error("La contraseña debe tener al menos 8 caracteres.")
     uid = d.get("id")
@@ -819,8 +985,8 @@ def admin_usuario_guardar():
                 return error("Ya existe un usuario con ese nombre.")
         cambia_clave = bool(clave)
         propio = r["id"] == yo["id"]
-        campos = ["usuario=?", "nombre=?", "permisos=?", "activo=?"]
-        valores = [nuevo_usuario, nombre, json.dumps(permisos), activo]
+        campos = ["usuario=?", "nombre=?", "permisos=?", "activo=?", "correo=?"]
+        valores = [nuevo_usuario, nombre, json.dumps(permisos), activo, correo or None]
         if cambia_clave:
             campos += ["hash=?", "cambiar_clave=?"]
             valores += [generate_password_hash(clave), 0 if propio else 1]
@@ -834,6 +1000,8 @@ def admin_usuario_guardar():
             cambios.append(f"usuario: {r['usuario']} → {nuevo_usuario}")
         if r["nombre"] != nombre:
             cambios.append(f"nombre: {r['nombre']} → {nombre}")
+        if (r["correo"] or "") != correo:
+            cambios.append(f"correo: {correo or 'sin correo'}")
         if not activo:
             cambios.append("desactivado")
         elif not r["activo"]:
@@ -849,8 +1017,10 @@ def admin_usuario_guardar():
             return error("Ya existe un usuario con ese nombre.")
         if len(clave) < 8:
             return error("Ponle una contraseña de al menos 8 caracteres.")
-        db.execute("INSERT INTO usuarios (usuario, nombre, hash, permisos, activo, creado, cambiar_clave) VALUES (?,?,?,?,?,?,1)",
-                   (usuario, nombre, generate_password_hash(clave), json.dumps(permisos), activo, ahora()))
+        ultimo = db.execute("SELECT COALESCE(MAX(id), 0) FROM avisos").fetchone()[0]  # empieza sin avisos viejos pendientes
+        db.execute("INSERT INTO usuarios (usuario, nombre, hash, permisos, activo, creado, cambiar_clave, correo, avisos_visto)"
+                   " VALUES (?,?,?,?,?,?,1,?,?)",
+                   (usuario, nombre, generate_password_hash(clave), json.dumps(permisos), activo, ahora(), correo or None, ultimo))
         registrar(f"Creó el usuario {usuario}", None, f"permisos: {', '.join(permisos) or 'ninguno'}")
     db.commit()
     return jsonify({"ok": True})
@@ -935,7 +1105,37 @@ def admin_estado():
     titulo = next(t["titulo"] for t in items if t["id"] == tid)
     registrar(f"Movió a paso {paso} ({PASOS[paso]})", codigo, f"{titulo}: {detalle}")
     db.commit()
-    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+    correo = "desactivado"
+    if d.get("avisar", True) is not False:
+        correo = correo_estado(db, codigo, titulo, paso, estado, detalle)
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo), "correo": correo})
+
+
+def correo_estado(db: sqlite3.Connection, codigo: str, titulo: str, paso: int, estado: str, detalle: str) -> str:
+    """Correo al cliente cuando cambia el estado. Devuelve: enviando | sin_correo | no_configurado."""
+    sol = db.execute("SELECT nombre, contacto, idioma FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    para = avisos.correo_de(sol["contacto"]) if sol else ""
+    if not para:
+        return "sin_correo"
+    if not avisos.configurado():
+        return "no_configurado"
+    T = avisos.textos(sol["idioma"])
+    archivos = archivos_de(db, codigo) if paso == 4 else []
+    if paso == 4:
+        parrafos = [T["listo"] if archivos else T["listo_sin"]]
+    else:
+        parrafos = [T["intro"]]
+    texto, html_ = avisos.plantilla(
+        T["listo_t"] if paso == 4 else T["titulo"], T["hola"].format(nombre=sol["nombre"].split()[0]), parrafos,
+        datos=[(T["tramite"], titulo), (T["codigo"], codigo), (T["estado"], f"{estado} · {T['paso'].format(n=paso)}"), (T["mensaje"], detalle)],
+        enlaces=[(a["nombre"], enlace_descarga(a["id"])) for a in archivos],
+        boton=(T["boton"], f"{avisos.sitio()}/rastreo?c={codigo}"),
+        pie=(T["vence"] + " " if archivos else "") + T["pie"])
+    asunto = T["asunto"].format(codigo=codigo)
+    avisos.enviar([para], asunto, texto, html_, al_terminar=anotar_correo(codigo, [para], asunto, "estado"))
+    registrar("Envió un correo al cliente", codigo, f"{asunto} → {para}")
+    db.commit()
+    return "enviando"
 
 
 @app.post("/api/admin/agregar")
@@ -1129,6 +1329,119 @@ def admin_docs():
     registrar("Actualizó documentos recibidos", codigo, f"{len(docs)} recibidos")
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/archivo")
+@requiere("expedientes")
+def admin_archivo():
+    """Sube documentos escaneados (PDF o foto) para entregar al cliente. Formulario: codigo, archivo (uno o varios)."""
+    codigo = str(request.form.get("codigo", "")).strip().upper()[:12]
+    db = get_db()
+    if not db.execute("SELECT 1 FROM seguimiento WHERE codigo=?", (codigo,)).fetchone():
+        return error("No existe ese código.", 404)
+    subidos = request.files.getlist("archivo")
+    if not subidos:
+        return error("Elige al menos un archivo.")
+    if len(archivos_de(db, codigo)) + len(subidos) > MAX_ARCHIVOS_CODIGO:
+        return error(f"Un expediente puede tener hasta {MAX_ARCHIVOS_CODIGO} documentos.")
+    carpeta = carpeta_archivos() / codigo
+    carpeta.mkdir(parents=True, exist_ok=True)
+    nombres = []
+    for f in subidos:
+        nombre = re.sub(r"[^\w.\- ()áéíóúñÁÉÍÓÚÑ]", "_", Path(f.filename or "documento").name)[:100] or "documento"
+        ext = Path(nombre).suffix.lower()
+        if ext not in TIPOS_ARCHIVO:
+            return error(f"«{nombre}»: solo se aceptan PDF, JPG, PNG o WEBP.")
+        datos = f.read(MAX_ARCHIVO + 1)
+        if len(datos) > MAX_ARCHIVO:
+            return error(f"«{nombre}» pesa más de 10 MB.")
+        if not _es_tipo_real(datos[:16], ext):
+            return error(f"«{nombre}» no parece un {ext[1:].upper()} válido.")
+        guardado = f"{secrets.token_hex(12)}{ext}"
+        (carpeta / guardado).write_bytes(datos)
+        db.execute("INSERT INTO archivos (codigo, nombre, archivo, tipo, tamano, creado, usuario) VALUES (?,?,?,?,?,?,?)",
+                   (codigo, nombre, f"{codigo}/{guardado}", TIPOS_ARCHIVO[ext], len(datos), ahora(), usuario_actual()["usuario"]))
+        nombres.append(nombre)
+    registrar("Subió documentos para entregar", codigo, ", ".join(nombres))
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
+
+
+@app.post("/api/admin/archivo/quitar")
+@requiere("expedientes")
+def admin_archivo_quitar():
+    d = cuerpo_json()
+    codigo = str(d.get("codigo", "")).strip().upper()[:12]
+    db = get_db()
+    r = db.execute("SELECT * FROM archivos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).fetchone()
+    if not r:
+        return error("Ese documento no existe.", 404)
+    (carpeta_archivos() / r["archivo"]).unlink(missing_ok=True)
+    db.execute("DELETE FROM archivos WHERE id=?", (r["id"],))
+    registrar("Quitó un documento", codigo, r["nombre"])
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.get("/api/admin/archivo/<int:aid>")
+@requiere_admin
+def admin_archivo_ver(aid: int):
+    r = get_db().execute("SELECT * FROM archivos WHERE id=?", (aid,)).fetchone()
+    ruta = carpeta_archivos() / r["archivo"] if r else None
+    if not r or not ruta.is_file():
+        return error("Ese documento no existe.", 404)
+    return send_file(ruta, mimetype=r["tipo"], download_name=r["nombre"])
+
+
+@app.post("/api/admin/archivo/enviar")
+@requiere("expedientes")
+def admin_archivo_enviar():
+    """Envía al correo del cliente sus documentos (adjuntos si caben, y siempre los enlaces)."""
+    codigo = str(cuerpo_json().get("codigo", "")).strip().upper()[:12]
+    db = get_db()
+    sol = db.execute("SELECT nombre, contacto, idioma FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    archivos = archivos_de(db, codigo)
+    if not archivos:
+        return error("Primero sube los documentos.")
+    para = avisos.correo_de(sol["contacto"]) if sol else ""
+    if not para:
+        return error("Este cliente no tiene correo. Agrégalo en «Editar datos del cliente» o envíalos por WhatsApp.")
+    if not avisos.configurado():
+        return error("El envío de correos aún no está activado. En el servidor escribe: tramita correo", 503)
+    T = avisos.textos(sol["idioma"])
+    texto, html_ = avisos.plantilla(T["docs_t"], T["hola"].format(nombre=sol["nombre"].split()[0]), [T["docs"]],
+                                    datos=[(T["codigo"], codigo)],
+                                    enlaces=[(a["nombre"], enlace_descarga(a["id"])) for a in archivos],
+                                    boton=(T["boton"], f"{avisos.sitio()}/rastreo?c={codigo}"), pie=T["vence"] + " " + T["pie"])
+    asunto = T["docs_asunto"].format(codigo=codigo)
+    avisos.enviar([para], asunto, texto, html_, adjuntos=[(a["nombre"], carpeta_archivos() / a["archivo"]) for a in archivos],
+                  al_terminar=anotar_correo(codigo, [para], asunto, "documentos"))
+    registrar("Envió los documentos por correo", codigo, para)
+    db.commit()
+    return jsonify({"ok": True, "para": para, "expediente": un_expediente(db, codigo)})
+
+
+@app.get("/api/admin/avisos")
+@requiere_admin
+def admin_avisos():
+    """Solicitudes nuevas para la campana del panel. Los usuarios de solo lectura no reciben avisos."""
+    if not puede("expedientes"):
+        return jsonify({"ok": True, "avisos": [], "sin_leer": 0, "ultimo": 0, "solo_lectura": True})
+    db = get_db()
+    visto = db.execute("SELECT avisos_visto FROM usuarios WHERE id=?", (usuario_actual()["id"],)).fetchone()[0]
+    lista = [dict(r) | {"nuevo": r["id"] > visto} for r in db.execute("SELECT * FROM avisos ORDER BY id DESC LIMIT 30")]
+    sin_leer = db.execute("SELECT COUNT(*) FROM avisos WHERE id>?", (visto,)).fetchone()[0]
+    return jsonify({"ok": True, "avisos": lista, "sin_leer": sin_leer, "ultimo": lista[0]["id"] if lista else 0})
+
+
+@app.post("/api/admin/avisos/visto")
+@requiere("expedientes")
+def admin_avisos_visto():
+    hasta = int(numero(cuerpo_json().get("hasta")) or 0)
+    db = get_db()
+    db.execute("UPDATE usuarios SET avisos_visto=MAX(avisos_visto, ?) WHERE id=?", (hasta, usuario_actual()["id"]))
+    db.commit()
+    return jsonify({"ok": True})
 
 
 @app.get("/api/admin/precios")
@@ -1360,13 +1673,20 @@ def archivo_raiz(nombre: str):
     abort(404)
 
 
+@app.before_request
+def tamano_maximo():
+    if request.path != "/api/admin/archivo" and (request.content_length or 0) > LIMITE_JSON:
+        return error("La solicitud es demasiado grande.", 413)
+    return None
+
+
 # Pausa (mantenimiento): con TF_PAUSA=1 los visitantes ven "Volvemos pronto"; el panel /admin sigue funcionando.
 @app.before_request
 def pausa():
     if os.environ.get("TF_PAUSA") != "1":
         return None
     ruta = request.path
-    if ruta == "/admin" or ruta.startswith(("/api/admin", "/assets/")) or ruta in ("/robots.txt", "/sw.js"):
+    if ruta == "/admin" or ruta.startswith(("/api/admin", "/assets/", "/descarga/")) or ruta in ("/robots.txt", "/sw.js"):
         return None
     if ruta.startswith("/api/"):
         return error("Estamos en mantenimiento. Escríbenos por WhatsApp: +1 (849) 243-1206.", 503)

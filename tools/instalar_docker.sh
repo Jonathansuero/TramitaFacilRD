@@ -112,7 +112,22 @@ case "${1:-ayuda}" in
     h="$(docker run --rm -e C="$c1" tramitafacil:latest python -c 'import os; from werkzeug.security import generate_password_hash as g; print(g(os.environ["C"]))')"
     sed -i '/^TF_ADMIN_HASH=/d' "$ENVF" && echo "TF_ADMIN_HASH=$h" >> "$ENVF"
     arrancar && echo "Contraseña cambiada. Entra en https://$DOMINIO/admin con el usuario: admin" ;;
-  correo) ${EDITOR:-nano} "$ENVF" && arrancar && echo "Listo." ;;
+  correo)
+    # Activa los correos automáticos (al cliente cuando cambia el estado y al equipo cuando llega una solicitud)
+    if [ "${2:-}" = "prueba" ]; then m correo_prueba "${3:-$CORREO}"; exit; fi
+    if [ "${2:-}" = "editar" ]; then ${EDITOR:-nano} "$ENVF" && arrancar && echo "Listo."; exit; fi
+    echo "Datos del correo que enviará los avisos (los encuentras en tu proveedor de correo)."
+    echo "  Hostinger: smtp.hostinger.com, puerto 465 · Gmail: smtp.gmail.com, puerto 465 (con contraseña de aplicación)"
+    read -r -p "Servidor SMTP [smtp.hostinger.com]: " h; h="${h:-smtp.hostinger.com}"
+    read -r -p "Puerto [465]: " pu; pu="${pu:-465}"
+    read -r -p "Correo que envía (usuario), p. ej. info@$DOMINIO: " u
+    read -r -s -p "Contraseña de ese correo: " c; echo
+    [ -n "$u" ] && [ -n "$c" ] || { echo "Faltan datos."; exit 1; }
+    sed -i '/^#\?SMTP_HOST=/d;/^#\?SMTP_PORT=/d;/^#\?SMTP_USER=/d;/^#\?SMTP_PASS=/d;/^#\?SMTP_FROM=/d;/^TF_SITIO=/d' "$ENVF"
+    printf 'SMTP_HOST=%s\nSMTP_PORT=%s\nSMTP_USER=%s\nSMTP_PASS=%s\nTF_SITIO=https://%s\n' "$h" "$pu" "$u" "$c" "$DOMINIO" >> "$ENVF"
+    arrancar && sleep 3
+    echo "Enviando un correo de prueba a $CORREO…"
+    m correo_prueba "$CORREO" || true ;;
   solicitudes) shift; m solicitudes "$@" ;;
   estado) shift; m estado "$@" ;;
   usuarios) m usuarios ;;
@@ -131,7 +146,7 @@ Comandos de TramitaFácil RD (Docker):
   tramita actualizar     Traer los últimos cambios de GitHub
   tramita clave          Cambiar la contraseña del usuario «admin» del panel (también sirve si la olvidas)
   tramita usuarios       Ver los usuarios del panel y sus permisos
-  tramita correo         Configurar el aviso por correo
+  tramita correo         Activar los correos automáticos (tramita correo prueba tu@correo.com para probar)
   tramita solicitudes    Ver las últimas solicitudes
   tramita respaldo       Hacer un respaldo ahora
   tramita buscadores     Avisar a Bing y otros buscadores de las páginas nuevas

@@ -6,7 +6,7 @@
    - /api/ nunca se guarda (solicitudes y rastreo siempre en vivo).
    VERSION la actualiza `python manage.py build`; al cambiar, los teléfonos reciben la nueva versión.
    ========================================================== */
-const VERSION = 'a09eeb7b36';
+const VERSION = 'fb5bd25b79';
 const CACHE = `tramitafacil-${VERSION}`;
 const CACHE_EXT = 'tramitafacil-externos';
 
@@ -46,7 +46,7 @@ self.addEventListener('fetch', event => {
     const url = new URL(req.url);
 
     if (url.origin === self.location.origin) {
-        if (url.pathname.includes('/api/') || url.pathname.includes('admin')) return;   // siempre en vivo (API y panel)
+        if (url.pathname.includes('/api/') || url.pathname.includes('admin') || url.pathname.startsWith('/descarga/')) return;   // siempre en vivo (API y panel)
         if (req.mode === 'navigate') { event.respondWith(pagina(req)); return; }
         event.respondWith(recurso(req, CACHE));
         return;
@@ -76,3 +76,12 @@ async function recurso(req, nombre) {
     }).catch(() => guardado || Response.error());
     return guardado || red;
 }
+
+// Al tocar un aviso del panel (solicitud nueva) se abre el panel
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    event.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(ventanas => {
+        const panel = ventanas.find(v => v.url.includes('/admin'));
+        return panel ? panel.focus() : self.clients.openWindow('/admin');
+    }));
+});
