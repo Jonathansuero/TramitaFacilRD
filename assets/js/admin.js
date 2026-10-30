@@ -395,6 +395,24 @@
         lineas.push('', `Los enlaces son personales y vencen en 30 días. También puedes descargarlos en ${enlaceRastreo(e)} con tu código y los últimos 4 dígitos de tu WhatsApp.`, '', '— TramitaFácil RD');
         return wa(e, lineas);
     }
+    /** Cambiar el estado con un toque: se elige el paso y se guarda (con el mensaje por defecto de ese paso). */
+    const CORTO = { 1: 'Recibido', 2: 'Verificado', 3: 'En institución', 4: 'Listo' };
+    function bloqueRapido(e) {
+        const items = e.tramites || [];
+        if (!items.length) return '';
+        return `<div class="bloque rapido">
+            <div class="bloque-t"><span>${ico('ok')} Cambiar estado</span><span>toca el paso y guarda</span></div>
+            ${items.map(t => `<form class="rapido-f" data-codigo="${esc(e.codigo)}" data-tramite="${t.id}" data-actual="${t.paso}">
+                ${items.length > 1 ? `<b class="rp-t">${esc(t.titulo)}</b>` : ''}
+                <div class="rp-pasos" role="radiogroup" aria-label="Paso del trámite">${[1, 2, 3, 4].map(i => `<button type="button" role="radio" aria-checked="${i === t.paso}"
+                    class="rp${i === t.paso ? ' sel actual' : ''}${i < t.paso ? ' hecho' : ''}" data-rp="${i}"><em>${i}</em><span>${CORTO[i]}</span></button>`).join('')}</div>
+                <input type="hidden" name="paso" value="${t.paso}">
+                <div class="rp-pie"><small data-rp-msg>Paso actual. Elige otro para cambiarlo.</small>
+                    <button class="btn btn-azul btn-sm rp-guardar" type="submit" disabled>Guardar</button></div>
+            </form>`).join('')}
+        </div>`;
+    }
+
     /** Avisar al cliente del estado actual con un clic: por correo (lo envía el servidor) o por WhatsApp. */
     function bloqueAvisar(e) {
         const email = e.correo_cliente, tel = telefono(e.contacto), gestiona = puede('expedientes');
@@ -562,14 +580,7 @@
         const dias = diasSin(e);
         const cuerpo = !abierto ? '' : `
             <div class="exp-cuerpo">
-                <dl class="datos">
-                    <div><dt>Contacto</dt><dd>${contacto}</dd></div>
-                    <div><dt>País</dt><dd>${bandera(e.pais)} ${esc(paisNombre(e.pais, e.pais_detalle))}</dd></div>
-                    <div><dt>Llegó por</dt><dd>${esc(llego || 'Sin dato')}</dd></div>
-                    <div><dt>Creado</dt><dd>${esc(fecha(creado(e)))}${e.idioma && e.idioma !== 'es' ? ` · ${esc(IDIOMA_N[e.idioma] || e.idioma)}` : ''}</dd></div>
-                    ${e.mensaje ? `<div style="grid-column:1/-1"><dt>Nota del cliente</dt><dd>${esc(e.mensaje)}</dd></div>` : ''}
-                </dl>
-                ${puede('expedientes') ? bloqueDatosCliente(e) : ''}
+                ${puede('expedientes') ? bloqueRapido(e) : ''}
                 <div class="actual"><small>Lo que ve el cliente arriba · ${esc(fecha(e.actualizado))}</small><b>${esc(e.estado)}:</b> ${esc(e.detalle)}</div>
                 ${bloqueAvisar(e)}
                 <div class="tramites">
@@ -584,6 +595,17 @@
                 ${puede('pagos') ? bloqueCobro(e) : ''}
                 ${puede('expedientes') ? bloqueNotas(e) : ''}
                 ${bloqueEntrega(e)}
+                <details class="bloque datos-cli"${editandoCliente.has(e.codigo) ? ' open' : ''}>
+                    <summary>${ico('usuario', 14)} Datos del cliente</summary>
+                    <dl class="datos">
+                        <div><dt>Contacto</dt><dd>${contacto}</dd></div>
+                        <div><dt>País</dt><dd>${bandera(e.pais)} ${esc(paisNombre(e.pais, e.pais_detalle))}</dd></div>
+                        <div><dt>Llegó por</dt><dd>${esc(llego || 'Sin dato')}</dd></div>
+                        <div><dt>Creado</dt><dd>${esc(fecha(creado(e)))}${e.idioma && e.idioma !== 'es' ? ` · ${esc(IDIOMA_N[e.idioma] || e.idioma)}` : ''}</dd></div>
+                        ${e.mensaje ? `<div style="grid-column:1/-1"><dt>Nota del cliente</dt><dd>${esc(e.mensaje)}</dd></div>` : ''}
+                    </dl>
+                    ${puede('expedientes') ? `<div style="margin-top:12px">${bloqueDatosCliente(e)}</div>` : ''}
+                </details>
                 ${bloqueHistorial(e)}
                 <div class="bloque">
                     <div class="bloque-t"><span>${ico('chat')} Mensajes rápidos por WhatsApp</span></div>
@@ -1417,6 +1439,16 @@
             form.querySelector('[data-presets]').innerHTML = presetsHTML(tr, p); form.detalle.focus();
             return;
         }
+        const rp = ev.target.closest('[data-rp]');
+        if (rp) {
+            const f = rp.closest('form'), p = Number(rp.dataset.rp), actual = Number(f.dataset.actual);
+            f.querySelectorAll('.rp').forEach(b => { b.classList.toggle('sel', b === rp); b.setAttribute('aria-checked', b === rp); });
+            f.paso.value = p;
+            f.querySelector('.rp-guardar').disabled = p === actual;
+            f.querySelector('[data-rp-msg]').textContent = p === actual ? 'Paso actual. Elige otro para cambiarlo.'
+                : `El cliente verá: «${mensajesDe(tramiteDe(f), p).defecto}»`;
+            return;
+        }
         const pr = ev.target.closest('[data-preset-msj]');
         if (pr) {
             const form = pr.closest('form');
@@ -1510,6 +1542,12 @@
                 editandoCliente.delete(form.dataset.codigo);
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintar(); toast('Datos del cliente actualizados');
+            } else if (form.classList.contains('rapido-f')) {
+                const p = Number(form.paso.value), tid = Number(form.dataset.tramite);
+                const r = await post('/admin/estado', { codigo: form.dataset.codigo, tramite: tid, paso: p, detalle: mensajesDe(tramiteDe(form), p).defecto,
+                    estado: PASOS[p], avisar: false });
+                reemplazar(r.expediente); pintar();
+                toast(`Estado cambiado a «${PASOS[p]}». Si quieres, avísale al cliente abajo.`);
             } else if (form.classList.contains('confirmar-borrar')) {
                 const codigo = form.dataset.borrar;
                 await post('/admin/eliminar', { codigo, motivo: form.motivo.value });
