@@ -872,3 +872,21 @@ def test_pago_rechazado_y_por_whatsapp(client, monkeypatch, tmp_path):
     client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "rechazar", "motivo": "No llegó"})
     v = client.get(f"/api/rastreo/{codigo}").json
     assert v["pago"] == "rechazado" and v["pago_motivo"] == "No llegó"
+
+
+def test_cliente_pagado_no_ve_que_subir_comprobante(client, monkeypatch):
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    codigo = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                                 "pais": "us", "servicio": "certificacion_solteria", "acepta": True}).json["codigo"]
+    assert client.get(f"/api/rastreo/{codigo}").json["falta_pagar"] is True
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    total = next(e for e in client.get("/api/admin/expedientes").json["expedientes"] if e["codigo"] == codigo)["total_dop"]
+    # pago parcial: todavía puede mandar el resto
+    client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": total / 2, "metodo": "Efectivo"})
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["pago"] == "confirmado" and v["falta_pagar"] is True
+    # saldado (por ejemplo en efectivo o por WhatsApp): ya no se le pide nada
+    client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": total / 2, "metodo": "Efectivo", "whatsapp": True})
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["pago"] == "confirmado" and v["falta_pagar"] is False

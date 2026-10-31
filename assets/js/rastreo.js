@@ -53,8 +53,9 @@
         $('trackPagoD').textContent = pago === 'confirmado' ? t('track.pago.ok.d')
             : pago === 'rechazado' ? (data.pago_motivo ? t('track.pago.mal.d.motivo', { motivo: data.pago_motivo }) : t('track.pago.mal.d'))
             : t('track.pago.pend.d');
-        // Comprobante de pago (opcional)
-        $('trackComp').classList.toggle('hidden', !!data.demo || !state.api);
+        // Comprobante de pago (opcional). Si ya está todo pagado, no se le pide nada más.
+        const yaPago = pago === 'confirmado' && data.falta_pagar === false;
+        $('trackComp').classList.toggle('hidden', !!data.demo || !state.api || yaPago);
         if (compDe !== code) { $('trackCompForm').classList.add('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'false'); compDe = code; }
         if (pago === 'rechazado') { $('trackCompForm').classList.remove('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'true'); }
         $('trackCompWaBtn').href = waLink(saludo(t('wa.comp', { code })));
