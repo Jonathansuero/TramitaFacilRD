@@ -5,7 +5,7 @@
     const { D, state, $, esc, t, waLink, saludo, restart } = TF;
 
     const TONOS = { amber: 'bg-amber-100 text-amber-800', emerald: 'bg-emerald-100 text-emerald-800', sky: 'bg-sky-100 text-sky-800' };
-    let ultimo = null, docsDe = null, compDe = null;
+    let ultimo = null, docsDe = null, compDe = null, pideDe = null;
 
     async function consultar() {
         const input = $('trackInput'), code = input.value.trim().toUpperCase();
@@ -53,6 +53,24 @@
         $('trackPagoD').textContent = pago === 'confirmado' ? t('track.pago.ok.d')
             : pago === 'rechazado' ? (data.pago_motivo ? t('track.pago.mal.d.motivo', { motivo: data.pago_motivo }) : t('track.pago.mal.d'))
             : t('track.pago.pend.d');
+        // Documentos que le pedimos: puede subirlos desde aquí
+        const pide = Array.isArray(data.pide_docs) ? data.pide_docs : [];
+        const todosDocs = (Array.isArray(data.items) ? data.items : []).flatMap(it => it.docs || []);
+        $('trackDocsPide').classList.toggle('hidden', !!data.demo || !state.api || !todosDocs.length);
+        if (todosDocs.length) {
+            const faltan = todosDocs.filter(d => !d.recibido && !d.enviado);
+            $('trackPideSub').textContent = faltan.length ? t('track.pide.sub', { n: faltan.length }) : t('track.pide.ok.todos');
+            $('trackPideLista').innerHTML = todosDocs.map(d => {
+                const est = d.recibido ? 'ok' : d.enviado ? 'env' : '';
+                const ico = d.recibido ? 'fa-circle-check' : d.enviado ? 'fa-clock' : 'fa-circle';
+                return `<li class="${est}"><i class="fa-solid ${ico}"></i><span>${esc(d.nombre)}
+                    ${d.recibido ? `<b>${esc(t('track.pide.tenemos'))}</b>` : d.enviado ? `<b>${esc(t('track.pide.revision'))}</b>` : ''}</span></li>`;
+            }).join('');
+            $('trackDocCual').innerHTML = (faltan.length ? faltan.map(d => d.nombre) : todosDocs.map(d => d.nombre))
+                .map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('') + `<option value="">${esc(t('track.pide.otro'))}</option>`;
+            $('trackPideAbrir').classList.toggle('urge', faltan.length > 0 && !data.docs_enviados);
+            if (pideDe !== code) { $('trackPideCuerpo').classList.add('hidden'); $('trackDocOk').classList.add('hidden'); $('trackPideAbrir').setAttribute('aria-expanded', 'false'); pideDe = code; }
+        }
         // Comprobante de pago (opcional). Si ya está todo pagado, no se le pide nada más.
         const yaPago = pago === 'confirmado' && data.falta_pagar === false;
         $('trackComp').classList.toggle('hidden', !!data.demo || !state.api || yaPago);
@@ -118,6 +136,27 @@
         try { await fetch('/api/rastreo/' + encodeURIComponent(code) + '/pago-whatsapp', { method: 'POST' }); } catch (e) { /* igual se abre el chat */ }
     }
 
+    async function enviarDocumento() {
+        const code = ultimo && ultimo.code, err = $('trackDocError'), btn = $('trackDocBtn');
+        const archivo = $('trackDocArchivo').files[0], dato = $('trackDocDato').value.trim();
+        if (!archivo || !dato) { err.textContent = !archivo ? t('track.comp.e.archivo') : t('track.docs.aria'); err.classList.remove('hidden'); restart(err, 'shake'); return; }
+        if (archivo.size > 10 * 1024 * 1024) { err.textContent = t('track.comp.e.peso'); err.classList.remove('hidden'); return; }
+        btn.disabled = true; btn.textContent = t('track.comp.enviando'); err.classList.add('hidden');
+        try {
+            const chico = await window.TF_IMAGEN.achicar(archivo);
+            const fd = new FormData();
+            fd.append('archivo', chico, chico.name); fd.append('dato', dato); fd.append('cual', $('trackDocCual').value);
+            const r = await fetch('/api/rastreo/' + encodeURIComponent(code) + '/documento', { method: 'POST', body: fd });
+            const j = await r.json().catch(() => ({}));
+            if (!r.ok || j.ok === false) throw Object.assign(new Error(window.TF_IMAGEN.errorSubida(r.status, j)), { status: r.status });
+            $('trackDocForm').reset(); $('trackDocOk').classList.remove('hidden');
+            try { const d = await TF.api('/rastreo/' + encodeURIComponent(code)); ultimo = { code, data: d }; mostrar(code, d); } catch (e) { /* sigue */ }
+            $('trackPideCuerpo').classList.remove('hidden'); $('trackDocOk').classList.remove('hidden'); $('trackPideAbrir').setAttribute('aria-expanded', 'true');
+        } catch (e) {
+            err.textContent = e.status === 403 ? t('track.docs.error') : e.message; err.classList.remove('hidden'); restart(err, 'shake');
+        } finally { btn.disabled = false; btn.textContent = t('track.pide.btn'); }
+    }
+
     function actualizarWa() {
         const code = $('trackInput').value.trim().toUpperCase();
         $('trackWa').href = waLink(saludo(code ? t('wa.rastreo', { code }) : t('wa.rastreo.sin')));
@@ -134,6 +173,12 @@
         });
         $('trackCompForm').addEventListener('submit', e => { e.preventDefault(); enviarComprobante(); });
         $('trackCompWaBtn').addEventListener('click', () => avisarPagoWa());
+        $('trackPideAbrir').addEventListener('click', () => {
+            const cu = $('trackPideCuerpo'), abre = cu.classList.contains('hidden');
+            cu.classList.toggle('hidden', !abre); $('trackPideAbrir').setAttribute('aria-expanded', String(abre));
+            if (abre) $('trackDocArchivo').focus();
+        });
+        $('trackDocForm').addEventListener('submit', e => { e.preventDefault(); enviarDocumento(); });
         $('trackInput').addEventListener('input', actualizarWa);
         document.addEventListener('click', e => {
             const b = e.target.closest('[data-demo-code]');

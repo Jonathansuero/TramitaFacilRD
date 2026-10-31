@@ -996,6 +996,56 @@
       "The file is larger than 10 MB.",
       "Le fichier dépasse 10 Mo."
     ],
+    "track.pide.t": [
+      "Documentos que necesitamos",
+      "Documents we need",
+      "Documents nécessaires"
+    ],
+    "track.pide.sub": [
+      "Faltan {n}. Puedes enviarlos por aquí o por WhatsApp.",
+      "{n} missing. You can send them here or on WhatsApp.",
+      "Il en manque {n}. Envoyez-les ici ou sur WhatsApp."
+    ],
+    "track.pide.ok.todos": [
+      "Ya tenemos todos tus documentos. ¡Gracias!",
+      "We have all your documents. Thank you!",
+      "Nous avons tous vos documents. Merci !"
+    ],
+    "track.pide.tenemos": [
+      "· ya lo tenemos",
+      "· received",
+      "· reçu"
+    ],
+    "track.pide.revision": [
+      "· enviado, en revisión",
+      "· sent, under review",
+      "· envoyé, en cours de vérification"
+    ],
+    "track.pide.cual": [
+      "¿Cuál documento envías?",
+      "Which document are you sending?",
+      "Quel document envoyez-vous ?"
+    ],
+    "track.pide.archivo": [
+      "Foto o PDF del documento",
+      "Photo or PDF of the document",
+      "Photo ou PDF du document"
+    ],
+    "track.pide.otro": [
+      "Otro documento",
+      "Another document",
+      "Un autre document"
+    ],
+    "track.pide.btn": [
+      "Enviar documento",
+      "Send document",
+      "Envoyer le document"
+    ],
+    "track.pide.ok": [
+      "Recibimos tu documento. Nuestro equipo lo revisará y seguimos con tu trámite.",
+      "We received your document. Our team will review it and continue with your request.",
+      "Nous avons reçu votre document. Notre équipe va l'examiner et poursuivre votre démarche."
+    ],
     "track.docs.t": [
       "Tus documentos están listos",
       "Your documents are ready",

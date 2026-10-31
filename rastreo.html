@@ -79,6 +79,27 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <span class="tp-ico"><i class="fa-solid fa-hourglass-half"></i></span>
                             <div><strong id="trackPagoT"></strong><p id="trackPagoD"></p></div>
                         </div>
+                        <div id="trackDocsPide" class="hidden track-pide">
+                            <button type="button" id="trackPideAbrir" class="tc-abrir" aria-expanded="false" aria-controls="trackPideCuerpo">
+                                <span class="tc-ico"><i class="fa-solid fa-paperclip"></i></span>
+                                <span class="tc-txt"><strong data-i18n="track.pide.t">Documentos que necesitamos</strong><small id="trackPideSub"></small></span>
+                                <i class="fa-solid fa-chevron-down tc-flecha"></i>
+                            </button>
+                            <div id="trackPideCuerpo" class="hidden tc-form">
+                                <ul id="trackPideLista" class="td-check"></ul>
+                                <form id="trackDocForm" novalidate>
+                                    <label class="tc-campo"><span data-i18n="track.pide.cual">¿Cuál documento envías?</span>
+                                        <select id="trackDocCual"></select></label>
+                                    <label class="tc-campo"><span data-i18n="track.pide.archivo">Foto o PDF del documento</span>
+                                        <input type="file" id="trackDocArchivo" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
+                                    <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
+                                        <input type="text" id="trackDocDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com" required></label>
+                                    <p id="trackDocError" class="hidden td-error" role="alert"></p>
+                                    <button type="submit" id="trackDocBtn" data-i18n="track.pide.btn">Enviar documento</button>
+                                </form>
+                                <p id="trackDocOk" class="hidden tc-ok"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.pide.ok">Recibimos tu documento. Nuestro equipo lo revisará y seguimos con tu trámite.</span></p>
+                            </div>
+                        </div>
                         <div id="trackComp" class="hidden track-comp">
                             <button type="button" id="trackCompAbrir" class="tc-abrir" aria-expanded="false" aria-controls="trackCompForm">
                                 <span class="tc-ico"><i class="fa-solid fa-receipt"></i></span>

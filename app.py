@@ -29,6 +29,7 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/pago/validar     {codigo, id, accion: confirmar|rechazar, motivo?}  (administración y contabilidad)
     POST /api/rastreo/<codigo>/comprobante  (público, formulario) dato, archivo, monto, metodo, nota?  Comprobante del cliente
     POST /api/rastreo/<codigo>/pago-whatsapp  (público) el cliente avisa que envía el pago por WhatsApp
+    POST /api/rastreo/<codigo>/documento  (público, formulario) dato, archivo, cual?  El cliente sube un documento pedido
     GET  /api/admin/comprobante/<id> (ver) · POST /api/admin/comprobante/descartar {codigo, id, motivo}
     POST /api/admin/archivo          (formulario) codigo, clase (entrega|recibido), archivo[]
     POST /api/admin/archivo/validar  {codigo, id, accion: validar|rechazar, motivo?}   Documentos recibidos
@@ -259,6 +260,7 @@ CREATE TABLE IF NOT EXISTS archivos (
     tamano INTEGER NOT NULL,
     creado TEXT NOT NULL,
     usuario TEXT,
+    nota TEXT,
     clase TEXT NOT NULL DEFAULT 'entrega',
     estado TEXT NOT NULL DEFAULT '',
     revisado_por TEXT,
@@ -367,6 +369,8 @@ def migrar(db: sqlite3.Connection) -> None:
     if "usuario" not in {r[1] for r in db.execute("PRAGMA table_info(avisos)")}:
         db.execute("ALTER TABLE avisos ADD COLUMN usuario TEXT")   # quién lo provocó (no se le avisa a sí mismo)
     cols_a = {r[1] for r in db.execute("PRAGMA table_info(archivos)")}
+    if "nota" not in cols_a:
+        db.execute("ALTER TABLE archivos ADD COLUMN nota TEXT")   # qué documento es (p. ej. «Cédula»)
     if "clase" not in cols_a:   # los de antes eran todos para entregar al cliente
         db.execute("ALTER TABLE archivos ADD COLUMN clase TEXT NOT NULL DEFAULT 'entrega'")
     if "estado" not in cols_a:
@@ -598,7 +602,7 @@ CLASES_ARCHIVO = ("entrega", "recibido")   # entrega: va al cliente · recibido:
 
 def archivos_de(db: sqlite3.Connection, codigo: str, clase: str = "entrega") -> list[dict]:
     return [dict(r) for r in db.execute(
-        "SELECT id, nombre, tipo, tamano, creado, usuario, archivo, clase, estado, revisado_por, motivo"
+        "SELECT id, nombre, tipo, tamano, creado, usuario, archivo, clase, estado, revisado_por, motivo, nota"
         " FROM archivos WHERE codigo=? AND clase=? ORDER BY id", (codigo, clase))]
 
 
@@ -706,13 +710,29 @@ def api_rastreo(codigo: str):
     codigo = codigo.strip().upper()[:12]
     row = get_db().execute("SELECT * FROM seguimiento WHERE codigo = ? AND eliminado IS NULL", (codigo,)).fetchone()
     if row:
-        items = [{"service": t["titulo"], "step": t["paso"], "statusText": t["estado"], "detail": t["detalle"],
-                  "tone": t["tono"], "updated": t["actualizado"]} for t in tramites_de(get_db(), codigo)]
+        cat_ = catalogo()
+        # Lo que el propio cliente ya nos envió desde la página: aunque todavía no lo hayamos
+        # marcado en la checklist, él debe ver que llegó (y no volver a mandarlo).
+        enviados = {str(r["nota"] or "").strip() for r in get_db().execute(
+            "SELECT nota FROM archivos WHERE codigo=? AND clase='recibido' AND usuario='cliente'", (codigo,))}
+        enviados.discard("")
+        pedidos, items = [], []
+        for t in tramites_de(get_db(), codigo):
+            lista = (cat_["checklists"].get(t["servicio_id"]) or {}).get("items", [])
+            recibidos = set(t["docs"])
+            items.append({"service": t["titulo"], "step": t["paso"], "statusText": t["estado"], "detail": t["detalle"],
+                          "tone": t["tono"], "updated": t["actualizado"],
+                          "docs": [{"nombre": x, "recibido": x in recibidos, "enviado": x in enviados} for x in lista]})
+            pedidos += [x for x in lista if x not in recibidos]
         return jsonify({"ok": True, "codigo": codigo, "service": row["servicio"], "client": row["cliente"],
                         "step": row["paso"], "statusText": row["estado"], "detail": row["detalle"],
                         "tone": TONO_POR_PASO.get(row["paso"], "sky"), "updated": row["actualizado"], "items": items,
                         "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='entrega'", (codigo,)).fetchone()[0],
-                        **estado_pago_cliente(get_db(), codigo), "falta_pagar": falta_por_pagar(get_db(), codigo)})
+                        **estado_pago_cliente(get_db(), codigo), "falta_pagar": falta_por_pagar(get_db(), codigo),
+                        "pide_docs": sorted(set(pedidos)),
+                        "docs_enviados": get_db().execute(
+                            "SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='recibido' AND usuario='cliente'", (codigo,)).fetchone()[0],
+                        "docs_nombres": sorted(enviados)})
     demo = catalogo()["rastreo_demo"].get(codigo)
     if demo:
         return jsonify({"ok": True, "codigo": codigo, **demo, "demo": True})
@@ -809,6 +829,51 @@ def api_pago_whatsapp(codigo: str):
                              f"{sol['nombre']} · {codigo}", codigo,
                              ["El cliente avisó desde la página que enviará el pago y el comprobante por WhatsApp."])
     return jsonify({"ok": True})
+
+
+@app.post("/api/rastreo/<codigo>/documento")
+def api_documento_cliente(codigo: str):
+    """El cliente sube un documento que le pedimos (cédula, acta, pasaporte…). Llega a «Documentos recibidos»."""
+    if limitar("documento", 12, 3600):
+        return error("Ya recibimos varios documentos. Si falta alguno, escríbenos por WhatsApp.", 429)
+    codigo = codigo.strip().upper()[:12]
+    db = get_db()
+    sol = db.execute("SELECT o.contacto, o.nombre FROM solicitudes o JOIN seguimiento s ON s.codigo = o.codigo"
+                     " WHERE o.codigo=? AND s.eliminado IS NULL", (codigo,)).fetchone()
+    if not sol or not contacto_coincide(sol["contacto"], request.form.get("dato", "")):
+        return error("Los datos no coinciden con este expediente.", 403)
+    f = request.files.get("archivo")
+    if not f:
+        return error("Elige la foto o el PDF del documento.")
+    if len(archivos_de(db, codigo, "recibido")) >= MAX_ARCHIVOS_CODIGO:
+        return error("Este expediente ya tiene muchos documentos. Escríbenos por WhatsApp.")
+    nombre = re.sub(r"[^\w.\- ()áéíóúñÁÉÍÓÚÑ]", "_", Path(f.filename or "documento").name)[:100] or "documento"
+    ext = Path(nombre).suffix.lower()
+    if ext not in TIPOS_ARCHIVO:
+        return error("Sube una foto (JPG, PNG o WEBP) o un PDF.")
+    datos = f.read(MAX_ARCHIVO + 1)
+    if len(datos) > MAX_ARCHIVO:
+        return error("El archivo pesa más de 10 MB.")
+    if not _es_tipo_real(datos[:16], ext):
+        return error("El archivo no parece una foto o un PDF válido.")
+    cual = str(request.form.get("cual", "")).strip()[:80]
+    carpeta = carpeta_archivos() / codigo
+    carpeta.mkdir(parents=True, exist_ok=True)
+    guardado = f"cliente-{secrets.token_hex(10)}{ext}"
+    (carpeta / guardado).write_bytes(datos)
+    db.execute("INSERT INTO archivos (codigo, nombre, archivo, tipo, tamano, creado, usuario, clase, estado, nota)"
+               " VALUES (?,?,?,?,?,?,?,?,?,?)",
+               (codigo, nombre, f"{codigo}/{guardado}", TIPOS_ARCHIVO[ext], len(datos), ahora(), "cliente", "recibido", "nuevo", cual or None))
+    db.execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
+               ("cliente", "Envió un documento desde la página", codigo, cual or nombre, ahora()))
+    titulo = f"Documento del cliente: {cual or nombre}"
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+               ("recibido", titulo[:200], f"{sol['nombre']} · {codigo}"[:200], codigo, ahora(), None))
+    db.commit()
+    avisar_equipo_correo(db, lambda perms: bool({"expedientes", "pagos", "validar_pagos", "usuarios"} & perms), titulo,
+                         f"{sol['nombre']} · {codigo}", codigo,
+                         ["El cliente subió un documento desde la página. Está en «Documentos recibidos» del expediente, listo para revisar."])
+    return jsonify({"ok": True}), 201
 
 
 @app.post("/api/rastreo/<codigo>/comprobante")
@@ -1057,7 +1122,7 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["correo_cliente"] = avisos.correo_de(d.get("contacto"))
     d["archivos"] = [{k: a[k] for k in ("id", "nombre", "tipo", "tamano", "creado", "usuario")} | {"enlace": enlace_descarga(a["id"])}
                      for a in archivos_de(db, d["codigo"])]
-    d["recibidos"] = [{k: a[k] for k in ("id", "nombre", "tipo", "tamano", "creado", "usuario", "estado", "revisado_por", "motivo")}
+    d["recibidos"] = [{k: a[k] for k in ("id", "nombre", "tipo", "tamano", "creado", "usuario", "estado", "revisado_por", "motivo", "nota")}
                       for a in archivos_de(db, d["codigo"], "recibido")]
     d["correos"] = [dict(r) for r in db.execute(
         "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
@@ -1768,9 +1833,10 @@ def admin_archivo():
             return error(f"«{nombre}» no parece un {ext[1:].upper()} válido.")
         guardado = f"{secrets.token_hex(12)}{ext}"
         (carpeta / guardado).write_bytes(datos)
-        db.execute("INSERT INTO archivos (codigo, nombre, archivo, tipo, tamano, creado, usuario, clase, estado) VALUES (?,?,?,?,?,?,?,?,?)",
+        db.execute("INSERT INTO archivos (codigo, nombre, archivo, tipo, tamano, creado, usuario, clase, estado, nota)"
+                   " VALUES (?,?,?,?,?,?,?,?,?,?)",
                    (codigo, nombre, f"{codigo}/{guardado}", TIPOS_ARCHIVO[ext], len(datos), ahora(), usuario_actual()["usuario"],
-                    clase, "nuevo" if clase == "recibido" else ""))
+                    clase, "nuevo" if clase == "recibido" else "", str(request.form.get("cual", "")).strip()[:80] or None))
         nombres.append(nombre)
     yo = usuario_actual()
     registrar("Subió documentos para entregar" if clase == "entrega" else "Subió documentos recibidos del cliente", codigo, ", ".join(nombres))

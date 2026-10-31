@@ -890,3 +890,46 @@ def test_cliente_pagado_no_ve_que_subir_comprobante(client, monkeypatch):
     client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": total / 2, "metodo": "Efectivo", "whatsapp": True})
     v = client.get(f"/api/rastreo/{codigo}").json
     assert v["pago"] == "confirmado" and v["falta_pagar"] is False
+
+
+def test_cliente_sube_documentos_pedidos(client, monkeypatch, tmp_path):
+    import io
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    monkeypatch.setenv("TF_ARCHIVOS", str(tmp_path / "archivos"))
+    codigo = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                                 "pais": "us", "servicio": "residencia_dominicana", "acepta": True}).json["codigo"]
+    # el cliente ve qué documentos le pedimos
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["pide_docs"] and any("Pasaporte" in x for x in v["pide_docs"]) and v["docs_enviados"] == 0
+    assert v["items"][0]["docs"][0]["recibido"] is False
+    # sin confirmar sus datos no puede subir nada
+    assert client.post(f"/api/rastreo/{codigo}/documento", data={"dato": "0000", "archivo": (io.BytesIO(PDF), "cedula.pdf")},
+                       content_type="multipart/form-data").status_code == 403
+    assert client.post(f"/api/rastreo/{codigo}/documento", data={"dato": "1234", "archivo": (io.BytesIO(b"x"), "virus.exe")},
+                       content_type="multipart/form-data").status_code == 400
+    r = client.post(f"/api/rastreo/{codigo}/documento", data={"dato": "1234", "cual": "Acta de nacimiento apostillada",
+                    "archivo": (io.BytesIO(PDF), "acta.pdf")}, content_type="multipart/form-data")
+    assert r.status_code == 201
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["docs_enviados"] == 1 and v["docs_nombres"] == ["Acta de nacimiento apostillada"]
+    # el cliente ve que ya lo mandó, aunque el equipo no lo haya marcado todavía
+    acta = next(d for d in v["items"][0]["docs"] if d["nombre"] == "Acta de nacimiento apostillada")
+    assert acta["enviado"] is True and acta["recibido"] is False
+    assert "Acta de nacimiento apostillada" in v["pide_docs"]
+    # el equipo lo ve junto a los suyos, sabiendo quién subió cada uno
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    client.post("/api/admin/archivo", data={"codigo": codigo, "clase": "recibido", "cual": "Cédula",
+                "archivo": (io.BytesIO(PDF), "cedula.pdf")}, content_type="multipart/form-data")
+    e = next(x for x in client.get("/api/admin/expedientes").json["expedientes"] if x["codigo"] == codigo)
+    assert [(r["usuario"], r["nota"]) for r in e["recibidos"]] == [("cliente", "Acta de nacimiento apostillada"), ("admin", "Cédula")]
+    assert all(r["estado"] == "nuevo" for r in e["recibidos"])
+    assert client.get("/api/admin/avisos").json["avisos"][-1]["tipo"] in ("solicitud", "recibido")
+    # el cliente no puede descargarlos: son internos
+    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"}).json["archivos"] == []
+    # al marcar el documento como recibido, deja de pedírsele
+    tid = e["tramites"][0]["id"]
+    client.post("/api/admin/docs", json={"codigo": codigo, "tramite": tid, "docs": ["Acta de nacimiento apostillada"]})
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert "Acta de nacimiento apostillada" not in v["pide_docs"]
+    assert [d for d in v["items"][0]["docs"] if d["recibido"]][0]["nombre"] == "Acta de nacimiento apostillada"
