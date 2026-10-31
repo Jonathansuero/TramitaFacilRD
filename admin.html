@@ -690,6 +690,21 @@
         .pago-alerta.wa { background: #F0FDF4; border-color: #A7F3D0; color: #065F46; }
         .pago-alerta.wa b { color: #065F46; }
         .check-wa { grid-column: 1 / -1; display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 600; color: #166534; background: #F0FDF4; border: 1px solid #A7F3D0; border-radius: 10px; padding: 8px 10px; }
+
+        /* trabajar con un solo cliente · bloques que se abren si se piden */
+        .enfocado .cabecera, .enfocado #filtros, .enfocado .buscar, .enfocado .barra-lista, .enfocado #avisoNuevas, .enfocado #masFiltros { display: none !important; }
+        .volver-lista { width: 100%; background: #fff; border: 1px solid var(--borde); border-radius: 12px; padding: 11px 14px; text-align: left; font-weight: 700; font-size: 14px; color: var(--azul); margin-bottom: 10px; }
+        .volver-lista:hover { background: #F8FAFC; border-color: #CBD5E1; }
+        .enfocado .exp { border-color: #C9DAF2; }
+        .bloque.pleg { padding: 0; overflow: hidden; }
+        .pleg-t { width: 100%; background: none; border: 0; padding: 11px 14px; text-align: left; cursor: pointer; }
+        .pleg-t:hover { background: #F8FAFC; }
+        .pleg-r { display: inline-flex; align-items: center; gap: 8px; text-transform: none; letter-spacing: 0; }
+        .pleg-ojo { color: var(--rojo); font-weight: 800; }
+        .pleg-f { font-style: normal; color: var(--suave-2); transition: transform .18s; }
+        .bloque.pleg.abierto .pleg-f { transform: rotate(180deg); }
+        .pleg-c { padding: 0 14px 14px; display: grid; gap: 12px; }
+        .bloque.pleg.abierto .pleg-t { border-bottom: 1px solid #F1F5F9; }
     </style>
 </head>
 <body>

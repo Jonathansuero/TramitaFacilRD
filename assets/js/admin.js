@@ -84,7 +84,8 @@
     let precios = null, preciosQ = '', preciosCat = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
     const recien = new Set();        // solicitudes que acaban de llegar (se resaltan unos segundos)
-    let borrando = null, avisandoEquipo = null;
+    let borrando = null, avisandoEquipo = null, enfocado = null;   // enfocado: se trabaja un solo cliente, sin el resto de la lista
+    const desplegados = new Set();   // bloques abiertos dentro de un expediente («código:bloque»)
     const porSubir = new Map();      // «código|clase» -> archivos elegidos que todavía no se han guardado
     const llaveSubir = (codigo, clase) => `${codigo}|${clase}`;
     const agregando = new Set();     // códigos con el formulario «Agregar otro trámite» abierto             // código con la confirmación de «Eliminar cliente» abierta
@@ -353,7 +354,7 @@
         window.scrollTo({ top: 0 });
     }
     function verExpediente(codigo) {
-        filtro.paso = 0; filtro.detenidos = false; $('q').value = codigo; abiertos.add(codigo);
+        filtro.paso = 0; filtro.detenidos = false; $('q').value = ''; abiertos.add(codigo); enfocado = codigo;
         irATab('exp');
     }
 
@@ -432,24 +433,23 @@
         const email = e.correo_cliente, tel = telefono(e.contacto), gestiona = puede('expedientes');
         const ultimo = (e.correos || []).find(c => c.tipo === 'aviso' || c.tipo === 'estado');
         const listo = (e.tramites || []).length > 0 && e.tramites.every(t => t.paso === 4);
-        return `<div class="bloque avisar${listo ? ' listo' : ''}">
-            <div class="bloque-t"><span>${ico(listo ? 'ok' : 'campana')} ${listo ? 'Avisar que está listo' : 'Avisar al cliente'}</span>${ultimo ? `<span>último correo: ${esc(fecha(ultimo.fecha))}</span>` : ''}</div>
+        return plegable(e, 'avisar', listo ? 'ok' : 'campana', listo ? 'Avisar que está listo' : 'Avisar al cliente',
+            ultimo ? `último: ${esc(fecha(ultimo.fecha))}` : '', () => `
             <div class="avisar-btns">
                 ${gestiona ? `<button type="button" class="btn btn-azul" data-avisar-correo="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>
                     ${ico('correo', 18)}<span>Enviar por correo<small>${esc(email || 'Sin correo registrado')}</small></span></button>` : ''}
                 <a class="btn btn-wa" href="${listo ? linkListo(e) : linkWhatsApp(e)}" target="_blank" rel="noopener"${tel ? '' : ' aria-disabled="true"'}>
                     ${ico('chat', 18)}<span>Enviar por WhatsApp<small>${tel ? '+' + esc(tel) : 'Sin WhatsApp registrado'}</small></span></a>
             </div>
-            <small class="ayuda">${listo ? `Le avisa que su trámite está listo, con su número de seguimiento ${esc(e.codigo)}${(e.archivos || []).length ? ' y los enlaces de sus documentos' : ''}.` : `Le envía el estado actual de todos sus trámites con su número de seguimiento ${esc(e.codigo)}.`} Es opcional: úsalo solo cuando quieras avisar.${email && !correoActivo && gestiona ? ' El correo aún no está activado en el servidor (tramita correo).' : ''}</small>
-        </div>`;
+            <small class="ayuda">${listo ? `Le avisa que su trámite está listo, con su número de seguimiento ${esc(e.codigo)}${(e.archivos || []).length ? ' y los enlaces de sus documentos' : ''}.` : `Le envía el estado actual de todos sus trámites con su número de seguimiento ${esc(e.codigo)}.`} Es opcional: úsalo solo cuando quieras avisar.${email && !correoActivo && gestiona ? ' El correo aún no está activado en el servidor (tramita correo).' : ''}</small>`);
     }
 
     function bloqueEntrega(e) {
         const arch = e.archivos || [], hayListo = (e.tramites || []).some(t => t.paso === 4);
         if (!hayListo && !arch.length) return '';
         const email = e.correo_cliente, gestiona = puede('expedientes');
-        return `<div class="bloque entrega">
-            <div class="bloque-t"><span>${ico('entrega')} Documentos para entregar</span><span>${arch.length} ${arch.length === 1 ? 'archivo' : 'archivos'}</span></div>
+        return plegable(e, 'entrega', 'entrega', 'Documentos para entregar',
+            arch.length ? `${arch.length}` : '<b class="pleg-ojo">falta subirlos</b>', () => `
             ${arch.length ? `<ul class="archivos">${arch.map(a => `<li>
                 <span class="ar-tipo ${a.tipo === 'application/pdf' ? 'pdf' : 'img'}">${a.tipo === 'application/pdf' ? 'PDF' : 'IMG'}</span>
                 <span class="ar-t"><a href="/api/admin/archivo/${a.id}" target="_blank" rel="noopener">${esc(a.nombre)}</a><small>${esc(peso(a.tamano))} · ${esc(fecha(a.creado))}${a.usuario ? ` · ${esc(a.usuario)}` : ''}</small></span>
@@ -461,8 +461,8 @@
                 ${gestiona ? `<button type="button" class="btn btn-azul btn-sm" data-enviar-docs="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>${ico('correo')} Enviar por correo</button>` : ''}
                 <a class="btn btn-wa btn-sm" href="${linkEntrega(e)}" target="_blank" rel="noopener">${ico('chat')} Enviar por WhatsApp</a>
             </div>
-            <small class="ayuda">${!email ? 'El cliente no tiene correo registrado. ' : !correoActivo ? 'El envío de correos aún no está activado en el servidor (tramita correo). ' : `El correo se enviaría a ${esc(email)} con los documentos adjuntos. `}Para descargarlos en Rastrear, el cliente confirma los últimos 4 dígitos de su WhatsApp o su correo.</small>` : ''}
-        </div>`;
+            <small class="ayuda">${!email ? 'El cliente no tiene correo registrado. ' : !correoActivo ? 'El envío de correos aún no está activado en el servidor (tramita correo). ' : `El correo se enviaría a ${esc(email)} con los documentos adjuntos. `}Para descargarlos en Rastrear, el cliente confirma los últimos 4 dígitos de su WhatsApp o su correo.</small>` : ''}`,
+            hayListo && !arch.length);
     }
 
     /** Zona de subida compartida: elegir archivos, quitarlos de la lista y guardarlos. */
@@ -490,8 +490,8 @@
     function bloqueRecibidos(e) {
         if (!puede('expedientes') && !puede('pagos')) return '';
         const lista = e.recibidos || [], sinRev = recSinRevisar(e).length;
-        return `<div class="bloque recibidos">
-            <div class="bloque-t"><span>${ico('clip')} Documentos recibidos</span><span>${sinRev ? `${sinRev} sin revisar` : (lista.length ? `${lista.length} ${lista.length === 1 ? 'archivo' : 'archivos'}` : '')}</span></div>
+        return plegable(e, 'recibidos', 'clip', 'Documentos recibidos',
+            sinRev ? `<b class="pleg-ojo">${sinRev} sin revisar</b>` : (lista.length ? `${lista.length}` : ''), () => `
             ${lista.length ? `<ul class="archivos">${lista.map(a => { const [n, k] = EST_REC[a.estado] || [a.estado, ''];
                 return `<li class="rec ${k}">
                 <span class="ar-tipo ${a.tipo === 'application/pdf' ? 'pdf' : 'img'}">${a.tipo === 'application/pdf' ? 'PDF' : 'IMG'}</span>
@@ -504,10 +504,9 @@
             </li>`; }).join('')}</ul>` : '<p class="ayuda">Guarda aquí lo que te manda el cliente por WhatsApp o correo (cédula, pasaporte, comprobante de pago…). Todo el equipo lo ve y quien confirma puede validarlo.</p>'}
             ${bloqueSubida(e, 'recibido', lista.length, 'Al guardar, el equipo recibe un aviso para revisarlos. El cliente no los ve.')}
             ${sinRev && !puedeValidar() ? `<small class="ayuda">${ico('campana', 14)} Ya avisamos a quien confirma los pagos y documentos.</small>` : ''}
-            ${bloqueAvisar(e)}
-        </div>`;
+            ${bloqueAvisarEquipo(e)}`, !!sinRev);
     }
-    function bloqueAvisar(e) {
+    function bloqueAvisarEquipo(e) {
         if (avisandoEquipo !== e.codigo) return `<button type="button" class="link avisar-abrir" data-avisar-equipo="${esc(e.codigo)}">${ico('campana', 14)} Avisar al equipo sobre este expediente</button>`;
         return `<form class="avisar-equipo" data-codigo="${esc(e.codigo)}">
             <label class="campo" for="ae-${esc(e.codigo)}">Aviso para el equipo</label>
@@ -520,6 +519,17 @@
                 <button class="btn btn-borde btn-sm" type="button" data-cancelar-avisar>Cancelar</button></div>
             <small class="ayuda">Les llega al panel y, si tienen las notificaciones activadas, al teléfono aunque la app esté cerrada.</small>
         </form>`;
+    }
+
+    /** Bloque que empieza cerrado: se abre solo cuando se pide (menos ruido en pantalla). */
+    function plegable(e, nombre, icono, titulo, resumen, contenido, abrirSiempre) {
+        const k = `${e.codigo}:${nombre}`, abierto = abrirSiempre || desplegados.has(k);
+        return `<div class="bloque pleg${abierto ? ' abierto' : ''}">
+            <button type="button" class="bloque-t pleg-t" data-plegable="${esc(k)}" aria-expanded="${abierto}">
+                <span>${ico(icono)} ${esc(titulo)}</span><span class="pleg-r">${resumen}<i class="pleg-f" aria-hidden="true">▾</i></span>
+            </button>
+            ${abierto ? `<div class="pleg-c">${contenido()}</div>` : ''}
+        </div>`;
     }
 
     function bloqueDocs(e, t) {
@@ -625,8 +635,9 @@
         const pct = total ? Math.min(100, Math.round(pagado / total * 100)) : 0;
         const tipo = !pagado ? 'anticipo' : 'saldo';
         const sugerido = total == null ? '' : (tipo === 'anticipo' ? Math.round(total / 2) : e.pendiente || '');
-        return `<div class="bloque">
-            <div class="bloque-t"><span>${ico('cash')} Cobro 50% / 50%</span><span>${total ? `${pct}% cobrado` : ''}</span></div>
+        const urgente = e.por_confirmar > 0 || compNuevos(e).length > 0;
+        const resumen = total == null ? 'sin precio' : e.pendiente > 0 ? `faltan ${esc(rd(e.pendiente))}` : 'cobrado';
+        return plegable(e, 'cobro', 'cash', 'Cobro 50% / 50%', resumen, () => `
             <div class="cobro-nums">
                 <div><small>Total</small><b>${esc(rd(total))}</b></div>
                 <div class="ok"><small>Recibido</small><b>${esc(rd(pagado))}</b></div>
@@ -645,21 +656,18 @@
                 <input class="input" name="fecha" type="date" value="${hoyRD()}" aria-label="Fecha del pago">
                 <label class="check-wa"><input type="checkbox" name="whatsapp"${e.pago_wa ? ' checked' : ''}> ${ico('chat', 14)} El comprobante llegó por WhatsApp</label>
                 <button class="btn btn-borde btn-sm" type="submit">Registrar</button>
-            </form>`}
-        </div>`;
+            </form>`}`, urgente);
     }
 
     function bloqueNotas(e) {
         const notas = e.notas || [];
-        return `<div class="bloque">
-            <div class="bloque-t"><span>${ico('nota')} Notas internas</span><span style="text-transform:none;letter-spacing:0">el cliente no las ve</span></div>
+        return plegable(e, 'notas', 'nota', 'Notas internas', notas.length ? `${notas.length}` : '', () => `
             ${notas.length ? `<ul class="filas">${notas.map(n => `<li><span>${esc(n.texto)}<br><small>${esc(fecha(n.creado))}</small></span>
                 <button type="button" class="x" data-quitar-nota="${n.id}" data-codigo="${esc(e.codigo)}" title="Borrar nota" aria-label="Borrar nota">×</button></li>`).join('')}</ul>` : ''}
             <form class="form-nota" data-codigo="${esc(e.codigo)}">
                 <input class="input" name="texto" maxlength="1000" placeholder="Ej.: Falta copia de cédula · Cita el martes 10 am" required>
                 <button class="btn btn-borde btn-sm" type="submit">Guardar</button>
-            </form>
-        </div>`;
+            </form>`);
     }
 
     /** Separa «+1 809… · correo@…» en WhatsApp y correo. */
@@ -738,14 +746,12 @@
                     ${puede('expedientes') ? `<div style="margin-top:12px">${bloqueDatosCliente(e)}</div>` : ''}
                 </details>
                 ${bloqueHistorial(e)}
-                <div class="bloque">
-                    <div class="bloque-t"><span>${ico('chat')} Mensajes rápidos por WhatsApp</span></div>
+                ${plegable(e, 'rapidos', 'chat', 'Mensajes rápidos por WhatsApp', '', () => `
                     <div class="rapidos">
                         <a href="${linkDocs(e)}" target="_blank" rel="noopener">${ico('clip', 14)} Pedir documentos</a>
                         ${puede('pagos') ? `<a href="${linkPago(e)}" target="_blank" rel="noopener">${ico('cash', 14)} Recordar pago</a>` : ''}
                         <a href="${linkListo(e)}" target="_blank" rel="noopener">${ico('ok', 14)} Trámite listo</a>
-                    </div>
-                </div>
+                    </div>`)}
                 <div class="acciones">
                     <button class="btn btn-borde" type="button" data-copiar="${esc(e.codigo)}">Copiar código</button>
                 </div>
@@ -773,6 +779,13 @@
     }
 
     function pintar() {
+        if (enfocado && !expedientes.some(e => e.codigo === enfocado)) enfocado = null;
+        $('tExp').classList.toggle('enfocado', !!enfocado);
+        if (enfocado) {
+            const e = expedientes.find(x => x.codigo === enfocado);
+            $('lista').innerHTML = `<button type="button" class="volver-lista" data-volver-lista>← Volver a todos los expedientes</button>${tarjeta(e)}`;
+            return;
+        }
         pintarFiltros();
         const lista = filtrados();
         $('mostrando').textContent = expedientes.length ? `Mostrando ${lista.length} de ${expedientes.length}` : '';
@@ -1352,6 +1365,7 @@
         animarMapa = false;
     }
     function irAExpedientes(cambios) {
+        enfocado = null;
         Object.assign(filtro, { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' }, cambios);
         [['fServicio', 'servicio'], ['fPais', 'pais'], ['fOrigen', 'origen'], ['fCobro', 'cobro'], ['fDesde', 'desde'], ['fHasta', 'hasta']].forEach(([id, k]) => { $(id).value = filtro[k]; });
         $('q').value = '';
@@ -1589,7 +1603,7 @@
 
     $('btnSalir').addEventListener('click', async () => {
         try { await post('/admin/logout', {}); } catch (e) { /* igual salimos */ }
-        expedientes = []; precios = null; usuariosData = null; zafaconData = null; borrando = null; avisandoEquipo = null; porSubir.clear(); registroData = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
+        expedientes = []; precios = null; usuariosData = null; zafaconData = null; borrando = null; avisandoEquipo = null; enfocado = null; desplegados.clear(); porSubir.clear(); registroData = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
     });
 
     $('tabs').addEventListener('click', ev => { const b = ev.target.closest('[data-tab]'); if (b) irATab(b.dataset.tab); });
@@ -1690,12 +1704,16 @@
     }
 
     $('lista').addEventListener('click', async ev => {
+        if (ev.target.closest('[data-volver-lista]')) { abiertos.delete(enfocado); enfocado = null; pintar(); window.scrollTo({ top: 0 }); return; }
         const cab = ev.target.closest('.exp-cab');
         if (cab) {
             const c = cab.closest('.exp').dataset.codigo;
-            abiertos.has(c) ? abiertos.delete(c) : abiertos.add(c);
-            pintar(); return;
+            if (enfocado === c) { abiertos.delete(c); enfocado = null; }     // tocar otra vez el nombre: vuelve a la lista
+            else { abiertos.add(c); enfocado = c; }
+            pintar(); window.scrollTo({ top: 0 }); return;
         }
+        const pl = ev.target.closest('[data-plegable]');
+        if (pl) { const k = pl.dataset.plegable; desplegados.has(k) ? desplegados.delete(k) : desplegados.add(k); pintar(); return; }
         const ec = ev.target.closest('[data-editar-cliente]');
         if (ec) { editandoCliente.add(ec.dataset.editarCliente); pintar(); const i = document.getElementById('cw-' + ec.dataset.editarCliente); if (i) i.focus(); return; }
         const cc = ev.target.closest('[data-cancelar-cliente]');

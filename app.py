@@ -712,7 +712,7 @@ def api_rastreo(codigo: str):
                         "step": row["paso"], "statusText": row["estado"], "detail": row["detalle"],
                         "tone": TONO_POR_PASO.get(row["paso"], "sky"), "updated": row["actualizado"], "items": items,
                         "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='entrega'", (codigo,)).fetchone()[0],
-                        **estado_pago_cliente(get_db(), codigo)})
+                        **estado_pago_cliente(get_db(), codigo), "falta_pagar": falta_por_pagar(get_db(), codigo)})
     demo = catalogo()["rastreo_demo"].get(codigo)
     if demo:
         return jsonify({"ok": True, "codigo": codigo, **demo, "demo": True})
@@ -737,6 +737,15 @@ def estado_pago_cliente(db: sqlite3.Connection, codigo: str) -> dict:
     if confirmados:
         return {"pago": "confirmado", "pago_motivo": ""}
     return {"pago": None, "pago_motivo": ""}
+
+
+def falta_por_pagar(db: sqlite3.Connection, codigo: str) -> bool:
+    """¿Al cliente todavía le queda saldo? Si no, ya no se le pide otro comprobante."""
+    total = db.execute("SELECT SUM(precio) FROM tramites WHERE codigo=?", (codigo,)).fetchone()[0]
+    if total is None:
+        return True   # sin precio no se sabe: se deja la opción abierta
+    pagado = db.execute("SELECT COALESCE(SUM(monto), 0) FROM pagos WHERE codigo=? AND estado='confirmado'", (codigo,)).fetchone()[0]
+    return pagado < total
 
 
 @app.post("/api/rastreo/<codigo>/archivos")
