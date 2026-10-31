@@ -266,6 +266,7 @@ CREATE TABLE IF NOT EXISTS archivos (
 CREATE INDEX IF NOT EXISTS idx_archivos_codigo ON archivos (codigo);
 CREATE TABLE IF NOT EXISTS avisos (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    usuario TEXT,
     tipo TEXT NOT NULL,
     titulo TEXT NOT NULL,
     detalle TEXT,
@@ -360,6 +361,8 @@ def migrar(db: sqlite3.Connection) -> None:
     for col in ("registrado_por", "validado_por", "validado_en", "motivo"):
         if col not in cols_p:
             db.execute(f"ALTER TABLE pagos ADD COLUMN {col} TEXT")
+    if "usuario" not in {r[1] for r in db.execute("PRAGMA table_info(avisos)")}:
+        db.execute("ALTER TABLE avisos ADD COLUMN usuario TEXT")   # quién lo provocó (no se le avisa a sí mismo)
     cols_a = {r[1] for r in db.execute("PRAGMA table_info(archivos)")}
     if "clase" not in cols_a:   # los de antes eran todos para entregar al cliente
         db.execute("ALTER TABLE archivos ADD COLUMN clase TEXT NOT NULL DEFAULT 'entrega'")
@@ -526,8 +529,8 @@ def notificar_solicitud(datos: dict) -> None:
     """Solicitud nueva: queda un aviso en el panel (campana) y llega un correo al equipo."""
     db = get_db()
     titulo = f"Nueva solicitud: {datos['servicio_titulo']}"
-    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
-               ("solicitud", titulo[:200], f"{datos['nombre']} · {datos['pais']}"[:200], datos["codigo"], ahora()))
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+               ("solicitud", titulo[:200], f"{datos['nombre']} · {datos['pais']}"[:200], datos["codigo"], ahora(), None))
     db.commit()
     notificar_push(db, lambda perms: "expedientes" in perms, titulo, f"{datos['nombre']} · {datos['pais']} · {datos['codigo']}", datos["codigo"])
     para = correos_equipo(db)
@@ -789,8 +792,8 @@ def api_comprobante(codigo: str):
     db.execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
                ("cliente", "Envió un comprobante de pago", codigo, f"{simbolo}{monto:,.2f} · {metodo}", ahora()))
     titulo = f"Comprobante del cliente: {simbolo}{monto:,.2f}"
-    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
-               ("comprobante", titulo, f"{sol['nombre']} · {metodo}"[:200], codigo, ahora()))
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+               ("comprobante", titulo, f"{sol['nombre']} · {metodo}"[:200], codigo, ahora(), None))
     db.commit()
     quien_cobra = lambda perms: bool({"pagos", "validar_pagos", "usuarios"} & perms)
     notificar_push(db, quien_cobra, titulo, f"{sol['nombre']} · {metodo} · {codigo}", codigo)
@@ -1305,8 +1308,8 @@ def avisar_cambio_estado(db: sqlite3.Connection, codigo: str, titulo: str, paso:
     yo = usuario_actual()
     sol = db.execute("SELECT nombre FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
     cliente = sol["nombre"] if sol else codigo
-    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
-               ("estado", f"{yo['nombre']} movió un trámite a «{PASOS[paso]}»"[:200], f"{cliente} · {titulo}"[:200], codigo, ahora()))
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+               ("estado", f"{yo['nombre']} movió un trámite a «{PASOS[paso]}»"[:200], f"{cliente} · {titulo}"[:200], codigo, ahora(), yo["usuario"]))
     db.commit()
     duenos = [r["id"] for r in db.execute("SELECT id, permisos FROM usuarios WHERE activo=1")
               if set(PERMISOS) <= set(_permisos(r["permisos"])) and r["id"] != yo["id"]]
@@ -1552,8 +1555,8 @@ def avisar_pago_por_confirmar(db: sqlite3.Connection, codigo: str, monto: float,
     sol = db.execute("SELECT nombre FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
     nombre = sol["nombre"] if sol else codigo
     titulo = f"Pago por confirmar: RD${monto:,.2f}"
-    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
-               ("pago", titulo, f"{nombre} · {metodo or 'sin método'} · registró {quien}"[:200], codigo, ahora()))
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+               ("pago", titulo, f"{nombre} · {metodo or 'sin método'} · registró {quien}"[:200], codigo, ahora(), usuario_actual()["usuario"] if usuario_actual() else None))
     db.commit()
     notificar_push(db, lambda perms: bool({"validar_pagos", "usuarios"} & perms), titulo, f"{nombre} · {codigo} · registró {quien}", codigo)
     para = correos_validadores(db)
@@ -1709,8 +1712,8 @@ def admin_archivo():
         sol = db.execute("SELECT nombre FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
         cliente = sol["nombre"] if sol else codigo
         titulo = f"Documento recibido: {nombres[0]}" + (f" y {len(nombres) - 1} más" if len(nombres) > 1 else "")
-        db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
-                   ("recibido", titulo[:200], f"{cliente} · lo subió {yo['nombre']}"[:200], codigo, ahora()))
+        db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+                   ("recibido", titulo[:200], f"{cliente} · lo subió {yo['nombre']}"[:200], codigo, ahora(), yo["usuario"]))
         db.commit()
         avisar_equipo_correo(db, lambda perms: bool({"pagos", "validar_pagos", "usuarios"} & perms), titulo,
                              f"{cliente} · {codigo} · lo subió {yo['nombre']}", codigo,
@@ -1815,8 +1818,8 @@ def admin_avisar_equipo():
     sol = db.execute("SELECT nombre FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
     cliente = sol["nombre"] if sol else codigo
     titulo = f"Aviso de {yo['nombre']}: {texto}"[:120]
-    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
-               ("equipo" if not solo_confirman else "recibido", titulo[:200], f"{cliente} · {codigo}"[:200], codigo, ahora()))
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+               ("equipo" if not solo_confirman else "recibido", titulo[:200], f"{cliente} · {codigo}"[:200], codigo, ahora(), yo["usuario"]))
     registrar("Avisó al equipo", codigo, texto)
     db.commit()
     avisar_equipo_correo(db, a_quien, titulo, f"{cliente} · {codigo}", codigo,
@@ -2064,7 +2067,8 @@ def admin_avisos():
     db = get_db()
     visto = db.execute("SELECT avisos_visto FROM usuarios WHERE id=?", (usuario_actual()["id"],)).fetchone()[0]
     marcas = ",".join("?" * len(tipos))
-    lista = [dict(r) | {"nuevo": r["id"] > visto} for r in db.execute(
+    mio = usuario_actual()["usuario"]
+    lista = [dict(r) | {"nuevo": r["id"] > visto, "propio": r["usuario"] == mio} for r in db.execute(
         f"SELECT a.* FROM avisos a LEFT JOIN seguimiento s ON s.codigo = a.codigo WHERE s.eliminado IS NULL AND a.tipo IN ({marcas})"
         " ORDER BY a.id DESC LIMIT 30", tipos)]
     sin_leer = db.execute(f"SELECT COUNT(*) FROM avisos WHERE id>? AND tipo IN ({marcas})", (visto, *tipos)).fetchone()[0]

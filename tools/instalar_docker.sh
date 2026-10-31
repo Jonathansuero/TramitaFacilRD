@@ -159,6 +159,17 @@ chmod +x /usr/local/bin/tramita
 printf '#!/bin/sh\n/usr/local/bin/tramita respaldo >/dev/null 2>&1\n' > /etc/cron.daily/tramitafacil-respaldo
 chmod +x /etc/cron.daily/tramitafacil-respaldo
 
+# nginx-proxy corta las subidas de más de 1 MB por omisión: una foto de comprobante o un
+# acta escaneada no pasa. Se sube el límite SOLO para este dominio (no toca las otras páginas).
+if docker exec "$PROXY" sh -c '[ -d /etc/nginx/vhost.d ]' 2>/dev/null; then
+  for h in "$DOMINIO" "www.$DOMINIO"; do
+    docker exec "$PROXY" sh -c "grep -q client_max_body_size /etc/nginx/vhost.d/$h 2>/dev/null || echo 'client_max_body_size 25m;' >> /etc/nginx/vhost.d/$h" 2>/dev/null || true
+  done
+  if docker exec "$PROXY" nginx -t >/dev/null 2>&1; then
+    docker exec "$PROXY" nginx -s reload >/dev/null 2>&1 && echo "  Subidas de hasta 25 MB habilitadas para $DOMINIO."
+  fi
+fi
+
 paso "5/5 Encendiendo TramitaFácil"
 tramita arrancar >/dev/null
 for i in $(seq 1 20); do

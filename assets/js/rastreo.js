@@ -89,14 +89,15 @@
         const falta = !archivo ? t('track.comp.e.archivo') : !(monto > 0) ? t('track.comp.e.monto') : !dato ? t('track.docs.aria') : '';
         if (falta) { err.textContent = falta; err.classList.remove('hidden'); restart(err, 'shake'); return; }
         if (archivo.size > 10 * 1024 * 1024) { err.textContent = t('track.comp.e.peso'); err.classList.remove('hidden'); return; }
-        const fd = new FormData();
-        fd.append('archivo', archivo, archivo.name); fd.append('monto', String(monto)); fd.append('moneda', $('trackCompMoneda').value);
-        fd.append('metodo', $('trackCompMetodo').value); fd.append('dato', dato); fd.append('nota', $('trackCompNota').value.trim());
         btn.disabled = true; btn.textContent = t('track.comp.enviando'); err.classList.add('hidden');
         try {
+            const chico = await window.TF_IMAGEN.achicar(archivo);
+            const fd = new FormData();
+            fd.append('archivo', chico, chico.name); fd.append('monto', String(monto)); fd.append('moneda', $('trackCompMoneda').value);
+            fd.append('metodo', $('trackCompMetodo').value); fd.append('dato', dato); fd.append('nota', $('trackCompNota').value.trim());
             const r = await fetch('/api/rastreo/' + encodeURIComponent(code) + '/comprobante', { method: 'POST', body: fd });
             const j = await r.json().catch(() => ({}));
-            if (!r.ok || j.ok === false) throw Object.assign(new Error(j.error || 'Error'), { status: r.status });
+            if (!r.ok || j.ok === false) throw Object.assign(new Error(window.TF_IMAGEN.errorSubida(r.status, j)), { status: r.status });
             $('trackCompForm').classList.add('hidden'); $('trackCompOk').classList.remove('hidden'); $('trackCompForm').reset();
             try { const d = await TF.api('/rastreo/' + encodeURIComponent(code)); ultimo = { code, data: d }; mostrar(code, d); $('trackCompOk').classList.remove('hidden'); } catch (e) { /* sigue */ }
         } catch (e) {
