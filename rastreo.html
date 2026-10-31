@@ -77,7 +77,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-600"><strong class="text-slate-800" data-i18n="track.ultima">Última actualización:</strong> <span id="trackDetailDisplay"></span></div>
                         <div id="trackPago" class="hidden track-pago" role="status">
                             <span class="tp-ico"><i class="fa-solid fa-hourglass-half"></i></span>
-                            <div><strong id="trackPagoT"></strong><p id="trackPagoD"></p></div>
+                            <div><strong id="trackPagoT"></strong><p id="trackPagoD"></p>
+                                <button type="button" id="trackPagoVer" class="hidden tp-ver" aria-expanded="false" aria-controls="trackPagoDesglose" data-i18n="track.pago.ver">Ver desglose</button>
+                                <dl id="trackPagoDesglose" class="hidden tp-desglose"></dl>
+                            </div>
                         </div>
                         <div id="trackDocsPide" class="hidden track-pide">
                             <button type="button" id="trackPideAbrir" class="tc-abrir" aria-expanded="false" aria-controls="trackPideCuerpo">
@@ -136,8 +139,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             <p id="trackCompOk" class="hidden tc-ok" role="status"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.comp.ok">Recibimos tu comprobante. Nuestro equipo lo verificará y te avisaremos cuando el pago quede confirmado.</span></p>
                         </div>
                         <div id="trackItems" class="hidden mt-5">
-                            <h3 class="track-items-t" data-i18n="track.items">Tus trámites en este código</h3>
-                            <ul id="trackItemsList" class="track-items"></ul>
+                            <button type="button" id="trackItemsVer" class="track-items-t" aria-expanded="false" aria-controls="trackItemsList">
+                                <span data-i18n="track.items">Tus trámites en este código</span><span id="trackItemsN" class="ti-n"></span><i class="fa-solid fa-chevron-down ti-f"></i></button>
+                            <ul id="trackItemsList" class="hidden track-items"></ul>
+                        </div>
+                        <div id="trackEspera" class="hidden track-espera" role="status">
+                            <span class="te-ico"><i class="fa-regular fa-clock"></i></span>
+                            <div><strong data-i18n="track.espera.t">A la espera del documento</strong>
+                                <p data-i18n="track.espera.d">Cuando tu documento esté listo aparecerá aquí para descargarlo con tu código. También te avisamos por correo y por WhatsApp.</p></div>
                         </div>
                         <div id="trackDocs" class="hidden track-docs">
                             <div class="td-cab"><span class="td-ico"><i class="fa-solid fa-file-arrow-down"></i></span>

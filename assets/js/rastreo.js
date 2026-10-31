@@ -5,7 +5,8 @@
     const { D, state, $, esc, t, waLink, saludo, restart } = TF;
 
     const TONOS = { amber: 'bg-amber-100 text-amber-800', emerald: 'bg-emerald-100 text-emerald-800', sky: 'bg-sky-100 text-sky-800' };
-    let ultimo = null, docsDe = null, compDe = null, pideDe = null;
+    let ultimo = null, docsDe = null, compDe = null, pideDe = null, pagoDe = null, itemsDe = null;
+    const rd = n => 'RD$' + Number(n || 0).toLocaleString('en-US', { maximumFractionDigits: 0 });
 
     async function consultar() {
         const input = $('trackInput'), code = input.value.trim().toUpperCase();
@@ -37,22 +38,44 @@
         // Desglose cuando el código agrupa varios trámites
         const items = Array.isArray(data.items) ? data.items : [];
         $('trackItems').classList.toggle('hidden', items.length < 2);
+        $('trackItemsN').textContent = items.length < 2 ? '' : String(items.length);
+        if (itemsDe !== code) { $('trackItemsList').classList.add('hidden'); $('trackItemsVer').setAttribute('aria-expanded', 'false'); itemsDe = code; }
         $('trackItemsList').innerHTML = items.length < 2 ? '' : items.map(it => `
             <li class="ti">
                 <div class="ti-top"><strong>${esc(it.service)}</strong><span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full whitespace-nowrap ${TONOS[it.tone] || TONOS.sky}">${esc(it.statusText)}</span></div>
                 <div class="ti-bar" aria-label="${esc(t('track.s' + it.step))}">${[1, 2, 3, 4].map(i => `<i class="${i <= it.step ? (it.step === 4 ? 'on ok' : 'on') : ''}"></i>`).join('')}</div>
                 <p>${esc(it.detail)}</p>
             </li>`).join('');
-        // Estado del pago: el equipo lo confirma antes de darlo por recibido
-        const pago = data.pago || '';
-        $('trackPago').classList.toggle('hidden', !pago || data.demo);
-        $('trackPago').classList.toggle('ok', pago === 'confirmado');
-        $('trackPago').classList.toggle('mal', pago === 'rechazado');
-        $('trackPago').querySelector('i').className = `fa-solid ${pago === 'confirmado' ? 'fa-circle-check' : pago === 'rechazado' ? 'fa-triangle-exclamation' : 'fa-hourglass-half'}`;
-        $('trackPagoT').textContent = pago === 'confirmado' ? t('track.pago.ok') : pago === 'rechazado' ? t('track.pago.mal') : t('track.pago.pend');
-        $('trackPagoD').textContent = pago === 'confirmado' ? t('track.pago.ok.d')
-            : pago === 'rechazado' ? (data.pago_motivo ? t('track.pago.mal.d.motivo', { motivo: data.pago_motivo }) : t('track.pago.mal.d'))
-            : t('track.pago.pend.d');
+        // Estado del pago: amarillo mientras falte algo, verde cuando está completo
+        const pago = data.pago || '', saldo = data.saldo || {};
+        const completo = pago === 'confirmado' && data.falta_pagar === false;
+        const parcial = pago === 'confirmado' && !completo;
+        const estado = pago === 'rechazado' ? 'mal' : completo ? 'ok' : 'aviso';
+        const caja = $('trackPago');
+        caja.classList.toggle('hidden', !!data.demo || !state.api);
+        caja.classList.toggle('ok', estado === 'ok');
+        caja.classList.toggle('mal', estado === 'mal');
+        caja.classList.toggle('aviso', estado === 'aviso');
+        caja.querySelector('.tp-ico i').className = 'fa-solid ' + (estado === 'ok' ? 'fa-circle-check'
+            : estado === 'mal' ? 'fa-triangle-exclamation' : pago === 'por_confirmar' ? 'fa-hourglass-half' : 'fa-circle-exclamation');
+        $('trackPagoT').textContent = pago === 'rechazado' ? t('track.pago.mal')
+            : completo ? t('track.pago.full')
+            : parcial ? t('track.pago.parcial', { pct: saldo.pct != null ? saldo.pct : '' })
+            : pago === 'por_confirmar' ? t('track.pago.pend') : t('track.pago.falta');
+        $('trackPagoD').textContent = pago === 'rechazado'
+                ? (data.pago_motivo ? t('track.pago.mal.d.motivo', { motivo: data.pago_motivo }) : t('track.pago.mal.d'))
+            : completo ? t('track.pago.full.d')
+            : parcial ? (saldo.falta != null ? t('track.pago.parcial.d', { pct: saldo.pct, falta: rd(saldo.falta) }) : t('track.pago.ok.d'))
+            : pago === 'por_confirmar' ? t('track.pago.pend.d') : t('track.pago.falta.d');
+        // El desglose de montos solo si lo pide
+        const hayMontos = saldo.total != null;
+        $('trackPagoVer').classList.toggle('hidden', !hayMontos);
+        $('trackPagoDesglose').innerHTML = !hayMontos ? '' : `
+            <div><dt>${esc(t('track.pago.total'))}</dt><dd>${esc(rd(saldo.total))}</dd></div>
+            <div><dt>${esc(t('track.pago.pagado'))}</dt><dd>${esc(rd(saldo.pagado))}</dd></div>
+            ${saldo.falta > 0 ? `<div class="falta"><dt>${esc(t('track.pago.resta'))}</dt><dd>${esc(rd(saldo.falta))}</dd></div>` : ''}`;
+        if (pagoDe !== code) { $('trackPagoDesglose').classList.add('hidden'); $('trackPagoVer').setAttribute('aria-expanded', 'false'); pagoDe = code; }
+        $('trackCompAbrir').classList.toggle('falta', estado !== 'ok');
         // Documentos que le pedimos: puede subirlos desde aquí
         const pide = Array.isArray(data.pide_docs) ? data.pide_docs : [];
         const todosDocs = (Array.isArray(data.items) ? data.items : []).flatMap(it => it.docs || []);
@@ -80,6 +103,7 @@
         // Documentos listos para descargar (se piden los últimos 4 del WhatsApp o el correo)
         const nDocs = Number(data.archivos || 0);
         $('trackDocs').classList.toggle('hidden', !nDocs || data.demo);
+        $('trackEspera').classList.toggle('hidden', !!nDocs || !!data.demo || !state.api);
         $('trackDocsN').textContent = !nDocs ? '' : nDocs === 1 ? t('track.docs.n1') : t('track.docs.n', { n: nDocs });
         if (!docsDe || docsDe !== code) { $('trackDocsList').innerHTML = ''; $('trackDocsForm').classList.remove('hidden'); $('trackDocsVence').classList.add('hidden'); $('trackDocsError').classList.add('hidden'); docsDe = null; }
         $('trackLineFill').style.width = '0%';
@@ -173,6 +197,15 @@
         });
         $('trackCompForm').addEventListener('submit', e => { e.preventDefault(); enviarComprobante(); });
         $('trackCompWaBtn').addEventListener('click', () => avisarPagoWa());
+        $('trackPagoVer').addEventListener('click', () => {
+            const d = $('trackPagoDesglose'), abre = d.classList.contains('hidden');
+            d.classList.toggle('hidden', !abre); $('trackPagoVer').setAttribute('aria-expanded', String(abre));
+            $('trackPagoVer').textContent = t(abre ? 'track.pago.ocultar' : 'track.pago.ver');
+        });
+        $('trackItemsVer').addEventListener('click', () => {
+            const l = $('trackItemsList'), abre = l.classList.contains('hidden');
+            l.classList.toggle('hidden', !abre); $('trackItemsVer').setAttribute('aria-expanded', String(abre));
+        });
         $('trackPideAbrir').addEventListener('click', () => {
             const cu = $('trackPideCuerpo'), abre = cu.classList.contains('hidden');
             cu.classList.toggle('hidden', !abre); $('trackPideAbrir').setAttribute('aria-expanded', String(abre));

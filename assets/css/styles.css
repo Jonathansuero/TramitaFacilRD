@@ -765,3 +765,31 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .td-check li.env { color: #92400E; }
 .td-check li.env i { color: #B45309; font-size: .8rem; margin-top: .2rem; }
 .td-check li b { font-weight: 600; opacity: .85; }
+
+/* Desglose del pago, solo cuando el cliente lo pide */
+.tp-ver { margin-top: .45rem; font-size: .76rem; font-weight: 700; color: #92400E; text-decoration: underline; background: none; border: 0; padding: 0; cursor: pointer; }
+.track-pago.ok .tp-ver { color: #065F46; }
+.track-pago.mal .tp-ver { color: #991B1B; }
+.tp-desglose { margin: .55rem 0 0; display: grid; gap: .3rem; }
+.tp-desglose > div { display: flex; justify-content: space-between; gap: 1rem; font-size: .78rem; border-top: 1px dashed rgba(120, 53, 15, .25); padding-top: .3rem; }
+.tp-desglose dt { color: inherit; opacity: .85; margin: 0; }
+.tp-desglose dd { margin: 0; font-weight: 700; }
+.tp-desglose .falta dd { color: #B45309; }
+.track-pago.ok .tp-desglose > div { border-color: rgba(6, 95, 70, .2); }
+.tp-ver.hidden, .tp-desglose.hidden { display: none; }
+.tc-abrir.falta .tc-ico { background: #D97706; }
+
+/* Trámites del código: el desglose se abre con un clic */
+button.track-items-t { display: flex; align-items: center; gap: .5rem; width: 100%; background: #fff; border: 1px solid #E2E8F0; border-radius: .9rem; padding: .8rem 1rem; cursor: pointer; }
+button.track-items-t .ti-n { margin-left: auto; font-size: .72rem; background: #EAF2FF; color: #002D62; border-radius: 999px; padding: .1rem .5rem; }
+button.track-items-t .ti-f { font-size: .7rem; color: #94A3B8; transition: transform .2s; }
+button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
+#trackItemsList { margin-top: .6rem; }
+#trackItemsList.hidden { display: none; }
+
+/* A la espera del documento */
+.track-espera { margin-top: 1rem; display: flex; gap: .75rem; align-items: flex-start; background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 1rem; padding: .85rem 1rem; text-align: left; }
+.track-espera .te-ico { width: 2.25rem; height: 2.25rem; border-radius: .7rem; background: #E2E8F0; color: #475569; display: grid; place-items: center; flex-shrink: 0; }
+.track-espera strong { display: block; color: #0F172A; font-size: .88rem; }
+.track-espera p { margin: .15rem 0 0; color: #475569; font-size: .78rem; line-height: 1.45; }
+.track-espera.hidden { display: none; }
