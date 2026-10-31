@@ -466,14 +466,20 @@
     }
 
     /** Zona de subida compartida: elegir archivos, quitarlos de la lista y guardarlos. */
-    function bloqueSubida(e, clase, yaHay, ayuda) {
+    function bloqueSubida(e, clase, yaHay, ayuda, cuales) {
         const lista = porSubir.get(llaveSubir(e.codigo, clase)) || [];
+        const sel = lista.length && clase === 'recibido' && (cuales || []).length ? `<label class="campo campo-cual" for="cual-${esc(e.codigo)}">¿Cuál documento es?
+            <select class="input" id="cual-${esc(e.codigo)}" data-cual="${esc(e.codigo)}">
+                ${(cuales || []).map(d => `<option value="${esc(d)}">${esc(d)}</option>`).join('')}
+                <option value="">Otro documento</option>
+            </select></label>` : '';
         const tipo = f => /\.pdf$/i.test(f.name) ? 'pdf' : 'img';
         return `${lista.length ? `<div class="por-subir">
             <span class="ps-t">Listos para guardar (${lista.length})</span>
             <ul>${lista.map((f, i) => `<li><span class="ar-tipo ${tipo(f)}">${tipo(f).toUpperCase()}</span>
                 <span class="ar-t"><b>${esc(f.name)}</b><small>${esc(peso(f.size))}</small></span>
                 <button type="button" class="x" data-sacar="${i}" data-codigo="${esc(e.codigo)}" data-clase="${clase}" title="No subir este" aria-label="No subir este archivo">×</button></li>`).join('')}</ul>
+            ${sel}
             <div class="acciones"><button type="button" class="btn btn-azul" data-guardar-docs="${esc(e.codigo)}" data-clase="${clase}">${ico('subir', 16)} Guardar documentos</button>
                 <button type="button" class="btn btn-borde" data-cancelar-subir="${esc(e.codigo)}" data-clase="${clase}">Cancelar</button></div>
             <small class="ayuda">${esc(ayuda)}</small>
@@ -489,20 +495,27 @@
     const recSinRevisar = e => (e.recibidos || []).filter(r => r.estado === 'nuevo');
     function bloqueRecibidos(e) {
         if (!puede('expedientes') && !puede('pagos')) return '';
-        const lista = e.recibidos || [], sinRev = recSinRevisar(e).length;
+        const lista = e.recibidos || [], sinRev = recSinRevisar(e).length, faltan = docsQueFaltan(e);
         return plegable(e, 'recibidos', 'clip', 'Documentos recibidos',
             sinRev ? `<b class="pleg-ojo">${sinRev} sin revisar</b>` : (lista.length ? `${lista.length}` : ''), () => `
             ${lista.length ? `<ul class="archivos">${lista.map(a => { const [n, k] = EST_REC[a.estado] || [a.estado, ''];
                 return `<li class="rec ${k}">
                 <span class="ar-tipo ${a.tipo === 'application/pdf' ? 'pdf' : 'img'}">${a.tipo === 'application/pdf' ? 'PDF' : 'IMG'}</span>
                 <span class="ar-t"><a href="/api/admin/archivo/${a.id}" target="_blank" rel="noopener">${esc(a.nombre)}</a>
-                    <small>${esc(peso(a.tamano))} · ${esc(fecha(a.creado))}${a.usuario ? ` · subió ${esc(a.usuario)}` : ''}${a.revisado_por ? ` · ${esc(a.estado === 'validado' ? 'validó' : 'rechazó')} ${esc(a.revisado_por)}` : ''}${a.motivo ? `: ${esc(a.motivo)}` : ''}</small>
+                    ${a.nota ? `<span class="ar-cual">${esc(a.nota)}</span>` : ''}
+                    <small>${esc(peso(a.tamano))} · ${esc(fecha(a.creado))} · ${a.usuario === 'cliente' ? '<b>lo subió el cliente</b>' : a.usuario ? `lo subió ${esc(a.usuario)}` : 'lo subimos nosotros'}${a.revisado_por ? ` · ${esc(a.estado === 'validado' ? 'validó' : 'rechazó')} ${esc(a.revisado_por)}` : ''}${a.motivo ? `: ${esc(a.motivo)}` : ''}</small>
                     <span class="ep ${k}">${esc(n)}</span>
                     ${a.estado === 'nuevo' && puedeValidar() ? `<span class="validar-btns"><button type="button" class="btn btn-verde btn-sm" data-validar-doc="${a.id}" data-codigo="${esc(e.codigo)}">${ico('ok', 14)} Validar</button>
                         <button type="button" class="btn btn-borde btn-sm" data-rechazar-doc="${a.id}" data-codigo="${esc(e.codigo)}">Rechazar</button></span>` : ''}</span>
                 <button type="button" class="x" data-quitar-archivo="${a.id}" data-codigo="${esc(e.codigo)}" title="Quitar documento" aria-label="Quitar documento">×</button>
             </li>`; }).join('')}</ul>` : '<p class="ayuda">Guarda aquí lo que te manda el cliente por WhatsApp o correo (cédula, pasaporte, comprobante de pago…). Todo el equipo lo ve y quien confirma puede validarlo.</p>'}
-            ${bloqueSubida(e, 'recibido', lista.length, 'Al guardar, el equipo recibe un aviso para revisarlos. El cliente no los ve.')}
+            ${faltan.length ? `<div class="faltan">
+                <b>${ico('clip', 14)} Falta${faltan.length > 1 ? 'n' : ''} por recibir</b>
+                <ul>${faltan.map(d => `<li>${esc(d)}</li>`).join('')}</ul>
+                <small class="ayuda">El cliente también puede subirlos él mismo en <b>Rastrear</b> con su código ${esc(e.codigo)}. Cuando llegue uno, les avisamos a todos.</small>
+                <div class="acciones"><a class="btn btn-wa btn-sm" href="${linkDocs(e)}" target="_blank" rel="noopener">${ico('chat')} Pedirlos por WhatsApp</a></div>
+            </div>` : ''}
+            ${bloqueSubida(e, 'recibido', lista.length, 'Al guardar, el equipo recibe un aviso para revisarlos. El cliente no los ve.', faltan)}
             ${sinRev && !puedeValidar() ? `<small class="ayuda">${ico('campana', 14)} Ya avisamos a quien confirma los pagos y documentos.</small>` : ''}
             ${bloqueAvisarEquipo(e)}`, !!sinRev);
     }
@@ -540,6 +553,16 @@
             ${abierto ? `<div class="docs" data-docs="${esc(clave)}" data-codigo="${esc(e.codigo)}" data-tramite="${t.id}">
                 ${lista.map(d => `<label class="${tengo.has(d) ? 'ok' : ''}"><input type="checkbox" value="${esc(d)}"${tengo.has(d) ? ' checked' : ''}><span>${esc(d)}</span></label>`).join('')}
             </div>` : ''}`;
+    }
+
+    /** Documentos de la checklist que todavía no hemos marcado como recibidos. */
+    function docsQueFaltan(e) {
+        const vistos = new Set();
+        for (const t of e.tramites || []) {
+            const tengo = new Set(t.docs || []);
+            for (const d of checklist(t)) if (!tengo.has(d)) vistos.add(d);
+        }
+        return [...vistos];
     }
 
     function bloqueTramite(e, t, varios) {
@@ -1692,6 +1715,8 @@
         btn.disabled = true; btn.textContent = 'Guardando…';
         try {
             const fd = new FormData(); fd.append('codigo', codigo); fd.append('clase', clase);
+            const cual = document.getElementById('cual-' + codigo);
+            if (cual && clase === 'recibido' && cual.value) fd.append('cual', cual.value);
             for (const f of lista) { const chico = await TF_IMAGEN.achicar(f); fd.append('archivo', chico, chico.name); }
             const r = await fetch('/api/admin/archivo', { method: 'POST', body: fd, credentials: 'same-origin' });
             let d = {}; try { d = await r.json(); } catch (e) { /* el servidor no respondió en JSON */ }
