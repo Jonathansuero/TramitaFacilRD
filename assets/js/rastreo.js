@@ -47,12 +47,17 @@
         const pago = data.pago || '';
         $('trackPago').classList.toggle('hidden', !pago || data.demo);
         $('trackPago').classList.toggle('ok', pago === 'confirmado');
-        $('trackPago').querySelector('i').className = `fa-solid ${pago === 'confirmado' ? 'fa-circle-check' : 'fa-hourglass-half'}`;
-        $('trackPagoT').textContent = pago === 'confirmado' ? t('track.pago.ok') : t('track.pago.pend');
-        $('trackPagoD').textContent = pago === 'confirmado' ? t('track.pago.ok.d') : t('track.pago.pend.d');
+        $('trackPago').classList.toggle('mal', pago === 'rechazado');
+        $('trackPago').querySelector('i').className = `fa-solid ${pago === 'confirmado' ? 'fa-circle-check' : pago === 'rechazado' ? 'fa-triangle-exclamation' : 'fa-hourglass-half'}`;
+        $('trackPagoT').textContent = pago === 'confirmado' ? t('track.pago.ok') : pago === 'rechazado' ? t('track.pago.mal') : t('track.pago.pend');
+        $('trackPagoD').textContent = pago === 'confirmado' ? t('track.pago.ok.d')
+            : pago === 'rechazado' ? (data.pago_motivo ? t('track.pago.mal.d.motivo', { motivo: data.pago_motivo }) : t('track.pago.mal.d'))
+            : t('track.pago.pend.d');
         // Comprobante de pago (opcional)
         $('trackComp').classList.toggle('hidden', !!data.demo || !state.api);
         if (compDe !== code) { $('trackCompForm').classList.add('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'false'); compDe = code; }
+        if (pago === 'rechazado') { $('trackCompForm').classList.remove('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'true'); }
+        $('trackCompWaBtn').href = waLink(saludo(t('wa.comp', { code })));
         // Documentos listos para descargar (se piden los últimos 4 del WhatsApp o el correo)
         const nDocs = Number(data.archivos || 0);
         $('trackDocs').classList.toggle('hidden', !nDocs || data.demo);
@@ -105,6 +110,13 @@
         } finally { btn.disabled = false; btn.textContent = t('track.comp.btn'); }
     }
 
+    /** El cliente dice que enviará el pago por WhatsApp: se avisa al equipo y se abre el chat. */
+    async function avisarPagoWa() {
+        const code = ultimo && ultimo.code;
+        if (!code || !state.api) return;
+        try { await fetch('/api/rastreo/' + encodeURIComponent(code) + '/pago-whatsapp', { method: 'POST' }); } catch (e) { /* igual se abre el chat */ }
+    }
+
     function actualizarWa() {
         const code = $('trackInput').value.trim().toUpperCase();
         $('trackWa').href = waLink(saludo(code ? t('wa.rastreo', { code }) : t('wa.rastreo.sin')));
@@ -120,6 +132,7 @@
             if (abre) $('trackCompArchivo').focus();
         });
         $('trackCompForm').addEventListener('submit', e => { e.preventDefault(); enviarComprobante(); });
+        $('trackCompWaBtn').addEventListener('click', () => avisarPagoWa());
         $('trackInput').addEventListener('input', actualizarWa);
         document.addEventListener('click', e => {
             const b = e.target.closest('[data-demo-code]');

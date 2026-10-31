@@ -28,6 +28,7 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/pago             {codigo, tipo, monto, metodo, fecha?, nota?}   · /api/admin/pago/quitar {codigo, id}
     POST /api/admin/pago/validar     {codigo, id, accion: confirmar|rechazar, motivo?}  (administración y contabilidad)
     POST /api/rastreo/<codigo>/comprobante  (público, formulario) dato, archivo, monto, metodo, nota?  Comprobante del cliente
+    POST /api/rastreo/<codigo>/pago-whatsapp  (público) el cliente avisa que envía el pago por WhatsApp
     GET  /api/admin/comprobante/<id> (ver) · POST /api/admin/comprobante/descartar {codigo, id, motivo}
     POST /api/admin/archivo          (formulario) codigo, clase (entrega|recibido), archivo[]
     POST /api/admin/archivo/validar  {codigo, id, accion: validar|rechazar, motivo?}   Documentos recibidos
@@ -307,8 +308,10 @@ CREATE TABLE IF NOT EXISTS comprobantes (
     nota TEXT,
     creado TEXT NOT NULL,
     estado TEXT NOT NULL DEFAULT 'nuevo',
+    via_whatsapp INTEGER NOT NULL DEFAULT 0,
     pago_id INTEGER,
     revisado_por TEXT,
+    revisado_en TEXT,
     motivo TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_comprobantes_codigo ON comprobantes (codigo);
@@ -373,6 +376,17 @@ def migrar(db: sqlite3.Connection) -> None:
             db.execute(f"ALTER TABLE archivos ADD COLUMN {col} TEXT")
     if "comprobante_id" not in cols_p:
         db.execute("ALTER TABLE pagos ADD COLUMN comprobante_id INTEGER")  # comprobante del cliente que respalda el pago
+    if "via_whatsapp" not in cols_p:
+        db.execute("ALTER TABLE pagos ADD COLUMN via_whatsapp INTEGER NOT NULL DEFAULT 0")   # el comprobante llegó por WhatsApp
+    cols_c = {r[1] for r in db.execute("PRAGMA table_info(comprobantes)")}
+    if "revisado_en" not in cols_c:
+        db.execute("ALTER TABLE comprobantes ADD COLUMN revisado_en TEXT")
+    if "avisar_cliente" not in cols_c:
+        db.execute("ALTER TABLE comprobantes ADD COLUMN avisar_cliente INTEGER NOT NULL DEFAULT 1")
+    if "avisar_cliente" not in cols_p:
+        db.execute("ALTER TABLE pagos ADD COLUMN avisar_cliente INTEGER NOT NULL DEFAULT 1")
+    if "pago_wa" not in cols_s:
+        db.execute("ALTER TABLE seguimiento ADD COLUMN pago_wa TEXT")   # el cliente avisó que paga por WhatsApp
     if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
         db.execute("ALTER TABLE tramites ADD COLUMN docs TEXT")  # documentos recibidos (lista JSON)
     # Expedientes de antes de "varios trámites por código": cada uno pasa a tener su trámite
@@ -698,19 +712,31 @@ def api_rastreo(codigo: str):
                         "step": row["paso"], "statusText": row["estado"], "detail": row["detalle"],
                         "tone": TONO_POR_PASO.get(row["paso"], "sky"), "updated": row["actualizado"], "items": items,
                         "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='entrega'", (codigo,)).fetchone()[0],
-                        "pago": estado_pago_cliente(get_db(), codigo)})
+                        **estado_pago_cliente(get_db(), codigo)})
     demo = catalogo()["rastreo_demo"].get(codigo)
     if demo:
         return jsonify({"ok": True, "codigo": codigo, **demo, "demo": True})
     return error("No encontramos ningún expediente con ese código.", 404)
 
 
-def estado_pago_cliente(db: sqlite3.Connection, codigo: str) -> str | None:
-    """Lo que ve el cliente: «por_confirmar» si hay un pago esperando confirmación; «confirmado» si ya hay pagos confirmados."""
-    estados = {r[0] for r in db.execute("SELECT estado FROM pagos WHERE codigo=?", (codigo,))}
-    if db.execute("SELECT 1 FROM comprobantes WHERE codigo=? AND estado='nuevo'", (codigo,)).fetchone():
-        estados.add("pendiente")
-    return "por_confirmar" if "pendiente" in estados else ("confirmado" if "confirmado" in estados else None)
+def estado_pago_cliente(db: sqlite3.Connection, codigo: str) -> dict:
+    """Lo que ve el cliente: esperando confirmación, rechazado (con el motivo) o confirmado."""
+    pagos = db.execute("SELECT estado, validado_en, motivo, avisar_cliente FROM pagos WHERE codigo=?", (codigo,)).fetchall()
+    comps = db.execute("SELECT estado, revisado_en, creado, motivo, avisar_cliente FROM comprobantes WHERE codigo=?", (codigo,)).fetchall()
+    if any(p["estado"] == "pendiente" for p in pagos) or any(c["estado"] == "nuevo" for c in comps):
+        return {"pago": "por_confirmar", "pago_motivo": ""}
+    # (cuándo, prioridad, motivo): si coinciden en el tiempo, pesa más el rechazo de un pago que el de un comprobante
+    rechazos = [((p["validado_en"] or ""), 1, (p["motivo"] or "")) for p in pagos if p["estado"] == "rechazado" and p["avisar_cliente"]]
+    rechazos += [((c["revisado_en"] or c["creado"] or ""), 0, (c["motivo"] or "")) for c in comps
+                 if c["estado"] == "descartado" and c["avisar_cliente"]]
+    confirmados = [(p["validado_en"] or "") for p in pagos if p["estado"] == "confirmado"]
+    if rechazos:
+        cuando, _, motivo = max(rechazos, key=lambda x: (x[0], x[1]))
+        if not any(c >= cuando for c in confirmados):   # si después le confirmamos un pago, ya no se le alarma
+            return {"pago": "rechazado", "pago_motivo": motivo}
+    if confirmados:
+        return {"pago": "confirmado", "pago_motivo": ""}
+    return {"pago": None, "pago_motivo": ""}
 
 
 @app.post("/api/rastreo/<codigo>/archivos")
@@ -747,6 +773,33 @@ def descarga(token: str):
 
 
 METODOS_PAGO = ("Transferencia", "Zelle", "Remesa", "PayPal", "Tarjeta", "Efectivo", "Otro")
+
+
+@app.post("/api/rastreo/<codigo>/pago-whatsapp")
+def api_pago_whatsapp(codigo: str):
+    """El cliente avisa que enviará el pago y el comprobante por WhatsApp. Solo deja la señal para el equipo."""
+    if limitar("pago_wa", 6, 3600):
+        return error("Ya recibimos tu aviso. Escríbenos por WhatsApp si necesitas algo más.", 429)
+    codigo = codigo.strip().upper()[:12]
+    db = get_db()
+    sol = db.execute("SELECT o.nombre FROM solicitudes o JOIN seguimiento s ON s.codigo = o.codigo"
+                     " WHERE o.codigo=? AND s.eliminado IS NULL", (codigo,)).fetchone()
+    if not sol:
+        return error("No encontramos ese expediente.", 404)
+    ya = db.execute("SELECT pago_wa FROM seguimiento WHERE codigo=?", (codigo,)).fetchone()["pago_wa"]
+    db.execute("UPDATE seguimiento SET pago_wa=? WHERE codigo=?", (ahora(), codigo))
+    db.execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
+               ("cliente", "Avisó que envía el pago por WhatsApp", codigo, "", ahora()))
+    db.commit()
+    if not ya:   # solo se avisa la primera vez, para no repetir
+        titulo = "El cliente pagará por WhatsApp"
+        db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+                   ("comprobante", titulo, f"{sol['nombre']} · {codigo}"[:200], codigo, ahora(), None))
+        db.commit()
+        avisar_equipo_correo(db, lambda perms: bool({"pagos", "validar_pagos", "usuarios"} & perms), titulo,
+                             f"{sol['nombre']} · {codigo}", codigo,
+                             ["El cliente avisó desde la página que enviará el pago y el comprobante por WhatsApp."])
+    return jsonify({"ok": True})
 
 
 @app.post("/api/rastreo/<codigo>/comprobante")
@@ -983,7 +1036,7 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["tramites"] = tramites_de(db, d["codigo"])
     precios = [t["precio"] for t in d["tramites"]]
     d["total_dop"] = sum(precios) if precios and all(p is not None for p in precios) else None
-    d["pagos"] = [dict(r) for r in db.execute("SELECT id, tipo, monto, metodo, fecha, nota, estado, registrado_por, validado_por, validado_en, motivo, comprobante_id"
+    d["pagos"] = [dict(r) for r in db.execute("SELECT id, tipo, monto, metodo, fecha, nota, estado, registrado_por, validado_por, validado_en, motivo, comprobante_id, via_whatsapp"
                                              " FROM pagos WHERE codigo=? ORDER BY fecha, id",
                                              (d["codigo"],))]
     d["pagado"] = sum(p["monto"] for p in d["pagos"] if p["estado"] == "confirmado")  # solo lo confirmado cuenta
@@ -999,8 +1052,10 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
                       for a in archivos_de(db, d["codigo"], "recibido")]
     d["correos"] = [dict(r) for r in db.execute(
         "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
+    d["pago_wa"] = db.execute("SELECT pago_wa FROM seguimiento WHERE codigo=?", (d["codigo"],)).fetchone()["pago_wa"]
     d["comprobantes"] = [dict(r) for r in db.execute(
-        "SELECT id, nombre, tipo, tamano, monto, moneda, metodo, nota, creado, estado, pago_id, revisado_por, motivo FROM comprobantes WHERE codigo=? ORDER BY id",
+        "SELECT id, nombre, tipo, tamano, monto, moneda, metodo, nota, creado, estado, pago_id, revisado_por, motivo, avisar_cliente"
+        " FROM comprobantes WHERE codigo=? ORDER BY id",
         (d["codigo"],))]
     if has_app_context() and usuario_actual() and not puede("pagos"):
         d["pagos"], d["pagado"], d["pendiente"], d["por_confirmar"], d["comprobantes"] = [], None, None, None, []
@@ -1524,18 +1579,19 @@ def admin_pago():
     # lo que registra administración o contabilidad ya queda confirmado; lo demás espera su confirmación
     estado = "confirmado" if puede_validar() else "pendiente"
     metodo = str(d.get("metodo", "")).strip()[:40]
-    db.execute("INSERT INTO pagos (codigo, tipo, monto, metodo, fecha, nota, creado, estado, registrado_por, validado_por, validado_en)"
-               " VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+    db.execute("INSERT INTO pagos (codigo, tipo, monto, metodo, fecha, nota, creado, estado, registrado_por, validado_por, validado_en, via_whatsapp)"
+               " VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
                (codigo, tipo, round(monto, 2), metodo, _fecha_dia(d.get("fecha")), str(d.get("nota", "")).strip()[:200], ahora(),
-                estado, yo["usuario"], yo["usuario"] if estado == "confirmado" else None, ahora() if estado == "confirmado" else None))
+                estado, yo["usuario"], yo["usuario"] if estado == "confirmado" else None, ahora() if estado == "confirmado" else None,
+                1 if d.get("whatsapp") else 0))
     pid = db.execute("SELECT last_insert_rowid()").fetchone()[0]
     comp = db.execute("SELECT id FROM comprobantes WHERE id=? AND codigo=? AND estado='nuevo'", (numero(d.get("comprobante_id")), codigo)).fetchone() \
         if d.get("comprobante_id") else None
     if comp:
         db.execute("UPDATE pagos SET comprobante_id=? WHERE id=?", (comp["id"], pid))
-        db.execute("UPDATE comprobantes SET estado='usado', pago_id=?, revisado_por=? WHERE id=?", (pid, yo["usuario"], comp["id"]))
+        db.execute("UPDATE comprobantes SET estado='usado', pago_id=?, revisado_por=?, revisado_en=? WHERE id=?", (pid, yo["usuario"], ahora(), comp["id"]))
     registrar("Registró un pago" + (" (por confirmar)" if estado == "pendiente" else "") + (" con el comprobante del cliente" if comp else ""), codigo,
-              f"RD${monto:,.2f} · {TIPOS_PAGO[tipo]} · {metodo}")
+              f"RD${monto:,.2f} · {TIPOS_PAGO[tipo]} · {metodo}" + (" · llegó por WhatsApp" if d.get("whatsapp") else ""))
     db.commit()
     if estado == "pendiente":
         avisar_pago_por_confirmar(db, codigo, monto, metodo, yo["nombre"])
@@ -1588,10 +1644,12 @@ def admin_pago_validar():
     if accion == "rechazar" and len(motivo) < 3:
         return error("Escribe por qué se rechaza (por ejemplo: no llegó la transferencia).")
     estado = "confirmado" if accion == "confirmar" else "rechazado"
-    db.execute("UPDATE pagos SET estado=?, validado_por=?, validado_en=?, motivo=? WHERE id=?",
-               (estado, usuario_actual()["usuario"], ahora(), motivo or None, fila["id"]))
+    avisar = 0 if d.get("avisar") is False else 1
+    db.execute("UPDATE pagos SET estado=?, validado_por=?, validado_en=?, motivo=?, avisar_cliente=? WHERE id=?",
+               (estado, usuario_actual()["usuario"], ahora(), motivo or None, avisar, fila["id"]))
     registrar("Confirmó un pago" if estado == "confirmado" else "Rechazó un pago", codigo,
-              f"RD${fila['monto']:,.2f} · {TIPOS_PAGO.get(fila['tipo'], fila['tipo'])}" + (f" · {motivo}" if motivo else ""))
+              f"RD${fila['monto']:,.2f} · {TIPOS_PAGO.get(fila['tipo'], fila['tipo'])}" + (f" · {motivo}" if motivo else "")
+              + ("" if avisar or estado == "confirmado" else " (sin avisar al cliente)"))
     db.commit()
     return jsonify({"ok": True, "estado": estado, "expediente": un_expediente(db, codigo)})
 
@@ -1966,8 +2024,10 @@ def admin_comprobante_descartar():
         return error("Ese comprobante ya fue revisado o no existe.", 404)
     if len(motivo) < 3:
         return error("Escribe por qué se descarta (por ejemplo: comprobante ilegible o de otro cliente).")
-    db.execute("UPDATE comprobantes SET estado='descartado', revisado_por=?, motivo=? WHERE id=?", (usuario_actual()["usuario"], motivo, r["id"]))
-    registrar("Descartó un comprobante del cliente", codigo, f"RD${(r['monto'] or 0):,.2f} · {motivo}")
+    avisar = 0 if d.get("avisar") is False else 1
+    db.execute("UPDATE comprobantes SET estado='descartado', revisado_por=?, revisado_en=?, motivo=?, avisar_cliente=? WHERE id=?",
+               (usuario_actual()["usuario"], ahora(), motivo, avisar, r["id"]))
+    registrar("Descartó un comprobante del cliente", codigo, f"RD${(r['monto'] or 0):,.2f} · {motivo}" + ("" if avisar else " (sin avisar al cliente)"))
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
