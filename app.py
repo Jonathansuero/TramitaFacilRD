@@ -29,6 +29,10 @@ Panel de administración (/admin, requiere contraseña: TF_ADMIN_HASH):
     POST /api/admin/pago/validar     {codigo, id, accion: confirmar|rechazar, motivo?}  (administración y contabilidad)
     POST /api/rastreo/<codigo>/comprobante  (público, formulario) dato, archivo, monto, metodo, nota?  Comprobante del cliente
     GET  /api/admin/comprobante/<id> (ver) · POST /api/admin/comprobante/descartar {codigo, id, motivo}
+    POST /api/admin/archivo          (formulario) codigo, clase (entrega|recibido), archivo[]
+    POST /api/admin/archivo/validar  {codigo, id, accion: validar|rechazar, motivo?}   Documentos recibidos
+    POST /api/admin/avisar-equipo    {codigo, texto, para: todos|confirman}   Aviso del equipo al equipo
+    GET  /api/admin/registro         Quién hizo cada cambio (solo el administrador principal)
     GET  /api/admin/push/clave · POST /api/admin/push/suscribir · /quitar · /probar   Notificaciones con la app cerrada
 Pagos: los registra quien tiene «pagos», pero solo cuentan como cobrados cuando los confirma alguien con
 «validar_pagos» (o un administrador). Mientras tanto el cliente ve «Pago pendiente por confirmar».
@@ -253,7 +257,11 @@ CREATE TABLE IF NOT EXISTS archivos (
     tipo TEXT NOT NULL,
     tamano INTEGER NOT NULL,
     creado TEXT NOT NULL,
-    usuario TEXT
+    usuario TEXT,
+    clase TEXT NOT NULL DEFAULT 'entrega',
+    estado TEXT NOT NULL DEFAULT '',
+    revisado_por TEXT,
+    motivo TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_archivos_codigo ON archivos (codigo);
 CREATE TABLE IF NOT EXISTS avisos (
@@ -352,6 +360,14 @@ def migrar(db: sqlite3.Connection) -> None:
     for col in ("registrado_por", "validado_por", "validado_en", "motivo"):
         if col not in cols_p:
             db.execute(f"ALTER TABLE pagos ADD COLUMN {col} TEXT")
+    cols_a = {r[1] for r in db.execute("PRAGMA table_info(archivos)")}
+    if "clase" not in cols_a:   # los de antes eran todos para entregar al cliente
+        db.execute("ALTER TABLE archivos ADD COLUMN clase TEXT NOT NULL DEFAULT 'entrega'")
+    if "estado" not in cols_a:
+        db.execute("ALTER TABLE archivos ADD COLUMN estado TEXT NOT NULL DEFAULT ''")
+    for col in ("revisado_por", "motivo"):
+        if col not in cols_a:
+            db.execute(f"ALTER TABLE archivos ADD COLUMN {col} TEXT")
     if "comprobante_id" not in cols_p:
         db.execute("ALTER TABLE pagos ADD COLUMN comprobante_id INTEGER")  # comprobante del cliente que respalda el pago
     if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
@@ -560,9 +576,13 @@ def _es_tipo_real(cabeza: bytes, ext: str) -> bool:
     return False
 
 
-def archivos_de(db: sqlite3.Connection, codigo: str) -> list[dict]:
-    return [dict(r) for r in db.execute("SELECT id, nombre, tipo, tamano, creado, usuario, archivo FROM archivos WHERE codigo=? ORDER BY id",
-                                         (codigo,))]
+CLASES_ARCHIVO = ("entrega", "recibido")   # entrega: va al cliente · recibido: lo mandó el cliente, uso interno
+
+
+def archivos_de(db: sqlite3.Connection, codigo: str, clase: str = "entrega") -> list[dict]:
+    return [dict(r) for r in db.execute(
+        "SELECT id, nombre, tipo, tamano, creado, usuario, archivo, clase, estado, revisado_por, motivo"
+        " FROM archivos WHERE codigo=? AND clase=? ORDER BY id", (codigo, clase))]
 
 
 def contacto_coincide(contacto: str, dato: str) -> bool:
@@ -674,7 +694,7 @@ def api_rastreo(codigo: str):
         return jsonify({"ok": True, "codigo": codigo, "service": row["servicio"], "client": row["cliente"],
                         "step": row["paso"], "statusText": row["estado"], "detail": row["detalle"],
                         "tone": TONO_POR_PASO.get(row["paso"], "sky"), "updated": row["actualizado"], "items": items,
-                        "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=?", (codigo,)).fetchone()[0],
+                        "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='entrega'", (codigo,)).fetchone()[0],
                         "pago": estado_pago_cliente(get_db(), codigo)})
     demo = catalogo()["rastreo_demo"].get(codigo)
     if demo:
@@ -713,7 +733,7 @@ def descarga(token: str):
         return Response("Este enlace no es válido o ya venció. Descarga tus documentos en la página de rastreo con tu código.",
                         status=410, mimetype="text/plain; charset=utf-8")
     r = get_db().execute("SELECT a.* FROM archivos a JOIN seguimiento s ON s.codigo = a.codigo"
-                         " WHERE a.id=? AND s.eliminado IS NULL", (int(datos.get("a", 0)),)).fetchone()
+                         " WHERE a.id=? AND a.clase='entrega' AND s.eliminado IS NULL", (int(datos.get("a", 0)),)).fetchone()
     ruta = carpeta_archivos() / r["archivo"] if r else None
     if not r or not ruta.is_file():
         return Response("Este documento ya no está disponible. Escríbenos por WhatsApp.", status=404, mimetype="text/plain; charset=utf-8")
@@ -917,6 +937,12 @@ def puede(permiso: str) -> bool:
     return bool(u and permiso in u["permisos"])
 
 
+def es_dueno() -> bool:
+    """El administrador principal: el usuario que tiene todos los permisos."""
+    u = usuario_actual()
+    return bool(u and set(PERMISOS) <= set(u["permisos"]))
+
+
 def puede_validar() -> bool:
     """Confirmar pagos: contabilidad (validar_pagos) o un administrador (usuarios)."""
     return puede("validar_pagos") or puede("usuarios")
@@ -966,6 +992,8 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["correo_cliente"] = avisos.correo_de(d.get("contacto"))
     d["archivos"] = [{k: a[k] for k in ("id", "nombre", "tipo", "tamano", "creado", "usuario")} | {"enlace": enlace_descarga(a["id"])}
                      for a in archivos_de(db, d["codigo"])]
+    d["recibidos"] = [{k: a[k] for k in ("id", "nombre", "tipo", "tamano", "creado", "usuario", "estado", "revisado_por", "motivo")}
+                      for a in archivos_de(db, d["codigo"], "recibido")]
     d["correos"] = [dict(r) for r in db.execute(
         "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
     d["comprobantes"] = [dict(r) for r in db.execute(
@@ -973,6 +1001,8 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
         (d["codigo"],))]
     if has_app_context() and usuario_actual() and not puede("pagos"):
         d["pagos"], d["pagado"], d["pendiente"], d["por_confirmar"], d["comprobantes"] = [], None, None, None, []
+    if has_app_context() and usuario_actual() and not (puede("expedientes") or puede("pagos")):
+        d["recibidos"] = []
     return d
 
 
@@ -1263,10 +1293,51 @@ def admin_estado():
     titulo = next(t["titulo"] for t in items if t["id"] == tid)
     registrar(f"Movió a paso {paso} ({PASOS[paso]})", codigo, f"{titulo}: {detalle}")
     db.commit()
+    avisar_cambio_estado(db, codigo, titulo, paso, estado)
     correo = "desactivado"
     if d.get("avisar") is True:  # el aviso por correo es opcional: solo si se pide
         correo = correo_estado(db, codigo, titulo, paso, estado, detalle)
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo), "correo": correo})
+
+
+def avisar_cambio_estado(db: sqlite3.Connection, codigo: str, titulo: str, paso: int, estado: str) -> None:
+    """El administrador principal se entera de quién movió cada expediente (no de sus propios cambios)."""
+    yo = usuario_actual()
+    sol = db.execute("SELECT nombre FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    cliente = sol["nombre"] if sol else codigo
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
+               ("estado", f"{yo['nombre']} movió un trámite a «{PASOS[paso]}»"[:200], f"{cliente} · {titulo}"[:200], codigo, ahora()))
+    db.commit()
+    duenos = [r["id"] for r in db.execute("SELECT id, permisos FROM usuarios WHERE activo=1")
+              if set(PERMISOS) <= set(_permisos(r["permisos"])) and r["id"] != yo["id"]]
+    for uid in duenos:
+        notificar_push(db, None, f"{yo['nombre']} movió un trámite a «{PASOS[paso]}»", f"{cliente} · {titulo} · {codigo}",
+                       codigo, solo_usuario=uid)
+
+
+@app.get("/api/admin/registro")
+@requiere_admin
+def admin_registro():
+    """Quién hizo qué, con búsqueda. Solo el administrador principal (el que tiene todos los permisos)."""
+    if not es_dueno():
+        return error("Solo el administrador principal puede ver el registro completo.", 403)
+    db = get_db()
+    q = f"%{str(request.args.get('q', '')).strip()[:60]}%"
+    usuario = str(request.args.get("usuario", "")).strip()[:30]
+    solo_estados = request.args.get("estados") == "1"
+    sql = "SELECT id, usuario, accion, codigo, detalle, fecha FROM actividad WHERE (accion LIKE ? OR detalle LIKE ? OR codigo LIKE ?)"
+    args: list = [q, q, q]
+    if usuario:
+        sql += " AND usuario=?"
+        args.append(usuario)
+    if solo_estados:
+        sql += " AND accion LIKE 'Movió a paso%'"
+    sql += " ORDER BY id DESC LIMIT 300"
+    filas = [dict(r) for r in db.execute(sql, args)]
+    quienes = [r[0] for r in db.execute("SELECT DISTINCT usuario FROM actividad ORDER BY usuario")]
+    nombres = {r["usuario"]: r["nombre"] for r in db.execute("SELECT usuario, nombre FROM usuarios")}
+    return jsonify({"ok": True, "registro": filas, "usuarios": quienes, "nombres": nombres,
+                    "total": db.execute("SELECT COUNT(*) FROM actividad").fetchone()[0]})
 
 
 def correo_estado(db: sqlite3.Connection, codigo: str, titulo: str, paso: int, estado: str, detalle: str) -> str:
@@ -1593,9 +1664,16 @@ def admin_docs():
 
 
 @app.post("/api/admin/archivo")
-@requiere("expedientes")
+@requiere_admin
 def admin_archivo():
-    """Sube documentos escaneados (PDF o foto) para entregar al cliente. Formulario: codigo, archivo (uno o varios)."""
+    """Sube documentos: clase «entrega» (para el cliente) o «recibido» (lo que mandó el cliente). Formulario: codigo, clase, archivo."""
+    clase = str(request.form.get("clase", "entrega"))
+    if clase not in CLASES_ARCHIVO:
+        return error("Clase de documento no válida.")
+    if clase == "entrega" and not puede("expedientes"):
+        return error("Tu usuario no tiene permiso para esto. Pídeselo al administrador.", 403)
+    if clase == "recibido" and not (puede("expedientes") or puede("pagos")):
+        return error("Tu usuario no tiene permiso para esto. Pídeselo al administrador.", 403)
     codigo = str(request.form.get("codigo", "")).strip().upper()[:12]
     db = get_db()
     if not db.execute("SELECT 1 FROM seguimiento WHERE codigo=? AND eliminado IS NULL", (codigo,)).fetchone():
@@ -1603,7 +1681,7 @@ def admin_archivo():
     subidos = request.files.getlist("archivo")
     if not subidos:
         return error("Elige al menos un archivo.")
-    if len(archivos_de(db, codigo)) + len(subidos) > MAX_ARCHIVOS_CODIGO:
+    if len(archivos_de(db, codigo, clase)) + len(subidos) > MAX_ARCHIVOS_CODIGO:
         return error(f"Un expediente puede tener hasta {MAX_ARCHIVOS_CODIGO} documentos.")
     carpeta = carpeta_archivos() / codigo
     carpeta.mkdir(parents=True, exist_ok=True)
@@ -1620,16 +1698,44 @@ def admin_archivo():
             return error(f"«{nombre}» no parece un {ext[1:].upper()} válido.")
         guardado = f"{secrets.token_hex(12)}{ext}"
         (carpeta / guardado).write_bytes(datos)
-        db.execute("INSERT INTO archivos (codigo, nombre, archivo, tipo, tamano, creado, usuario) VALUES (?,?,?,?,?,?,?)",
-                   (codigo, nombre, f"{codigo}/{guardado}", TIPOS_ARCHIVO[ext], len(datos), ahora(), usuario_actual()["usuario"]))
+        db.execute("INSERT INTO archivos (codigo, nombre, archivo, tipo, tamano, creado, usuario, clase, estado) VALUES (?,?,?,?,?,?,?,?,?)",
+                   (codigo, nombre, f"{codigo}/{guardado}", TIPOS_ARCHIVO[ext], len(datos), ahora(), usuario_actual()["usuario"],
+                    clase, "nuevo" if clase == "recibido" else ""))
         nombres.append(nombre)
-    registrar("Subió documentos para entregar", codigo, ", ".join(nombres))
+    yo = usuario_actual()
+    registrar("Subió documentos para entregar" if clase == "entrega" else "Subió documentos recibidos del cliente", codigo, ", ".join(nombres))
     db.commit()
+    if clase == "recibido":
+        sol = db.execute("SELECT nombre FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+        cliente = sol["nombre"] if sol else codigo
+        titulo = f"Documento recibido: {nombres[0]}" + (f" y {len(nombres) - 1} más" if len(nombres) > 1 else "")
+        db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
+                   ("recibido", titulo[:200], f"{cliente} · lo subió {yo['nombre']}"[:200], codigo, ahora()))
+        db.commit()
+        avisar_equipo_correo(db, lambda perms: bool({"pagos", "validar_pagos", "usuarios"} & perms), titulo,
+                             f"{cliente} · {codigo} · lo subió {yo['nombre']}", codigo,
+                             ["Un documento del cliente está en el expediente, listo para revisar o validar."], excluir=yo["id"])
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)}), 201
 
 
+def avisar_equipo_correo(db: sqlite3.Connection, a_quien, titulo: str, cuerpo: str, codigo: str | None,
+                         parrafos: list[str], excluir: int | None = None) -> None:
+    """Notificación al teléfono + correo a los usuarios del equipo que cumplen a_quien(permisos)."""
+    notificar_push(db, a_quien, titulo, cuerpo, codigo, excluir=excluir)
+    para = [r["correo"] for r in db.execute("SELECT id, correo, permisos FROM usuarios WHERE activo=1 AND correo IS NOT NULL AND correo<>''")
+            if r["id"] != excluir and a_quien(set(_permisos(r["permisos"]))) and avisos.valido(r["correo"])]
+    if not para or not avisos.configurado():
+        return
+    texto, html_ = avisos.plantilla(titulo, "Hola:", parrafos,
+                                    datos=[("Código", codigo or "—"), ("Detalle", cuerpo)],
+                                    boton=("Abrir el panel", f"{avisos.sitio()}/admin"),
+                                    pie="Aviso interno del panel de TramitaFácil RD.")
+    avisos.enviar(para, f"{titulo}" + (f" · {codigo}" if codigo else ""), texto, html_,
+                  al_terminar=anotar_correo(codigo, para, titulo, "equipo"))
+
+
 @app.post("/api/admin/archivo/quitar")
-@requiere("expedientes")
+@requiere_admin
 def admin_archivo_quitar():
     d = cuerpo_json()
     codigo = str(d.get("codigo", "")).strip().upper()[:12]
@@ -1637,9 +1743,13 @@ def admin_archivo_quitar():
     r = db.execute("SELECT * FROM archivos WHERE id=? AND codigo=?", (numero(d.get("id")), codigo)).fetchone()
     if not r:
         return error("Ese documento no existe.", 404)
+    if r["clase"] == "entrega" and not puede("expedientes"):
+        return error("Tu usuario no tiene permiso para esto. Pídeselo al administrador.", 403)
+    if r["clase"] == "recibido" and not (puede("expedientes") or puede("pagos")):
+        return error("Tu usuario no tiene permiso para esto. Pídeselo al administrador.", 403)
     (carpeta_archivos() / r["archivo"]).unlink(missing_ok=True)
     db.execute("DELETE FROM archivos WHERE id=?", (r["id"],))
-    registrar("Quitó un documento", codigo, r["nombre"])
+    registrar("Quitó un documento" + (" recibido" if r["clase"] == "recibido" else " para entregar"), codigo, r["nombre"])
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
@@ -1652,6 +1762,66 @@ def admin_archivo_ver(aid: int):
     if not r or not ruta.is_file():
         return error("Ese documento no existe.", 404)
     return send_file(ruta, mimetype=r["tipo"], download_name=r["nombre"])
+
+
+@app.post("/api/admin/archivo/validar")
+@requiere_admin
+def admin_archivo_validar():
+    """Valida o rechaza un documento recibido del cliente: {codigo, id, accion: validar|rechazar, motivo?}."""
+    if not puede_validar():
+        return error("Solo administración o contabilidad pueden validar documentos.", 403)
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    db = get_db()
+    r = db.execute("SELECT * FROM archivos WHERE id=? AND codigo=? AND clase='recibido'", (numero(d.get("id")), codigo)).fetchone() if codigo else None
+    if not r:
+        return error("Ese documento no existe.", 404)
+    accion = str(d.get("accion", ""))
+    motivo = str(d.get("motivo", "") or "").strip()[:200]
+    if accion not in ("validar", "rechazar"):
+        return error("Elige validar o rechazar.")
+    if accion == "rechazar" and len(motivo) < 3:
+        return error("Escribe por qué se rechaza (por ejemplo: ilegible o no corresponde).")
+    estado = "validado" if accion == "validar" else "rechazado"
+    yo = usuario_actual()
+    db.execute("UPDATE archivos SET estado=?, revisado_por=?, motivo=? WHERE id=?", (estado, yo["usuario"], motivo or None, r["id"]))
+    registrar("Validó un documento recibido" if estado == "validado" else "Rechazó un documento recibido", codigo,
+              r["nombre"] + (f" · {motivo}" if motivo else ""))
+    db.commit()
+    # al gestor que lo subió le interesa saberlo
+    quien = db.execute("SELECT id FROM usuarios WHERE usuario=? AND activo=1", (r["usuario"],)).fetchone()
+    if quien and quien["id"] != yo["id"]:
+        notificar_push(db, None, f"Documento {estado}: {r['nombre']}"[:120],
+                       f"{codigo} · {yo['nombre']}" + (f": {motivo}" if motivo else ""), codigo, solo_usuario=quien["id"])
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/avisar-equipo")
+@requiere_admin
+def admin_avisar_equipo():
+    """Aviso de un miembro del equipo al equipo: {codigo, texto, para: todos|confirman}."""
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    if not codigo:
+        return error("No existe ese código.", 404)
+    texto = str(d.get("texto", "") or "").strip()[:200]
+    if len(texto) < 3:
+        return error("Escribe el aviso para el equipo.")
+    yo = usuario_actual()
+    db = get_db()
+    solo_confirman = str(d.get("para", "confirman")) == "confirman"
+    a_quien = (lambda perms: bool({"validar_pagos", "usuarios"} & perms)) if solo_confirman \
+        else (lambda perms: bool({"expedientes", "pagos", "validar_pagos", "usuarios"} & perms))
+    sol = db.execute("SELECT nombre FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    cliente = sol["nombre"] if sol else codigo
+    titulo = f"Aviso de {yo['nombre']}: {texto}"[:120]
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado) VALUES (?,?,?,?,?)",
+               ("equipo" if not solo_confirman else "recibido", titulo[:200], f"{cliente} · {codigo}"[:200], codigo, ahora()))
+    registrar("Avisó al equipo", codigo, texto)
+    db.commit()
+    avisar_equipo_correo(db, a_quien, titulo, f"{cliente} · {codigo}", codigo,
+                         [f"{yo['nombre']} dejó este aviso sobre el expediente {codigo}:", texto], excluir=yo["id"])
+    return jsonify({"ok": True})
 
 
 @app.post("/api/admin/archivo/enviar")
@@ -1814,13 +1984,13 @@ def claves_vapid(db: sqlite3.Connection) -> tuple[str, str] | None:
 
 
 def notificar_push(db: sqlite3.Connection, a_quien, titulo: str, cuerpo: str, codigo: str | None = None,
-                   solo_usuario: int | None = None) -> int:
+                   solo_usuario: int | None = None, excluir: int | None = None) -> int:
     """Envía la notificación a los dispositivos de los usuarios activos que cumplen a_quien(permisos)."""
     claves = claves_vapid(db)
     if not claves:
         return 0
     ids = {r["id"] for r in db.execute("SELECT id, permisos FROM usuarios WHERE activo=1")
-           if (r["id"] == solo_usuario if solo_usuario else a_quien(set(_permisos(r["permisos"]))))}
+           if (r["id"] == solo_usuario if solo_usuario else a_quien(set(_permisos(r["permisos"])))) and r["id"] != excluir}
     subs = [dict(r) for r in db.execute("SELECT endpoint, p256dh, auth, usuario_id FROM push_subs").fetchall() if r["usuario_id"] in ids]
     ruta = DB_PATH
 
@@ -1887,8 +2057,8 @@ def admin_push_probar():
 @requiere_admin
 def admin_avisos():
     """Solicitudes nuevas para la campana del panel. Los usuarios de solo lectura no reciben avisos."""
-    tipos = (["solicitud"] if puede("expedientes") else []) + (["pago"] if puede_validar() else []) \
-        + (["comprobante"] if puede("pagos") or puede_validar() else [])
+    tipos = (["solicitud", "equipo"] if puede("expedientes") else []) + (["pago"] if puede_validar() else []) \
+        + (["comprobante", "recibido"] if puede("pagos") or puede_validar() else []) + (["estado"] if es_dueno() else [])
     if not tipos:
         return jsonify({"ok": True, "avisos": [], "sin_leer": 0, "ultimo": 0, "solo_lectura": True})
     db = get_db()

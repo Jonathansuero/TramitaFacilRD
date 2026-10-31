@@ -750,3 +750,82 @@ def test_comprobante_del_cliente_y_notificaciones(client, monkeypatch, tmp_path)
     assert client.post("/api/admin/comprobante/descartar", json={"codigo": codigo, "id": c2}).status_code == 400
     e = client.post("/api/admin/comprobante/descartar", json={"codigo": codigo, "id": c2, "motivo": "Es de otro cliente"}).json["expediente"]
     assert e["comprobantes"][-1]["estado"] == "descartado"
+
+
+def test_documentos_recibidos_avisos_y_registro(client, monkeypatch, tmp_path):
+    import io
+    import push
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    monkeypatch.setenv("TF_ARCHIVOS", str(tmp_path / "archivos"))
+    monkeypatch.setenv("TF_CORREO_SINCRONO", "1")
+    enviados = []
+    monkeypatch.setattr(push, "_post", lambda endpoint, cuerpo, aut: enviados.append(endpoint) or 201)
+    codigo = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                                 "pais": "us", "servicio": "certificacion_solteria", "acepta": True}).json["codigo"]
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    for u, perms in (("gestor", ["expedientes"]), ("conta", ["pagos", "validar_pagos", "resumen"])):
+        client.post("/api/admin/usuarios/guardar", json={"usuario": u, "nombre": u.title(), "permisos": perms, "clave": "temporal-123",
+                                                          "correo": f"{u}@ejemplo.com"})
+    def entrar(u, clave="temporal-123"):
+        client.post("/api/admin/logout")
+        if client.post("/api/admin/login", json={"usuario": u, "clave": u + "-clave-1"}).status_code != 200:
+            client.post("/api/admin/login", json={"usuario": u, "clave": clave})
+            client.post("/api/admin/cuenta/clave", json={"actual": clave, "nueva": u + "-clave-1"})
+    # el administrador activa notificaciones en su teléfono
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import ec
+    k = push.b64u(ec.generate_private_key(ec.SECP256R1()).public_key().public_bytes(
+        serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint))
+    client.post("/api/admin/push/suscribir", json={"endpoint": "https://fcm.googleapis.com/fcm/send/dueno",
+                                                   "keys": {"p256dh": k, "auth": push.b64u(b"0123456789abcdef")}})
+    # el gestor sube un documento recibido del cliente: lo ve el equipo, no el cliente
+    entrar("gestor")
+    n = len(enviados)
+    r = client.post("/api/admin/archivo", data={"codigo": codigo, "clase": "recibido", "archivo": (io.BytesIO(PDF), "cedula.pdf")},
+                    content_type="multipart/form-data")
+    assert r.status_code == 201
+    e = r.json["expediente"]
+    assert e["recibidos"][0]["nombre"] == "cedula.pdf" and e["recibidos"][0]["estado"] == "nuevo" and e["archivos"] == []
+    assert len(enviados) == n + 1                                  # le avisó a quien confirma (el dueño)
+    rid = e["recibidos"][0]["id"]
+    assert client.get(f"/api/rastreo/{codigo}").json["archivos"] == 0   # el cliente no ve los recibidos
+    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"}).json["archivos"] == []
+    assert client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": rid, "accion": "validar"}).status_code == 403
+    # avisar al equipo desde el expediente
+    assert client.post("/api/admin/avisar-equipo", json={"codigo": codigo, "texto": "Falta el acta apostillada", "para": "todos"}).json["ok"]
+    assert client.post("/api/admin/avisar-equipo", json={"codigo": codigo, "texto": "x"}).status_code == 400
+    # contabilidad también puede subir recibidos y es quien valida
+    entrar("conta")
+    assert client.post("/api/admin/archivo", data={"codigo": codigo, "clase": "recibido", "archivo": (io.BytesIO(PDF), "transferencia.pdf")},
+                       content_type="multipart/form-data").status_code == 201
+    assert client.post("/api/admin/archivo", data={"codigo": codigo, "clase": "entrega", "archivo": (io.BytesIO(PDF), "acta.pdf")},
+                       content_type="multipart/form-data").status_code == 403   # entregar al cliente es de gestores
+    assert client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": rid, "accion": "rechazar"}).status_code == 400
+    e = client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": rid, "accion": "validar"}).json["expediente"]
+    assert e["recibidos"][0]["estado"] == "validado" and e["recibidos"][0]["revisado_por"] == "conta"
+    e = client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": e["recibidos"][1]["id"], "accion": "rechazar",
+                                                         "motivo": "Se ve borroso"}).json["expediente"]
+    assert e["recibidos"][1]["estado"] == "rechazado" and e["recibidos"][1]["motivo"] == "Se ve borroso"
+    # un cambio de estado avisa al administrador principal, con quién lo hizo
+    entrar("gestor")
+    n = len(enviados)
+    tid = client.get("/api/admin/expedientes").json["expedientes"][0]["tramites"][0]["id"]
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 3, "detalle": "Depositado en la JCE"})
+    assert len(enviados) == n + 1
+    assert client.get("/api/admin/registro").status_code == 403    # el gestor no ve el registro
+    # el administrador principal: avisos de estado y registro con búsqueda
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    av = client.get("/api/admin/avisos").json["avisos"]
+    assert av[0]["tipo"] == "estado" and av[0]["titulo"].startswith("Gestor movió un trámite")
+    assert {"recibido", "equipo"} <= {a["tipo"] for a in av}
+    reg = client.get("/api/admin/registro").json
+    assert reg["nombres"]["gestor"] == "Gestor" and "gestor" in reg["usuarios"]
+    assert [x for x in reg["registro"] if x["accion"].startswith("Movió a paso 3")][0]["usuario"] == "gestor"
+    solo = client.get("/api/admin/registro?estados=1&usuario=gestor").json["registro"]
+    assert solo and all(x["usuario"] == "gestor" and x["accion"].startswith("Movió a paso") for x in solo)
+    assert all("cedula" in (x["detalle"] or "") + x["accion"] for x in client.get("/api/admin/registro?q=cedula").json["registro"])
+    n = len(enviados)   # sus propios cambios no se los notifica a sí mismo
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo"})
+    assert len(enviados) == n
