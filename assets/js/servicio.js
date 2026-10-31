@@ -12,7 +12,8 @@
 
     function render() {
         const s = SERV[id], tr = tc('servicios', id), cat = tc('categorias', s.category);
-        document.title = `${tr.title} | TramitaFácil RD`;
+        // En español manda el título pensado para Google; en otros idiomas, el nombre traducido
+        document.title = (state.lang === 'es' && s.seo_titulo) || tr.title;
         $('sTiempo').innerHTML = TF.tiempoHtml(id, 'tiempo-oscuro');
         $('bcCat').textContent = cat.label;
         $('sCat').innerHTML = `<i class="fa-solid ${D.categorias[s.category].icono} mr-1"></i>${esc(cat.label)}`;

@@ -2,39 +2,49 @@
   "_formato": "ui: clave -> [español, inglés, francés]. contenido: traducciones de servicios, países, etc. (el español vive en catalogo.json). Verifica con: python manage.py i18n",
   "ui": {
     "meta.home.title": [
-      "TramitaFácil RD | Gestoría digital para dominicanos en cualquier país",
-      "TramitaFácil RD | Dominican paperwork, wherever you live",
-      "TramitaFácil RD | Démarches en République dominicaine, où que vous soyez"
+      "TramitaFácil RD | Trámites en República Dominicana sin viajar",
+      "TramitaFácil RD | Dominican paperwork without traveling",
+      "TramitaFácil RD | Démarches dominicaines sans voyager"
     ],
     "meta.home.desc": [
-      "Trámites en RD sin filas para quienes viven en República Dominicana, dominicanos en cualquier país y extranjeros. Cotiza en RD$, US$ o €.",
-      "Dominican Republic paperwork without lines for residents, Dominicans abroad and foreigners. Quotes in RD$, US$ or €.",
-      "Démarches en République dominicaine sans files d'attente pour les résidents, la diaspora et les étrangers. Devis en RD$, US$ ou €."
+      "¿Vives fuera y necesitas un trámite en República Dominicana? Lo gestionamos por ti ante la JCE, DGII, MIREX y más, sin que viajes. Cotiza en RD$, US$ o €.",
+      "Living abroad and need paperwork done in the Dominican Republic? We handle it for you at the JCE, DGII, MIREX and more. Get a free quote in RD$, US$ or €.",
+      "Vous vivez à l'étranger et avez besoin d'une démarche en République dominicaine ? Nous nous en chargeons (JCE, DGII, MIREX…). Devis gratuit en RD$, US$ ou €."
     ],
     "meta.instituciones.title": [
-      "Instituciones donde gestionamos | TramitaFácil RD",
-      "Institutions we handle | TramitaFácil RD",
-      "Institutions où nous intervenons | TramitaFácil RD"
+      "JCE, DGII, MIREX, DGM: instituciones donde gestionamos",
+      "JCE, DGII, MIREX, DGM: institutions we handle for you",
+      "JCE, DGII, MIREX, DGM : institutions où nous intervenons"
     ],
     "meta.instituciones.desc": [
-      "Instituciones públicas, privadas e internacionales ante las que gestionamos trámites.",
-      "Public, private and international institutions where we handle your paperwork.",
-      "Institutions publiques, privées et internationales auprès desquelles nous gérons vos démarches."
+      "JCE, DGII, MIREX, DGM, MESCYT, ONAPI y más: instituciones ante las que gestionamos tu trámite en RD mientras tú estás afuera.",
+      "JCE, DGII, MIREX, DGM, MESCYT, ONAPI and more: the institutions where we file your paperwork in RD while you are abroad.",
+      "JCE, DGII, MIREX, DGM, MESCYT, ONAPI et plus : les institutions où nous déposons vos démarches pendant que vous êtes à l'étranger."
+    ],
+    "meta.servicios.title": [
+      "Trámites en RD desde el exterior: servicios y precios",
+      "Dominican paperwork from abroad: services and prices",
+      "Démarches dominicaines depuis l'étranger : services et tarifs"
+    ],
+    "meta.servicios.desc": [
+      "Apostillas, actas, pasaportes, poderes, traspasos y más: 41 trámites dominicanos que resolvemos por ti desde donde estés. Cotiza gratis en RD$, US$ o €.",
+      "Apostilles, certificates, passports, powers of attorney, vehicle transfers and more: 41 Dominican services we handle for you wherever you are. Free quote.",
+      "Apostilles, actes, passeports, procurations, transferts et plus : 41 démarches dominicaines que nous réalisons où que vous soyez. Devis gratuit."
     ],
     "meta.diaspora.title": [
-      "Dominicanos en cualquier país | TramitaFácil RD",
-      "Dominicans in any country | TramitaFácil RD",
-      "Dominicains dans tous les pays | TramitaFácil RD"
+      "Trámites dominicanos desde EE.UU., España o cualquier país",
+      "Dominican paperwork from the US, Spain or anywhere",
+      "Démarches dominicaines depuis les États-Unis ou l'Espagne"
     ],
     "meta.diaspora.desc": [
-      "Haz tus trámites en República Dominicana desde cualquier país.",
-      "Handle your Dominican Republic paperwork from any country.",
-      "Faites vos démarches en République dominicaine depuis n'importe quel pays."
+      "¿Eres dominicano en el exterior y te piden un documento de RD? Lo retiramos, lo apostillamos y te lo enviamos a donde estés. Cotiza gratis.",
+      "A Dominican abroad and someone is asking for a document from RD? We collect it, get it apostilled and send it to you wherever you live. Free quote.",
+      "Dominicain à l'étranger et on vous demande un document de RD ? Nous le retirons, le faisons apostiller et vous l'envoyons. Devis gratuit."
     ],
     "meta.servicio.title": [
-      "Servicio | TramitaFácil RD",
-      "Service | TramitaFácil RD",
-      "Service | TramitaFácil RD"
+      "Detalle del trámite: requisitos, precio y tiempo",
+      "Service details: requirements, price and timeline",
+      "Détail de la démarche : conditions, prix et délai"
     ],
     "a11y.skip": [
       "Saltar al contenido",
@@ -1997,24 +2007,24 @@
       "👤 Nom"
     ],
     "meta.rastreo.title": [
-      "Rastrear mi trámite | TramitaFácil RD",
-      "Track my request | TramitaFácil RD",
-      "Suivre ma démarche | TramitaFácil RD"
+      "Rastrear mi trámite con el código de expediente",
+      "Track my case with the file code",
+      "Suivre ma démarche avec le code de dossier"
     ],
     "meta.rastreo.desc": [
-      "Consulta en línea el estado de tu expediente con tu código de seguimiento, desde cualquier país.",
-      "Check your file status online with your tracking code, from any country.",
-      "Consultez l'état de votre dossier en ligne avec votre code de suivi, depuis n'importe quel pays."
+      "Consulta el estado de tu expediente con tu código de seguimiento, desde cualquier país, y descarga tus documentos en cuanto estén listos.",
+      "Check your case status with your tracking code from any country and download your documents as soon as they are ready.",
+      "Consultez l'état de votre dossier avec votre code de suivi, depuis n'importe quel pays, et téléchargez vos documents dès qu'ils sont prêts."
     ],
     "meta.preguntas.title": [
-      "Preguntas frecuentes | TramitaFácil RD",
-      "Frequently asked questions | TramitaFácil RD",
-      "Questions fréquentes | TramitaFácil RD"
+      "Dudas sobre trámites en RD desde el exterior: respuestas",
+      "Questions about Dominican paperwork from abroad",
+      "Questions sur les démarches dominicaines depuis l'étranger"
     ],
     "meta.preguntas.desc": [
-      "Respuestas sobre trámites en República Dominicana desde cualquier país: poderes, pagos desde el exterior, tiempos y documentos.",
-      "Answers about Dominican Republic paperwork from any country: powers of attorney, paying from abroad, timing and documents.",
-      "Réponses sur les démarches en République dominicaine depuis n'importe quel pays : procurations, paiement depuis l'étranger, délais et documents."
+      "Respuestas claras sobre trámites en RD desde el exterior: poderes, apostillas, pagos desde afuera, tiempos y qué documentos te van a pedir.",
+      "Clear answers about Dominican paperwork from abroad: powers of attorney, apostilles, paying from outside, timelines and the documents you will be asked for.",
+      "Réponses claires sur les démarches dominicaines depuis l'étranger : procurations, apostilles, paiements, délais et documents demandés."
     ],
     "trackp.sub": [
       "Escribe el código que recibiste al enviar tu solicitud y mira en qué paso va tu expediente.",
@@ -2072,14 +2082,14 @@
       "Calculateurs"
     ],
     "meta.calculadora.title": [
-      "Calculadoras | TramitaFácil RD",
-      "Calculators | TramitaFácil RD",
-      "Calculateurs | TramitaFácil RD"
+      "Calcular IPI, traspaso vehicular y costo de tu trámite",
+      "Calculate IPI, vehicle transfer and your service cost",
+      "Calculer l'IPI, le transfert de véhicule et votre coût"
     ],
     "meta.calculadora.desc": [
-      "Calcula el costo de tu trámite en RD$, US$ o €, el IPI de tu inmueble y el traspaso de tu vehículo según la DGII.",
-      "Estimate your service cost in RD$, US$ or €, your property IPI tax and your vehicle transfer per DGII rules.",
-      "Estimez le coût de votre démarche en RD$, US$ ou €, l'IPI de votre bien et le transfert de votre véhicule selon la DGII."
+      "Calcula gratis cuánto te cuesta tu trámite en RD$, US$ o €, el IPI de tu inmueble y el traspaso de tu vehículo según la DGII.",
+      "Work out for free what your service costs in RD$, US$ or €, the IPI on your property and your vehicle transfer according to the DGII.",
+      "Calculez gratuitement le coût de votre démarche en RD$, US$ ou €, l'IPI de votre bien et le transfert de votre véhicule selon la DGII."
     ],
     "calcp.t": [
       "Calculadoras",
@@ -2342,14 +2352,14 @@
       "Cas réels"
     ],
     "meta.casos.title": [
-      "Casos reales | TramitaFácil RD",
-      "Real cases | TramitaFácil RD",
-      "Cas réels | TramitaFácil RD"
+      "Casos reales de dominicanos que resolvieron sin viajar",
+      "Real cases of Dominicans who sorted it out from abroad",
+      "Cas réels de Dominicains qui ont tout réglé à distance"
     ],
     "meta.casos.desc": [
-      "Situaciones que viven a diario los dominicanos con sus trámites en RD y cómo las resolvemos.",
-      "Everyday situations Dominicans face with paperwork in the DR, and how we solve them.",
-      "Situations quotidiennes des Dominicains avec leurs démarches en RD, et comment nous les résolvons."
+      "Situaciones reales de dominicanos en el exterior con sus trámites en RD y cómo las resolvimos sin que tuvieran que viajar.",
+      "Real situations of Dominicans abroad with their paperwork back home and how we solved them without them having to travel.",
+      "Situations réelles de Dominicains à l'étranger avec leurs démarches au pays et comment nous les avons réglées sans qu'ils voyagent."
     ],
     "casos.eyebrow": [
       "Casos reales",

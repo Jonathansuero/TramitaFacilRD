@@ -259,10 +259,17 @@ def test_pausa(client):
 def test_seo_canonical_y_vista_previa(client):
     r = client.get("/servicio?id=e_ticket").get_data(as_text=True)
     assert '<link rel="canonical" href="https://tramitafacilrd.com/servicio?id=e_ticket">' in r
-    assert "<title>Llenado Formulario E-Ticket Viaje RD | TramitaFácil RD</title>" in r
+    # el título que ve Google va sin la marca; al compartir el enlace sí se ve
+    assert "<title>Llenar el E-Ticket de entrada a República Dominicana</title>" in r
+    assert 'og:title" content="Llenar el E-Ticket de entrada a República Dominicana | TramitaFácil RD"' in r
     assert 'og:image" content="https://tramitafacilrd.com/assets/img/og-tramitafacil.png"' in r
     assert r.count('rel="canonical"') == 1 and r.count('property="og:title"') == 1
-    assert 'href="https://tramitafacilrd.com/"' in client.get("/").get_data(as_text=True)
+    inicio = client.get("/").get_data(as_text=True)
+    assert 'href="https://tramitafacilrd.com/"' in inicio
+    assert "<title>TramitaFácil RD | Trámites en República Dominicana sin viajar</title>" in inicio   # la portada conserva la marca
+    rastreo = client.get("/rastreo").get_data(as_text=True)
+    assert "<title>Rastrear mi trámite con el código de expediente</title>" in rastreo
+    assert 'og:title" content="Rastrear mi trámite con el código de expediente | TramitaFácil RD"' in rastreo
     assert 'canonical" href="https://tramitafacilrd.com/servicios"' in client.get("/servicio?id=nada").get_data(as_text=True)
     assert "canonical" not in client.get("/admin").get_data(as_text=True)
     w = client.get("/servicios?cat=viajes", headers={"Host": "www.tramitafacilrd.com"})

@@ -199,7 +199,8 @@
       "inst": [
         "dgm"
       ],
-      "seo": "¿Extranjero y quieres vivir en República Dominicana? Preparamos y depositamos tu expediente de residencia temporal o permanente en la DGM. Cotiza gratis."
+      "seo_titulo": "Residencia dominicana para extranjeros: requisitos y DGM",
+      "seo": "¿Extranjero y quieres vivir en República Dominicana? Preparamos y depositamos tu expediente de residencia en la DGM, estés aquí o en tu país. Cotiza gratis."
     },
     "green_card_usa": {
       "title": "Renovación de Residencia / Green Card EE.UU.",
@@ -214,7 +215,8 @@
       "inst": [
         "uscis"
       ],
-      "seo": "¿Tu Green Card vence o la perdiste? Llenamos tu formulario I-90 y preparamos tu expediente de renovación o reemplazo sin errores. Cotiza en US$ hoy."
+      "seo_titulo": "Renovar la Green Card (I-90) desde RD o el exterior",
+      "seo": "¿Tu Green Card vence o la perdiste? Llenamos tu I-90 y preparamos tu expediente de renovación o reemplazo sin errores, desde RD o EE.UU. Cotiza en US$ hoy."
     },
     "peticiones_familiares": {
       "title": "Peticiones Familiares EE.UU. / Europa (I-130)",
@@ -232,6 +234,7 @@
         "uscis",
         "consulados_ext"
       ],
+      "seo_titulo": "Petición familiar I-130 para traer a tu familia a EE.UU.",
       "seo": "Reúnete con tu familia: preparamos tu petición I-130 para EE.UU. o tu reagrupación en Europa, con formularios y evidencias en orden. Cotiza gratis."
     },
     "movimientos_migratorios": {
@@ -250,6 +253,7 @@
       "inst": [
         "dgm"
       ],
+      "seo_titulo": "Certificación de movimientos migratorios de la DGM",
       "seo": "Obtén tu certificación de entradas y salidas del país (DGM) sin ir a Migración. La gestionamos desde RD o desde el exterior. Cotiza gratis en línea."
     },
     "visa_europea": {
@@ -264,6 +268,7 @@
       "inst": [
         "consulados_ext"
       ],
+      "seo_titulo": "Visa Schengen para dominicanos: España, Francia, Italia",
       "seo": "¿Viajas a España, Francia o Italia? Armamos tu expediente Schengen completo: reservas, seguro, formulario y cita en BLS. Evita errores y cotiza hoy."
     },
     "e_ticket": {
@@ -282,7 +287,8 @@
       "inst": [
         "dgm"
       ],
-      "seo": "¿Viajas a República Dominicana? Llenamos tu E-Ticket de entrada o salida sin errores y te lo enviamos listo con su código QR. Rápido y sin complicaciones."
+      "seo_titulo": "Llenar el E-Ticket de entrada a República Dominicana",
+      "seo": "¿Viajas a República Dominicana? Llenamos tu E-Ticket de entrada o salida sin errores y te lo enviamos con su código QR a donde estés. Cotiza hoy."
     },
     "permiso_menores": {
       "title": "Permiso de Salida de Menores (DGM)",
@@ -300,6 +306,7 @@
         "dgm",
         "notarios"
       ],
+      "seo_titulo": "Permiso de salida de menores de RD: cómo tramitarlo",
       "seo": "¿Tu hijo viaja con un solo padre o con un tutor? Gestionamos el permiso de salida de menores ante la DGM, aunque estés en el exterior. Cotiza gratis hoy."
     },
     "pasaporte_vip": {
@@ -317,7 +324,8 @@
       "inst": [
         "pasaportes"
       ],
-      "seo": "¿Necesitas tu pasaporte dominicano con urgencia? Gestionamos tu cita rápida en Pasaportes (servicio VIP) y te guiamos con los requisitos. Cotiza hoy."
+      "seo_titulo": "Pasaporte dominicano VIP: cita rápida sin hacer filas",
+      "seo": "¿Necesitas tu pasaporte dominicano con urgencia? Gestionamos tu cita rápida (servicio VIP) y te guiamos con los requisitos, aunque estés fuera. Cotiza hoy."
     },
     "pasaporte_normal": {
       "title": "Pasaporte Dominicano Normal (MIP)",
@@ -334,6 +342,7 @@
       "inst": [
         "pasaportes"
       ],
+      "seo_titulo": "Renovar el pasaporte dominicano desde el exterior",
       "seo": "Renueva o saca tu pasaporte dominicano por primera vez sin filas. Te guiamos con la cita y los requisitos, desde RD o el exterior. Cotiza gratis hoy."
     },
     "visa_ds160": {
@@ -348,7 +357,8 @@
       "inst": [
         "embajada_eeuu"
       ],
-      "seo": "¿Vas a pedir la visa americana B1/B2? Llenamos tu formulario DS-160, creamos tu perfil y agendamos tu cita consular. Preséntate seguro. Cotiza hoy."
+      "seo_titulo": "Llenar el DS-160 de la visa americana sin errores",
+      "seo": "¿Vas a pedir la visa americana B1/B2? Llenamos tu DS-160, creamos tu perfil y agendamos tu cita consular desde donde estés. Preséntate seguro. Cotiza hoy."
     },
     "certificacion_solteria": {
       "title": "Certificación de Soltería (JCE)",
@@ -365,6 +375,7 @@
       "inst": [
         "jce"
       ],
+      "seo_titulo": "Certificación de soltería (JCE) sin viajar a RD",
       "seo": "¿Te vas a casar o la piden en el extranjero? Sacamos tu certificación de soltería de la JCE, lista para apostillar. Desde cualquier país. Cotiza ya."
     },
     "poderes_especiales": {
@@ -383,6 +394,7 @@
         "notarios",
         "consulados_rd"
       ],
+      "seo_titulo": "Poder notarial dominicano desde el exterior, sin viajar",
       "seo": "¿Vives fuera y necesitas que alguien firme por ti en RD? Redactamos tu poder notarial especial para ventas, compras o gestiones. Cotiza gratis hoy."
     },
     "rectificacion_actas_jce": {
@@ -400,6 +412,7 @@
       "inst": [
         "jce"
       ],
+      "seo_titulo": "Corregir errores en tu acta de la JCE desde donde estés",
       "seo": "¿Un error en tu nombre o fecha en el acta? Corregimos actas de nacimiento, matrimonio o defunción ante la JCE, aunque vivas fuera. Cotiza gratis."
     },
     "contratos_alquiler": {
@@ -418,6 +431,7 @@
       "inst": [
         "notarios"
       ],
+      "seo_titulo": "Contrato de alquiler notarizado en RD sin estar presente",
       "seo": "Protege tu propiedad con un contrato de alquiler notarizado, residencial o comercial. Lo redactamos y legalizamos aunque estés fuera del país. Cotiza."
     },
     "declaracion_union_libre": {
@@ -434,7 +448,8 @@
       "inst": [
         "notarios"
       ],
-      "seo": "¿Te piden demostrar tu unión libre para una visa, el banco o el seguro? Preparamos tu declaración jurada notarial de convivencia. Cotiza gratis hoy."
+      "seo_titulo": "Declaración jurada de unión libre en RD, paso a paso",
+      "seo": "¿Te piden demostrar tu unión libre para una visa, el banco o el seguro? Preparamos tu declaración jurada notarial, aunque vivas fuera. Cotiza gratis hoy."
     },
     "declaracion_jurada": {
       "title": "Declaración Jurada General (Ingresos, Soltería, etc.)",
@@ -451,7 +466,8 @@
       "inst": [
         "notarios"
       ],
-      "seo": "¿Necesitas una declaración jurada de ingresos, soltería u otra? La redactamos y notarizamos para trámites personales o del gobierno. Cotiza gratis."
+      "seo_titulo": "Declaración jurada en RD: ingresos, soltería y más",
+      "seo": "¿Necesitas una declaración jurada de ingresos, soltería u otra? La redactamos y notarizamos en RD y te la enviamos a donde estés. Cotiza gratis."
     },
     "contrato_notarial": {
       "title": "Contrato Notarial o Legalizado General",
@@ -466,7 +482,8 @@
       "inst": [
         "notarios"
       ],
-      "seo": "Formaliza tus acuerdos con un contrato notarial: promesas de venta, préstamos y acuerdos entre partes, redactados y legalizados en RD. Cotiza hoy."
+      "seo_titulo": "Contrato notarial o legalizado en RD a distancia",
+      "seo": "Formaliza tus acuerdos con un contrato notarial: promesas de venta, préstamos y acuerdos entre partes, legalizados en RD sin que viajes. Cotiza hoy."
     },
     "divorcio_mutuo_acuerdo": {
       "title": "Divorcio por Mutuo Consentimiento",
@@ -484,7 +501,8 @@
         "poder_judicial",
         "jce"
       ],
-      "seo": "Divorcio por mutuo consentimiento en RD de forma ágil y discreta: redactamos el acuerdo y damos seguimiento hasta la sentencia. Cotiza en confianza."
+      "seo_titulo": "Divorciarse por mutuo acuerdo en RD sin viajar",
+      "seo": "Divorcio por mutuo consentimiento en RD, ágil y discreto: redactamos el acuerdo y seguimos hasta la sentencia, aunque vivas fuera. Cotiza en confianza."
     },
     "hipotecas_cargas": {
       "title": "Inscripción / Cancelación de Hipotecas y Cargas",
@@ -502,7 +520,8 @@
         "ji",
         "bancos"
       ],
-      "seo": "¿Pagaste tu préstamo o vas a hipotecar? Gestionamos la inscripción o cancelación de hipotecas y cargas en el Registro de Títulos. Cotiza gratis hoy."
+      "seo_titulo": "Inscribir o cancelar una hipoteca sobre tu inmueble en RD",
+      "seo": "¿Pagaste tu préstamo o vas a hipotecar? Inscribimos o cancelamos hipotecas y cargas en el Registro de Títulos mientras estás fuera. Cotiza gratis hoy."
     },
     "estado_juridico_inmueble": {
       "title": "Certificación de Estado Jurídico del Inmueble (Libre de Cargas)",
@@ -519,7 +538,8 @@
       "inst": [
         "ji"
       ],
-      "seo": "Antes de comprar un terreno o casa en RD, verifica que esté libre de cargas. Sacamos la certificación de estado jurídico del inmueble. Cotiza gratis."
+      "seo_titulo": "Certificar que tu inmueble en RD está libre de cargas",
+      "seo": "Antes de comprar un terreno o casa en RD, verifica que esté libre de cargas: sacamos la certificación de estado jurídico y te la enviamos. Cotiza gratis."
     },
     "ipi_impuesto": {
       "title": "IPI (Impuesto a la Propiedad Inmobiliaria - DGII)",
@@ -537,7 +557,8 @@
       "inst": [
         "dgii"
       ],
-      "seo": "¿Tienes propiedad en RD? Calculamos, declaramos y pagamos tu IPI en la DGII, o tramitamos la exención si aplica. Evita recargos desde cualquier país."
+      "seo_titulo": "Pagar el IPI de tu propiedad en RD desde el exterior",
+      "seo": "¿Tienes propiedad en RD? Calculamos, declaramos y pagamos tu IPI en la DGII desde cualquier país, o tramitamos la exención si aplica. Cotiza gratis."
     },
     "deposito_banco_agricola": {
       "title": "Depósito de Alquileres en el Banco Agrícola",
@@ -554,6 +575,7 @@
       "inst": [
         "bagricola"
       ],
+      "seo_titulo": "Depósito de alquileres en el Banco Agrícola, paso a paso",
       "seo": "Cumple con la ley de alquileres: hacemos el depósito obligatorio en el Banco Agrícola por ti, aunque vivas fuera de RD. Rápido y seguro. Cotiza hoy."
     },
     "renovacion_licencia": {
@@ -571,7 +593,8 @@
       "inst": [
         "intrant"
       ],
-      "seo": "¿Se venció o perdiste tu licencia de conducir? Pagamos los impuestos, sacamos tu cita en INTRANT y te preparamos para la renovación. Cotiza gratis."
+      "seo_titulo": "Renovar la licencia de conducir dominicana desde afuera",
+      "seo": "¿Se venció o perdiste tu licencia de conducir dominicana? Pagamos los impuestos, sacamos tu cita en INTRANT y te preparamos todo desde afuera. Cotiza gratis."
     },
     "levantamiento_oposicion": {
       "title": "Levantamiento de Oposición de Vehículos (DGII)",
@@ -586,7 +609,8 @@
         "dgii",
         "bancos"
       ],
-      "seo": "¿Saldaste el préstamo de tu vehículo? Gestionamos el levantamiento de oposición en la DGII para que puedas venderlo o traspasarlo. Cotiza gratis."
+      "seo_titulo": "Levantar la oposición de tu vehículo en la DGII",
+      "seo": "¿Saldaste el préstamo de tu vehículo? Levantamos la oposición en la DGII para que puedas venderlo o traspasarlo, aunque estés fuera del país. Cotiza gratis."
     },
     "certificacion_no_registro_vehicular": {
       "title": "Certificación de Propiedad / No Registro de Vehículos",
@@ -601,7 +625,8 @@
       "inst": [
         "dgii"
       ],
-      "seo": "Obtén tu certificación de la DGII de propiedad o de no registro de vehículos, para visas, embajadas o trámites legales. Sin filas. Cotiza gratis."
+      "seo_titulo": "Certificar la propiedad o el no registro de un vehículo",
+      "seo": "Certificación de la DGII de propiedad o de no registro de vehículos, para visas, embajadas o trámites legales. Sin filas y desde donde estés. Cotiza gratis."
     },
     "duplicado_matricula": {
       "title": "Duplicado de Matrícula por Pérdida (DGII)",
@@ -615,7 +640,8 @@
       "inst": [
         "dgii"
       ],
-      "seo": "¿Perdiste la matrícula de tu vehículo? Hacemos todo: denuncia en la Policía, publicación en el periódico y el duplicado en la DGII. Cotiza gratis."
+      "seo_titulo": "Duplicado de matrícula por pérdida en la DGII",
+      "seo": "¿Perdiste la matrícula de tu vehículo? Hacemos todo aunque estés fuera: denuncia, publicación en el periódico y duplicado en la DGII. Cotiza gratis."
     },
     "traspaso_vehicular": {
       "title": "Traspaso Vehicular (DGII + Acto Venta)",
@@ -633,7 +659,8 @@
         "dgii",
         "notarios"
       ],
-      "seo": "¿Compraste o vendiste un vehículo? Hacemos el traspaso completo: acto de venta legalizado y matrícula nueva en la DGII. Sin filas. Cotiza gratis hoy."
+      "seo_titulo": "Traspasar un vehículo en la DGII sin estar en el país",
+      "seo": "¿Compraste o vendiste un vehículo? Hacemos el traspaso completo en la DGII, con acto de venta legalizado, sin que estés en el país. Cotiza gratis hoy."
     },
     "pagos_impuestos": {
       "title": "Gestión y Pago de Impuestos (DGII / Marbete)",
@@ -650,7 +677,8 @@
       "inst": [
         "dgii"
       ],
-      "seo": "Ponte al día con la DGII sin filas: pagamos tu marbete, liquidamos impuestos y te entregamos tus certificaciones al día. Desde cualquier país."
+      "seo_titulo": "Pagar impuestos y marbete de la DGII desde el exterior",
+      "seo": "Ponte al día con la DGII sin filas desde cualquier país: pagamos tu marbete, liquidamos impuestos y te entregamos tus certificaciones. Cotiza gratis."
     },
     "carfax_vehicular": {
       "title": "Reporte Carfax de Vehículo Importado",
@@ -664,6 +692,7 @@
       "inst": [
         "carfax"
       ],
+      "seo_titulo": "Reporte Carfax antes de comprar un vehículo importado",
       "seo": "¿Vas a comprar un vehículo importado de EE.UU. o Canadá? Te damos su reporte Carfax: accidentes, millaje real y robos. Compra seguro. Pídelo hoy."
     },
     "multas_transito": {
@@ -681,7 +710,8 @@
         "digesett",
         "pgr"
       ],
-      "seo": "¿Tienes multas de tránsito pendientes? Consultamos y pagamos tus multas de DIGESETT ante la PGR, aunque estés fuera del país. Evita problemas."
+      "seo_titulo": "Consultar y pagar multas de tránsito en RD en línea",
+      "seo": "¿Tienes multas de tránsito pendientes? Consultamos y pagamos tus multas de DIGESETT ante la PGR, aunque estés fuera del país. Cotiza gratis hoy."
     },
     "legalizacion_mescyt": {
       "title": "Legalización de Títulos Universitarios (MESCYT)",
@@ -698,6 +728,7 @@
       "inst": [
         "mescyt"
       ],
+      "seo_titulo": "Legalizar tu título universitario (MESCYT) para el exterior",
       "seo": "¿Vas a estudiar o trabajar en el exterior? Legalizamos tu título universitario en el MESCYT, listo para apostillar. Desde cualquier país. Cotiza."
     },
     "record_notas_minerd_mescyt": {
@@ -716,7 +747,8 @@
         "minerd",
         "mescyt"
       ],
-      "seo": "Legalizamos tu récord de notas del colegio o la universidad en MINERD o MESCYT, listo para becas, empleo o estudios fuera. Cotiza gratis hoy."
+      "seo_titulo": "Récord de notas del MINERD o MESCYT desde el exterior",
+      "seo": "Legalizamos tu récord de notas del colegio o la universidad en MINERD o MESCYT y te lo enviamos al exterior, listo para becas o empleo. Cotiza gratis hoy."
     },
     "certificacion_estudios": {
       "title": "Certificación de Estudios (Bachillerato / Universidad)",
@@ -734,7 +766,8 @@
         "minerd",
         "mescyt"
       ],
-      "seo": "Pedimos y retiramos tu certificación de bachiller (MINERD) o de estudios universitarios, lista para legalizar o apostillar. Cotiza gratis hoy."
+      "seo_titulo": "Certificación de estudios de bachillerato o universidad",
+      "seo": "Pedimos y retiramos tu certificación de bachiller (MINERD) o de estudios universitarios, lista para legalizar o apostillar y enviártela. Cotiza gratis."
     },
     "creacion_cv": {
       "title": "Creación de Currículum (CV) Profesional",
@@ -750,7 +783,8 @@
       ],
       "desc": "Redactamos y diseñamos tu CV en español o inglés, listo para empleos en RD o en el exterior. Entrega en PDF y Word.",
       "inst": [],
-      "seo": "Destaca en tu próxima entrevista: diseñamos tu currículum profesional en español o inglés, para empleos en RD o en el exterior. En PDF y Word."
+      "seo_titulo": "Currículum profesional listo para aplicar a empleos",
+      "seo": "Destaca en tu próxima entrevista: diseñamos tu currículum profesional en español o inglés, en PDF y Word, para empleos en RD o en el exterior. Cotiza hoy."
     },
     "exequatur_ley": {
       "title": "Exequátur de Ley para Ejercicio Profesional",
@@ -766,7 +800,8 @@
         "mescyt",
         "pgr"
       ],
-      "seo": "¿Abogado, médico o ingeniero? Gestionamos tu exequátur para ejercer legalmente tu profesión en República Dominicana. Te guiamos en todo. Cotiza."
+      "seo_titulo": "Exequátur de ley para ejercer tu profesión en RD",
+      "seo": "¿Abogado, médico o ingeniero? Gestionamos tu exequátur para ejercer tu profesión en RD, aunque te estés mudando desde el exterior. Cotiza gratis hoy."
     },
     "apostilla_documentos": {
       "title": "Apostilla de Documentos (MIREX Cancillería)",
@@ -783,6 +818,7 @@
       "inst": [
         "mirex"
       ],
+      "seo_titulo": "Apostillar documentos dominicanos desde EE.UU. o España",
       "seo": "Apostillamos tus actas, títulos y documentos en la Cancillería (MIREX) para que tengan validez en EE.UU., España y otros países. Cotiza gratis hoy."
     },
     "legalizacion_documentos": {
@@ -803,6 +839,7 @@
         "minerd",
         "pgr"
       ],
+      "seo_titulo": "Legalizar documentos oficiales dominicanos para el exterior",
       "seo": "Legalizamos tus documentos oficiales en la JCE, MESCYT, MINERD o la PGR, el paso previo a la apostilla. Sin filas, desde cualquier país. Cotiza."
     },
     "traduccion_documentos": {
@@ -821,7 +858,8 @@
       "inst": [
         "interpretes"
       ],
-      "seo": "Traducción judicial oficial de tus documentos al inglés, francés, italiano o alemán, firmada por intérprete judicial. Válida para trámites. Cotiza."
+      "seo_titulo": "Traducción judicial oficial de documentos dominicanos",
+      "seo": "Traducción judicial oficial al inglés, francés, italiano o alemán, firmada por intérprete judicial y enviada a donde estés. Válida para trámites. Cotiza."
     },
     "turnitin_check": {
       "title": "Verificación Antiplagio Turnitin (Informe Tesis)",
@@ -833,7 +871,8 @@
       ],
       "desc": "Escaneo de tesis en Turnitin sin guardar en repositorio + reporte PDF.",
       "inst": [],
-      "seo": "Revisa tu tesis en Turnitin antes de entregarla: te damos el reporte de similitud en PDF sin guardarla en el repositorio. Rápido y confidencial."
+      "seo_titulo": "Verificar tu tesis en Turnitin y recibir el informe",
+      "seo": "Revisa tu tesis en Turnitin antes de entregarla: te damos el reporte de similitud en PDF, sin guardarla en el repositorio. Rápido y confidencial. Cotiza."
     },
     "constitucion_empresas": {
       "title": "Constitución Completa de Empresa / SRL",
@@ -853,6 +892,7 @@
         "camara",
         "dgii"
       ],
+      "seo_titulo": "Crear tu empresa (SRL) en RD viviendo en el exterior",
       "seo": "Forma tu empresa o SRL en RD: registro de nombre en ONAPI, Registro Mercantil y RNC en la DGII. Paso a paso, aunque vivas fuera. Cotiza gratis."
     },
     "registro_empresa_onapi": {
@@ -868,7 +908,8 @@
       "inst": [
         "onapi"
       ],
-      "seo": "Protege el nombre de tu negocio: lo registramos en ONAPI para que nadie más lo use. Primer paso para formar tu empresa en RD. Cotiza gratis hoy."
+      "seo_titulo": "Registrar tu nombre comercial en ONAPI sin ir a la oficina",
+      "seo": "Protege el nombre de tu negocio: lo registramos en ONAPI para que nadie más lo use, aunque vivas fuera de RD. Primer paso de tu empresa. Cotiza gratis."
     }
   },
   "checklists": {

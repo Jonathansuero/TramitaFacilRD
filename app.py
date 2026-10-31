@@ -2457,7 +2457,8 @@ def pagina(nombre: str):
         serv = cat["servicios"].get(sid)
         if serv:
             ruta = f"/servicio?id={sid}"
-            titulo = f"{serv['title']} | TramitaFácil RD"
+            # título pensado para Google (data/catalogo.json → "seo_titulo"); si falta, el nombre del servicio
+            titulo = serv.get("seo_titulo") or serv["title"]
             # texto pensado para Google (data/catalogo.json → "seo"); si falta, la descripción del servicio
             desc = " ".join((serv.get("seo") or serv.get("desc", "")).split())[:300]
             html = re.sub(r"<title>.*?</title>", f"<title>{_atr(titulo)}</title>", html, count=1, flags=re.S)
@@ -2466,13 +2467,15 @@ def pagina(nombre: str):
             ruta = "/servicios"   # sin servicio válido: la dirección oficial es el catálogo
     url = sitio + ruta
     imagen = f"{sitio}/assets/img/og-tramitafacil.png"
+    # Al compartir el enlace (WhatsApp, Facebook) sí se ve la marca, aunque el título de Google no la lleve
+    og_titulo = titulo if "TramitaFácil RD" in titulo else f"{titulo} | TramitaFácil RD"
     etiquetas = f"""
     <link rel="canonical" href="{_atr(url)}">
     <meta property="og:site_name" content="TramitaFácil RD">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="es_DO">
     <meta property="og:url" content="{_atr(url)}">
-    <meta property="og:title" content="{_atr(titulo)}">
+    <meta property="og:title" content="{_atr(og_titulo)}">
     <meta property="og:description" content="{_atr(desc)}">
     <meta property="og:image" content="{imagen}">
     <meta property="og:image:width" content="1200">
