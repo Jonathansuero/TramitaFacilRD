@@ -829,3 +829,46 @@ def test_documentos_recibidos_avisos_y_registro(client, monkeypatch, tmp_path):
     n = len(enviados)   # sus propios cambios no se los notifica a sí mismo
     client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo"})
     assert len(enviados) == n
+
+
+def test_pago_rechazado_y_por_whatsapp(client, monkeypatch, tmp_path):
+    import io
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    monkeypatch.setenv("TF_ARCHIVOS", str(tmp_path / "archivos"))
+    codigo = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                                 "pais": "us", "servicio": "certificacion_solteria", "acepta": True}).json["codigo"]
+    # el cliente avisa que paga por WhatsApp
+    r = client.post(f"/api/rastreo/{codigo}/pago-whatsapp")
+    assert r.json["ok"]
+    assert client.post(f"/api/rastreo/{codigo}/pago-whatsapp").json["ok"]       # repetirlo no molesta
+    assert client.post("/api/rastreo/RD-NOEXIST/pago-whatsapp").status_code == 404
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    e = next(x for x in client.get("/api/admin/expedientes").json["expedientes"] if x["codigo"] == codigo)
+    assert e["pago_wa"] and len([a for a in client.get("/api/admin/avisos").json["avisos"] if "WhatsApp" in a["titulo"]]) == 1
+    # el cliente sube un comprobante y se lo descartan: lo ve en rojo, con el motivo
+    client.post(f"/api/rastreo/{codigo}/comprobante", data={"dato": "1234", "monto": "1060", "metodo": "Transferencia",
+                "archivo": (io.BytesIO(PDF), "borroso.pdf")}, content_type="multipart/form-data")
+    assert client.get(f"/api/rastreo/{codigo}").json["pago"] == "por_confirmar"
+    cid = next(x for x in client.get("/api/admin/expedientes").json["expedientes"] if x["codigo"] == codigo)["comprobantes"][0]["id"]
+    client.post("/api/admin/comprobante/descartar", json={"codigo": codigo, "id": cid, "motivo": "No se lee el monto"})
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["pago"] == "rechazado" and v["pago_motivo"] == "No se lee el monto"
+    # vuelve a enviarlo: otra vez en revisión
+    client.post(f"/api/rastreo/{codigo}/comprobante", data={"dato": "1234", "monto": "1060", "metodo": "Transferencia",
+                "archivo": (io.BytesIO(PDF), "claro.pdf")}, content_type="multipart/form-data")
+    assert client.get(f"/api/rastreo/{codigo}").json["pago"] == "por_confirmar"
+    # el equipo registra el pago indicando que llegó por WhatsApp
+    e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": 1060, "metodo": "Transferencia",
+                                              "whatsapp": True}).json["expediente"]
+    assert e["pagos"][0]["via_whatsapp"] == 1
+    assert client.get(f"/api/rastreo/{codigo}").json["pago"] == "por_confirmar"   # queda el otro comprobante sin revisar
+    cid2 = e["comprobantes"][-1]["id"]
+    client.post("/api/admin/comprobante/descartar", json={"codigo": codigo, "id": cid2, "motivo": "Duplicado", "avisar": False})
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["pago"] == "confirmado" and v["pago_motivo"] == ""   # el pago bueno es posterior al rechazo
+    # y un pago rechazado también se le avisa al cliente
+    pid = e["pagos"][0]["id"]
+    client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "rechazar", "motivo": "No llegó"})
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["pago"] == "rechazado" and v["pago_motivo"] == "No llegó"

@@ -575,35 +575,49 @@
             ${lista.map(c => { const [n, k] = EST[c.estado] || [c.estado, ''];
                 return `<div class="comp ${c.estado}">
                     <div class="comp-cab"><b>${esc(montoComp(c))} · ${esc(c.metodo || '')}</b><span class="ep ${k}">${esc(n)}</span></div>
-                    <small>${esc(fecha(c.creado))}${c.nota ? ` · «${esc(c.nota)}»` : ''}${c.estado === 'descartado' && c.motivo ? ` · ${esc(c.revisado_por || '')}: ${esc(c.motivo)}` : ''}${c.estado === 'usado' && c.revisado_por ? ` · registrado por ${esc(c.revisado_por)}` : ''}</small>
+                    <small>${esc(fecha(c.creado))}${c.nota ? ` · «${esc(c.nota)}»` : ''}${c.estado === 'descartado' && c.motivo ? ` · ${esc(c.revisado_por || '')}: ${esc(c.motivo)}${c.avisar_cliente ? ' · el cliente lo ve' : ''}` : ''}${c.estado === 'usado' && c.revisado_por ? ` · registrado por ${esc(c.revisado_por)}` : ''}</small>
                     <div class="comp-acc"><a class="btn btn-borde btn-sm" href="/api/admin/comprobante/${c.id}" target="_blank" rel="noopener">Ver comprobante</a>
                         ${c.estado === 'nuevo' && e.pendiente !== 0 ? `<button type="button" class="btn btn-azul btn-sm" data-usar-comp="${c.id}" data-codigo="${esc(e.codigo)}">Registrar este pago</button>` : ''}
                         ${c.estado === 'nuevo' && puedeValidar() ? `<button type="button" class="btn btn-borde btn-sm" data-descartar-comp="${c.id}" data-codigo="${esc(e.codigo)}">Descartar</button>` : ''}</div>
                 </div>`; }).join('')}
         </div>`;
     }
+    /** ¿El monto fue el que tocaba? Compara con lo que se esperaba en ese momento. */
+    function compararMonto(e, p) {
+        const total = e.total_dop;
+        if (total == null || p.estado === 'rechazado') return null;
+        const antes = (e.pagos || []).filter(x => x.id < p.id && x.estado === 'confirmado').reduce((s, x) => s + x.monto, 0);
+        const esperado = p.tipo === 'anticipo' ? Math.round(total / 2) : p.tipo === 'saldo' ? Math.max(0, total - antes) : null;
+        if (!esperado) return null;
+        const dif = Math.round(p.monto - esperado);
+        if (dif === 0) return ['Monto completo', 'ok'];
+        if (dif < 0) return [`Incompleto · faltan ${rd(-dif)}`, 'pend'];
+        return [`Pagó ${rd(dif)} de más`, 'sky'];
+    }
     function filaPago(e, p) {
         const est = p.estado || 'confirmado', [nombre, clase] = ESTADO_PAGO[est] || [est, ''];
         const puedeBorrar = puedeValidar() || (est === 'pendiente' && yo && p.registrado_por === yo.usuario);
         const quien = est === 'pendiente' ? (p.registrado_por ? `registró ${p.registrado_por}` : '')
             : est === 'confirmado' ? (p.validado_por ? `confirmó ${p.validado_por}` : '') : `rechazó ${p.validado_por || ''}${p.motivo ? `: ${p.motivo}` : ''}`;
-        return `<li class="pago ${clase}"><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''} <span class="ep ${clase}">${esc(nombre)}</span>${p.comprobante_id ? ` <a class="link" href="/api/admin/comprobante/${p.comprobante_id}" target="_blank" rel="noopener">con comprobante del cliente</a>` : ''}
+        return `<li class="pago ${clase}"><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''} <span class="ep ${clase}">${esc(nombre)}</span>${p.via_whatsapp ? ' <span class="ep wa">por WhatsApp</span>' : ''}${(c => c ? ` <span class="ep ${c[1]}">${esc(c[0])}</span>` : '')(compararMonto(e, p))}${p.comprobante_id ? ` <a class="link" href="/api/admin/comprobante/${p.comprobante_id}" target="_blank" rel="noopener">con comprobante del cliente</a>` : ''}
                 <br><small>${esc(diaCorto(p.fecha))}${p.nota ? ` · ${esc(p.nota)}` : ''}${quien ? ` · ${esc(quien)}` : ''}</small>
-                ${est === 'pendiente' && puedeValidar() ? `<span class="validar-btns"><button type="button" class="btn btn-verde btn-sm" data-validar-pago="${p.id}" data-codigo="${esc(e.codigo)}">${ico('ok', 14)} Confirmar</button>
-                    <button type="button" class="btn btn-borde btn-sm" data-rechazar-pago="${p.id}" data-codigo="${esc(e.codigo)}">Rechazar</button></span>` : ''}</span>
+                ${puedeValidar() ? `<span class="validar-btns">
+                    ${est !== 'confirmado' ? `<button type="button" class="btn btn-verde btn-sm" data-validar-pago="${p.id}" data-codigo="${esc(e.codigo)}">${ico('ok', 14)} Confirmar</button>` : ''}
+                    ${est !== 'rechazado' ? `<button type="button" class="btn btn-borde btn-sm" data-rechazar-pago="${p.id}" data-codigo="${esc(e.codigo)}">${est === 'confirmado' ? 'Revertir y rechazar' : 'Rechazar'}</button>` : ''}</span>` : ''}</span>
             ${puedeBorrar ? `<button type="button" class="x" data-quitar-pago="${p.id}" data-codigo="${esc(e.codigo)}" title="Borrar este pago" aria-label="Borrar este pago">×</button>` : ''}</li>`;
     }
     async function validarPago(btn, accion) {
-        let motivo = '';
+        let motivo = '', avisar = true;
         if (accion === 'rechazar') {
-            motivo = window.prompt('¿Por qué se rechaza este pago? (por ejemplo: no llegó la transferencia)') || '';
+            motivo = window.prompt('¿Por qué se rechaza este pago? El cliente lo verá en Rastrear.\n(por ejemplo: no llegó la transferencia)') || '';
             if (!motivo.trim()) return;
+            avisar = window.confirm(`¿Avisarle al cliente para que lo envíe otra vez?\n\nAceptar: verá en rojo «${motivo.trim()}» y que vuelva a enviarlo.\nCancelar: no se entera (úsalo si es un duplicado o un error interno).`);
         }
         btn.disabled = true;
         try {
-            const r = await post('/admin/pago/validar', { codigo: btn.dataset.codigo, id: Number(btn.dataset.validarPago || btn.dataset.rechazarPago), accion, motivo });
+            const r = await post('/admin/pago/validar', { codigo: btn.dataset.codigo, id: Number(btn.dataset.validarPago || btn.dataset.rechazarPago), accion, motivo, avisar });
             reemplazar(r.expediente);
-            toast(accion === 'confirmar' ? 'Pago confirmado. Ya cuenta como cobrado.' : 'Pago rechazado. No cuenta como cobrado.');
+            toast(accion === 'confirmar' ? 'Pago confirmado. Ya cuenta como cobrado.' : `Pago rechazado. No cuenta como cobrado${avisar ? ' y el cliente ya lo ve en Rastrear' : ''}.`);
         } catch (e) { if (e.message !== 'sesion') toast(e.message); btn.disabled = false; }
     }
     function bloqueCobro(e) {
@@ -619,6 +633,7 @@
                 <div class="${e.pendiente > 0 ? 'pend' : 'ok'}"><small>Pendiente</small><b>${esc(total == null ? '—' : rd(e.pendiente))}</b></div>
             </div>
             ${total ? `<div class="progreso"><i style="width:${pct}%"></i></div>` : '<small style="color:var(--suave)">Este expediente tiene un trámite sin precio; ponle precio para calcular lo pendiente.</small>'}
+            ${e.pago_wa && !(e.pagos || []).length ? `<div class="pago-alerta wa">${ico('chat', 18)}<span><b>El cliente avisó que paga por WhatsApp</b>Dijo desde la página que envía el comprobante por ahí · ${esc(fecha(e.pago_wa))}</span></div>` : ''}
             ${e.por_confirmar > 0 ? `<div class="pago-alerta">${ico('validar_pagos', 18)}<span><b>${esc(rd(e.por_confirmar))} por confirmar</b>${puedeValidar() ? 'Revisa que el dinero llegó y confírmalo o recházalo.' : 'Administración o contabilidad debe confirmarlo. El cliente ve «Pago pendiente por confirmar».'}</span></div>` : ''}
             ${pagos.length ? `<ul class="filas pagos-lista">${pagos.map(p => filaPago(e, p)).join('')}</ul>` : ''}
             ${bloqueComprobantes(e)}
@@ -628,6 +643,7 @@
                 <input class="input" name="monto" type="number" min="1" step="any" inputmode="decimal" placeholder="Monto RD$" value="${sugerido}" aria-label="Monto recibido" required>
                 <select class="input" name="metodo" aria-label="Método">${METODOS.map(m => `<option>${m}</option>`).join('')}</select>
                 <input class="input" name="fecha" type="date" value="${hoyRD()}" aria-label="Fecha del pago">
+                <label class="check-wa"><input type="checkbox" name="whatsapp"${e.pago_wa ? ' checked' : ''}> ${ico('chat', 14)} El comprobante llegó por WhatsApp</label>
                 <button class="btn btn-borde btn-sm" type="submit">Registrar</button>
             </form>`}
         </div>`;
@@ -740,7 +756,8 @@
                     <div class="acciones"><button class="btn btn-peligro" type="submit">Sí, mover al zafacón</button><button class="btn btn-borde" type="button" data-cancelar-borrar>Cancelar</button></div>
                 </form>` : `<div class="zona-peligro"><button type="button" class="link-rojo" data-eliminar="${esc(e.codigo)}">${ico('zafacon', 14)} Eliminar cliente</button></div>`) : ''}
             </div>`;
-        const recChip = recSinRevisar(e).length && (puede('expedientes') || puede('pagos')) ? '<span class="chip doc-n">Documento sin revisar</span>' : '';
+        const recChip = (recSinRevisar(e).length && (puede('expedientes') || puede('pagos')) ? '<span class="chip doc-n">Documento sin revisar</span>' : '')
+            + (e.pago_wa && puede('pagos') && !(e.pagos || []).length ? '<span class="chip wa-n">Paga por WhatsApp</span>' : '');
         const cobroChip = recChip + (!puede('pagos') ? '' : (compNuevos(e).length ? '<span class="chip comp-n">Comprobante nuevo</span>' : '') + (e.por_confirmar > 0 ? '<span class="chip porconf">Pago por confirmar</span>' : '') + (e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
             : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : '')));
         return `<article class="exp${recien.has(e.codigo) ? ' recien' : ''}" data-codigo="${esc(e.codigo)}">
@@ -1773,9 +1790,10 @@
         }
         const dc = ev.target.closest('[data-descartar-comp]');
         if (dc) {
-            const motivo = window.prompt('¿Por qué se descarta este comprobante? (por ejemplo: ilegible o de otro cliente)') || '';
+            const motivo = window.prompt('¿Por qué se descarta este comprobante? El cliente lo verá en Rastrear.\n(por ejemplo: la foto está ilegible)') || '';
             if (!motivo.trim()) return;
-            try { reemplazar((await post('/admin/comprobante/descartar', { codigo: dc.dataset.codigo, id: Number(dc.dataset.descartarComp), motivo })).expediente); pintar(); toast('Comprobante descartado'); }
+            const avisar = window.confirm(`¿Avisarle al cliente para que lo envíe otra vez?\n\nAceptar: verá en rojo «${motivo.trim()}» y que vuelva a enviarlo.\nCancelar: no se entera (úsalo si es un duplicado o un error interno).`);
+            try { reemplazar((await post('/admin/comprobante/descartar', { codigo: dc.dataset.codigo, id: Number(dc.dataset.descartarComp), motivo, avisar })).expediente); pintar(); toast(avisar ? 'Comprobante descartado. El cliente ya lo ve en Rastrear.' : 'Comprobante descartado'); }
             catch (e) { if (e.message !== 'sesion') toast(e.message); }
             return;
         }
@@ -1840,7 +1858,8 @@
                 toast('Trámite agregado al mismo código.');
             } else if (form.classList.contains('form-pago')) {
                 const r = await post('/admin/pago', { codigo: form.dataset.codigo, tipo: form.tipo.value, monto: Number(form.monto.value),
-                    metodo: form.metodo.value, fecha: form.fecha.value, comprobante_id: form.dataset.comprobante ? Number(form.dataset.comprobante) : undefined });
+                    metodo: form.metodo.value, fecha: form.fecha.value, whatsapp: !!(form.whatsapp && form.whatsapp.checked),
+                    comprobante_id: form.dataset.comprobante ? Number(form.dataset.comprobante) : undefined });
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintarTodo();
                 toast(r.estado === 'pendiente' ? 'Pago registrado. Queda por confirmar por administración o contabilidad.'

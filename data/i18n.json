@@ -876,6 +876,36 @@
       "Our team has verified your payment. Thank you!",
       "Notre équipe a vérifié votre paiement. Merci !"
     ],
+    "track.pago.mal": [
+      "Tu pago fue rechazado",
+      "Your payment was rejected",
+      "Votre paiement a été refusé"
+    ],
+    "track.pago.mal.d": [
+      "No pudimos validar tu pago. Por favor envía el comprobante otra vez, o escríbenos por WhatsApp y lo resolvemos contigo.",
+      "We couldn't validate your payment. Please send the receipt again, or message us on WhatsApp and we'll sort it out with you.",
+      "Nous n'avons pas pu valider votre paiement. Renvoyez le reçu ou écrivez-nous sur WhatsApp et nous réglerons cela avec vous."
+    ],
+    "track.pago.mal.d.motivo": [
+      "No pudimos validar tu pago: {motivo}. Por favor envía el comprobante otra vez, o escríbenos por WhatsApp y lo resolvemos contigo.",
+      "We couldn't validate your payment: {motivo}. Please send the receipt again, or message us on WhatsApp and we'll sort it out with you.",
+      "Nous n'avons pas pu valider votre paiement : {motivo}. Renvoyez le reçu ou écrivez-nous sur WhatsApp et nous réglerons cela avec vous."
+    ],
+    "track.comp.o": [
+      "¿Prefieres enviarlo por WhatsApp?",
+      "Prefer to send it on WhatsApp?",
+      "Vous préférez l'envoyer sur WhatsApp ?"
+    ],
+    "track.comp.wa": [
+      "Enviarlo por WhatsApp",
+      "Send it on WhatsApp",
+      "L'envoyer sur WhatsApp"
+    ],
+    "wa.comp": [
+      "Les escribo por mi expediente {code}. Les envío por aquí el comprobante de mi pago.",
+      "I'm writing about my request {code}. I'm sending you my payment receipt here.",
+      "Je vous écris au sujet de mon dossier {code}. Je vous envoie ici mon reçu de paiement."
+    ],
     "track.comp.t": [
       "¿Ya pagaste? Sube tu comprobante",
       "Already paid? Upload your receipt",
