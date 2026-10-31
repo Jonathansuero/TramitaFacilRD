@@ -1371,7 +1371,7 @@
             if (llegaron.length) {
                 llegaron.forEach(a => { if (a.codigo) recien.add(a.codigo); });
                 await actualizarYa();   // la solicitud nueva aparece en la lista sin recargar
-                llegaron.filter(a => a.nuevo).slice(0, 3).reverse().forEach(notificar);
+                llegaron.filter(a => a.nuevo && !a.propio).slice(0, 3).reverse().forEach(notificar);   // no te avisa de lo que tú mismo hiciste
                 setTimeout(() => { llegaron.forEach(a => recien.delete(a.codigo)); document.querySelectorAll('.exp.recien').forEach(x => x.classList.remove('recien')); }, 12000);
             }
         } catch (e) { /* sin conexión */ }
@@ -1658,14 +1658,14 @@
     async function guardarDocumentos(btn) {
         const codigo = btn.dataset.guardarDocs, clase = btn.dataset.clase || 'entrega', lista = porSubir.get(llaveSubir(codigo, clase)) || [];
         if (!lista.length) return;
-        const fd = new FormData(); fd.append('codigo', codigo); fd.append('clase', clase);
-        lista.forEach(f => fd.append('archivo', f, f.name));
         btn.disabled = true; btn.textContent = 'Guardando…';
         try {
+            const fd = new FormData(); fd.append('codigo', codigo); fd.append('clase', clase);
+            for (const f of lista) { const chico = await TF_IMAGEN.achicar(f); fd.append('archivo', chico, chico.name); }
             const r = await fetch('/api/admin/archivo', { method: 'POST', body: fd, credentials: 'same-origin' });
-            let d = {}; try { d = await r.json(); } catch (e) { /* sin JSON */ }
+            let d = {}; try { d = await r.json(); } catch (e) { /* el servidor no respondió en JSON */ }
             if (r.status === 401) { mostrarLogin('Tu sesión terminó. Vuelve a entrar.'); return; }
-            if (!r.ok || d.ok === false) throw new Error(d.error || (r.status === 413 ? 'Los archivos pesan demasiado.' : 'No se pudo guardar.'));
+            if (!r.ok || d.ok === false) throw new Error(TF_IMAGEN.errorSubida(r.status, d));
             porSubir.delete(llaveSubir(codigo, clase)); reemplazar(d.expediente); pintar();
             toast(clase === 'recibido' ? `${lista.length > 1 ? 'Documentos guardados' : 'Documento guardado'}. El equipo ya puede revisarlo.`
                 : `${lista.length > 1 ? 'Documentos guardados' : 'Documento guardado'}. El cliente ya puede descargarlo en Rastrear.`);
