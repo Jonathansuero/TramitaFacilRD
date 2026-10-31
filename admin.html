@@ -642,6 +642,46 @@
         .por-subir .ar-t b { display: block; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .disponible { margin: 0; display: flex; gap: 8px; align-items: flex-start; color: #065F46; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 12px; padding: 9px 12px; font-size: 13.5px; }
         .agregar-abrir { justify-self: start; padding: 4px 0; }
+
+        /* comprobantes del cliente · notificaciones */
+        .comprobantes { display: grid; gap: 8px; }
+        .comprobantes .ct { font-size: 12px; font-weight: 700; color: var(--suave); text-transform: uppercase; letter-spacing: .05em; display: flex; gap: 6px; align-items: center; }
+        .comp { border: 1px solid var(--borde); border-radius: 12px; padding: 10px 12px; display: grid; gap: 6px; background: #fff; }
+        .comp.nuevo { border-color: #93C5FD; background: #F0F7FF; }
+        .comp-cab { display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+        .comp-cab b { font-size: 14px; }
+        .comp small { color: var(--suave); font-size: 12.5px; }
+        .comp-acc { display: flex; gap: 8px; flex-wrap: wrap; }
+        .ep.nuevo { background: #DBEAFE; color: #1E40AF; }
+        .chip.comp-n { background: #DBEAFE; color: #1E40AF; }
+        .fila-ini .etq.comp { background: #DBEAFE; color: #1E40AF; }
+        .usando-comp { font-size: 12.5px; color: #1E40AF; font-weight: 600; grid-column: 1 / -1; }
+        .notif-banner { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; background: #fff; border: 1px solid #C9DAF2; border-left: 4px solid var(--azul); border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; font-size: 13.5px; color: #334155; }
+        .notif-banner b { display: block; color: var(--azul); font-size: 14px; }
+
+        /* documentos recibidos · avisos al equipo · registro */
+        .recibidos { border-color: #D6E3F3; }
+        .archivos li.rec { align-items: flex-start; }
+        .archivos li.rec .ar-t { display: grid; gap: 4px; justify-items: start; }
+        .archivos li.nuevo { border-color: #93C5FD; background: #F0F7FF; }
+        .archivos li.mal .ar-t a { text-decoration: line-through; color: var(--suave); }
+        .chip.doc-n { background: #E0E7FF; color: #3730A3; }
+        .avisar-abrir { justify-self: start; padding: 4px 0; }
+        .avisar-equipo { display: grid; gap: 10px; border: 1.5px solid var(--azul); border-radius: 12px; padding: 12px; background: #fff; }
+        .chip-radio { display: inline-flex; gap: 6px; align-items: center; border: 1px solid var(--borde); border-radius: 999px; padding: 6px 12px; font-size: 12.5px; font-weight: 600; color: #475569; cursor: pointer; }
+        .chip-radio:has(input:checked) { border-color: var(--azul); background: #F0F6FF; color: var(--azul); }
+        .av-ico.av-estado { background: #EDE9FE; color: #5B21B6; }
+        .av-ico.av-recibido, .av-ico.av-equipo { background: #E0E7FF; color: #3730A3; }
+        .av-ico.av-pago, .av-ico.av-comprobante { background: #FEF3C7; color: #92400E; }
+        .reg-filtros { display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: end; }
+        @media (max-width: 640px) { .reg-filtros { grid-template-columns: 1fr; } }
+        .reg-lista { list-style: none; margin: 0; padding: 0; display: grid; }
+        .reg-lista li { display: flex; gap: 12px; align-items: flex-start; padding: 11px 0; border-top: 1px solid #F1F5F9; }
+        .reg-lista li:first-child { border-top: 0; }
+        .reg-lista .rl-t { flex: 1; min-width: 0; font-size: 14px; color: #334155; }
+        .reg-lista .rl-t small { display: block; color: var(--suave); font-size: 12.5px; margin-top: 2px; overflow-wrap: anywhere; }
+        .reg-lista .rl-f { color: var(--suave); font-size: 12px; white-space: nowrap; }
+        .reg-lista li.estado .rl-t b { color: #5B21B6; }
     </style>
 </head>
 <body>
@@ -704,6 +744,7 @@
                 <button type="button" class="tab" data-tab="usuarios" role="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/></svg><span>Usuarios</span></button>
                 <button type="button" class="tab" data-tab="mensajes" role="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.7 7.1L3 21l1.9-6.2A8 8 0 1 1 21 12z"/><path d="M8 10h8M8 14h5"/></svg><span>Mensajes</span></button>
                 <button type="button" class="tab" data-tab="zafacon" role="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg><span>Zafacón</span> <span class="num gris" id="numZafacon" hidden></span></button>
+                <button type="button" class="tab" data-tab="registro" role="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg><span>Registro</span></button>
             </div>
         </nav>
 
@@ -760,6 +801,7 @@
           <section id="tUsuarios" hidden></section>
           <section id="tZafacon" hidden></section>
           <section id="tMensajes" hidden></section>
+          <section id="tRegistro" hidden></section>
         </main>
 
         <nav class="bottomnav" id="bottomnav" aria-label="Secciones">
@@ -778,6 +820,7 @@
                     <button type="button" class="menu-item" data-tab="usuarios"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/></svg><span>Usuarios del equipo</span></button>
                     <button type="button" class="menu-item" data-tab="mensajes"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.7 7.1L3 21l1.9-6.2A8 8 0 1 1 21 12z"/><path d="M8 10h8M8 14h5"/></svg><span>Mensajes para el cliente</span></button>
                     <button type="button" class="menu-item" data-tab="zafacon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg><span>Zafacón</span><small>Clientes eliminados</small></button>
+                    <button type="button" class="menu-item" data-tab="registro"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg><span>Registro del equipo</span><small>Quién hizo qué</small></button>
                 </div>
             </div>
         </div>
@@ -825,6 +868,7 @@
             <div class="notif-caja">
                 <span id="notifEstado"></span>
                 <button type="button" class="btn btn-azul btn-sm" id="btnNotif" hidden>Activar notificaciones en este dispositivo</button>
+                <div class="acciones" id="notifAcciones" hidden><button type="button" class="btn btn-borde btn-sm" id="btnNotifProbar">Enviar una prueba</button><button type="button" class="btn btn-borde btn-sm" id="btnNotifQuitar">Desactivar en este dispositivo</button></div>
             </div>
         </div>
     </div>

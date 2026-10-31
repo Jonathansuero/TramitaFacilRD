@@ -45,6 +45,7 @@
         precios: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="8" cy="8" r="1.5"/>',
         herramientas: '<path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.5-.5-.5-2.5z"/>',
         validar_pagos: '<path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
+        registro: '<path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/>',
         zafacon: '<path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/>',
         usuarios: '<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.5 3.5-5.5 6.5-5.5s5.5 2 6.5 5.5"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18.5 14.8c1.6.9 2.6 2.6 3 5.2"/>'
     };
@@ -72,17 +73,20 @@
     const puede = p => !!(yo && (yo.permisos || []).includes(p));
     /** Confirmar pagos: contabilidad (validar_pagos) o un administrador. */
     const puedeValidar = () => puede('validar_pagos') || puede('usuarios');
+    /** El administrador principal: el que tiene todos los permisos. */
+    const esDueno = () => !!yo && Object.keys(nombresPermisos).length > 0 && Object.keys(nombresPermisos).every(p => puede(p));
     const confirmados = pagos => (pagos || []).filter(p => !p.estado || p.estado === 'confirmado');
     const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
     let usuariosData = null, editandoUsuario = null;
-    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios', mensajes: 'usuarios' };
+    const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios', mensajes: 'usuarios', registro: 'usuarios' };
     const filtro = { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
     let tab = 'inicio', periodo = 30;
     let precios = null, preciosQ = '', preciosCat = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
     const recien = new Set();        // solicitudes que acaban de llegar (se resaltan unos segundos)
-    let borrando = null;
-    const porSubir = new Map();      // código -> archivos elegidos que todavía no se han guardado
+    let borrando = null, avisandoEquipo = null;
+    const porSubir = new Map();      // «código|clase» -> archivos elegidos que todavía no se han guardado
+    const llaveSubir = (codigo, clase) => `${codigo}|${clase}`;
     const agregando = new Set();     // códigos con el formulario «Agregar otro trámite» abierto             // código con la confirmación de «Eliminar cliente» abierta
     const docsAbiertos = new Set();  // "CODIGO:idTramite" con la lista de documentos abierta
     let editando = null;             // "CODIGO:idTramite" con el formulario de avance abierto
@@ -262,6 +266,9 @@
         await cargar();
         irATab(tab);
         cargarAvisos();
+        revisarPush();
+        const desde = new URLSearchParams(location.search).get('c');   // vino de una notificación
+        if (desde) { try { history.replaceState(history.state, '', location.pathname); } catch (e) { /* sigue */ } verExpediente(desde.toUpperCase()); }
     }
 
     async function cargar() {
@@ -329,7 +336,8 @@
         $('btnExcelTop').hidden = !puede('herramientas');
         $('btnExcelFiltro').hidden = !puede('herramientas');
         $('btnNuevo').hidden = !puede('expedientes');
-        if (PERM_TAB[tab] && !puede(PERM_TAB[tab])) tab = 'inicio';
+        document.querySelectorAll('[data-tab="registro"]').forEach(b => { b.hidden = !esDueno(); });   // solo el administrador principal
+        if ((PERM_TAB[tab] && !puede(PERM_TAB[tab])) || (tab === 'registro' && !esDueno())) tab = 'inicio';
         $('bottomnav').querySelector('[data-mas]').hidden = !$('vMas').querySelector('[data-tab]:not([hidden])');
     }
 
@@ -340,8 +348,8 @@
         document.querySelectorAll('#tabs .tab').forEach(b => { b.classList.toggle('on', b.dataset.tab === tab); b.setAttribute('aria-selected', b.dataset.tab === tab); });
         const enBarra = !!$('bottomnav').querySelector(`[data-tab="${tab}"]`);
         $('bottomnav').querySelectorAll('.bn').forEach(b => b.classList.toggle('on', b.dataset.tab ? b.dataset.tab === tab : !enBarra));
-        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios', 'zafacon', 'mensajes'].forEach(t => { $({ mensajes: 'tMensajes', zafacon: 'tZafacon', inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
-        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else if (tab === 'zafacon') cargarZafacon(); else if (tab === 'mensajes') pintarMensajes(); else pintarTodo();
+        ['inicio', 'exp', 'resumen', 'pagos', 'precios', 'herr', 'usuarios', 'zafacon', 'mensajes', 'registro'].forEach(t => { $({ registro: 'tRegistro', mensajes: 'tMensajes', zafacon: 'tZafacon', inicio: 'tInicio', exp: 'tExp', resumen: 'tResumen', pagos: 'tPagos', precios: 'tPrecios', herr: 'tHerr', usuarios: 'tUsuarios' }[t]).hidden = t !== tab; });
+        if (tab === 'precios') cargarPrecios(); else if (tab === 'usuarios') cargarUsuarios(); else if (tab === 'zafacon') cargarZafacon(); else if (tab === 'mensajes') pintarMensajes(); else if (tab === 'registro') cargarRegistro(); else pintarTodo();
         window.scrollTo({ top: 0 });
     }
     function verExpediente(codigo) {
@@ -447,19 +455,7 @@
                 <span class="ar-t"><a href="/api/admin/archivo/${a.id}" target="_blank" rel="noopener">${esc(a.nombre)}</a><small>${esc(peso(a.tamano))} · ${esc(fecha(a.creado))}${a.usuario ? ` · ${esc(a.usuario)}` : ''}</small></span>
                 ${gestiona ? `<button type="button" class="x" data-quitar-archivo="${a.id}" data-codigo="${esc(e.codigo)}" title="Quitar documento" aria-label="Quitar documento">×</button>` : ''}
             </li>`).join('')}</ul>` : '<p class="ayuda">Sube el documento escaneado (PDF o foto) para que el cliente lo reciba y pueda descargarlo con su número de expediente.</p>'}
-            ${gestiona && (porSubir.get(e.codigo) || []).length ? `<div class="por-subir">
-                <span class="ps-t">Listos para guardar (${porSubir.get(e.codigo).length})</span>
-                <ul>${porSubir.get(e.codigo).map((f, i) => `<li><span class="ar-tipo ${/\.pdf$/i.test(f.name) ? 'pdf' : 'img'}">${/\.pdf$/i.test(f.name) ? 'PDF' : 'IMG'}</span>
-                    <span class="ar-t"><b>${esc(f.name)}</b><small>${esc(peso(f.size))}</small></span>
-                    <button type="button" class="x" data-sacar="${i}" data-codigo="${esc(e.codigo)}" title="No subir este" aria-label="No subir este archivo">×</button></li>`).join('')}</ul>
-                <div class="acciones"><button type="button" class="btn btn-azul" data-guardar-docs="${esc(e.codigo)}">${ico('subir', 16)} Guardar documentos</button>
-                    <button type="button" class="btn btn-borde" data-cancelar-subir="${esc(e.codigo)}">Cancelar</button></div>
-                <small class="ayuda">Al guardar, el cliente podrá descargarlos en la página (Rastrear) con su número de expediente. No hace falta enviárselos.</small>
-            </div>` : ''}
-            ${gestiona ? `<label class="subir">
-                <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" multiple data-subir="${esc(e.codigo)}">
-                ${ico('subir', 20)}<span><b>${arch.length || porSubir.has(e.codigo) ? 'Elegir más documentos' : 'Elegir documentos escaneados'}</b><small>PDF, JPG o PNG · hasta 10 MB cada uno</small></span>
-            </label>` : ''}
+            ${gestiona ? bloqueSubida(e, 'entrega', arch.length, 'Al guardar, el cliente podrá descargarlos en la página (Rastrear) con su número de expediente. No hace falta enviárselos.') : ''}
             ${arch.length ? `<p class="disponible">${ico('ok', 16)}<span>Disponibles para el cliente en <b>Rastrear</b> con su código ${esc(e.codigo)}. Enviárselos es opcional:</span></p>
             <div class="acciones">
                 ${gestiona ? `<button type="button" class="btn btn-azul btn-sm" data-enviar-docs="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>${ico('correo')} Enviar por correo</button>` : ''}
@@ -467,6 +463,63 @@
             </div>
             <small class="ayuda">${!email ? 'El cliente no tiene correo registrado. ' : !correoActivo ? 'El envío de correos aún no está activado en el servidor (tramita correo). ' : `El correo se enviaría a ${esc(email)} con los documentos adjuntos. `}Para descargarlos en Rastrear, el cliente confirma los últimos 4 dígitos de su WhatsApp o su correo.</small>` : ''}
         </div>`;
+    }
+
+    /** Zona de subida compartida: elegir archivos, quitarlos de la lista y guardarlos. */
+    function bloqueSubida(e, clase, yaHay, ayuda) {
+        const lista = porSubir.get(llaveSubir(e.codigo, clase)) || [];
+        const tipo = f => /\.pdf$/i.test(f.name) ? 'pdf' : 'img';
+        return `${lista.length ? `<div class="por-subir">
+            <span class="ps-t">Listos para guardar (${lista.length})</span>
+            <ul>${lista.map((f, i) => `<li><span class="ar-tipo ${tipo(f)}">${tipo(f).toUpperCase()}</span>
+                <span class="ar-t"><b>${esc(f.name)}</b><small>${esc(peso(f.size))}</small></span>
+                <button type="button" class="x" data-sacar="${i}" data-codigo="${esc(e.codigo)}" data-clase="${clase}" title="No subir este" aria-label="No subir este archivo">×</button></li>`).join('')}</ul>
+            <div class="acciones"><button type="button" class="btn btn-azul" data-guardar-docs="${esc(e.codigo)}" data-clase="${clase}">${ico('subir', 16)} Guardar documentos</button>
+                <button type="button" class="btn btn-borde" data-cancelar-subir="${esc(e.codigo)}" data-clase="${clase}">Cancelar</button></div>
+            <small class="ayuda">${esc(ayuda)}</small>
+        </div>` : ''}
+        <label class="subir">
+            <input type="file" accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/jpeg,image/png,image/webp" multiple data-subir="${esc(e.codigo)}" data-clase="${clase}">
+            ${ico('subir', 20)}<span><b>${yaHay || lista.length ? 'Elegir más documentos' : (clase === 'recibido' ? 'Subir lo que envió el cliente' : 'Elegir documentos escaneados')}</b><small>PDF, JPG o PNG · hasta 10 MB cada uno</small></span>
+        </label>`;
+    }
+
+    /** Documentos que mandó el cliente (cédula, comprobante, actas…): los ve y los sube todo el equipo. */
+    const EST_REC = { nuevo: ['Sin revisar', 'nuevo'], validado: ['Validado', 'ok'], rechazado: ['Rechazado', 'mal'] };
+    const recSinRevisar = e => (e.recibidos || []).filter(r => r.estado === 'nuevo');
+    function bloqueRecibidos(e) {
+        if (!puede('expedientes') && !puede('pagos')) return '';
+        const lista = e.recibidos || [], sinRev = recSinRevisar(e).length;
+        return `<div class="bloque recibidos">
+            <div class="bloque-t"><span>${ico('clip')} Documentos recibidos</span><span>${sinRev ? `${sinRev} sin revisar` : (lista.length ? `${lista.length} ${lista.length === 1 ? 'archivo' : 'archivos'}` : '')}</span></div>
+            ${lista.length ? `<ul class="archivos">${lista.map(a => { const [n, k] = EST_REC[a.estado] || [a.estado, ''];
+                return `<li class="rec ${k}">
+                <span class="ar-tipo ${a.tipo === 'application/pdf' ? 'pdf' : 'img'}">${a.tipo === 'application/pdf' ? 'PDF' : 'IMG'}</span>
+                <span class="ar-t"><a href="/api/admin/archivo/${a.id}" target="_blank" rel="noopener">${esc(a.nombre)}</a>
+                    <small>${esc(peso(a.tamano))} · ${esc(fecha(a.creado))}${a.usuario ? ` · subió ${esc(a.usuario)}` : ''}${a.revisado_por ? ` · ${esc(a.estado === 'validado' ? 'validó' : 'rechazó')} ${esc(a.revisado_por)}` : ''}${a.motivo ? `: ${esc(a.motivo)}` : ''}</small>
+                    <span class="ep ${k}">${esc(n)}</span>
+                    ${a.estado === 'nuevo' && puedeValidar() ? `<span class="validar-btns"><button type="button" class="btn btn-verde btn-sm" data-validar-doc="${a.id}" data-codigo="${esc(e.codigo)}">${ico('ok', 14)} Validar</button>
+                        <button type="button" class="btn btn-borde btn-sm" data-rechazar-doc="${a.id}" data-codigo="${esc(e.codigo)}">Rechazar</button></span>` : ''}</span>
+                <button type="button" class="x" data-quitar-archivo="${a.id}" data-codigo="${esc(e.codigo)}" title="Quitar documento" aria-label="Quitar documento">×</button>
+            </li>`; }).join('')}</ul>` : '<p class="ayuda">Guarda aquí lo que te manda el cliente por WhatsApp o correo (cédula, pasaporte, comprobante de pago…). Todo el equipo lo ve y quien confirma puede validarlo.</p>'}
+            ${bloqueSubida(e, 'recibido', lista.length, 'Al guardar, el equipo recibe un aviso para revisarlos. El cliente no los ve.')}
+            ${sinRev && !puedeValidar() ? `<small class="ayuda">${ico('campana', 14)} Ya avisamos a quien confirma los pagos y documentos.</small>` : ''}
+            ${bloqueAvisar(e)}
+        </div>`;
+    }
+    function bloqueAvisar(e) {
+        if (avisandoEquipo !== e.codigo) return `<button type="button" class="link avisar-abrir" data-avisar-equipo="${esc(e.codigo)}">${ico('campana', 14)} Avisar al equipo sobre este expediente</button>`;
+        return `<form class="avisar-equipo" data-codigo="${esc(e.codigo)}">
+            <label class="campo" for="ae-${esc(e.codigo)}">Aviso para el equipo</label>
+            <input class="input" id="ae-${esc(e.codigo)}" name="texto" maxlength="200" required placeholder="Ej.: Llegó el comprobante, favor confirmar el pago">
+            <div class="chips">
+                <label class="chip-radio"><input type="radio" name="para" value="confirman" checked> Solo a quien confirma pagos y documentos</label>
+                <label class="chip-radio"><input type="radio" name="para" value="todos"> A todo el equipo</label>
+            </div>
+            <div class="acciones"><button class="btn btn-azul btn-sm" type="submit">Enviar aviso</button>
+                <button class="btn btn-borde btn-sm" type="button" data-cancelar-avisar>Cancelar</button></div>
+            <small class="ayuda">Les llega al panel y, si tienen las notificaciones activadas, al teléfono aunque la app esté cerrada.</small>
+        </form>`;
     }
 
     function bloqueDocs(e, t) {
@@ -511,12 +564,30 @@
     }
 
     const ESTADO_PAGO = { pendiente: ['Por confirmar', 'pend'], confirmado: ['Confirmado', 'ok'], rechazado: ['Rechazado', 'mal'] };
+    const SIMB = { DOP: 'RD$', USD: 'US$', EUR: '€' };
+    const montoComp = c => `${SIMB[c.moneda || 'DOP'] || 'RD$'}${Number(c.monto || 0).toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
+    const compNuevos = e => (e.comprobantes || []).filter(c => c.estado === 'nuevo');
+    function bloqueComprobantes(e) {
+        const lista = e.comprobantes || [];
+        if (!lista.length) return '';
+        const EST = { nuevo: ['Nuevo', 'nuevo'], usado: ['Usado en un pago', 'ok'], descartado: ['Descartado', 'mal'] };
+        return `<div class="comprobantes"><span class="ct">${ico('nota', 14)} Comprobantes que envió el cliente (${lista.length})</span>
+            ${lista.map(c => { const [n, k] = EST[c.estado] || [c.estado, ''];
+                return `<div class="comp ${c.estado}">
+                    <div class="comp-cab"><b>${esc(montoComp(c))} · ${esc(c.metodo || '')}</b><span class="ep ${k}">${esc(n)}</span></div>
+                    <small>${esc(fecha(c.creado))}${c.nota ? ` · «${esc(c.nota)}»` : ''}${c.estado === 'descartado' && c.motivo ? ` · ${esc(c.revisado_por || '')}: ${esc(c.motivo)}` : ''}${c.estado === 'usado' && c.revisado_por ? ` · registrado por ${esc(c.revisado_por)}` : ''}</small>
+                    <div class="comp-acc"><a class="btn btn-borde btn-sm" href="/api/admin/comprobante/${c.id}" target="_blank" rel="noopener">Ver comprobante</a>
+                        ${c.estado === 'nuevo' && e.pendiente !== 0 ? `<button type="button" class="btn btn-azul btn-sm" data-usar-comp="${c.id}" data-codigo="${esc(e.codigo)}">Registrar este pago</button>` : ''}
+                        ${c.estado === 'nuevo' && puedeValidar() ? `<button type="button" class="btn btn-borde btn-sm" data-descartar-comp="${c.id}" data-codigo="${esc(e.codigo)}">Descartar</button>` : ''}</div>
+                </div>`; }).join('')}
+        </div>`;
+    }
     function filaPago(e, p) {
         const est = p.estado || 'confirmado', [nombre, clase] = ESTADO_PAGO[est] || [est, ''];
         const puedeBorrar = puedeValidar() || (est === 'pendiente' && yo && p.registrado_por === yo.usuario);
         const quien = est === 'pendiente' ? (p.registrado_por ? `registró ${p.registrado_por}` : '')
             : est === 'confirmado' ? (p.validado_por ? `confirmó ${p.validado_por}` : '') : `rechazó ${p.validado_por || ''}${p.motivo ? `: ${p.motivo}` : ''}`;
-        return `<li class="pago ${clase}"><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''} <span class="ep ${clase}">${esc(nombre)}</span>
+        return `<li class="pago ${clase}"><span><b>${esc(rd(p.monto))}</b> · ${esc(TIPO_PAGO[p.tipo] || p.tipo)}${p.metodo ? ` · ${esc(p.metodo)}` : ''} <span class="ep ${clase}">${esc(nombre)}</span>${p.comprobante_id ? ` <a class="link" href="/api/admin/comprobante/${p.comprobante_id}" target="_blank" rel="noopener">con comprobante del cliente</a>` : ''}
                 <br><small>${esc(diaCorto(p.fecha))}${p.nota ? ` · ${esc(p.nota)}` : ''}${quien ? ` · ${esc(quien)}` : ''}</small>
                 ${est === 'pendiente' && puedeValidar() ? `<span class="validar-btns"><button type="button" class="btn btn-verde btn-sm" data-validar-pago="${p.id}" data-codigo="${esc(e.codigo)}">${ico('ok', 14)} Confirmar</button>
                     <button type="button" class="btn btn-borde btn-sm" data-rechazar-pago="${p.id}" data-codigo="${esc(e.codigo)}">Rechazar</button></span>` : ''}</span>
@@ -550,6 +621,7 @@
             ${total ? `<div class="progreso"><i style="width:${pct}%"></i></div>` : '<small style="color:var(--suave)">Este expediente tiene un trámite sin precio; ponle precio para calcular lo pendiente.</small>'}
             ${e.por_confirmar > 0 ? `<div class="pago-alerta">${ico('validar_pagos', 18)}<span><b>${esc(rd(e.por_confirmar))} por confirmar</b>${puedeValidar() ? 'Revisa que el dinero llegó y confírmalo o recházalo.' : 'Administración o contabilidad debe confirmarlo. El cliente ve «Pago pendiente por confirmar».'}</span></div>` : ''}
             ${pagos.length ? `<ul class="filas pagos-lista">${pagos.map(p => filaPago(e, p)).join('')}</ul>` : ''}
+            ${bloqueComprobantes(e)}
             ${e.pendiente === 0 && pagado > 0 ? `<small style="color:var(--verde);font-weight:700">${ico('ok')} Pagado completo</small>` : `
             <form class="form-pago" data-codigo="${esc(e.codigo)}" data-total="${total ?? ''}" data-pendiente="${e.pendiente ?? ''}">
                 <select class="input" name="tipo" aria-label="Tipo de pago">${Object.entries(TIPO_PAGO).map(([k, n]) => `<option value="${k}"${k === tipo ? ' selected' : ''}>${n}</option>`).join('')}</select>
@@ -636,6 +708,7 @@
                 </div>
                 ${puede('pagos') ? bloqueCobro(e) : ''}
                 ${puede('expedientes') ? bloqueNotas(e) : ''}
+                ${bloqueRecibidos(e)}
                 ${bloqueEntrega(e)}
                 <details class="bloque datos-cli"${editandoCliente.has(e.codigo) ? ' open' : ''}>
                     <summary>${ico('usuario', 14)} Datos del cliente</summary>
@@ -667,8 +740,9 @@
                     <div class="acciones"><button class="btn btn-peligro" type="submit">Sí, mover al zafacón</button><button class="btn btn-borde" type="button" data-cancelar-borrar>Cancelar</button></div>
                 </form>` : `<div class="zona-peligro"><button type="button" class="link-rojo" data-eliminar="${esc(e.codigo)}">${ico('zafacon', 14)} Eliminar cliente</button></div>`) : ''}
             </div>`;
-        const cobroChip = !puede('pagos') ? '' : (e.por_confirmar > 0 ? '<span class="chip porconf">Pago por confirmar</span>' : '') + (e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
-            : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : ''));
+        const recChip = recSinRevisar(e).length && (puede('expedientes') || puede('pagos')) ? '<span class="chip doc-n">Documento sin revisar</span>' : '';
+        const cobroChip = recChip + (!puede('pagos') ? '' : (compNuevos(e).length ? '<span class="chip comp-n">Comprobante nuevo</span>' : '') + (e.por_confirmar > 0 ? '<span class="chip porconf">Pago por confirmar</span>' : '') + (e.pendiente > 0 ? (e.pagado > 0 ? `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>` : (e.paso < 4 ? '<span class="chip cobro">Sin anticipo</span>' : `<span class="chip cobro">Debe ${esc(rd(e.pendiente))}</span>`))
+            : (e.pagado > 0 && e.pendiente === 0 ? '<span class="chip pagado">Pagado</span>' : '')));
         return `<article class="exp${recien.has(e.codigo) ? ' recien' : ''}" data-codigo="${esc(e.codigo)}">
             <button type="button" class="exp-cab" aria-expanded="${abierto}">
                 <span class="exp-nombre">${esc(e.nombre || e.cliente)}</span>
@@ -843,6 +917,11 @@
                 <div class="kpi"><span>Por cobrar</span><b style="color:var(--rojo)">${esc(rd(porCobrar))}</b><small>${pendientes.length} ${pendientes.length === 1 ? 'cliente' : 'clientes'}</small></div>
                 <div class="kpi${sinAnticipo.length ? ' alerta' : ''}"><span>Sin anticipo todavía</span><b>${sinAnticipo.length}</b><small>expedientes abiertos sin ningún pago</small></div>
             </div>
+            ${(() => { const cs = expedientes.flatMap(e => compNuevos(e).map(c => ({ ...c, e })));
+                return cs.length ? `<div class="card por-confirmar"><h3>${ico('nota', 18)} Comprobantes nuevos de clientes (${cs.length})</h3>
+                <p class="sub">Los subieron los clientes desde la página. Ábrelos para registrar el pago o descartarlos.</p>
+                <ul class="filas">${cs.map(c => `<li><span><b>${esc(c.e.nombre || c.e.cliente)}</b> <span class="codigo">${esc(c.e.codigo)}</span><br><small>${esc(montoComp(c))} · ${esc(c.metodo || '')} · ${esc(fecha(c.creado))}</small></span>
+                    <span class="comp-acc"><a class="btn btn-borde btn-sm" href="/api/admin/comprobante/${c.id}" target="_blank" rel="noopener">Ver</a><button type="button" class="btn btn-azul btn-sm" data-ver="${esc(c.e.codigo)}">Abrir expediente</button></span></li>`).join('')}</ul></div>` : ''; })()}
             ${porConfirmar.length ? `<div class="card por-confirmar"><h3>${ico('validar_pagos', 18)} Pagos por confirmar (${porConfirmar.length})</h3>
                 <p class="sub">${puedeValidar() ? 'Revisa en tu banco o app que el dinero llegó antes de confirmar. Hasta entonces no cuentan como cobrados.' : 'Los registró el equipo; administración o contabilidad debe confirmarlos.'}</p>
                 <ul class="filas pagos-lista">${porConfirmar.map(p => filaPago(p.e, p).replace('<li class="pago pend"><span>', `<li class="pago pend"><span><b class="pc-cli">${esc(p.e.nombre || p.e.cliente)}</b> <span class="codigo">${esc(p.e.codigo)}</span><br>`)).join('')}</ul></div>` : ''}
@@ -1096,6 +1175,49 @@
         } catch (e) { if (e.message !== 'sesion') toast(e.message); btn.disabled = false; }
     });
 
+    // ------------------------------------------------------------ registro: quién hizo qué (solo el administrador principal)
+    let registroData = null, regQ = '', regUsuario = '', regEstados = false, regTiempo = null;
+    async function cargarRegistro() {
+        if (!registroData) $('tRegistro').innerHTML = '<div class="vacio"><b>Cargando…</b></div>';
+        try {
+            const p = new URLSearchParams({ q: regQ, usuario: regUsuario, estados: regEstados ? '1' : '' });
+            registroData = await api('/admin/registro?' + p.toString()); pintarRegistro();
+        } catch (e) { if (e.message !== 'sesion') $('tRegistro').innerHTML = `<div class="vacio"><b>No se pudo cargar</b>${esc(e.message)}</div>`; }
+    }
+    function pintarRegistro() {
+        const d = registroData, nombre = u => (d.nombres || {})[u] || u;
+        $('tRegistro').innerHTML = `<div class="pila">
+            <div class="cabecera" style="margin:0"><div><h2>Registro del equipo</h2>
+                <p>Quién hizo cada cambio. Solo tú lo ves, como administrador principal.</p></div></div>
+            <div class="card">
+                <div class="reg-filtros">
+                    <div><label class="campo" for="regQ">Buscar</label><input class="input" id="regQ" value="${esc(regQ)}" placeholder="Cliente, código, trámite o acción"></div>
+                    <div><label class="campo" for="regU">Persona</label><select class="input" id="regU"><option value="">Todo el equipo</option>
+                        ${(d.usuarios || []).map(u => `<option value="${esc(u)}"${u === regUsuario ? ' selected' : ''}>${esc(nombre(u))}</option>`).join('')}</select></div>
+                    <label class="chip-radio" style="height:44px"><input type="checkbox" id="regE"${regEstados ? ' checked' : ''}> Solo cambios de estado</label>
+                </div>
+                <small style="color:var(--suave)">Mostrando ${d.registro.length} de ${d.total} movimientos guardados.</small>
+            </div>
+            <div class="card">
+                ${d.registro.length ? `<ul class="reg-lista">${d.registro.map(a => `<li class="${a.accion.startsWith('Movió a paso') ? 'estado' : ''}">
+                    ${avatar(nombre(a.usuario), 'mini')}
+                    <span class="rl-t"><b>${esc(nombre(a.usuario))}</b> ${esc(a.accion.charAt(0).toLowerCase() + a.accion.slice(1))}${a.codigo ? ` <button type="button" class="codigo" data-ver="${esc(a.codigo)}" title="Abrir el expediente">${esc(a.codigo)}</button>` : ''}
+                        ${a.detalle ? `<small>${esc(a.detalle)}</small>` : ''}</span>
+                    <small class="rl-f">${esc(fecha(a.fecha))}</small></li>`).join('')}</ul>`
+                    : '<p class="rank-vacio">No hay movimientos con esa búsqueda.</p>'}
+            </div>
+        </div>`;
+    }
+    $('tRegistro').addEventListener('input', ev => {
+        if (ev.target.id !== 'regQ') return;
+        regQ = ev.target.value; clearTimeout(regTiempo);
+        regTiempo = setTimeout(() => cargarRegistro().then(() => { const i = $('regQ'); if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); } }), 350);
+    });
+    $('tRegistro').addEventListener('change', ev => {
+        if (ev.target.id === 'regU') { regUsuario = ev.target.value; cargarRegistro(); }
+        if (ev.target.id === 'regE') { regEstados = ev.target.checked; cargarRegistro(); }
+    });
+
     // ------------------------------------------------------------ zafacón (solo administradores)
     let zafaconData = null;
     async function cargarZafacon() {
@@ -1183,11 +1305,14 @@
         const enProceso = expedientes.filter(e => e.paso < 4), det = expedientes.filter(detenido);
         const nuevos = expedientes.filter(e => e.paso === 1);
         const porCobrar = puede('pagos') ? expedientes.filter(e => e.pendiente > 0) : [];
-        const pagosConf = puedeValidar() ? expedientes.filter(e => e.por_confirmar > 0).map(e => [e, 'pago']) : [];
+        const pagosConf = [...((puede('expedientes') || puede('pagos')) ? expedientes.filter(e => recSinRevisar(e).length).map(e => [e, 'doc']) : []),
+            ...(puede('pagos') ? expedientes.filter(e => compNuevos(e).length).map(e => [e, 'comp']) : []),
+            ...(puedeValidar() ? expedientes.filter(e => e.por_confirmar > 0).map(e => [e, 'pago']) : [])];
         const atender = [...pagosConf, ...det.map(e => [e, 'det']), ...nuevos.filter(e => !detenido(e)).map(e => [e, 'nuevo'])].slice(0, 7);
         const tile = (n, txt, ir, cls = '') => `<button type="button" class="tile ${cls}" data-ini="${ir}"><b>${n}</b><span>${txt}</span></button>`;
         $('tInicio').innerHTML = `
             <div class="hola"><h2>Hola, ${esc(nombre || 'equipo')}</h2><p>${esc(saludo())} · ${esc(hoy)}${yo ? ` <span class="rol ${rolDe(yo.permisos).c}">${esc(rolDe(yo.permisos).n)}</span>` : ''}</p></div>
+            ${!pushActivo && (puede('expedientes') || puede('pagos')) && pushSoportado() && 'Notification' in window && Notification.permission === 'default' ? `<div class="notif-banner"><span><b>Recibe los avisos aunque la app esté cerrada</b>Solicitudes nuevas, pagos y comprobantes al momento en este dispositivo.</span><button type="button" class="btn btn-azul btn-sm" data-activar-push>Activar notificaciones</button></div>` : ''}
             ${yo && !puede('expedientes') ? `<div class="aviso-lectura">${ico('escudo', 18)}<span><b>Acceso de consulta</b>Puedes ver los expedientes y su estado. Para hacer cambios, pídele permiso al administrador.</span></div>` : ''}
             <div class="mapa-card${animarMapa ? ' sube' : ''}">
                 <h3>Dominicanos que confían en TramitaFácil RD</h3>
@@ -1205,7 +1330,7 @@
                 <button type="button" class="fila-ini" data-codigo="${esc(e.codigo)}">
                     <span class="ini">${esc(iniciales(e.nombre || e.cliente))}</span>
                     <span class="t"><b>${esc(e.nombre || e.cliente)}</b><small>${bandera(e.pais)} ${esc((e.tramites || []).length > 1 ? `${e.tramites.length} trámites` : (e.servicio_titulo || ((e.tramites || [])[0] || {}).titulo || ''))}</small></span>
-                    <span class="etq${k === 'nuevo' ? ' nuevo' : k === 'pago' ? ' pago' : ''}${recien.has(e.codigo) ? ' ahora' : ''}">${k === 'nuevo' ? 'Nuevo' : k === 'pago' ? `Confirmar ${esc(rd(e.por_confirmar))}` : `${diasSin(e)} días`}</span>
+                    <span class="etq${k === 'nuevo' ? ' nuevo' : k === 'pago' ? ' pago' : k === 'comp' || k === 'doc' ? ' comp' : ''}${recien.has(e.codigo) ? ' ahora' : ''}">${k === 'nuevo' ? 'Nuevo' : k === 'pago' ? `Confirmar ${esc(rd(e.por_confirmar))}` : k === 'comp' ? 'Comprobante' : k === 'doc' ? 'Documento' : `${diasSin(e)} días`}</span>
                 </button>`).join('')}</div>` : `<div class="vacio"><b>Todo al día</b>No hay expedientes nuevos ni detenidos.</div>`}`;
         animarMapa = false;
     }
@@ -1216,6 +1341,7 @@
         irATab('exp');
     }
     $('tInicio').addEventListener('click', ev => {
+        if (ev.target.closest('[data-activar-push]')) { activarPush(false); return; }
         const pais = ev.target.closest('[data-pais]');
         if (pais) { irAExpedientes({ pais: pais.dataset.pais }); return; }
         const f = ev.target.closest('[data-codigo]');
@@ -1256,17 +1382,78 @@
         $('btnAvisos').setAttribute('aria-label', n ? `Avisos: ${n} sin leer` : 'Avisos');
         $('avisosLista').innerHTML = avisosData.avisos.length ? avisosData.avisos.map(a => `
             <button type="button" class="aviso-fila${a.nuevo ? ' nuevo' : ''}" data-aviso-codigo="${esc(a.codigo || '')}">
-                <span class="av-ico">${ico('expedientes', 18)}</span>
+                <span class="av-ico av-${esc(a.tipo || 'solicitud')}">${ico({ pago: 'validar_pagos', comprobante: 'cash', recibido: 'clip', equipo: 'campana', estado: 'reloj' }[a.tipo] || 'expedientes', 18)}</span>
                 <span class="av-t"><b>${esc(a.titulo)}</b><small>${esc(a.detalle || '')}${a.codigo ? ` · ${esc(a.codigo)}` : ''}</small></span>
                 <small class="av-f">${esc(fecha(a.creado))}</small>
             </button>`).join('') : '<p class="ayuda" style="text-align:center;padding:18px 0">No hay avisos todavía. Aquí verás cada solicitud nueva.</p>';
-        const soporta = 'Notification' in window, permiso = soporta ? Notification.permission : 'denied';
-        $('btnNotif').hidden = !soporta || permiso !== 'default';
-        $('notifEstado').textContent = !soporta ? 'Este navegador no permite notificaciones; te llegará el aviso en esta campana y por correo.'
-            : permiso === 'granted' ? 'Las notificaciones están activadas en este dispositivo mientras el panel esté abierto.'
-            : permiso === 'denied' ? 'Las notificaciones están bloqueadas en este navegador. Puedes activarlas en la configuración del sitio.'
-            : 'Activa las notificaciones para enterarte al momento, aunque estés en otra pestaña.';
+        pintarEstadoPush();
     }
+    // ---------------- notificaciones «push»: llegan aunque la app esté cerrada
+    const pushSoportado = () => 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+    const esIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent);
+    const instalada = () => window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    let pushActivo = false;
+    async function registroSW() {
+        if (!('serviceWorker' in navigator)) return null;
+        try { await navigator.serviceWorker.register('sw.js'); return await navigator.serviceWorker.ready; } catch (e) { return null; }
+    }
+    const aBytes = b64 => { const s = atob((b64 + '='.repeat((4 - b64.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/')); return Uint8Array.from(s, c => c.charCodeAt(0)); };
+    async function revisarPush() {
+        pushActivo = false;
+        if (!pushSoportado() || Notification.permission !== 'granted') { pintarEstadoPush(); return; }
+        try {
+            const reg = await registroSW(), sub = reg && await reg.pushManager.getSubscription();
+            if (sub) { await post('/admin/push/suscribir', sub.toJSON()); pushActivo = true; }   // la mantiene al día en el servidor
+            else await activarPush(true);
+        } catch (e) { /* sigue con avisos dentro del panel */ }
+        pintarEstadoPush();
+    }
+    async function activarPush(silencioso) {
+        if (!pushSoportado()) { if (!silencioso) toast(esIOS() ? 'En iPhone: agrega el panel a la pantalla de inicio y ábrelo desde ese ícono.' : 'Este navegador no permite notificaciones.'); return; }
+        try {
+            const info = await api('/admin/push/clave');
+            if (!info.disponible) { if (!silencioso) toast('El servidor aún no tiene notificaciones activadas. Corre: tramita actualizar'); return; }
+            const permiso = silencioso ? Notification.permission : await Notification.requestPermission();
+            if (permiso !== 'granted') { if (!silencioso) toast('Sin permiso para notificaciones en este dispositivo.'); pintarEstadoPush(); return; }
+            const reg = await registroSW(); if (!reg) throw new Error('No se pudo preparar el dispositivo.');
+            let sub = await reg.pushManager.getSubscription();
+            if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: aBytes(info.clave) });
+            await post('/admin/push/suscribir', sub.toJSON());
+            pushActivo = true;
+            if (!silencioso) toast('¡Listo! Te llegarán los avisos aunque la app esté cerrada.');
+        } catch (e) { if (!silencioso && e.message !== 'sesion') toast(e.message || 'No se pudieron activar las notificaciones.'); }
+        pintarEstadoPush();
+        if (tab === 'inicio') pintarInicio();
+    }
+    function pintarEstadoPush() {
+        if (!$('notifEstado')) return;
+        const soporta = pushSoportado(), permiso = 'Notification' in window ? Notification.permission : 'denied';
+        $('btnNotif').hidden = pushActivo || (soporta && permiso === 'denied') || (!soporta && !esIOS());
+        $('btnNotif').textContent = !soporta && esIOS() ? 'Cómo activarlas en iPhone' : 'Activar notificaciones en este dispositivo';
+        $('notifAcciones').hidden = !pushActivo;
+        $('notifEstado').textContent = pushActivo ? 'Notificaciones activadas en este dispositivo: te llegan aunque la app o el navegador estén cerrados.'
+            : !soporta && esIOS() ? 'En iPhone, las notificaciones con la app cerrada funcionan si agregas el panel a la pantalla de inicio (Safari → Compartir → Agregar a inicio) y lo abres desde ese ícono.'
+            : !soporta ? 'Este navegador no permite notificaciones; te llegará el aviso en esta campana y por correo.'
+            : permiso === 'denied' ? 'Las notificaciones están bloqueadas para este sitio. Actívalas en la configuración del navegador (el candado junto a la dirección).'
+            : 'Activa las notificaciones para enterarte de solicitudes y pagos aunque la app esté cerrada.';
+    }
+    $('btnNotif').addEventListener('click', () => { if (!pushSoportado() && esIOS()) { toast('Safari → Compartir → «Agregar a pantalla de inicio». Luego abre el panel desde ese ícono.'); return; } activarPush(false); });
+    $('btnNotifProbar').addEventListener('click', async () => {
+        try { const r = await post('/admin/push/probar', {}); toast(`Prueba enviada a ${r.dispositivos} ${r.dispositivos === 1 ? 'dispositivo' : 'dispositivos'}.`); }
+        catch (e) { if (e.message !== 'sesion') toast(e.message); }
+    });
+    $('btnNotifQuitar').addEventListener('click', async () => {
+        try {
+            const reg = await registroSW(), sub = reg && await reg.pushManager.getSubscription();
+            if (sub) { await post('/admin/push/quitar', { endpoint: sub.endpoint }); await sub.unsubscribe(); }
+            pushActivo = false; pintarEstadoPush(); toast('Notificaciones desactivadas en este dispositivo.');
+        } catch (e) { toast('No se pudo desactivar.'); }
+    });
+    // al tocar una notificación con el panel abierto: ir al expediente
+    if ('serviceWorker' in navigator) navigator.serviceWorker.addEventListener('message', ev => {
+        const url = ev.data && ev.data.tipo === 'abrir' ? ev.data.url : ''; const c = (url.match(/[?&]c=([A-Z0-9-]+)/) || [])[1];
+        if (c && !$('vPanel').hidden) verExpediente(c);
+    });
     async function notificar(a) {
         toast(a.titulo);
         if (!('Notification' in window) || Notification.permission !== 'granted') return;
@@ -1287,7 +1474,6 @@
     });
     $('vAvisos').addEventListener('click', async ev => {
         if (ev.target === $('vAvisos') || ev.target.closest('[data-cerrar-avisos]')) { $('vAvisos').hidden = true; avisosData.avisos.forEach(a => { a.nuevo = false; }); return; }
-        if (ev.target.closest('#btnNotif')) { try { await Notification.requestPermission(); } catch (e) { /* sin permiso */ } pintarCampana(); return; }
         const f = ev.target.closest('[data-aviso-codigo]');
         if (f) { $('vAvisos').hidden = true; avisosData.avisos.forEach(a => { a.nuevo = false; }); if (f.dataset.avisoCodigo) verExpediente(f.dataset.avisoCodigo); }
     });
@@ -1386,7 +1572,7 @@
 
     $('btnSalir').addEventListener('click', async () => {
         try { await post('/admin/logout', {}); } catch (e) { /* igual salimos */ }
-        expedientes = []; precios = null; usuariosData = null; zafaconData = null; borrando = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
+        expedientes = []; precios = null; usuariosData = null; zafaconData = null; borrando = null; avisandoEquipo = null; porSubir.clear(); registroData = null; yo = null; ultimoVisto = null; $('vAvisos').hidden = true; tab = 'inicio'; editandoUsuario = null; $('vCuenta').hidden = true; $('vMas').hidden = true; abiertos.clear(); editando = null; editandoCliente.clear(); mostrarLogin();
     });
 
     $('tabs').addEventListener('click', ev => { const b = ev.target.closest('[data-tab]'); if (b) irATab(b.dataset.tab); });
@@ -1460,19 +1646,19 @@
     $('lista').addEventListener('change', ev => {
         const inp = ev.target.closest && ev.target.closest('[data-subir]');
         if (!inp || !inp.files.length) return;
-        const codigo = inp.dataset.subir, lista = porSubir.get(codigo) || [];
+        const llave = llaveSubir(inp.dataset.subir, inp.dataset.clase || 'entrega'), lista = porSubir.get(llave) || [];
         for (const f of inp.files) {
             if (!/\.(pdf|jpe?g|png|webp)$/i.test(f.name)) { toast(`«${f.name}»: solo PDF, JPG, PNG o WEBP`); continue; }
             if (f.size > 10 * 1024 * 1024) { toast(`«${f.name}» pesa más de 10 MB`); continue; }
             if (!lista.some(x => x.name === f.name && x.size === f.size)) lista.push(f);
         }
-        if (lista.length) porSubir.set(codigo, lista);
-        pintar();
+        if (lista.length) porSubir.set(llave, lista);
+        inp.value = ''; pintar();
     });
     async function guardarDocumentos(btn) {
-        const codigo = btn.dataset.guardarDocs, lista = porSubir.get(codigo) || [];
+        const codigo = btn.dataset.guardarDocs, clase = btn.dataset.clase || 'entrega', lista = porSubir.get(llaveSubir(codigo, clase)) || [];
         if (!lista.length) return;
-        const fd = new FormData(); fd.append('codigo', codigo);
+        const fd = new FormData(); fd.append('codigo', codigo); fd.append('clase', clase);
         lista.forEach(f => fd.append('archivo', f, f.name));
         btn.disabled = true; btn.textContent = 'Guardando…';
         try {
@@ -1480,8 +1666,9 @@
             let d = {}; try { d = await r.json(); } catch (e) { /* sin JSON */ }
             if (r.status === 401) { mostrarLogin('Tu sesión terminó. Vuelve a entrar.'); return; }
             if (!r.ok || d.ok === false) throw new Error(d.error || (r.status === 413 ? 'Los archivos pesan demasiado.' : 'No se pudo guardar.'));
-            porSubir.delete(codigo); reemplazar(d.expediente); pintar();
-            toast(`${lista.length > 1 ? 'Documentos guardados' : 'Documento guardado'}. El cliente ya puede descargarlo en Rastrear.`);
+            porSubir.delete(llaveSubir(codigo, clase)); reemplazar(d.expediente); pintar();
+            toast(clase === 'recibido' ? `${lista.length > 1 ? 'Documentos guardados' : 'Documento guardado'}. El equipo ya puede revisarlo.`
+                : `${lista.length > 1 ? 'Documentos guardados' : 'Documento guardado'}. El cliente ya puede descargarlo en Rastrear.`);
         } catch (e) { toast(e.message); btn.disabled = false; btn.textContent = 'Guardar documentos'; }
     }
 
@@ -1547,13 +1734,51 @@
         const gd = ev.target.closest('[data-guardar-docs]');
         if (gd) { await guardarDocumentos(gd); return; }
         const sc = ev.target.closest('[data-sacar]');
-        if (sc) { const l = porSubir.get(sc.dataset.codigo) || []; l.splice(Number(sc.dataset.sacar), 1); l.length ? porSubir.set(sc.dataset.codigo, l) : porSubir.delete(sc.dataset.codigo); pintar(); return; }
+        if (sc) { const ll = llaveSubir(sc.dataset.codigo, sc.dataset.clase || 'entrega'), l = porSubir.get(ll) || [];
+            l.splice(Number(sc.dataset.sacar), 1); l.length ? porSubir.set(ll, l) : porSubir.delete(ll); pintar(); return; }
         const cs = ev.target.closest('[data-cancelar-subir]');
-        if (cs) { porSubir.delete(cs.dataset.cancelarSubir); pintar(); return; }
+        if (cs) { porSubir.delete(llaveSubir(cs.dataset.cancelarSubir, cs.dataset.clase || 'entrega')); pintar(); return; }
         const ag = ev.target.closest('[data-abrir-agregar]');
         if (ag) { agregando.add(ag.dataset.abrirAgregar); pintar(); const s = document.querySelector(`form.agregar[data-codigo="${ag.dataset.abrirAgregar}"] select`); if (s) s.focus(); return; }
         const cg = ev.target.closest('[data-cerrar-agregar]');
         if (cg) { agregando.delete(cg.dataset.cerrarAgregar); pintar(); return; }
+        const vd = ev.target.closest('[data-validar-doc]'), rd2 = ev.target.closest('[data-rechazar-doc]');
+        if (vd || rd2) {
+            const btn = vd || rd2;
+            let motivo = '';
+            if (rd2) { motivo = window.prompt('¿Por qué se rechaza este documento? (por ejemplo: ilegible o no corresponde)') || ''; if (!motivo.trim()) return; }
+            btn.disabled = true;
+            try {
+                const r = await post('/admin/archivo/validar', { codigo: btn.dataset.codigo, id: Number(btn.dataset.validarDoc || btn.dataset.rechazarDoc),
+                    accion: vd ? 'validar' : 'rechazar', motivo });
+                reemplazar(r.expediente); pintar(); toast(vd ? 'Documento validado' : 'Documento rechazado');
+            } catch (e) { if (e.message !== 'sesion') toast(e.message); btn.disabled = false; }
+            return;
+        }
+        const ae = ev.target.closest('[data-avisar-equipo]');
+        if (ae) { avisandoEquipo = ae.dataset.avisarEquipo; pintar(); const i = document.getElementById('ae-' + avisandoEquipo); if (i) i.focus(); return; }
+        if (ev.target.closest('[data-cancelar-avisar]')) { avisandoEquipo = null; pintar(); return; }
+        const uc = ev.target.closest('[data-usar-comp]');
+        if (uc) {
+            const e = expedientes.find(x => x.codigo === uc.dataset.codigo), c = (e.comprobantes || []).find(x => x.id === Number(uc.dataset.usarComp));
+            const f = document.querySelector(`form.form-pago[data-codigo="${uc.dataset.codigo}"]`);
+            if (!f || !c) return;
+            f.dataset.comprobante = c.id;
+            if ((c.moneda || 'DOP') === 'DOP') f.monto.value = c.monto; else f.monto.value = '';
+            if ([...f.metodo.options].some(o => o.value === c.metodo)) f.metodo.value = c.metodo;
+            f.querySelector('.usando-comp')?.remove();
+            f.insertAdjacentHTML('beforeend', `<span class="usando-comp">Con el comprobante del cliente (${esc(montoComp(c))})${(c.moneda || 'DOP') !== 'DOP' ? ' · escribe el monto en RD$' : ''}</span>`);
+            f.scrollIntoView({ behavior: 'smooth', block: 'center' }); f.monto.focus();
+            return;
+        }
+        const dc = ev.target.closest('[data-descartar-comp]');
+        if (dc) {
+            const motivo = window.prompt('¿Por qué se descarta este comprobante? (por ejemplo: ilegible o de otro cliente)') || '';
+            if (!motivo.trim()) return;
+            try { reemplazar((await post('/admin/comprobante/descartar', { codigo: dc.dataset.codigo, id: Number(dc.dataset.descartarComp), motivo })).expediente); pintar(); toast('Comprobante descartado'); }
+            catch (e) { if (e.message !== 'sesion') toast(e.message); }
+            return;
+        }
         const qa = ev.target.closest('[data-quitar-archivo]');
         if (qa) {
             if (!window.confirm('¿Quitar este documento? El cliente ya no podrá descargarlo.')) return;
@@ -1615,7 +1840,7 @@
                 toast('Trámite agregado al mismo código.');
             } else if (form.classList.contains('form-pago')) {
                 const r = await post('/admin/pago', { codigo: form.dataset.codigo, tipo: form.tipo.value, monto: Number(form.monto.value),
-                    metodo: form.metodo.value, fecha: form.fecha.value });
+                    metodo: form.metodo.value, fecha: form.fecha.value, comprobante_id: form.dataset.comprobante ? Number(form.dataset.comprobante) : undefined });
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintarTodo();
                 toast(r.estado === 'pendiente' ? 'Pago registrado. Queda por confirmar por administración o contabilidad.'
@@ -1626,6 +1851,9 @@
                 editandoCliente.delete(form.dataset.codigo);
                 document.activeElement && document.activeElement.blur();
                 reemplazar(r.expediente); pintar(); toast('Datos del cliente actualizados');
+            } else if (form.classList.contains('avisar-equipo')) {
+                await post('/admin/avisar-equipo', { codigo: form.dataset.codigo, texto: form.texto.value, para: form.para.value });
+                avisandoEquipo = null; pintar(); toast('Aviso enviado al equipo');
             } else if (form.classList.contains('rapido-f')) {
                 const p = Number(form.paso.value), tid = Number(form.dataset.tramite);
                 const r = await post('/admin/estado', { codigo: form.dataset.codigo, tramite: tid, paso: p, detalle: mensajesDe(tramiteDe(form), p).defecto,

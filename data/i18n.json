@@ -876,6 +876,96 @@
       "Our team has verified your payment. Thank you!",
       "Notre équipe a vérifié votre paiement. Merci !"
     ],
+    "track.comp.t": [
+      "¿Ya pagaste? Sube tu comprobante",
+      "Already paid? Upload your receipt",
+      "Déjà payé ? Envoyez votre reçu"
+    ],
+    "track.comp.sub": [
+      "Opcional: así confirmamos tu pago más rápido. También puedes enviarlo por WhatsApp.",
+      "Optional: it helps us confirm your payment faster. You can also send it on WhatsApp.",
+      "Facultatif : cela nous aide à confirmer votre paiement plus vite. Vous pouvez aussi l'envoyer sur WhatsApp."
+    ],
+    "track.comp.archivo": [
+      "Foto o PDF del comprobante",
+      "Photo or PDF of the receipt",
+      "Photo ou PDF du reçu"
+    ],
+    "track.comp.monto": [
+      "Monto pagado",
+      "Amount paid",
+      "Montant payé"
+    ],
+    "track.comp.moneda": [
+      "Moneda",
+      "Currency",
+      "Devise"
+    ],
+    "track.comp.metodo": [
+      "¿Cómo pagaste?",
+      "How did you pay?",
+      "Comment avez-vous payé ?"
+    ],
+    "track.comp.m.transferencia": [
+      "Transferencia",
+      "Bank transfer",
+      "Virement"
+    ],
+    "track.comp.m.remesa": [
+      "Remesa",
+      "Remittance",
+      "Transfert d'argent"
+    ],
+    "track.comp.m.tarjeta": [
+      "Tarjeta",
+      "Card",
+      "Carte"
+    ],
+    "track.comp.m.efectivo": [
+      "Efectivo",
+      "Cash",
+      "Espèces"
+    ],
+    "track.comp.m.otro": [
+      "Otro",
+      "Other",
+      "Autre"
+    ],
+    "track.comp.nota": [
+      "Nota (opcional)",
+      "Note (optional)",
+      "Note (facultatif)"
+    ],
+    "track.comp.btn": [
+      "Enviar comprobante",
+      "Send receipt",
+      "Envoyer le reçu"
+    ],
+    "track.comp.enviando": [
+      "Enviando…",
+      "Sending…",
+      "Envoi…"
+    ],
+    "track.comp.ok": [
+      "Recibimos tu comprobante. Nuestro equipo lo verificará y te avisaremos cuando el pago quede confirmado.",
+      "We received your receipt. Our team will verify it and let you know once the payment is confirmed.",
+      "Nous avons reçu votre reçu. Notre équipe va le vérifier et vous prévenir dès que le paiement sera confirmé."
+    ],
+    "track.comp.e.archivo": [
+      "Elige la foto o el PDF del comprobante.",
+      "Choose the photo or PDF of the receipt.",
+      "Choisissez la photo ou le PDF du reçu."
+    ],
+    "track.comp.e.monto": [
+      "Escribe el monto que pagaste.",
+      "Enter the amount you paid.",
+      "Indiquez le montant payé."
+    ],
+    "track.comp.e.peso": [
+      "El archivo pesa más de 10 MB.",
+      "The file is larger than 10 MB.",
+      "Le fichier dépasse 10 Mo."
+    ],
     "track.docs.t": [
       "Tus documentos están listos",
       "Your documents are ready",

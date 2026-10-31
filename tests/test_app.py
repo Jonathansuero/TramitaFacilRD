@@ -665,3 +665,167 @@ def test_pagos_por_confirmar(client, monkeypatch):
     client.post("/api/admin/logout")
     client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
     assert client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "otro", "monto": 50, "metodo": "Efectivo"}).json["estado"] == "confirmado"
+
+
+def test_push_cifrado_y_firma_estandar():
+    """El mensaje cifrado se puede descifrar como lo hace el navegador (RFC 8291) y la firma VAPID es válida (RFC 8292)."""
+    import base64, json as _json, struct
+    import push
+    from cryptography.hazmat.primitives import hashes, serialization
+    from cryptography.hazmat.primitives.asymmetric import ec
+    from cryptography.hazmat.primitives.asymmetric.utils import encode_dss_signature
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+    # «el teléfono»: sus claves
+    tel = ec.generate_private_key(ec.SECP256R1())
+    tel_pub = tel.public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+    auth = b"0123456789abcdef"
+    cuerpo = push.cifrar(b'{"titulo":"Hola"}', push.b64u(tel_pub), push.b64u(auth))
+    salt, rs, idlen = cuerpo[:16], struct.unpack("!I", cuerpo[16:20])[0], cuerpo[20]
+    as_pub, cifrado = cuerpo[21:21 + idlen], cuerpo[21 + idlen:]
+    assert rs == 4096 and idlen == 65
+    compartido = tel.exchange(ec.ECDH(), ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), as_pub))
+    h = lambda s, k, i, n: HKDF(algorithm=hashes.SHA256(), length=n, salt=s, info=i).derive(k)
+    ikm = h(auth, compartido, b"WebPush: info\x00" + tel_pub + as_pub, 32)
+    claro = AESGCM(h(salt, ikm, b"Content-Encoding: aes128gcm\x00", 16)).decrypt(h(salt, ikm, b"Content-Encoding: nonce\x00", 12), cifrado, None)
+    assert claro == b'{"titulo":"Hola"}\x02'
+    # firma VAPID
+    privada, publica = push.nuevas_claves()
+    cab = push.firma_vapid("https://fcm.googleapis.com/fcm/send/abc", privada, "mailto:a@b.com")
+    t_, k_ = cab.removeprefix("vapid t=").split(", k=")
+    assert k_ == publica
+    h64, d64, f64 = t_.split(".")
+    assert _json.loads(push.de_b64u(d64))["aud"] == "https://fcm.googleapis.com"
+    firma = push.de_b64u(f64)
+    pub = ec.EllipticCurvePublicKey.from_encoded_point(ec.SECP256R1(), push.de_b64u(publica))
+    pub.verify(encode_dss_signature(int.from_bytes(firma[:32], "big"), int.from_bytes(firma[32:], "big")), f"{h64}.{d64}".encode(), ec.ECDSA(hashes.SHA256()))
+
+
+def test_comprobante_del_cliente_y_notificaciones(client, monkeypatch, tmp_path):
+    import io
+    import push
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    monkeypatch.setenv("TF_ARCHIVOS", str(tmp_path / "archivos"))
+    monkeypatch.setenv("TF_CORREO_SINCRONO", "1")
+    enviados = []
+    monkeypatch.setattr(push, "_post", lambda endpoint, cuerpo, aut: enviados.append(endpoint) or (410 if "vencida" in endpoint else 201))
+    codigo = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                                 "pais": "us", "servicio": "certificacion_solteria", "acepta": True}).json["codigo"]
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    # el administrador activa las notificaciones en dos dispositivos (uno ya no existe)
+    clave = client.get("/api/admin/push/clave").json
+    assert clave["disponible"] and len(push.de_b64u(clave["clave"])) == 65
+    tel = __import__("cryptography.hazmat.primitives.asymmetric.ec", fromlist=["ec"])
+    from cryptography.hazmat.primitives import serialization
+    k = tel.generate_private_key(tel.SECP256R1()).public_key().public_bytes(serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint)
+    for ep in ("https://fcm.googleapis.com/fcm/send/telefono", "https://fcm.googleapis.com/fcm/send/vencida"):
+        assert client.post("/api/admin/push/suscribir", json={"endpoint": ep, "keys": {"p256dh": push.b64u(k), "auth": push.b64u(b"0123456789abcdef")}}).json["ok"]
+    assert client.post("/api/admin/push/probar").json["dispositivos"] == 2
+    assert client.post("/api/admin/push/probar").json["dispositivos"] == 1   # la vencida se borró sola
+    # el cliente sube su comprobante desde Rastrear (con los últimos 4 de su WhatsApp)
+    pdf = b"%PDF-1.4\n%%EOF\n"
+    malo = client.post(f"/api/rastreo/{codigo}/comprobante", data={"dato": "0000", "monto": "1060", "metodo": "Zelle",
+                       "archivo": (io.BytesIO(pdf), "zelle.pdf")}, content_type="multipart/form-data")
+    assert malo.status_code == 403
+    n = len(enviados)
+    r = client.post(f"/api/rastreo/{codigo}/comprobante", data={"dato": "1234", "monto": "1060", "metodo": "Zelle", "nota": "Desde la cuenta de mi hermano",
+                    "archivo": (io.BytesIO(pdf), "zelle.pdf")}, content_type="multipart/form-data")
+    assert r.status_code == 201 and len(enviados) == n + 1          # notificación al teléfono del administrador
+    assert client.get(f"/api/rastreo/{codigo}").json["pago"] == "por_confirmar"
+    exp = next(e for e in client.get("/api/admin/expedientes").json["expedientes"] if e["codigo"] == codigo)
+    comp = exp["comprobantes"][0]
+    assert comp["monto"] == 1060 and comp["estado"] == "nuevo" and comp["nota"].startswith("Desde")
+    assert client.get(f"/api/admin/comprobante/{comp['id']}").data == pdf
+    assert client.get("/api/admin/avisos").json["avisos"][0]["tipo"] == "comprobante"
+    # se registra el pago con ese comprobante (doble evidencia) y queda enlazado
+    e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": 1060, "metodo": "Zelle", "comprobante_id": comp["id"]}).json["expediente"]
+    assert e["pagos"][0]["comprobante_id"] == comp["id"] and e["comprobantes"][0]["estado"] == "usado" and e["pagado"] == 1060
+    assert client.get(f"/api/rastreo/{codigo}").json["pago"] == "confirmado"
+    # otro comprobante se puede descartar con motivo
+    client.post(f"/api/rastreo/{codigo}/comprobante", data={"dato": "ana@correo.com", "monto": "50", "metodo": "Otro",
+                "archivo": (io.BytesIO(pdf), "otro.pdf")}, content_type="multipart/form-data")
+    exp = next(e for e in client.get("/api/admin/expedientes").json["expedientes"] if e["codigo"] == codigo)
+    c2 = exp["comprobantes"][-1]["id"]
+    assert client.post("/api/admin/comprobante/descartar", json={"codigo": codigo, "id": c2}).status_code == 400
+    e = client.post("/api/admin/comprobante/descartar", json={"codigo": codigo, "id": c2, "motivo": "Es de otro cliente"}).json["expediente"]
+    assert e["comprobantes"][-1]["estado"] == "descartado"
+
+
+def test_documentos_recibidos_avisos_y_registro(client, monkeypatch, tmp_path):
+    import io
+    import push
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    monkeypatch.setenv("TF_ARCHIVOS", str(tmp_path / "archivos"))
+    monkeypatch.setenv("TF_CORREO_SINCRONO", "1")
+    enviados = []
+    monkeypatch.setattr(push, "_post", lambda endpoint, cuerpo, aut: enviados.append(endpoint) or 201)
+    codigo = client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                                 "pais": "us", "servicio": "certificacion_solteria", "acepta": True}).json["codigo"]
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    for u, perms in (("gestor", ["expedientes"]), ("conta", ["pagos", "validar_pagos", "resumen"])):
+        client.post("/api/admin/usuarios/guardar", json={"usuario": u, "nombre": u.title(), "permisos": perms, "clave": "temporal-123",
+                                                          "correo": f"{u}@ejemplo.com"})
+    def entrar(u, clave="temporal-123"):
+        client.post("/api/admin/logout")
+        if client.post("/api/admin/login", json={"usuario": u, "clave": u + "-clave-1"}).status_code != 200:
+            client.post("/api/admin/login", json={"usuario": u, "clave": clave})
+            client.post("/api/admin/cuenta/clave", json={"actual": clave, "nueva": u + "-clave-1"})
+    # el administrador activa notificaciones en su teléfono
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import ec
+    k = push.b64u(ec.generate_private_key(ec.SECP256R1()).public_key().public_bytes(
+        serialization.Encoding.X962, serialization.PublicFormat.UncompressedPoint))
+    client.post("/api/admin/push/suscribir", json={"endpoint": "https://fcm.googleapis.com/fcm/send/dueno",
+                                                   "keys": {"p256dh": k, "auth": push.b64u(b"0123456789abcdef")}})
+    # el gestor sube un documento recibido del cliente: lo ve el equipo, no el cliente
+    entrar("gestor")
+    n = len(enviados)
+    r = client.post("/api/admin/archivo", data={"codigo": codigo, "clase": "recibido", "archivo": (io.BytesIO(PDF), "cedula.pdf")},
+                    content_type="multipart/form-data")
+    assert r.status_code == 201
+    e = r.json["expediente"]
+    assert e["recibidos"][0]["nombre"] == "cedula.pdf" and e["recibidos"][0]["estado"] == "nuevo" and e["archivos"] == []
+    assert len(enviados) == n + 1                                  # le avisó a quien confirma (el dueño)
+    rid = e["recibidos"][0]["id"]
+    assert client.get(f"/api/rastreo/{codigo}").json["archivos"] == 0   # el cliente no ve los recibidos
+    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"}).json["archivos"] == []
+    assert client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": rid, "accion": "validar"}).status_code == 403
+    # avisar al equipo desde el expediente
+    assert client.post("/api/admin/avisar-equipo", json={"codigo": codigo, "texto": "Falta el acta apostillada", "para": "todos"}).json["ok"]
+    assert client.post("/api/admin/avisar-equipo", json={"codigo": codigo, "texto": "x"}).status_code == 400
+    # contabilidad también puede subir recibidos y es quien valida
+    entrar("conta")
+    assert client.post("/api/admin/archivo", data={"codigo": codigo, "clase": "recibido", "archivo": (io.BytesIO(PDF), "transferencia.pdf")},
+                       content_type="multipart/form-data").status_code == 201
+    assert client.post("/api/admin/archivo", data={"codigo": codigo, "clase": "entrega", "archivo": (io.BytesIO(PDF), "acta.pdf")},
+                       content_type="multipart/form-data").status_code == 403   # entregar al cliente es de gestores
+    assert client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": rid, "accion": "rechazar"}).status_code == 400
+    e = client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": rid, "accion": "validar"}).json["expediente"]
+    assert e["recibidos"][0]["estado"] == "validado" and e["recibidos"][0]["revisado_por"] == "conta"
+    e = client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": e["recibidos"][1]["id"], "accion": "rechazar",
+                                                         "motivo": "Se ve borroso"}).json["expediente"]
+    assert e["recibidos"][1]["estado"] == "rechazado" and e["recibidos"][1]["motivo"] == "Se ve borroso"
+    # un cambio de estado avisa al administrador principal, con quién lo hizo
+    entrar("gestor")
+    n = len(enviados)
+    tid = client.get("/api/admin/expedientes").json["expedientes"][0]["tramites"][0]["id"]
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 3, "detalle": "Depositado en la JCE"})
+    assert len(enviados) == n + 1
+    assert client.get("/api/admin/registro").status_code == 403    # el gestor no ve el registro
+    # el administrador principal: avisos de estado y registro con búsqueda
+    client.post("/api/admin/logout")
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    av = client.get("/api/admin/avisos").json["avisos"]
+    assert av[0]["tipo"] == "estado" and av[0]["titulo"].startswith("Gestor movió un trámite")
+    assert {"recibido", "equipo"} <= {a["tipo"] for a in av}
+    reg = client.get("/api/admin/registro").json
+    assert reg["nombres"]["gestor"] == "Gestor" and "gestor" in reg["usuarios"]
+    assert [x for x in reg["registro"] if x["accion"].startswith("Movió a paso 3")][0]["usuario"] == "gestor"
+    solo = client.get("/api/admin/registro?estados=1&usuario=gestor").json["registro"]
+    assert solo and all(x["usuario"] == "gestor" and x["accion"].startswith("Movió a paso") for x in solo)
+    assert all("cedula" in (x["detalle"] or "") + x["accion"] for x in client.get("/api/admin/registro?q=cedula").json["registro"])
+    n = len(enviados)   # sus propios cambios no se los notifica a sí mismo
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo"})
+    assert len(enviados) == n
