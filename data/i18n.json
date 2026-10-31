@@ -866,6 +866,71 @@
       "We have your payment on record. Our team is verifying it arrived; we will let you know once it is confirmed.",
       "Nous avons enregistré votre paiement. Notre équipe vérifie sa réception ; nous vous préviendrons dès qu'il sera confirmé."
     ],
+    "track.pago.full": [
+      "Pago completo realizado",
+      "Payment completed",
+      "Paiement intégral effectué"
+    ],
+    "track.pago.full.d": [
+      "Tu pago está completo y verificado por nuestro equipo. ¡Gracias!",
+      "Your payment is complete and verified by our team. Thank you!",
+      "Votre paiement est complet et vérifié par notre équipe. Merci !"
+    ],
+    "track.pago.parcial": [
+      "Pagaste el {pct}% del trámite",
+      "You have paid {pct}% of the service",
+      "Vous avez payé {pct} % du service"
+    ],
+    "track.pago.parcial.d": [
+      "Has realizado exitosamente el pago del {pct}%. Falta {falta} para completarlo; puedes enviarlo cuando quieras.",
+      "You have successfully paid {pct}%. {falta} is still pending; you can send it whenever you want.",
+      "Vous avez bien payé {pct} %. Il reste {falta} à régler ; vous pouvez l'envoyer quand vous voulez."
+    ],
+    "track.pago.falta": [
+      "Falta el pago",
+      "Payment pending",
+      "Paiement en attente"
+    ],
+    "track.pago.falta.d": [
+      "Todavía no hemos registrado tu pago. Puedes subir el comprobante aquí abajo o enviarlo por WhatsApp.",
+      "We have not registered your payment yet. You can upload the receipt below or send it on WhatsApp.",
+      "Nous n'avons pas encore enregistré votre paiement. Envoyez le reçu ci-dessous ou par WhatsApp."
+    ],
+    "track.pago.ver": [
+      "Ver desglose",
+      "See breakdown",
+      "Voir le détail"
+    ],
+    "track.pago.ocultar": [
+      "Ocultar desglose",
+      "Hide breakdown",
+      "Masquer le détail"
+    ],
+    "track.pago.total": [
+      "Total del trámite",
+      "Service total",
+      "Total du service"
+    ],
+    "track.pago.pagado": [
+      "Pagado",
+      "Paid",
+      "Payé"
+    ],
+    "track.pago.resta": [
+      "Falta",
+      "Pending",
+      "Reste"
+    ],
+    "track.espera.t": [
+      "A la espera del documento",
+      "Waiting for your document",
+      "En attente de votre document"
+    ],
+    "track.espera.d": [
+      "Cuando tu documento esté listo aparecerá aquí para descargarlo con tu código. También te avisamos por correo y por WhatsApp.",
+      "When your document is ready it will appear here to download with your code. We will also notify you by email and WhatsApp.",
+      "Dès que votre document sera prêt, il apparaîtra ici avec votre code. Nous vous préviendrons aussi par e-mail et WhatsApp."
+    ],
     "track.pago.ok": [
       "Pago confirmado",
       "Payment confirmed",

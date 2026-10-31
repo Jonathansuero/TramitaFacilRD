@@ -729,6 +729,7 @@ def api_rastreo(codigo: str):
                         "tone": TONO_POR_PASO.get(row["paso"], "sky"), "updated": row["actualizado"], "items": items,
                         "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='entrega'", (codigo,)).fetchone()[0],
                         **estado_pago_cliente(get_db(), codigo), "falta_pagar": falta_por_pagar(get_db(), codigo),
+                        "saldo": saldo_cliente(get_db(), codigo),
                         "pide_docs": sorted(set(pedidos)),
                         "docs_enviados": get_db().execute(
                             "SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='recibido' AND usuario='cliente'", (codigo,)).fetchone()[0],
@@ -759,13 +760,22 @@ def estado_pago_cliente(db: sqlite3.Connection, codigo: str) -> dict:
     return {"pago": None, "pago_motivo": ""}
 
 
+def saldo_cliente(db: sqlite3.Connection, codigo: str) -> dict:
+    """Cuánto cuesta, cuánto lleva pagado y cuánto le falta (lo que ve el cliente en Rastrear)."""
+    total = db.execute("SELECT SUM(precio) FROM tramites WHERE codigo=?", (codigo,)).fetchone()[0]
+    pagado = db.execute("SELECT COALESCE(SUM(monto), 0) FROM pagos WHERE codigo=? AND estado='confirmado'",
+                        (codigo,)).fetchone()[0] or 0
+    if total is None:                      # sin precio puesto todavía no se puede decir nada de montos
+        return {"total": None, "pagado": pagado, "falta": None, "pct": None}
+    falta = max(0, round(total - pagado, 2))
+    pct = 100 if total <= 0 else max(0, min(100, round(pagado / total * 100)))
+    return {"total": total, "pagado": pagado, "falta": falta, "pct": pct}
+
+
 def falta_por_pagar(db: sqlite3.Connection, codigo: str) -> bool:
     """¿Al cliente todavía le queda saldo? Si no, ya no se le pide otro comprobante."""
-    total = db.execute("SELECT SUM(precio) FROM tramites WHERE codigo=?", (codigo,)).fetchone()[0]
-    if total is None:
-        return True   # sin precio no se sabe: se deja la opción abierta
-    pagado = db.execute("SELECT COALESCE(SUM(monto), 0) FROM pagos WHERE codigo=? AND estado='confirmado'", (codigo,)).fetchone()[0]
-    return pagado < total
+    s = saldo_cliente(db, codigo)
+    return True if s["total"] is None else s["falta"] > 0
 
 
 @app.post("/api/rastreo/<codigo>/archivos")

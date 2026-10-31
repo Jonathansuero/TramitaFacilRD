@@ -933,3 +933,27 @@ def test_cliente_sube_documentos_pedidos(client, monkeypatch, tmp_path):
     v = client.get(f"/api/rastreo/{codigo}").json
     assert "Acta de nacimiento apostillada" not in v["pide_docs"]
     assert [d for d in v["items"][0]["docs"] if d["recibido"]][0]["nombre"] == "Acta de nacimiento apostillada"
+
+
+def test_rastreo_muestra_pago_parcial_y_completo(client, monkeypatch):
+    """Amarillo mientras falte dinero (con el porcentaje), verde cuando el pago está completo."""
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    e = client.post("/api/admin/nuevo", json={"nombre": "Pedro Gómez", "contacto": "+1 809 555 7788 · pedro@correo.com",
+                    "pais": "us", "servicios": [{"servicio": "creacion_cv", "precio": 4000}]}).json["expediente"]
+    codigo = e["codigo"]
+    # sin pagos todavía: no hay nada cobrado y falta todo
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["pago"] is None and v["saldo"] == {"total": 4000, "pagado": 0, "falta": 4000, "pct": 0}
+    # mitad pagada y confirmada: sigue faltando, el cliente ve el 50 %
+    pid = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Transferencia"}).json["expediente"]["pagos"][-1]["id"]
+    client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["pago"] == "confirmado" and v["falta_pagar"] is True
+    assert v["saldo"]["pct"] == 50 and v["saldo"]["falta"] == 2000
+    # el resto: pago completo
+    pid2 = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Transferencia"}).json["expediente"]["pagos"][-1]["id"]
+    client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid2, "accion": "confirmar"})
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["falta_pagar"] is False and v["saldo"]["pct"] == 100 and v["saldo"]["falta"] == 0
