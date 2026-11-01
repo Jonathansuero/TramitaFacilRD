@@ -985,7 +985,13 @@ def test_servicio_trae_su_contenido_escrito_en_el_html(client):
     # los requisitos de la checklist también se escriben (el JavaScript los vuelve a pintar interactivos)
     poder = client.get("/servicio?id=poderes_especiales").get_data(as_text=True)
     assert "Datos completos del apoderado en RD" in poder.split("<body", 1)[1]
-    # un trámite sin contenido ampliado no deja una caja vacía
-    otro = client.get("/servicio?id=turnitin_check").get_data(as_text=True)
-    assert '<div id="sExtra"></div>' in otro
+    # los 41 trámites tienen su contenido propio, sin textos repetidos entre ellos
+    import app as _app
+    servicios = _app.catalogo()["servicios"]
+    assert all(x.get("intro") and len(x.get("como", [])) == 3 and x.get("entrega") and len(x.get("faq", [])) == 4
+               for x in servicios.values())
+    intros = [x["intro"] for x in servicios.values()]
+    assert len(set(intros)) == len(servicios)
+    respuestas = [f["a"] for x in servicios.values() for f in x["faq"]]
+    assert len(set(respuestas)) == len(respuestas) and all(len(r) >= 40 for r in respuestas)
 
