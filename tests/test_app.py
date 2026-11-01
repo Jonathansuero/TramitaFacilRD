@@ -994,4 +994,11 @@ def test_servicio_trae_su_contenido_escrito_en_el_html(client):
     assert len(set(intros)) == len(servicios)
     respuestas = [f["a"] for x in servicios.values() for f in x["faq"]]
     assert len(set(respuestas)) == len(respuestas) and all(len(r) >= 40 for r in respuestas)
+    # al cambiar de trámite sin recargar, la página pide el contenido del nuevo
+    d = client.get("/api/servicio/poderes_especiales").json
+    assert d["titulo"].startswith("Poderes") and len(d["como"]) == 3 and len(d["faq"]) == 4
+    assert client.get("/api/servicio/no_existe").status_code == 404
+    # ese contenido no viaja en data.js: engordaría cada carga del sitio
+    datos = (Path(__file__).resolve().parents[1] / "assets" / "js" / "data.js").read_text(encoding="utf-8")
+    assert "¿Qué es y cuándo te lo piden?" not in datos and d["intro"][:60] not in datos
 

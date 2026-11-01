@@ -666,6 +666,16 @@ def api_precios():
                                             for k, (t, f) in precios_guardados().items() if k in base}})
 
 
+@app.get("/api/servicio/<sid>")
+def api_servicio(sid: str):
+    """Contenido propio de un trámite, para cuando el visitante cambia de servicio sin recargar la página."""
+    serv = catalogo()["servicios"].get(sid)
+    if not serv:
+        return error("Ese trámite no existe.", 404)
+    return jsonify({"ok": True, "id": sid, "titulo": serv["title"], "intro": serv.get("intro", ""),
+                    "como": serv.get("como", []), "entrega": serv.get("entrega", ""), "faq": serv.get("faq", [])})
+
+
 @app.get("/api/tasas")
 def api_tasas():
     return jsonify(obtener_tasas())
