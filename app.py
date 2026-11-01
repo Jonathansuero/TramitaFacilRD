@@ -2467,6 +2467,12 @@ def _rellenar(html: str, elemento_id: str, dentro: str) -> str:
 def _bloque_servicio(serv: dict, sid: str, cat_: dict) -> str:
     """Lo propio del trámite —cómo funciona, qué recibes, preguntas— escrito en el HTML, no por el navegador."""
     partes = []
+    slug = serv.get("slug", "")
+    if slug and (BASE_DIR / "assets" / "img" / "servicios" / f"{slug}.jpg").exists():
+        titulo_img = re.sub(r"\s*\([^)]*\)", "", serv["title"]).strip()
+        partes.append(f'<img class="serv-img" src="/assets/img/servicios/{slug}.jpg" width="1200" height="630"'
+                      f' loading="lazy" decoding="async"'
+                      f' alt="{_atr(titulo_img)} — lo gestionamos en RD sin que viajes · TramitaFácil RD">')
     if serv.get("intro"):
         partes.append('<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8">'
                       '<h2 class="text-lg font-extrabold text-slate-900">¿Qué es y cuándo te lo piden?</h2>'
@@ -2532,6 +2538,7 @@ def pagina(nombre: str, sid: str = ""):
     titulo = re.search(r"<title>(.*?)</title>", html, re.S).group(1).strip()
     m = re.search(r'<meta name="description" content="([^"]*)"', html)
     desc = m.group(1) if m else ""
+    serv = None
     if nombre == "servicio":
         sid = sid or request.args.get("id", "")
         serv = cat["servicios"].get(sid)
@@ -2557,6 +2564,9 @@ def pagina(nombre: str, sid: str = ""):
             ruta = "/servicios"   # sin servicio válido: la dirección oficial es el catálogo
     url = sitio + ruta
     imagen = f"{sitio}/assets/img/og-tramitafacil.png"
+    if nombre == "servicio" and serv and serv.get("slug") and \
+            (BASE_DIR / "assets" / "img" / "servicios" / f'{serv["slug"]}.jpg').exists():
+        imagen = f'{sitio}/assets/img/servicios/{serv["slug"]}.jpg'
     # Al compartir el enlace (WhatsApp, Facebook) sí se ve la marca, aunque el título de Google no la lleve
     og_titulo = titulo if "TramitaFácil RD" in titulo else f"{titulo} | TramitaFácil RD"
     etiquetas = f"""
