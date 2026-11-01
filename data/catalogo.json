@@ -241,7 +241,32 @@
         "uscis"
       ],
       "seo_titulo": "Renovar la Green Card (I-90) desde RD o el exterior",
-      "seo": "¿Tu Green Card vence o la perdiste? Llenamos tu I-90 y preparamos tu expediente de renovación o reemplazo sin errores, desde RD o EE.UU. Cotiza en US$ hoy."
+      "seo": "¿Tu Green Card vence o la perdiste? Llenamos tu I-90 y preparamos tu expediente de renovación o reemplazo sin errores, desde RD o EE.UU. Cotiza en US$ hoy.",
+      "intro": "La Green Card se renueva cada diez años y se reemplaza si se perdió, se dañó o cambiaron tus datos. El trámite es el formulario I-90 ante USCIS, y lo que suele devolver un caso es un dato mal puesto o una evidencia que falta.",
+      "como": [
+        "Revisamos tu situación: vencimiento, pérdida, daño o cambio de nombre, porque cada una se sustenta distinto.",
+        "Llenamos el I-90 con tus datos y armamos el expediente con las copias y fotos que pide USCIS.",
+        "Te explicamos cómo enviarlo y qué viene después: el recibo, la cita de biométricos y los tiempos."
+      ],
+      "entrega": "Recibes el I-90 completo y revisado, el expediente con su lista de anexos y las instrucciones paso a paso para enviarlo y darle seguimiento.",
+      "faq": [
+        {
+          "q": "¿Ustedes son abogados de inmigración?",
+          "a": "No. Preparamos y organizamos el expediente para que vaya correcto. Si tu caso tiene antecedentes, ausencias largas o algo que pueda complicarlo, te lo decimos de frente y te recomendamos un abogado."
+        },
+        {
+          "q": "¿Puedo hacerlo desde RD?",
+          "a": "El formulario y el expediente se preparan desde donde estés. Lo que depende de EE.UU. es el envío y la cita de biométricos."
+        },
+        {
+          "q": "¿Y si ya venció?",
+          "a": "Se renueva igual. Lo importante es no dejar pasar más tiempo, porque una residencia vencida complica viajar y trabajar."
+        },
+        {
+          "q": "¿Cuánto tarda USCIS?",
+          "a": "Los tiempos los publica USCIS y cambian según la oficina. Te decimos el estimado vigente cuando preparemos tu caso."
+        }
+      ]
     },
     "peticiones_familiares": {
       "title": "Peticiones Familiares EE.UU. / Europa (I-130)",
@@ -260,7 +285,32 @@
         "consulados_ext"
       ],
       "seo_titulo": "Petición familiar I-130 para traer a tu familia a EE.UU.",
-      "seo": "Reúnete con tu familia: preparamos tu petición I-130 para EE.UU. o tu reagrupación en Europa, con formularios y evidencias en orden. Cotiza gratis."
+      "seo": "Reúnete con tu familia: preparamos tu petición I-130 para EE.UU. o tu reagrupación en Europa, con formularios y evidencias en orden. Cotiza gratis.",
+      "intro": "La petición familiar es el trámite con el que un ciudadano o residente pide a su cónyuge, hijo, padre o hermano. En EE.UU. es el formulario I-130; en Europa, la reagrupación familiar. En los dos casos lo que decide es la evidencia: el parentesco probado y documentos que coincidan entre sí.",
+      "como": [
+        "Revisamos quién pide a quién y qué evidencia hace falta en tu caso.",
+        "Reunimos los documentos dominicanos —actas, solterías, antecedentes— legalizados y apostillados.",
+        "Llenamos el formulario, subimos las evidencias al sistema y te acompañamos en el seguimiento."
+      ],
+      "entrega": "Recibes la petición presentada con su número de recibo, el expediente de evidencias organizado y la lista de lo que viene después.",
+      "faq": [
+        {
+          "q": "¿Esto garantiza la visa o la residencia?",
+          "a": "No. La petición es el primer paso y la aprueba la autoridad del país. Lo que está en nuestras manos es que llegue completa y con la evidencia en orden."
+        },
+        {
+          "q": "¿Qué documentos dominicanos me van a pedir?",
+          "a": "Normalmente actas de nacimiento o matrimonio, y a veces solterías o antecedentes, todos apostillados. Los sacamos nosotros."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Depende del parentesco y del país: un cónyuge no espera lo mismo que un hermano. Te damos el estimado al ver el caso."
+        },
+        {
+          "q": "¿Y si un acta tiene un error?",
+          "a": "Hay que corregirla antes, porque los nombres deben coincidir en todo el expediente. Eso lo resolvemos primero."
+        }
+      ]
     },
     "movimientos_migratorios": {
       "title": "Certificación de Movimientos Migratorios (DGM)",
@@ -279,7 +329,32 @@
         "dgm"
       ],
       "seo_titulo": "Certificación de movimientos migratorios de la DGM",
-      "seo": "Obtén tu certificación de entradas y salidas del país (DGM) sin ir a Migración. La gestionamos desde RD o desde el exterior. Cotiza gratis en línea."
+      "seo": "Obtén tu certificación de entradas y salidas del país (DGM) sin ir a Migración. La gestionamos desde RD o desde el exterior. Cotiza gratis en línea.",
+      "intro": "La certificación de movimientos migratorios es el documento de Migración que lista tus entradas y salidas del país. Te la piden en procesos de residencia, en tribunales, en casos de familia y cuando una embajada quiere comprobar dónde has estado.",
+      "como": [
+        "Nos das tu nombre completo, tu documento y el período que necesitas certificar.",
+        "Solicitamos la certificación en la Dirección General de Migración y le damos seguimiento.",
+        "Te la enviamos escaneada y, si la vas a usar fuera, apostillada."
+      ],
+      "entrega": "Recibes la certificación en PDF y el original por courier si lo necesitas, con la apostilla incluida cuando la pidas.",
+      "faq": [
+        {
+          "q": "¿Tengo que ir yo a Migración?",
+          "a": "No. La gestionamos con tus datos y, si hace falta, con un poder."
+        },
+        {
+          "q": "¿Aparecen todos mis viajes?",
+          "a": "Aparece lo que Migración registró en tus entradas y salidas de RD. Si notas que falta algo, se puede pedir una revisión."
+        },
+        {
+          "q": "¿Sirve para un caso en el tribunal?",
+          "a": "Sí, es un documento oficial y se usa como prueba. Para el exterior hay que apostillarla."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Depende de la carga de Migración; en general son días, no semanas. Te confirmamos al depositar."
+        }
+      ]
     },
     "visa_europea": {
       "title": "Visado Europeo / Schengen (España, Francia, Italia, etc.)",
@@ -294,7 +369,32 @@
         "consulados_ext"
       ],
       "seo_titulo": "Visa Schengen para dominicanos: España, Francia, Italia",
-      "seo": "¿Viajas a España, Francia o Italia? Armamos tu expediente Schengen completo: reservas, seguro, formulario y cita en BLS. Evita errores y cotiza hoy."
+      "seo": "¿Viajas a España, Francia o Italia? Armamos tu expediente Schengen completo: reservas, seguro, formulario y cita en BLS. Evita errores y cotiza hoy.",
+      "intro": "El visado Schengen te permite entrar a España, Francia, Italia y el resto de los países del espacio por estancias cortas. Lo que más rechazos genera no es el país que elijas, sino un expediente incompleto: reservas que no cuadran, un seguro que no cumple o fondos sin sustentar.",
+      "como": [
+        "Revisamos tu motivo de viaje y armamos la lista exacta de documentos del consulado que te toca.",
+        "Preparamos reservas, seguro de viaje y formulario, y agendamos tu cita en BLS o en el centro que corresponda.",
+        "Revisamos contigo el expediente completo antes de la cita."
+      ],
+      "entrega": "Recibes el formulario presentado, la cita agendada y la carpeta de documentos ordenada en el orden en que te la van a pedir.",
+      "faq": [
+        {
+          "q": "¿Garantizan el visado?",
+          "a": "No. La decisión es del consulado. Lo que hacemos es que el expediente no falle por un documento mal preparado, que es el motivo más común de rechazo."
+        },
+        {
+          "q": "¿Qué seguro de viaje sirve?",
+          "a": "Uno con cobertura para todo el espacio Schengen y por los días del viaje. Te decimos cuál cumple antes de que lo compres."
+        },
+        {
+          "q": "¿Y si ya me negaron una vez?",
+          "a": "Se puede volver a solicitar. Conviene revisar el motivo que te dieron y corregir eso antes de pagar otra cita."
+        },
+        {
+          "q": "¿Debo comprar los pasajes antes?",
+          "a": "Normalmente basta la reserva. Comprar antes de tener el visado es un riesgo; te orientamos según el consulado."
+        }
+      ]
     },
     "e_ticket": {
       "title": "Llenado Formulario E-Ticket Viaje RD",
@@ -313,7 +413,32 @@
         "dgm"
       ],
       "seo_titulo": "Llenar el E-Ticket de entrada a República Dominicana",
-      "seo": "¿Viajas a República Dominicana? Llenamos tu E-Ticket de entrada o salida sin errores y te lo enviamos con su código QR a donde estés. Cotiza hoy."
+      "seo": "¿Viajas a República Dominicana? Llenamos tu E-Ticket de entrada o salida sin errores y te lo enviamos con su código QR a donde estés. Cotiza hoy.",
+      "intro": "El E-Ticket es el formulario digital obligatorio de Migración que todo pasajero llena para entrar o salir de República Dominicana. Se presenta con un código QR en el aeropuerto y sin él te pueden detener en el mostrador.",
+      "como": [
+        "Nos das los datos del viaje y del pasaporte de cada pasajero.",
+        "Llenamos el formulario de entrada o de salida, revisando que todo coincida con el pasaporte.",
+        "Te mandamos el código QR listo para presentar en el aeropuerto."
+      ],
+      "entrega": "Recibes el E-Ticket en PDF con su código QR por correo o WhatsApp, listo para mostrar desde el teléfono o impreso.",
+      "faq": [
+        {
+          "q": "¿Es obligatorio?",
+          "a": "Sí. Migración lo exige tanto para entrar como para salir del país."
+        },
+        {
+          "q": "¿Uno por persona o uno por familia?",
+          "a": "Una familia que viaja junta puede ir en un mismo formulario. Si viajan por separado, cada uno el suyo."
+        },
+        {
+          "q": "¿Cuándo debo llenarlo?",
+          "a": "Puede llenarse días antes del vuelo y sale al instante: el código QR aparece al completar el formulario."
+        },
+        {
+          "q": "¿Y si me equivoqué en un dato?",
+          "a": "Se vuelve a llenar con los datos correctos. Por eso lo revisamos contra el pasaporte antes de enviarlo."
+        }
+      ]
     },
     "permiso_menores": {
       "title": "Permiso de Salida de Menores (DGM)",
@@ -332,7 +457,32 @@
         "notarios"
       ],
       "seo_titulo": "Permiso de salida de menores de RD: cómo tramitarlo",
-      "seo": "¿Tu hijo viaja con un solo padre o con un tutor? Gestionamos el permiso de salida de menores ante la DGM, aunque estés en el exterior. Cotiza gratis hoy."
+      "seo": "¿Tu hijo viaja con un solo padre o con un tutor? Gestionamos el permiso de salida de menores ante la DGM, aunque estés en el exterior. Cotiza gratis hoy.",
+      "intro": "Cuando un menor viaja sin sus dos padres, Migración exige el permiso de salida. Es el documento que evita que te devuelvan en el aeropuerto el día del viaje, y conviene tramitarlo con tiempo porque depende de la firma de ambos padres.",
+      "como": [
+        "Nos dices quién viaja con el menor y cuándo, y revisamos qué firmas hacen falta.",
+        "Preparamos la autorización y la documentación que pide la DGM; si un padre está fuera, se resuelve con poder consular.",
+        "Depositamos, damos seguimiento y te entregamos el permiso antes del viaje."
+      ],
+      "entrega": "Recibes el permiso de salida emitido por Migración, escaneado y en original, a tiempo para el viaje.",
+      "faq": [
+        {
+          "q": "¿Hace falta si viaja con uno de los padres?",
+          "a": "Sí. Si no viaja con ambos, el permiso se exige igual."
+        },
+        {
+          "q": "¿Y si el otro padre está en el exterior?",
+          "a": "Puede autorizar desde allá firmando en el consulado dominicano. Te decimos exactamente qué pedir."
+        },
+        {
+          "q": "¿Y si no hay contacto con el otro padre?",
+          "a": "Ahí entra la vía judicial, que es más lenta. Mientras antes empieces, mejor."
+        },
+        {
+          "q": "¿Con cuánto tiempo lo pido?",
+          "a": "Mientras más lejos del viaje, más tranquilo. Dejarlo para la semana del vuelo es lo que genera los sustos."
+        }
+      ]
     },
     "pasaporte_vip": {
       "title": "Pasaporte Dominicano VIP (MIP)",
@@ -350,7 +500,32 @@
         "pasaportes"
       ],
       "seo_titulo": "Pasaporte dominicano VIP: cita rápida sin hacer filas",
-      "seo": "¿Necesitas tu pasaporte dominicano con urgencia? Gestionamos tu cita rápida (servicio VIP) y te guiamos con los requisitos, aunque estés fuera. Cotiza hoy."
+      "seo": "¿Necesitas tu pasaporte dominicano con urgencia? Gestionamos tu cita rápida (servicio VIP) y te guiamos con los requisitos, aunque estés fuera. Cotiza hoy.",
+      "intro": "El servicio VIP de Pasaportes es para cuando no puedes esperar la cita normal: un viaje próximo, una emergencia familiar o un trámite con fecha. Lo que conseguimos es la cita rápida y que llegues con todo en regla para que no te devuelvan.",
+      "como": [
+        "Nos dices para cuándo necesitas el pasaporte y si es renovación o primera vez.",
+        "Te conseguimos la cita más próxima disponible en Pasaportes.",
+        "Revisamos contigo los requisitos para que la cita no se pierda por un documento."
+      ],
+      "entrega": "Recibes la cita confirmada con fecha y hora, la lista de requisitos revisada y el acompañamiento hasta la entrega.",
+      "faq": [
+        {
+          "q": "¿Puedo evitar ir?",
+          "a": "No. La foto y las huellas exigen tu presencia. Lo que se agiliza es la cita y la preparación."
+        },
+        {
+          "q": "¿Sirve si lo necesito esta semana?",
+          "a": "Depende de la disponibilidad del día. Dinos la fecha de tu viaje y te decimos de una vez si llegamos o no."
+        },
+        {
+          "q": "¿En cuánto lo entregan?",
+          "a": "Con la vía rápida es más ágil que la normal; la fecha exacta depende del día de tu cita y te la confirmamos al agendar."
+        },
+        {
+          "q": "¿Sirve para el pasaporte de un menor?",
+          "a": "Sí. Cambian los requisitos y hace falta la presencia de los padres; te pasamos la lista completa."
+        }
+      ]
     },
     "pasaporte_normal": {
       "title": "Pasaporte Dominicano Normal (MIP)",
@@ -582,7 +757,32 @@
         "notarios"
       ],
       "seo_titulo": "Contrato de alquiler notarizado en RD sin estar presente",
-      "seo": "Protege tu propiedad con un contrato de alquiler notarizado, residencial o comercial. Lo redactamos y legalizamos aunque estés fuera del país. Cotiza."
+      "seo": "Protege tu propiedad con un contrato de alquiler notarizado, residencial o comercial. Lo redactamos y legalizamos aunque estés fuera del país. Cotiza.",
+      "intro": "Un contrato de alquiler notarizado protege al dueño y al inquilino: deja por escrito el monto, el plazo, el depósito y qué pasa si alguien incumple. Sin firma notarial, cobrar o desalojar se vuelve mucho más difícil.",
+      "como": [
+        "Nos dices las condiciones: monto, plazo, depósito, quién paga qué y cualquier acuerdo especial.",
+        "Redactamos el contrato y lo enviamos en PDF para que lo revisen las dos partes.",
+        "Coordinamos la firma ante notario y te entregamos el contrato legalizado."
+      ],
+      "entrega": "Recibes el contrato firmado y notarizado, en PDF y en original, con copia para cada parte.",
+      "faq": [
+        {
+          "q": "¿Vale un contrato sin notario?",
+          "a": "Vale entre las partes, pero ante un tribunal o el Banco Agrícola la firma notarizada pesa mucho más. Por lo que cuesta, no conviene ahorrárselo."
+        },
+        {
+          "q": "¿Puedo alquilar mi propiedad desde el exterior?",
+          "a": "Sí. Firmas con poder o te representamos, y también manejamos el depósito de los valores si hace falta."
+        },
+        {
+          "q": "¿Qué pasa si el inquilino deja de pagar?",
+          "a": "Ahí entran el depósito en el Banco Agrícola y la vía legal. Con el contrato bien hecho el proceso es mucho más corto."
+        },
+        {
+          "q": "¿Incluye el inventario del mobiliario?",
+          "a": "Si la propiedad va amueblada conviene anexarlo, y lo incluimos en el contrato."
+        }
+      ]
     },
     "declaracion_union_libre": {
       "title": "Declaración Jurada de Unión Libre",
@@ -599,7 +799,32 @@
         "notarios"
       ],
       "seo_titulo": "Declaración jurada de unión libre en RD, paso a paso",
-      "seo": "¿Te piden demostrar tu unión libre para una visa, el banco o el seguro? Preparamos tu declaración jurada notarial, aunque vivas fuera. Cotiza gratis hoy."
+      "seo": "¿Te piden demostrar tu unión libre para una visa, el banco o el seguro? Preparamos tu declaración jurada notarial, aunque vivas fuera. Cotiza gratis hoy.",
+      "intro": "La declaración jurada de unión libre es el acto notarial con el que una pareja no casada deja constancia de que convive. Te la piden bancos, seguros, trámites de visa y gestiones donde deben reconocer a tu pareja.",
+      "como": [
+        "Nos dicen desde cuándo conviven y para qué necesitan la declaración.",
+        "Redactamos el acto con los datos de los dos y los testigos que correspondan.",
+        "Coordinamos la firma ante notario y te entregamos el documento legalizado."
+      ],
+      "entrega": "Recibes la declaración notarizada en PDF y en original, apostillada si la vas a usar fuera del país.",
+      "faq": [
+        {
+          "q": "¿Esto nos casa?",
+          "a": "No. Deja constancia de que conviven, que es lo que piden esas instituciones. No cambia tu estado civil."
+        },
+        {
+          "q": "¿Hacen falta testigos?",
+          "a": "Normalmente sí. Te decimos cuántos y qué deben llevar."
+        },
+        {
+          "q": "¿Sirve en el exterior?",
+          "a": "Apostillada, sí. Pregunta primero qué acepta la institución que te la pide."
+        },
+        {
+          "q": "¿Podemos firmarla si uno está fuera?",
+          "a": "Sí, con poder o firmando en el consulado. Lo coordinamos."
+        }
+      ]
     },
     "declaracion_jurada": {
       "title": "Declaración Jurada General (Ingresos, Soltería, etc.)",
@@ -617,7 +842,32 @@
         "notarios"
       ],
       "seo_titulo": "Declaración jurada en RD: ingresos, soltería y más",
-      "seo": "¿Necesitas una declaración jurada de ingresos, soltería u otra? La redactamos y notarizamos en RD y te la enviamos a donde estés. Cotiza gratis."
+      "seo": "¿Necesitas una declaración jurada de ingresos, soltería u otra? La redactamos y notarizamos en RD y te la enviamos a donde estés. Cotiza gratis.",
+      "intro": "Una declaración jurada es la forma legal de dejar por escrito algo que afirmas bajo tu responsabilidad: tus ingresos, tu estado civil, quién depende de ti o dónde vives. La piden bancos, consulados, escuelas e instituciones del Estado.",
+      "como": [
+        "Nos dices qué tienes que declarar y quién te lo está pidiendo.",
+        "Redactamos el acto con las palabras que esa institución espera ver.",
+        "Coordinamos la firma ante notario y te lo entregamos legalizado."
+      ],
+      "entrega": "Recibes la declaración notarizada en PDF y en original, apostillada si es para el exterior.",
+      "faq": [
+        {
+          "q": "¿Qué puedo declarar?",
+          "a": "Ingresos, dependientes, domicilio, convivencia, pérdida de un documento y cualquier hecho que tengas que afirmar formalmente."
+        },
+        {
+          "q": "¿La aceptan en cualquier institución?",
+          "a": "Cada una tiene su exigencia. Dinos cuál es y la redactamos a su medida, así evitas que te la devuelvan."
+        },
+        {
+          "q": "¿Tengo que probar lo que declaro?",
+          "a": "Declaras bajo tu responsabilidad, y declarar algo falso tiene consecuencias legales. Si la institución pide pruebas, se anexan."
+        },
+        {
+          "q": "¿Puedo hacerla desde el exterior?",
+          "a": "Sí: la redactamos, la firmas en el consulado y la usamos aquí."
+        }
+      ]
     },
     "contrato_notarial": {
       "title": "Contrato Notarial o Legalizado General",
@@ -633,7 +883,32 @@
         "notarios"
       ],
       "seo_titulo": "Contrato notarial o legalizado en RD a distancia",
-      "seo": "Formaliza tus acuerdos con un contrato notarial: promesas de venta, préstamos y acuerdos entre partes, legalizados en RD sin que viajes. Cotiza hoy."
+      "seo": "Formaliza tus acuerdos con un contrato notarial: promesas de venta, préstamos y acuerdos entre partes, legalizados en RD sin que viajes. Cotiza hoy.",
+      "intro": "Un acuerdo que no está escrito no se puede reclamar. El contrato notarial o legalizado deja constancia de lo que las partes acordaron —una venta, un préstamo, una promesa— con fecha cierta y firmas verificadas por notario.",
+      "como": [
+        "Nos cuentas el acuerdo: quiénes son las partes, qué se entrega, cuándo y bajo qué condiciones.",
+        "Redactamos el contrato y lo enviamos en PDF para que las dos partes lo revisen.",
+        "Coordinamos la firma ante notario y entregamos copias legalizadas a cada uno."
+      ],
+      "entrega": "Recibes el contrato firmado y legalizado, en PDF y en original, con una copia para cada parte.",
+      "faq": [
+        {
+          "q": "¿Qué diferencia hay entre legalizar y notarizar?",
+          "a": "Legalizar la firma certifica que quien firmó es quien dice ser. Un acto notarial va más allá: el notario redacta y da fe del contenido. Te decimos cuál conviene a tu caso."
+        },
+        {
+          "q": "¿Sirve para una promesa de venta?",
+          "a": "Sí, es uno de los usos más comunes, y es lo que protege al comprador mientras se completa la operación."
+        },
+        {
+          "q": "¿Pueden firmar en días distintos?",
+          "a": "Sí, se coordina. Lo importante es que las dos partes firmen ante notario."
+        },
+        {
+          "q": "¿Y si una parte está fuera del país?",
+          "a": "Firma en el consulado o deja un poder. Eso lo manejamos."
+        }
+      ]
     },
     "divorcio_mutuo_acuerdo": {
       "title": "Divorcio por Mutuo Consentimiento",
@@ -652,7 +927,32 @@
         "jce"
       ],
       "seo_titulo": "Divorciarse por mutuo acuerdo en RD sin viajar",
-      "seo": "Divorcio por mutuo consentimiento en RD, ágil y discreto: redactamos el acuerdo y seguimos hasta la sentencia, aunque vivas fuera. Cotiza en confianza."
+      "seo": "Divorcio por mutuo consentimiento en RD, ágil y discreto: redactamos el acuerdo y seguimos hasta la sentencia, aunque vivas fuera. Cotiza en confianza.",
+      "intro": "El divorcio por mutuo consentimiento es el camino cuando los dos están de acuerdo en separarse y en cómo quedan los bienes y los hijos. Es más rápido y más barato que un divorcio contencioso, pero exige que el acuerdo esté bien redactado desde el principio.",
+      "como": [
+        "Conversamos los términos: bienes, pensión y, si hay hijos, guarda y régimen de visitas.",
+        "Redactamos las estipulaciones y las firman ambos ante notario.",
+        "Depositamos en el tribunal, damos seguimiento y te entregamos la sentencia con su inscripción."
+      ],
+      "entrega": "Recibes la sentencia de divorcio y la constancia de su inscripción en el acta, escaneadas y en original, apostilladas si las necesitas fuera.",
+      "faq": [
+        {
+          "q": "¿Tenemos que estar los dos en el país?",
+          "a": "No necesariamente. Quien esté fuera puede firmar con poder en el consulado y ser representado en el proceso."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Es el camino más rápido, pero depende del tribunal. Lo que más atrasa es un acuerdo mal redactado que haya que corregir."
+        },
+        {
+          "q": "¿Y si tenemos hijos menores?",
+          "a": "Se puede igual. El acuerdo debe incluir guarda, visitas y pensión, y el tribunal lo revisa pensando en el menor."
+        },
+        {
+          "q": "¿Queda inscrito automáticamente?",
+          "a": "No. Hay que inscribir la sentencia para que conste en tu estado civil; si no, sigues apareciendo casado. Nosotros lo hacemos."
+        }
+      ]
     },
     "hipotecas_cargas": {
       "title": "Inscripción / Cancelación de Hipotecas y Cargas",
@@ -671,7 +971,32 @@
         "bancos"
       ],
       "seo_titulo": "Inscribir o cancelar una hipoteca sobre tu inmueble en RD",
-      "seo": "¿Pagaste tu préstamo o vas a hipotecar? Inscribimos o cancelamos hipotecas y cargas en el Registro de Títulos mientras estás fuera. Cotiza gratis hoy."
+      "seo": "¿Pagaste tu préstamo o vas a hipotecar? Inscribimos o cancelamos hipotecas y cargas en el Registro de Títulos mientras estás fuera. Cotiza gratis hoy.",
+      "intro": "Mientras una hipoteca o una carga siga inscrita en el Registro de Títulos, la propiedad no se puede vender ni poner en garantía limpia. Y al revés: si vas a prestar con garantía, la inscripción es justamente lo que te protege.",
+      "como": [
+        "Revisamos el certificado de título y qué carga pesa sobre el inmueble.",
+        "Reunimos lo que exige el Registro, empezando por la carta de saldo del banco cuando se trata de cancelar.",
+        "Depositamos, damos seguimiento y te entregamos el título limpio o la carga inscrita."
+      ],
+      "entrega": "Recibes el certificado de título actualizado y la constancia de la inscripción o cancelación, en original y escaneado.",
+      "faq": [
+        {
+          "q": "Ya pagué el préstamo, ¿por qué sigue la hipoteca?",
+          "a": "Porque pagar no la cancela sola: hay que pedir la carta de saldo al banco y registrarla. Hasta que eso no se haga, la carga sigue ahí."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Depende del Registro de Títulos y del banco. La carta de saldo suele ser lo que más demora."
+        },
+        {
+          "q": "¿Puedo hacerlo desde el exterior?",
+          "a": "Sí, con poder. Es de los trámites que más nos piden los dominicanos de afuera."
+        },
+        {
+          "q": "¿Y si no aparece el certificado de título original?",
+          "a": "Hay un procedimiento para duplicado. Lo vemos antes de empezar, porque sin el título no avanza nada."
+        }
+      ]
     },
     "estado_juridico_inmueble": {
       "title": "Certificación de Estado Jurídico del Inmueble (Libre de Cargas)",
@@ -689,7 +1014,32 @@
         "ji"
       ],
       "seo_titulo": "Certificar que tu inmueble en RD está libre de cargas",
-      "seo": "Antes de comprar un terreno o casa en RD, verifica que esté libre de cargas: sacamos la certificación de estado jurídico y te la enviamos. Cotiza gratis."
+      "seo": "Antes de comprar un terreno o casa en RD, verifica que esté libre de cargas: sacamos la certificación de estado jurídico y te la enviamos. Cotiza gratis.",
+      "intro": "Antes de comprar un terreno o una casa en RD, esta certificación te dice quién es el dueño registrado y si la propiedad tiene hipotecas, oposiciones o litigios. Es el documento que evita comprar un problema.",
+      "como": [
+        "Nos das la designación catastral o el número del certificado de título.",
+        "Solicitamos la certificación de estado jurídico en el Registro Inmobiliario.",
+        "Te la enviamos y te explicamos en palabras claras qué dice."
+      ],
+      "entrega": "Recibes la certificación oficial en PDF y en original, con una explicación de qué significa cada carga que aparezca.",
+      "faq": [
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Hasta 30 días hábiles según el Registro Inmobiliario, aunque muchas salen antes."
+        },
+        {
+          "q": "¿Me dice si el vendedor es el dueño?",
+          "a": "Te dice quién figura como titular registrado, que es lo que vale legalmente."
+        },
+        {
+          "q": "¿Qué hago si aparece una carga?",
+          "a": "Depende de cuál sea: algunas se cancelan antes de la venta y otras son motivo para no comprar. Te decimos en qué caso estás."
+        },
+        {
+          "q": "¿Vale la pena si el vendedor me enseñó el título?",
+          "a": "Sí. El título en mano no demuestra que la propiedad esté libre de cargas hoy; la certificación sí."
+        }
+      ]
     },
     "ipi_impuesto": {
       "title": "IPI (Impuesto a la Propiedad Inmobiliaria - DGII)",
@@ -708,7 +1058,32 @@
         "dgii"
       ],
       "seo_titulo": "Pagar el IPI de tu propiedad en RD desde el exterior",
-      "seo": "¿Tienes propiedad en RD? Calculamos, declaramos y pagamos tu IPI en la DGII desde cualquier país, o tramitamos la exención si aplica. Cotiza gratis."
+      "seo": "¿Tienes propiedad en RD? Calculamos, declaramos y pagamos tu IPI en la DGII desde cualquier país, o tramitamos la exención si aplica. Cotiza gratis.",
+      "intro": "El IPI es el impuesto anual que la DGII cobra sobre inmuebles cuyo valor supera el monto exento. Si vives fuera y no lo declaras, la deuda crece con recargos y aparece justo cuando vas a vender o traspasar.",
+      "como": [
+        "Revisamos tu propiedad en la DGII: si está declarada, si aplica la exención y si hay deuda.",
+        "Calculamos lo que corresponde y preparamos la declaración o la solicitud de exención.",
+        "Pagamos y te enviamos el comprobante y la certificación al día."
+      ],
+      "entrega": "Recibes el comprobante del pago, la declaración presentada y la certificación de estar al día con la DGII.",
+      "faq": [
+        {
+          "q": "¿Toda propiedad paga IPI?",
+          "a": "No. Hay un monto exento que la DGII actualiza cada año, y algunos casos tienen exención propia. Lo verificamos antes de pagar nada."
+        },
+        {
+          "q": "¿Puedo pagarlo desde el exterior?",
+          "a": "Sí, es de los trámites más fáciles de resolver a distancia."
+        },
+        {
+          "q": "¿Y si debo de años anteriores?",
+          "a": "Se acumulan recargos. Te decimos el monto real y si conviene acogerse a alguna facilidad vigente."
+        },
+        {
+          "q": "¿Lo necesito para vender?",
+          "a": "Sí, te van a pedir estar al día. Mejor resolverlo antes de tener al comprador esperando."
+        }
+      ]
     },
     "deposito_banco_agricola": {
       "title": "Depósito de Alquileres en el Banco Agrícola",
@@ -726,7 +1101,32 @@
         "bagricola"
       ],
       "seo_titulo": "Depósito de alquileres en el Banco Agrícola, paso a paso",
-      "seo": "Cumple con la ley de alquileres: hacemos el depósito obligatorio en el Banco Agrícola por ti, aunque vivas fuera de RD. Rápido y seguro. Cotiza hoy."
+      "seo": "Cumple con la ley de alquileres: hacemos el depósito obligatorio en el Banco Agrícola por ti, aunque vivas fuera de RD. Rápido y seguro. Cotiza hoy.",
+      "intro": "Cuando el dueño se niega a recibir el alquiler o hay un conflicto abierto, la ley manda depositar los valores en el Banco Agrícola. Ese depósito es la prueba de que el inquilino está cumpliendo y es lo que lo protege en un proceso.",
+      "como": [
+        "Revisamos el contrato y la situación para confirmar que el depósito aplica.",
+        "Hacemos el depósito a nombre de quien corresponde, con la documentación requerida.",
+        "Te entregamos el comprobante y mantenemos el depósito al día cada mes si lo necesitas."
+      ],
+      "entrega": "Recibes el comprobante de cada depósito, con el respaldo que sirve como prueba de pago.",
+      "faq": [
+        {
+          "q": "¿Cuándo tengo que depositar ahí?",
+          "a": "Cuando el propietario no quiere recibir el pago o hay un conflicto abierto. Así no quedas como moroso."
+        },
+        {
+          "q": "¿Y si soy el propietario y vivo fuera?",
+          "a": "También lo gestionamos de ese lado: manejamos los depósitos y te llevamos el control."
+        },
+        {
+          "q": "¿Es obligatorio?",
+          "a": "Para alquileres en conflicto es el mecanismo que reconoce la ley. Sin él, el inquilino queda expuesto."
+        },
+        {
+          "q": "¿Pueden hacerlo todos los meses por mí?",
+          "a": "Sí, lo dejamos como gestión recurrente y te mandamos el comprobante cada vez."
+        }
+      ]
     },
     "renovacion_licencia": {
       "title": "Renovación y Duplicado de Licencia de Conducir (INTRANT)",
@@ -785,7 +1185,32 @@
         "bancos"
       ],
       "seo_titulo": "Levantar la oposición de tu vehículo en la DGII",
-      "seo": "¿Saldaste el préstamo de tu vehículo? Levantamos la oposición en la DGII para que puedas venderlo o traspasarlo, aunque estés fuera del país. Cotiza gratis."
+      "seo": "¿Saldaste el préstamo de tu vehículo? Levantamos la oposición en la DGII para que puedas venderlo o traspasarlo, aunque estés fuera del país. Cotiza gratis.",
+      "intro": "La oposición es la marca que la DGII pone sobre un vehículo cuando hay un préstamo, un embargo o una disputa. Mientras esté ahí, el vehículo no se puede traspasar ni vender, aunque ya lo hayas terminado de pagar.",
+      "como": [
+        "Verificamos en la DGII qué oposición tiene el vehículo y quién la puso.",
+        "Reunimos lo que hace falta para levantarla, empezando por la carta de saldo o la liberación de la financiera.",
+        "Depositamos, damos seguimiento y confirmamos que el vehículo quedó libre."
+      ],
+      "entrega": "Recibes la confirmación de que la oposición fue levantada y la consulta de la DGII mostrando el vehículo limpio.",
+      "faq": [
+        {
+          "q": "Terminé de pagar, ¿por qué sigue la oposición?",
+          "a": "Porque la financiera tiene que liberarla y eso no pasa solo: hay que pedir la carta y registrarla en la DGII."
+        },
+        {
+          "q": "¿Puedo vender con oposición?",
+          "a": "Puedes acordar la venta, pero el traspaso no se hace hasta levantarla. Conviene resolverlo antes de recibir el dinero."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Lo que más demora suele ser la carta de la financiera, no la DGII."
+        },
+        {
+          "q": "¿Y si la oposición es de un tribunal?",
+          "a": "Ahí no basta una carta: hay que levantar la medida judicial. Te decimos qué implica tu caso."
+        }
+      ]
     },
     "certificacion_no_registro_vehicular": {
       "title": "Certificación de Propiedad / No Registro de Vehículos",
@@ -801,7 +1226,32 @@
         "dgii"
       ],
       "seo_titulo": "Certificar la propiedad o el no registro de un vehículo",
-      "seo": "Certificación de la DGII de propiedad o de no registro de vehículos, para visas, embajadas o trámites legales. Sin filas y desde donde estés. Cotiza gratis."
+      "seo": "Certificación de la DGII de propiedad o de no registro de vehículos, para visas, embajadas o trámites legales. Sin filas y desde donde estés. Cotiza gratis.",
+      "intro": "Esta certificación de la DGII dice si tienes o no vehículos registrados a tu nombre. Te la piden en consulados para una visa, en tribunales, en procesos de pensión y cuando necesitas probar tu patrimonio.",
+      "como": [
+        "Nos das tu nombre y tu cédula o pasaporte.",
+        "Solicitamos en la DGII la certificación de propiedad o de no registro, según lo que te pidan.",
+        "Te la enviamos escaneada y, si es para el exterior, apostillada."
+      ],
+      "entrega": "Recibes la certificación oficial en PDF y el original por courier, apostillada si la pediste.",
+      "faq": [
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Normalmente es inmediata; si hay mucha demanda puede tomar hasta 3 días laborables."
+        },
+        {
+          "q": "¿Cuál me toca, propiedad o no registro?",
+          "a": "Depende de lo que tengas que probar: que un vehículo es tuyo, o que no tienes ninguno. Si no sabes, dinos quién te la pide."
+        },
+        {
+          "q": "¿Sirve para el consulado?",
+          "a": "Sí, es uno de los usos más frecuentes. Para el exterior hay que apostillarla."
+        },
+        {
+          "q": "¿Tengo que estar en el país?",
+          "a": "No. La solicitamos y la retiramos con tus datos, y te la enviamos a donde estés."
+        }
+      ]
     },
     "duplicado_matricula": {
       "title": "Duplicado de Matrícula por Pérdida (DGII)",
@@ -816,7 +1266,32 @@
         "dgii"
       ],
       "seo_titulo": "Duplicado de matrícula por pérdida en la DGII",
-      "seo": "¿Perdiste la matrícula de tu vehículo? Hacemos todo aunque estés fuera: denuncia, publicación en el periódico y duplicado en la DGII. Cotiza gratis."
+      "seo": "¿Perdiste la matrícula de tu vehículo? Hacemos todo aunque estés fuera: denuncia, publicación en el periódico y duplicado en la DGII. Cotiza gratis.",
+      "intro": "Sin matrícula no se puede vender, traspasar ni renovar el marbete del vehículo. El duplicado por pérdida tiene tres pasos obligatorios —denuncia, publicación y solicitud en la DGII— y saltarse uno es lo que hace que devuelvan el expediente.",
+      "como": [
+        "Hacemos la denuncia de pérdida en la Policía Nacional.",
+        "Publicamos el aviso en un periódico de circulación nacional, como exige el procedimiento.",
+        "Depositamos la solicitud en la DGII y retiramos la matrícula nueva."
+      ],
+      "entrega": "Recibes la matrícula nueva en original, más la denuncia y la publicación que respaldan el trámite.",
+      "faq": [
+        {
+          "q": "¿Hace falta la publicación en el periódico?",
+          "a": "Sí, es parte del procedimiento. Nosotros la coordinamos y la pagamos."
+        },
+        {
+          "q": "No la perdí, se dañó. ¿Es igual?",
+          "a": "Hay duplicado por deterioro y es más simple. Dinos en qué caso estás."
+        },
+        {
+          "q": "¿Puedo circular mientras tanto?",
+          "a": "Conviene llevar la denuncia contigo. Sin matrícula ni denuncia, un retén te complica el día."
+        },
+        {
+          "q": "¿Puedo hacerlo si estoy fuera?",
+          "a": "Sí, con un poder. El vehículo no tiene que moverse."
+        }
+      ]
     },
     "traspaso_vehicular": {
       "title": "Traspaso Vehicular (DGII + Acto Venta)",
@@ -878,7 +1353,32 @@
         "dgii"
       ],
       "seo_titulo": "Pagar impuestos y marbete de la DGII desde el exterior",
-      "seo": "Ponte al día con la DGII sin filas desde cualquier país: pagamos tu marbete, liquidamos impuestos y te entregamos tus certificaciones. Cotiza gratis."
+      "seo": "Ponte al día con la DGII sin filas desde cualquier país: pagamos tu marbete, liquidamos impuestos y te entregamos tus certificaciones. Cotiza gratis.",
+      "intro": "El marbete y los impuestos de la DGII se vencen aunque no uses el vehículo, y la deuda aparece justo cuando necesitas traspasar, vender o renovar algo. Ponerte al día es rápido; lo lento es la fila.",
+      "como": [
+        "Consultamos en la DGII qué debe tu vehículo o tu RNC y desde cuándo.",
+        "Liquidamos y pagamos lo que corresponda.",
+        "Te enviamos los comprobantes y la certificación de estar al día."
+      ],
+      "entrega": "Recibes los comprobantes de pago y la certificación de la DGII al día, en PDF y en original si lo necesitas.",
+      "faq": [
+        {
+          "q": "¿Pueden pagar el marbete por mí desde el exterior?",
+          "a": "Sí. Es uno de los encargos más comunes de quienes dejaron su vehículo aquí."
+        },
+        {
+          "q": "¿Y si debo varios años?",
+          "a": "Se acumulan recargos. Te decimos el monto real antes de pagar nada."
+        },
+        {
+          "q": "¿Me entregan el marbete físico?",
+          "a": "Te lo gestionamos y te lo hacemos llegar, o lo dejamos con quien nos indiques."
+        },
+        {
+          "q": "¿Sirve para traspasar?",
+          "a": "Es requisito: sin estar al día no se traspasa."
+        }
+      ]
     },
     "carfax_vehicular": {
       "title": "Reporte Carfax de Vehículo Importado",
@@ -893,7 +1393,32 @@
         "carfax"
       ],
       "seo_titulo": "Reporte Carfax antes de comprar un vehículo importado",
-      "seo": "¿Vas a comprar un vehículo importado de EE.UU. o Canadá? Te damos su reporte Carfax: accidentes, millaje real y robos. Compra seguro. Pídelo hoy."
+      "seo": "¿Vas a comprar un vehículo importado de EE.UU. o Canadá? Te damos su reporte Carfax: accidentes, millaje real y robos. Compra seguro. Pídelo hoy.",
+      "intro": "Antes de comprar un vehículo importado de EE.UU. o Canadá, el reporte Carfax te dice lo que el vendedor puede no contarte: accidentes, inundaciones, títulos de pérdida total, cambios de kilometraje y mantenimientos.",
+      "como": [
+        "Nos das el número de chasis (VIN) de 17 dígitos.",
+        "Generamos el reporte oficial.",
+        "Te lo enviamos en PDF y te señalamos lo que conviene revisar antes de comprar."
+      ],
+      "entrega": "Recibes el reporte completo en PDF por correo, con los puntos de alerta señalados.",
+      "faq": [
+        {
+          "q": "¿Dónde consigo el VIN?",
+          "a": "Está en la matrícula, en el tablero del lado del conductor y en el marco de la puerta. Con una foto basta."
+        },
+        {
+          "q": "¿Sirve para vehículos no importados?",
+          "a": "El Carfax cubre historial de EE.UU. y Canadá. Un vehículo que nunca estuvo allá no aparece."
+        },
+        {
+          "q": "¿Qué debo buscar en el reporte?",
+          "a": "Accidentes reportados, título de salvamento o inundación, y saltos raros en el kilometraje. Te los señalamos."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Es rápido: el mismo día en la mayoría de los casos."
+        }
+      ]
     },
     "multas_transito": {
       "title": "Consulta y Pago de Multas de Tránsito (DIGESETT/PGR)",
@@ -911,7 +1436,32 @@
         "pgr"
       ],
       "seo_titulo": "Consultar y pagar multas de tránsito en RD en línea",
-      "seo": "¿Tienes multas de tránsito pendientes? Consultamos y pagamos tus multas de DIGESETT ante la PGR, aunque estés fuera del país. Cotiza gratis hoy."
+      "seo": "¿Tienes multas de tránsito pendientes? Consultamos y pagamos tus multas de DIGESETT ante la PGR, aunque estés fuera del país. Cotiza gratis hoy.",
+      "intro": "Las multas de tránsito no se borran solas y bloquean trámites: renovar la licencia, traspasar un vehículo o sacar ciertas certificaciones. Consultarlas a tiempo te evita descubrirlas en el peor momento.",
+      "como": [
+        "Consultamos tus multas de DIGESETT en el sistema de la PGR con tu cédula o la matrícula.",
+        "Te decimos qué hay, de cuándo y cuánto suma.",
+        "Las pagamos y te enviamos el comprobante."
+      ],
+      "entrega": "Recibes el detalle de las multas y el comprobante de pago de cada una.",
+      "faq": [
+        {
+          "q": "¿Puedo pagarlas desde el exterior?",
+          "a": "Sí, y es común: muchos se enteran al querer traspasar el vehículo."
+        },
+        {
+          "q": "¿Las multas prescriben?",
+          "a": "No cuentes con eso. Mientras figuren en el sistema, te frenan el trámite."
+        },
+        {
+          "q": "¿Y si la multa no es mía?",
+          "a": "Puede ser de un conductor anterior o un error. Se puede reclamar; te decimos cómo."
+        },
+        {
+          "q": "¿Me afecta para renovar la licencia?",
+          "a": "Suele bloquearla. Por eso las consultamos antes de agendar la cita."
+        }
+      ]
     },
     "legalizacion_mescyt": {
       "title": "Legalización de Títulos Universitarios (MESCYT)",
@@ -973,7 +1523,32 @@
         "mescyt"
       ],
       "seo_titulo": "Récord de notas del MINERD o MESCYT desde el exterior",
-      "seo": "Legalizamos tu récord de notas del colegio o la universidad en MINERD o MESCYT y te lo enviamos al exterior, listo para becas o empleo. Cotiza gratis hoy."
+      "seo": "Legalizamos tu récord de notas del colegio o la universidad en MINERD o MESCYT y te lo enviamos al exterior, listo para becas o empleo. Cotiza gratis hoy.",
+      "intro": "El récord de notas legalizado es lo que una universidad o un empleador del exterior usa para saber qué estudiaste y con qué calificaciones. Casi siempre lo piden junto al título, y los dos deben ir legalizados.",
+      "como": [
+        "Nos dices de qué centro o universidad es y para qué país lo necesitas.",
+        "Lo depositamos en el MINERD o el MESCYT, según corresponda, para su legalización.",
+        "Si va al exterior, lo apostillamos antes de enviártelo."
+      ],
+      "entrega": "Recibes el récord legalizado escaneado y el original por courier, apostillado si lo pediste.",
+      "faq": [
+        {
+          "q": "¿MINERD o MESCYT?",
+          "a": "MINERD para las notas del colegio, MESCYT para las universitarias. Si necesitas los dos, los hacemos a la vez."
+        },
+        {
+          "q": "¿Y si no tengo el récord?",
+          "a": "Lo solicitamos primero en el centro de estudios y después lo legalizamos."
+        },
+        {
+          "q": "¿También hay que traducirlo?",
+          "a": "Muchos países lo piden traducido por intérprete judicial. También lo hacemos."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Depende de la institución. Te damos el estimado al depositar."
+        }
+      ]
     },
     "certificacion_estudios": {
       "title": "Certificación de Estudios (Bachillerato / Universidad)",
@@ -992,7 +1567,32 @@
         "mescyt"
       ],
       "seo_titulo": "Certificación de estudios de bachillerato o universidad",
-      "seo": "Pedimos y retiramos tu certificación de bachiller (MINERD) o de estudios universitarios, lista para legalizar o apostillar y enviártela. Cotiza gratis."
+      "seo": "Pedimos y retiramos tu certificación de bachiller (MINERD) o de estudios universitarios, lista para legalizar o apostillar y enviártela. Cotiza gratis.",
+      "intro": "La certificación de estudios prueba que terminaste el bachillerato o tu carrera, con la firma de la institución. Es el documento base para legalizar, apostillar, aplicar a una beca o revalidar fuera del país.",
+      "como": [
+        "Nos dices el centro educativo o la universidad y el año en que terminaste.",
+        "Solicitamos y retiramos la certificación en el MINERD o en tu universidad.",
+        "La dejamos lista para legalizar o apostillar si la vas a usar fuera."
+      ],
+      "entrega": "Recibes la certificación escaneada y el original por courier, legalizada o apostillada si la pediste.",
+      "faq": [
+        {
+          "q": "¿Y si el colegio ya no existe?",
+          "a": "El MINERD conserva los registros. Se tramita igual, aunque puede tomar más tiempo."
+        },
+        {
+          "q": "¿Necesito ir en persona?",
+          "a": "No. Con un poder simple, que te ayudamos a redactar, lo hacemos por ti."
+        },
+        {
+          "q": "¿Es lo mismo que el título?",
+          "a": "No. El título es el diploma; la certificación acredita los estudios. A veces piden los dos."
+        },
+        {
+          "q": "¿Sirve para una beca en el exterior?",
+          "a": "Sí, normalmente junto al récord de notas y apostillados."
+        }
+      ]
     },
     "creacion_cv": {
       "title": "Creación de Currículum (CV) Profesional",
@@ -1009,7 +1609,32 @@
       "desc": "Redactamos y diseñamos tu CV en español o inglés, listo para empleos en RD o en el exterior. Entrega en PDF y Word.",
       "inst": [],
       "seo_titulo": "Currículum profesional listo para aplicar a empleos",
-      "seo": "Destaca en tu próxima entrevista: diseñamos tu currículum profesional en español o inglés, en PDF y Word, para empleos en RD o en el exterior. Cotiza hoy."
+      "seo": "Destaca en tu próxima entrevista: diseñamos tu currículum profesional en español o inglés, en PDF y Word, para empleos en RD o en el exterior. Cotiza hoy.",
+      "intro": "Un currículum mal armado te deja fuera antes de la entrevista, sobre todo al aplicar al exterior, donde el formato y las palabras importan tanto como la experiencia. Lo escribimos y lo diseñamos para el puesto y el país al que apuntas.",
+      "como": [
+        "Nos cuentas tu experiencia, tus estudios y a qué puesto o país quieres aplicar.",
+        "Redactamos y diseñamos el CV con el formato que esperan allá.",
+        "Te lo entregamos en PDF y en Word para que puedas actualizarlo después."
+      ],
+      "entrega": "Recibes tu currículum en PDF listo para enviar y en Word para editarlo tú mismo, en español o en inglés.",
+      "faq": [
+        {
+          "q": "¿Lo hacen en inglés?",
+          "a": "Sí, en español o en inglés. Dinos el país y adaptamos el formato."
+        },
+        {
+          "q": "¿Debe llevar foto?",
+          "a": "Depende del país: en RD y buena parte de Europa es común; en EE.UU. y Canadá se prefiere sin foto. Te orientamos."
+        },
+        {
+          "q": "¿Y si tengo poca experiencia?",
+          "a": "Se arma destacando estudios, cursos y lo que sí has hecho. Un CV honesto y bien ordenado rinde más que uno inflado."
+        },
+        {
+          "q": "¿Puedo pedir cambios?",
+          "a": "Sí. Lo revisamos contigo antes de darlo por terminado."
+        }
+      ]
     },
     "exequatur_ley": {
       "title": "Exequátur de Ley para Ejercicio Profesional",
@@ -1026,7 +1651,32 @@
         "pgr"
       ],
       "seo_titulo": "Exequátur de ley para ejercer tu profesión en RD",
-      "seo": "¿Abogado, médico o ingeniero? Gestionamos tu exequátur para ejercer tu profesión en RD, aunque te estés mudando desde el exterior. Cotiza gratis hoy."
+      "seo": "¿Abogado, médico o ingeniero? Gestionamos tu exequátur para ejercer tu profesión en RD, aunque te estés mudando desde el exterior. Cotiza gratis hoy.",
+      "intro": "El exequátur es la autorización del Estado para ejercer una profesión regulada en República Dominicana: abogacía, medicina, ingeniería y otras. Sin él, aunque tengas el título, no puedes ejercer legalmente.",
+      "como": [
+        "Revisamos tu título y qué exige tu profesión en particular.",
+        "Reunimos el expediente: título legalizado en el MESCYT, récord de notas, antecedentes penales y acta de nacimiento.",
+        "Depositamos y damos seguimiento hasta que salga el decreto o la resolución."
+      ],
+      "entrega": "Recibes el expediente depositado con su número, el seguimiento de cada etapa y el exequátur cuando sale.",
+      "faq": [
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Es de los trámites largos y depende de la instancia que lo emite. Te damos el estimado al revisar tu caso."
+        },
+        {
+          "q": "Estudié fuera, ¿me sirve mi título?",
+          "a": "Primero hay que revalidarlo en el MESCYT y después pedir el exequátur. Te explicamos la ruta completa."
+        },
+        {
+          "q": "¿Puedo ejercer mientras sale?",
+          "a": "No para los actos que la ley reserva a profesionales con exequátur. No conviene arriesgarse."
+        },
+        {
+          "q": "¿Qué pasa si falta un documento?",
+          "a": "Devuelven el expediente y pierdes semanas. Por eso lo revisamos completo antes de depositar."
+        }
+      ]
     },
     "apostilla_documentos": {
       "title": "Apostilla de Documentos (MIREX Cancillería)",
@@ -1090,7 +1740,32 @@
         "pgr"
       ],
       "seo_titulo": "Legalizar documentos oficiales dominicanos para el exterior",
-      "seo": "Legalizamos tus documentos oficiales en la JCE, MESCYT, MINERD o la PGR, el paso previo a la apostilla. Sin filas, desde cualquier país. Cotiza."
+      "seo": "Legalizamos tus documentos oficiales en la JCE, MESCYT, MINERD o la PGR, el paso previo a la apostilla. Sin filas, desde cualquier país. Cotiza.",
+      "intro": "Antes de apostillar, muchos documentos necesitan la firma de la institución que los emitió: la JCE para actas, el MESCYT para títulos, el MINERD para notas, la PGR para antecedentes. Ese paso es el que la gente suele saltarse y por el que le devuelven el documento.",
+      "como": [
+        "Nos dices qué documento es y para qué lo vas a usar.",
+        "Lo depositamos en la institución que corresponde para su legalización.",
+        "Si va al exterior, lo apostillamos en el MIREX y te lo enviamos."
+      ],
+      "entrega": "Recibes el documento legalizado escaneado y el original por courier, apostillado si lo necesitas.",
+      "faq": [
+        {
+          "q": "¿Legalizar y apostillar es lo mismo?",
+          "a": "No. La legalización la hace la institución dominicana; la apostilla la pone el MIREX y es la que vale fuera del país. Casi siempre hacen falta las dos, en ese orden."
+        },
+        {
+          "q": "¿Qué documentos necesitan legalización?",
+          "a": "Actas de la JCE, títulos y récords del MESCYT o el MINERD y antecedentes de la PGR, entre otros."
+        },
+        {
+          "q": "¿Puedo saltarme la legalización?",
+          "a": "No. El MIREX no apostilla un documento que no venga legalizado por quien lo emitió."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Depende de la institución; te damos el estimado al ver el documento."
+        }
+      ]
     },
     "traduccion_documentos": {
       "title": "Traducción Judicial Oficial (Por página)",
@@ -1109,7 +1784,32 @@
         "interpretes"
       ],
       "seo_titulo": "Traducción judicial oficial de documentos dominicanos",
-      "seo": "Traducción judicial oficial al inglés, francés, italiano o alemán, firmada por intérprete judicial y enviada a donde estés. Válida para trámites. Cotiza."
+      "seo": "Traducción judicial oficial al inglés, francés, italiano o alemán, firmada por intérprete judicial y enviada a donde estés. Válida para trámites. Cotiza.",
+      "intro": "Una traducción hecha por cualquiera no sirve para un trámite oficial: piden la de un intérprete judicial, con su firma y su sello. Es lo que exigen consulados, universidades y tribunales cuando tu documento no está en su idioma.",
+      "como": [
+        "Nos envías el documento escaneado y nos dices a qué idioma y para qué país.",
+        "Lo traduce un intérprete judicial autorizado y lo firma.",
+        "Si hace falta, lo legalizamos y lo apostillamos para que valga en el exterior."
+      ],
+      "entrega": "Recibes la traducción firmada por el intérprete en PDF y en original, apostillada si la pediste.",
+      "faq": [
+        {
+          "q": "¿Qué idiomas hacen?",
+          "a": "Inglés, francés, italiano y alemán, siempre con intérprete judicial autorizado."
+        },
+        {
+          "q": "¿Se cobra por documento o por página?",
+          "a": "Por página traducida. Mándanos el documento y te decimos el total antes de empezar."
+        },
+        {
+          "q": "¿Hay que apostillar la traducción?",
+          "a": "Depende del país que la recibe. Pregunta allá qué exigen; si hace falta, lo hacemos."
+        },
+        {
+          "q": "¿Sirve una traducción que ya tengo?",
+          "a": "Solo si la hizo un intérprete judicial y lleva su firma. Si no, la van a rechazar."
+        }
+      ]
     },
     "turnitin_check": {
       "title": "Verificación Antiplagio Turnitin (Informe Tesis)",
@@ -1122,7 +1822,32 @@
       "desc": "Escaneo de tesis en Turnitin sin guardar en repositorio + reporte PDF.",
       "inst": [],
       "seo_titulo": "Verificar tu tesis en Turnitin y recibir el informe",
-      "seo": "Revisa tu tesis en Turnitin antes de entregarla: te damos el reporte de similitud en PDF, sin guardarla en el repositorio. Rápido y confidencial. Cotiza."
+      "seo": "Revisa tu tesis en Turnitin antes de entregarla: te damos el reporte de similitud en PDF, sin guardarla en el repositorio. Rápido y confidencial. Cotiza.",
+      "intro": "Entregar la tesis sin saber su porcentaje de similitud es jugársela. Revisarla en Turnitin antes te deja corregir las citas y las coincidencias involuntarias, y lo hacemos sin que el documento quede guardado en el repositorio.",
+      "como": [
+        "Nos envías tu tesis en Word o PDF.",
+        "La pasamos por Turnitin sin guardarla en el repositorio.",
+        "Te mandamos el reporte en PDF con las coincidencias señaladas."
+      ],
+      "entrega": "Recibes el informe de similitud en PDF, con el porcentaje y las fuentes que coincidieron.",
+      "faq": [
+        {
+          "q": "¿Por qué importa que no quede guardada?",
+          "a": "Si queda en el repositorio, cuando tu universidad la revise va a coincidir al 100% con tu propia copia. Por eso usamos el modo que no la guarda."
+        },
+        {
+          "q": "¿Qué porcentaje es aceptable?",
+          "a": "Cada universidad pone su límite. El reporte te dice de dónde viene cada coincidencia, que es lo que te permite corregir."
+        },
+        {
+          "q": "¿Es confidencial?",
+          "a": "Sí. No compartimos ni conservamos tu documento."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Normalmente el mismo día que nos envías la tesis, salvo que sea un documento muy extenso."
+        }
+      ]
     },
     "constitucion_empresas": {
       "title": "Constitución Completa de Empresa / SRL",
@@ -1143,7 +1868,32 @@
         "dgii"
       ],
       "seo_titulo": "Crear tu empresa (SRL) en RD viviendo en el exterior",
-      "seo": "Forma tu empresa o SRL en RD: registro de nombre en ONAPI, Registro Mercantil y RNC en la DGII. Paso a paso, aunque vivas fuera. Cotiza gratis."
+      "seo": "Forma tu empresa o SRL en RD: registro de nombre en ONAPI, Registro Mercantil y RNC en la DGII. Paso a paso, aunque vivas fuera. Cotiza gratis.",
+      "intro": "Formalizar una empresa en RD son tres pasos encadenados: registrar el nombre en ONAPI, constituirla en el Registro Mercantil y sacar el RNC en la DGII. Hacerlos en desorden o con los estatutos mal redactados es lo que hace que devuelvan el expediente.",
+      "como": [
+        "Definimos contigo el tipo de sociedad, el nombre y quiénes son los socios.",
+        "Registramos el nombre en ONAPI y redactamos los estatutos y los documentos de constitución.",
+        "Inscribimos en el Registro Mercantil y sacamos el RNC en la DGII."
+      ],
+      "entrega": "Recibes tu empresa constituida: nombre registrado, Registro Mercantil, RNC y los estatutos firmados, en original y escaneados.",
+      "faq": [
+        {
+          "q": "¿Puedo constituirla viviendo fuera?",
+          "a": "Sí, con poder. Es común en dominicanos que invierten desde el exterior."
+        },
+        {
+          "q": "¿Cuántos socios necesito?",
+          "a": "Una SRL requiere al menos dos. Si vas solo, existe la EIRL. Te decimos cuál te conviene según lo que vas a hacer."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Depende de ONAPI y del Registro Mercantil. Lo que más atrasa es que el nombre elegido ya esté tomado, por eso lo verificamos antes."
+        },
+        {
+          "q": "¿Qué viene después?",
+          "a": "Mantener la empresa al día: renovación del Registro Mercantil y declaraciones en la DGII. Te avisamos de las fechas."
+        }
+      ]
     },
     "registro_empresa_onapi": {
       "title": "Registro de Nombre Comercial (ONAPI)",
@@ -1159,7 +1909,32 @@
         "onapi"
       ],
       "seo_titulo": "Registrar tu nombre comercial en ONAPI sin ir a la oficina",
-      "seo": "Protege el nombre de tu negocio: lo registramos en ONAPI para que nadie más lo use, aunque vivas fuera de RD. Primer paso de tu empresa. Cotiza gratis."
+      "seo": "Protege el nombre de tu negocio: lo registramos en ONAPI para que nadie más lo use, aunque vivas fuera de RD. Primer paso de tu empresa. Cotiza gratis.",
+      "intro": "Registrar tu nombre comercial en ONAPI es lo que impide que otro lo use y lo que te permite reclamar si alguien lo copia. Es el primer paso para formalizar un negocio, y también se puede hacer solo, sin constituir empresa.",
+      "como": [
+        "Verificamos en ONAPI que el nombre esté disponible antes de pagar nada.",
+        "Preparamos y depositamos la solicitud con tu clase de actividad.",
+        "Damos seguimiento hasta que sale el certificado."
+      ],
+      "entrega": "Recibes el certificado de registro de ONAPI en original y escaneado, con la fecha hasta la que está vigente.",
+      "faq": [
+        {
+          "q": "¿Y si el nombre ya está tomado?",
+          "a": "Lo sabemos antes de depositar y te ayudamos a buscar una variante que sí se pueda registrar."
+        },
+        {
+          "q": "¿Es lo mismo que registrar una marca?",
+          "a": "No. El nombre comercial identifica tu negocio; la marca protege tu logo o tu producto. Te decimos cuál te conviene."
+        },
+        {
+          "q": "¿Cuánto dura el registro?",
+          "a": "Tiene vigencia y hay que renovarlo. Te avisamos antes de que venza."
+        },
+        {
+          "q": "¿Necesito tener empresa?",
+          "a": "No. Puedes registrar el nombre primero y constituir la empresa después."
+        }
+      ]
     }
   },
   "checklists": {
