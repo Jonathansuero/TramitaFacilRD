@@ -831,3 +831,7 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 @media (min-width: 640px) { .ciudad-servs { grid-template-columns: 1fr 1fr; } }
 .ciudad-guias { display: grid; gap: .6rem; }
 @media (min-width: 768px) { .ciudad-guias { grid-template-columns: repeat(3, 1fr); } }
+.ciudad-serv-otra { background: #F7FAFF; border-style: dashed; }
+.ml-ciudades { display: flex; flex-wrap: wrap; gap: .4rem; padding: .2rem 0 .6rem 3.1rem; }
+.ml-ciudad { font-size: .78rem; font-weight: 600; color: #475569; background: #F1F5F9; border-radius: 999px; padding: .3rem .7rem; }
+.ml-ciudad.nav-active { background: #EAF2FF; color: #002D62; }

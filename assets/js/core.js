@@ -294,8 +294,12 @@
         { href: '/instituciones', key: 'nav.instituciones', page: 'instituciones' },
         { href: '/diaspora', key: 'nav.diaspora', page: 'diaspora' },
         { href: '/rastreo', key: 'nav.rastrear', page: 'rastreo' },
-        { href: '/preguntas', key: 'nav.faq', page: 'preguntas' }
+        { href: '/preguntas', key: 'nav.faq', page: 'preguntas' },
+        { href: '/nosotros', key: 'nav.nosotros', page: 'nosotros' }
     ];
+    /** Ciudades con guía propia: salen bajo «Diáspora» en el menú y en el pie. */
+    const CIUDADES = [['/diaspora/nueva-york', '🇺🇸 Nueva York'], ['/diaspora/madrid', '🇪🇸 Madrid'],
+        ['/diaspora/miami', '🇺🇸 Miami'], ['/diaspora/boston', '🇺🇸 Boston'], ['/diaspora/barcelona', '🇪🇸 Barcelona']];
     const MOBILE = [
         ['presencia', 'fa-earth-americas', 'm.presencia'], ['cotizador', 'fa-calculator', 'm.cotizador'],
         ['asistente', 'fa-wand-magic-sparkles', 'm.asistente'], ['requisitos', 'fa-list-check', 'm.requisitos'],
@@ -351,12 +355,14 @@
   <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-4 text-sm max-h-[75vh] overflow-y-auto">
     <button type="button" id="instalarMenu" hidden class="mobile-link ml-install w-full text-left"><span class="ml-ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="ml-txt"><span class="block" data-i18n="app.instalar"></span><span class="block text-[11px] font-medium text-slate-500" data-i18n="app.menu.d"></span></span><i class="fa-solid fa-chevron-right ml-go" aria-hidden="true"></i></button>
     ${mobileLink('/servicios', 'fa-layer-group', 'm.servicios', ` ml-page${PAGE === 'servicios' ? ' nav-active' : ''}`)}
-    ${mobileLink('casos', 'fa-comments', 'nav.casos', ` ml-page${PAGE === 'casos' ? ' nav-active' : ''}`)}
-    ${mobileLink('instituciones', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
-    ${mobileLink('diaspora', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
-    ${mobileLink('calculadora', 'fa-calculator', 'nav.calculadoras', ` ml-page${PAGE === 'calculadora' ? ' nav-active' : ''}`)}
-    ${mobileLink('rastreo', 'fa-location-crosshairs', 'm.rastreo', ` ml-page${PAGE === 'rastreo' ? ' nav-active' : ''}`)}
-    ${mobileLink('preguntas', 'fa-circle-question', 'm.faq', ` ml-page${PAGE === 'preguntas' ? ' nav-active' : ''}`)}
+    ${mobileLink('/casos', 'fa-comments', 'nav.casos', ` ml-page${PAGE === 'casos' ? ' nav-active' : ''}`)}
+    ${mobileLink('/instituciones', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
+    ${mobileLink('/diaspora', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
+    <div class="ml-ciudades">${CIUDADES.map(([u, n]) => `<a href="${u}" class="ml-ciudad${location.pathname === u ? ' nav-active' : ''}">${n}</a>`).join('')}</div>
+    ${mobileLink('/calculadora', 'fa-calculator', 'nav.calculadoras', ` ml-page${PAGE === 'calculadora' ? ' nav-active' : ''}`)}
+    ${mobileLink('/rastreo', 'fa-location-crosshairs', 'm.rastreo', ` ml-page${PAGE === 'rastreo' ? ' nav-active' : ''}`)}
+    ${mobileLink('/preguntas', 'fa-circle-question', 'm.faq', ` ml-page${PAGE === 'preguntas' ? ' nav-active' : ''}`)}
+    ${mobileLink('/nosotros', 'fa-handshake', 'nav.nosotros', ` ml-page${PAGE === 'nosotros' ? ' nav-active' : ''}`)}
     <div class="ml-sep" role="presentation"></div>
     ${MOBILE.map(([id, ico, key]) => mobileLink(homeLink(id), ico, key)).join('')}
   </div>
@@ -392,6 +398,9 @@
         <li><a href="${homeLink('cotizador')}" data-i18n="m.cotizador"></a></li>
         <li><a href="${homeLink('solicitud')}" data-i18n="m.solicitud"></a></li>
         <li><a href="/calculadora#herramientas-dgii" data-i18n="m.dgii"></a></li></ul></div>
+      <div><h4 class="foot-h" data-i18n="foot.ciudades"></h4><ul class="foot-ul">
+        ${CIUDADES.map(([u, n]) => `<li><a href="${u}">${n}</a></li>`).join('')}
+        <li><a href="/diaspora" data-i18n="foot.otrospaises"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.contacto"></h4><ul class="foot-ul">
         <li><i class="fa-brands fa-whatsapp text-emerald-400 mr-2"></i><a id="footWa" href="#" target="_blank" rel="noopener" data-wa-display></a></li>
         <li><i class="fa-brands fa-instagram ig-ico mr-2"></i><a href="${igUrl()}" target="_blank" rel="noopener">@${esc(C.instagram)}</a></li>

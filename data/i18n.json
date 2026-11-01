@@ -126,6 +126,11 @@
       "FAQ",
       "FAQ"
     ],
+    "nav.nosotros": [
+      "Nosotros",
+      "About us",
+      "À propos"
+    ],
     "nav.menu": [
       "Menú",
       "Menu",
@@ -2365,6 +2370,16 @@
       "Quiénes somos",
       "About us",
       "Qui sommes-nous"
+    ],
+    "foot.ciudades": [
+      "Desde dónde nos escriben",
+      "Where people write from",
+      "D'où l'on nous écrit"
+    ],
+    "foot.otrospaises": [
+      "Otros países",
+      "Other countries",
+      "Autres pays"
     ],
     "foot.privacidad": [
       "Privacidad",
