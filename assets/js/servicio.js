@@ -14,8 +14,7 @@
         const s = SERV[id], tr = tc('servicios', id), cat = tc('categorias', s.category);
         // En español manda el título pensado para Google; en otros idiomas, el nombre traducido
         document.title = (state.lang === 'es' && s.seo_titulo) || tr.title;
-        // El contenido propio del trámite lo escribe el servidor en español; en otros idiomas se oculta
-        const extra = $('sExtra'); if (extra) extra.hidden = state.lang !== 'es';
+        pintarExtra();
         $('sTiempo').innerHTML = TF.tiempoHtml(id, 'tiempo-oscuro');
         $('bcCat').textContent = cat.label;
         $('sCat').innerHTML = `<i class="fa-solid ${D.categorias[s.category].icono} mr-1"></i>${esc(cat.label)}`;
@@ -227,6 +226,42 @@
     }
 
     /** Cambia de servicio sin recargar la página (relacionados, anterior/siguiente y botón atrás). */
+    /* ----------------------------------------------------------
+       Contenido propio del trámite (qué es, cómo lo hacemos, qué recibes, preguntas).
+       En la primera carga ya viene escrito en el HTML desde el servidor; al cambiar de
+       trámite sin recargar, se pide a /api/servicio/<id> y se vuelve a pintar.
+       ---------------------------------------------------------- */
+    const extraCache = {};
+    let extraPuesto = new URLSearchParams(location.search).get('id') || id;   // lo que escribió el servidor
+
+    function extraHtml(d) {
+        const caja = (titulo, dentro) => `<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8"><h2 class="text-lg font-extrabold text-slate-900">${esc(titulo)}</h2>${dentro}</div>`;
+        const corto = String(d.titulo || '').replace(/\s*\([^)]*\)/g, '').trim();
+        let html = '';
+        if (d.intro) html += caja('¿Qué es y cuándo te lo piden?', `<p class="mt-3 text-slate-600 text-sm leading-relaxed">${esc(d.intro)}</p>`);
+        if ((d.como || []).length) html += caja('Cómo lo hacemos, estés donde estés', `<ol class="serv-como mt-4">${d.como.map(x => `<li>${esc(x)}</li>`).join('')}</ol>`);
+        if (d.entrega) html += caja('Qué recibes', `<p class="mt-3 text-slate-600 text-sm leading-relaxed">${esc(d.entrega)}</p>`);
+        if ((d.faq || []).length) html += caja(`Preguntas frecuentes sobre ${corto}`,
+            `<div class="mt-4">${d.faq.map(f => `<details class="serv-faq"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</div>`);
+        return html ? `<div class="space-y-6 mt-6">${html}</div>` : '';
+    }
+
+    async function pintarExtra() {
+        const caja = $('sExtra'); if (!caja) return;
+        caja.hidden = state.lang !== 'es';          // está escrito en español
+        if (id === extraPuesto) return;             // ya está en pantalla (lo puso el servidor o una pasada anterior)
+        if (extraCache[id]) { caja.innerHTML = extraHtml(extraCache[id]); extraPuesto = id; return; }
+        caja.innerHTML = '';                        // que no se quede el del trámite anterior
+        if (!state.api) return;
+        const pedido = id;
+        try {
+            const d = await TF.api('/servicio/' + encodeURIComponent(pedido));
+            extraCache[pedido] = d;
+            if (id !== pedido) return;              // cambió de trámite mientras cargaba
+            caja.innerHTML = extraHtml(d); extraPuesto = pedido;
+        } catch (e) { /* sin contenido: la página funciona igual */ }
+    }
+
     function irA(nuevo, { guardar = true } = {}) {
         if (!SERV[nuevo] || nuevo === id) return;
         id = nuevo;
