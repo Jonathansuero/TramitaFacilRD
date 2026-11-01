@@ -189,6 +189,7 @@
   "servicios": {
     "residencia_dominicana": {
       "title": "Residencia Dominicana para Extranjeros (DGM)",
+      "slug": "residencia-dominicana-para-extranjeros",
       "tax": 15000,
       "fee": 11000,
       "category": "viajes",
@@ -225,10 +226,16 @@
           "a": "Depende de la categoría que solicites. La definimos al inicio según tu situación, para no pedir la que no te sirve."
         }
       ],
-      "intro": "La residencia dominicana es el permiso que te deja vivir legalmente en el país siendo extranjero, y se solicita en la Dirección General de Migración. Hay varias categorías, y la que elijas determina qué documentos te piden y qué puedes hacer con ella."
+      "intro": "La residencia dominicana es el permiso que te deja vivir legalmente en el país siendo extranjero, y se solicita en la Dirección General de Migración. Hay varias categorías, y la que elijas determina qué documentos te piden y qué puedes hacer con ella.",
+      "relacionados": [
+        "apostilla_documentos",
+        "traduccion_documentos",
+        "movimientos_migratorios"
+      ]
     },
     "green_card_usa": {
       "title": "Renovación de Residencia / Green Card EE.UU.",
+      "slug": "renovacion-green-card-i90",
       "tax": 32000,
       "fee": 4950,
       "category": "viajes",
@@ -266,10 +273,16 @@
           "q": "¿Cuánto tarda USCIS?",
           "a": "Los tiempos los publica USCIS y cambian según la oficina. Te decimos el estimado vigente cuando preparemos tu caso."
         }
+      ],
+      "relacionados": [
+        "peticiones_familiares",
+        "apostilla_documentos",
+        "traduccion_documentos"
       ]
     },
     "peticiones_familiares": {
       "title": "Peticiones Familiares EE.UU. / Europa (I-130)",
+      "slug": "peticion-familiar-i130",
       "tax": 38000,
       "fee": 8250,
       "category": "viajes",
@@ -310,10 +323,16 @@
           "q": "¿Y si un acta tiene un error?",
           "a": "Hay que corregirla antes, porque los nombres deben coincidir en todo el expediente. Eso lo resolvemos primero."
         }
+      ],
+      "relacionados": [
+        "green_card_usa",
+        "apostilla_documentos",
+        "certificacion_solteria"
       ]
     },
     "movimientos_migratorios": {
       "title": "Certificación de Movimientos Migratorios (DGM)",
+      "slug": "certificacion-de-movimientos-migratorios",
       "tax": 1200,
       "fee": 1650,
       "category": "viajes",
@@ -354,10 +373,16 @@
           "q": "¿Cuánto tarda?",
           "a": "Depende de la carga de Migración; en general son días, no semanas. Te confirmamos al depositar."
         }
+      ],
+      "relacionados": [
+        "residencia_dominicana",
+        "visa_ds160",
+        "apostilla_documentos"
       ]
     },
     "visa_europea": {
       "title": "Visado Europeo / Schengen (España, Francia, Italia, etc.)",
+      "slug": "visa-schengen-europa",
       "tax": 5400,
       "fee": 4950,
       "category": "viajes",
@@ -394,10 +419,16 @@
           "q": "¿Debo comprar los pasajes antes?",
           "a": "Normalmente basta la reserva. Comprar antes de tener el visado es un riesgo; te orientamos según el consulado."
         }
+      ],
+      "relacionados": [
+        "visa_ds160",
+        "certificacion_no_registro_vehicular",
+        "apostilla_documentos"
       ]
     },
     "e_ticket": {
       "title": "Llenado Formulario E-Ticket Viaje RD",
+      "slug": "e-ticket-republica-dominicana",
       "tax": 0,
       "fee": 550,
       "category": "viajes",
@@ -438,10 +469,16 @@
           "q": "¿Y si me equivoqué en un dato?",
           "a": "Se vuelve a llenar con los datos correctos. Por eso lo revisamos contra el pasaporte antes de enviarlo."
         }
+      ],
+      "relacionados": [
+        "pasaporte_normal",
+        "permiso_menores",
+        "visa_ds160"
       ]
     },
     "permiso_menores": {
       "title": "Permiso de Salida de Menores (DGM)",
+      "slug": "permiso-de-salida-de-menores",
       "tax": 3000,
       "fee": 2750,
       "category": "viajes",
@@ -482,10 +519,16 @@
           "q": "¿Con cuánto tiempo lo pido?",
           "a": "Mientras más lejos del viaje, más tranquilo. Dejarlo para la semana del vuelo es lo que genera los sustos."
         }
+      ],
+      "relacionados": [
+        "e_ticket",
+        "pasaporte_normal",
+        "poderes_especiales"
       ]
     },
     "pasaporte_vip": {
       "title": "Pasaporte Dominicano VIP (MIP)",
+      "slug": "pasaporte-dominicano-vip",
       "tax": 3000,
       "fee": 1650,
       "category": "viajes",
@@ -525,10 +568,16 @@
           "q": "¿Sirve para el pasaporte de un menor?",
           "a": "Sí. Cambian los requisitos y hace falta la presencia de los padres; te pasamos la lista completa."
         }
+      ],
+      "relacionados": [
+        "pasaporte_normal",
+        "e_ticket",
+        "rectificacion_actas_jce"
       ]
     },
     "pasaporte_normal": {
       "title": "Pasaporte Dominicano Normal (MIP)",
+      "slug": "pasaporte-dominicano",
       "tax": 1650,
       "fee": 1320,
       "category": "viajes",
@@ -568,10 +617,16 @@
           "a": "Hay que corregirla antes, porque los datos tienen que coincidir. Si es tu caso, lo vemos y lo resolvemos primero."
         }
       ],
-      "intro": "El pasaporte dominicano es tu documento de viaje y el que te piden en muchas gestiones fuera del país. Renovarlo a tiempo evita que pierdas un viaje: lo que más atrasa a la gente es conseguir la cita, reunir los requisitos y pagar, y es justo esa parte la que resolvemos."
+      "intro": "El pasaporte dominicano es tu documento de viaje y el que te piden en muchas gestiones fuera del país. Renovarlo a tiempo evita que pierdas un viaje: lo que más atrasa a la gente es conseguir la cita, reunir los requisitos y pagar, y es justo esa parte la que resolvemos.",
+      "relacionados": [
+        "pasaporte_vip",
+        "rectificacion_actas_jce",
+        "e_ticket"
+      ]
     },
     "visa_ds160": {
       "title": "Visa Americana B1/B2 (DS-160)",
+      "slug": "visa-americana-ds160",
       "tax": 11100,
       "fee": 3850,
       "category": "viajes",
@@ -608,10 +663,16 @@
           "a": "A la entrevista entras solo, pero te preparamos antes con las preguntas y los documentos."
         }
       ],
-      "intro": "El DS-160 es el formulario que hay que llenar antes de solicitar la visa americana B1/B2, y el consulado lo revisa junto con tu entrevista. Una respuesta mal puesta puede obligarte a repetirlo y perder la cita, por eso conviene llenarlo con calma y revisado."
+      "intro": "El DS-160 es el formulario que hay que llenar antes de solicitar la visa americana B1/B2, y el consulado lo revisa junto con tu entrevista. Una respuesta mal puesta puede obligarte a repetirlo y perder la cita, por eso conviene llenarlo con calma y revisado.",
+      "relacionados": [
+        "movimientos_migratorios",
+        "certificacion_no_registro_vehicular",
+        "visa_europea"
+      ]
     },
     "certificacion_solteria": {
       "title": "Certificación de Soltería (JCE)",
+      "slug": "certificacion-de-solteria",
       "tax": 800,
       "fee": 1320,
       "category": "legales",
@@ -651,10 +712,16 @@
           "a": "En ese caso lo que corresponde es la certificación de estado civil con tu divorcio inscrito. Cuéntanos tu caso y te decimos cuál pedir."
         }
       ],
-      "intro": "La certificación de soltería es el documento de la Junta Central Electoral que acredita que no estás casado. Te la piden para casarte en el exterior, en algunos trámites de residencia y en gestiones bancarias o de seguros donde debe constar tu estado civil."
+      "intro": "La certificación de soltería es el documento de la Junta Central Electoral que acredita que no estás casado. Te la piden para casarte en el exterior, en algunos trámites de residencia y en gestiones bancarias o de seguros donde debe constar tu estado civil.",
+      "relacionados": [
+        "apostilla_documentos",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
     },
     "poderes_especiales": {
       "title": "Poderes Notariales Especiales",
+      "slug": "poder-notarial-especial",
       "tax": 1500,
       "fee": 2750,
       "category": "legales",
@@ -695,10 +762,16 @@
           "a": "Hasta que termine la gestión o hasta la fecha que pongamos en el documento. Puedes revocarlo antes si cambias de opinión."
         }
       ],
-      "intro": "Un poder notarial especial es el documento con el que autorizas a alguien de confianza en RD a hacer una gestión concreta en tu nombre. Se usa para vender o comprar una propiedad, cobrar un dinero, firmar un contrato o representarte ante una institución mientras tú estás fuera del país."
+      "intro": "Un poder notarial especial es el documento con el que autorizas a alguien de confianza en RD a hacer una gestión concreta en tu nombre. Se usa para vender o comprar una propiedad, cobrar un dinero, firmar un contrato o representarte ante una institución mientras tú estás fuera del país.",
+      "relacionados": [
+        "apostilla_documentos",
+        "traspaso_vehicular",
+        "hipotecas_cargas"
+      ]
     },
     "rectificacion_actas_jce": {
       "title": "Rectificación de Actas de la JCE",
+      "slug": "rectificacion-de-actas-jce",
       "tax": 1000,
       "fee": 3850,
       "category": "legales",
@@ -738,10 +811,16 @@
           "a": "Casi siempre porque un dato no coincide con tu pasaporte o tu cédula, o porque es una copia vieja. Revisamos las dos cosas y te decimos qué hay que corregir."
         }
       ],
-      "intro": "Una letra cambiada, una fecha equivocada o un apellido mal escrito en tu acta puede frenarte un pasaporte, una visa o una herencia. La rectificación corrige ese dato en los registros de la JCE para que tu acta coincida con el resto de tus documentos."
+      "intro": "Una letra cambiada, una fecha equivocada o un apellido mal escrito en tu acta puede frenarte un pasaporte, una visa o una herencia. La rectificación corrige ese dato en los registros de la JCE para que tu acta coincida con el resto de tus documentos.",
+      "relacionados": [
+        "certificacion_solteria",
+        "apostilla_documentos",
+        "pasaporte_normal"
+      ]
     },
     "contratos_alquiler": {
       "title": "Contrato de Alquiler Notarizado",
+      "slug": "contrato-de-alquiler-notarizado",
       "tax": 1000,
       "fee": 2200,
       "category": "legales",
@@ -782,10 +861,16 @@
           "q": "¿Incluye el inventario del mobiliario?",
           "a": "Si la propiedad va amueblada conviene anexarlo, y lo incluimos en el contrato."
         }
+      ],
+      "relacionados": [
+        "deposito_banco_agricola",
+        "contrato_notarial",
+        "declaracion_jurada"
       ]
     },
     "declaracion_union_libre": {
       "title": "Declaración Jurada de Unión Libre",
+      "slug": "declaracion-de-union-libre",
       "tax": 800,
       "fee": 1650,
       "category": "legales",
@@ -824,10 +909,16 @@
           "q": "¿Podemos firmarla si uno está fuera?",
           "a": "Sí, con poder o firmando en el consulado. Lo coordinamos."
         }
+      ],
+      "relacionados": [
+        "declaracion_jurada",
+        "certificacion_solteria",
+        "apostilla_documentos"
       ]
     },
     "declaracion_jurada": {
       "title": "Declaración Jurada General (Ingresos, Soltería, etc.)",
+      "slug": "declaracion-jurada",
       "tax": 800,
       "fee": 1650,
       "category": "legales",
@@ -867,10 +958,16 @@
           "q": "¿Puedo hacerla desde el exterior?",
           "a": "Sí: la redactamos, la firmas en el consulado y la usamos aquí."
         }
+      ],
+      "relacionados": [
+        "declaracion_union_libre",
+        "contrato_notarial",
+        "apostilla_documentos"
       ]
     },
     "contrato_notarial": {
       "title": "Contrato Notarial o Legalizado General",
+      "slug": "contrato-notarial",
       "tax": 1000,
       "fee": 2200,
       "category": "legales",
@@ -908,10 +1005,16 @@
           "q": "¿Y si una parte está fuera del país?",
           "a": "Firma en el consulado o deja un poder. Eso lo manejamos."
         }
+      ],
+      "relacionados": [
+        "contratos_alquiler",
+        "poderes_especiales",
+        "declaracion_jurada"
       ]
     },
     "divorcio_mutuo_acuerdo": {
       "title": "Divorcio por Mutuo Consentimiento",
+      "slug": "divorcio-por-mutuo-acuerdo",
       "tax": 8000,
       "fee": 13200,
       "category": "legales",
@@ -952,10 +1055,16 @@
           "q": "¿Queda inscrito automáticamente?",
           "a": "No. Hay que inscribir la sentencia para que conste en tu estado civil; si no, sigues apareciendo casado. Nosotros lo hacemos."
         }
+      ],
+      "relacionados": [
+        "rectificacion_actas_jce",
+        "certificacion_solteria",
+        "poderes_especiales"
       ]
     },
     "hipotecas_cargas": {
       "title": "Inscripción / Cancelación de Hipotecas y Cargas",
+      "slug": "inscripcion-y-cancelacion-de-hipotecas",
       "tax": 2500,
       "fee": 4400,
       "category": "inmobiliario",
@@ -996,10 +1105,16 @@
           "q": "¿Y si no aparece el certificado de título original?",
           "a": "Hay un procedimiento para duplicado. Lo vemos antes de empezar, porque sin el título no avanza nada."
         }
+      ],
+      "relacionados": [
+        "estado_juridico_inmueble",
+        "poderes_especiales",
+        "ipi_impuesto"
       ]
     },
     "estado_juridico_inmueble": {
       "title": "Certificación de Estado Jurídico del Inmueble (Libre de Cargas)",
+      "slug": "certificacion-de-estado-juridico-del-inmueble",
       "tax": 1000,
       "fee": 1650,
       "category": "inmobiliario",
@@ -1039,10 +1154,16 @@
           "q": "¿Vale la pena si el vendedor me enseñó el título?",
           "a": "Sí. El título en mano no demuestra que la propiedad esté libre de cargas hoy; la certificación sí."
         }
+      ],
+      "relacionados": [
+        "hipotecas_cargas",
+        "ipi_impuesto",
+        "poderes_especiales"
       ]
     },
     "ipi_impuesto": {
       "title": "IPI (Impuesto a la Propiedad Inmobiliaria - DGII)",
+      "slug": "pago-del-ipi",
       "tax": 1500,
       "fee": 2200,
       "category": "inmobiliario",
@@ -1083,10 +1204,16 @@
           "q": "¿Lo necesito para vender?",
           "a": "Sí, te van a pedir estar al día. Mejor resolverlo antes de tener al comprador esperando."
         }
+      ],
+      "relacionados": [
+        "estado_juridico_inmueble",
+        "pagos_impuestos",
+        "hipotecas_cargas"
       ]
     },
     "deposito_banco_agricola": {
       "title": "Depósito de Alquileres en el Banco Agrícola",
+      "slug": "deposito-de-alquileres-banco-agricola",
       "tax": 500,
       "fee": 1650,
       "category": "inmobiliario",
@@ -1126,10 +1253,16 @@
           "q": "¿Pueden hacerlo todos los meses por mí?",
           "a": "Sí, lo dejamos como gestión recurrente y te mandamos el comprobante cada vez."
         }
+      ],
+      "relacionados": [
+        "contratos_alquiler",
+        "contrato_notarial",
+        "poderes_especiales"
       ]
     },
     "renovacion_licencia": {
       "title": "Renovación y Duplicado de Licencia de Conducir (INTRANT)",
+      "slug": "renovacion-de-licencia-de-conducir",
       "tax": 1900,
       "fee": 1650,
       "category": "impuestos_vehiculos",
@@ -1169,10 +1302,16 @@
           "a": "Igual se renueva, aunque pueden aplicarte recargos. Lo verificamos antes de pagar."
         }
       ],
-      "intro": "Conducir con la licencia vencida te expone a una multa y complica cualquier gestión con tu vehículo. La renovación y el duplicado por pérdida se hacen en INTRANT, y lo lento son los impuestos y la cita, no el trámite en sí."
+      "intro": "Conducir con la licencia vencida te expone a una multa y complica cualquier gestión con tu vehículo. La renovación y el duplicado por pérdida se hacen en INTRANT, y lo lento son los impuestos y la cita, no el trámite en sí.",
+      "relacionados": [
+        "multas_transito",
+        "pagos_impuestos",
+        "duplicado_matricula"
+      ]
     },
     "levantamiento_oposicion": {
       "title": "Levantamiento de Oposición de Vehículos (DGII)",
+      "slug": "levantamiento-de-oposicion-de-vehiculos",
       "tax": 1500,
       "fee": 2750,
       "category": "impuestos_vehiculos",
@@ -1210,10 +1349,16 @@
           "q": "¿Y si la oposición es de un tribunal?",
           "a": "Ahí no basta una carta: hay que levantar la medida judicial. Te decimos qué implica tu caso."
         }
+      ],
+      "relacionados": [
+        "traspaso_vehicular",
+        "certificacion_no_registro_vehicular",
+        "pagos_impuestos"
       ]
     },
     "certificacion_no_registro_vehicular": {
       "title": "Certificación de Propiedad / No Registro de Vehículos",
+      "slug": "certificacion-de-vehiculos-dgii",
       "tax": 600,
       "fee": 1100,
       "category": "impuestos_vehiculos",
@@ -1251,10 +1396,16 @@
           "q": "¿Tengo que estar en el país?",
           "a": "No. La solicitamos y la retiramos con tus datos, y te la enviamos a donde estés."
         }
+      ],
+      "relacionados": [
+        "traspaso_vehicular",
+        "levantamiento_oposicion",
+        "visa_ds160"
       ]
     },
     "duplicado_matricula": {
       "title": "Duplicado de Matrícula por Pérdida (DGII)",
+      "slug": "duplicado-de-matricula",
       "tax": 2000,
       "fee": 3300,
       "category": "impuestos_vehiculos",
@@ -1291,10 +1442,16 @@
           "q": "¿Puedo hacerlo si estoy fuera?",
           "a": "Sí, con un poder. El vehículo no tiene que moverse."
         }
+      ],
+      "relacionados": [
+        "traspaso_vehicular",
+        "pagos_impuestos",
+        "renovacion_licencia"
       ]
     },
     "traspaso_vehicular": {
       "title": "Traspaso Vehicular (DGII + Acto Venta)",
+      "slug": "traspaso-de-vehiculo",
       "tax": 2500,
       "fee": 2750,
       "category": "impuestos_vehiculos",
@@ -1335,10 +1492,16 @@
           "a": "Hay que saldarlas primero. También las consultamos y las pagamos si quieres."
         }
       ],
-      "intro": "El traspaso es lo que pone el vehículo legalmente a nombre del comprador en la DGII. Mientras no se haga, las multas, los impuestos y la responsabilidad siguen siendo del vendedor, por eso conviene hacerlo el mismo día de la venta."
+      "intro": "El traspaso es lo que pone el vehículo legalmente a nombre del comprador en la DGII. Mientras no se haga, las multas, los impuestos y la responsabilidad siguen siendo del vendedor, por eso conviene hacerlo el mismo día de la venta.",
+      "relacionados": [
+        "levantamiento_oposicion",
+        "pagos_impuestos",
+        "duplicado_matricula"
+      ]
     },
     "pagos_impuestos": {
       "title": "Gestión y Pago de Impuestos (DGII / Marbete)",
+      "slug": "pago-de-impuestos-y-marbete",
       "tax": 1500,
       "fee": 880,
       "category": "impuestos_vehiculos",
@@ -1378,10 +1541,16 @@
           "q": "¿Sirve para traspasar?",
           "a": "Es requisito: sin estar al día no se traspasa."
         }
+      ],
+      "relacionados": [
+        "multas_transito",
+        "traspaso_vehicular",
+        "renovacion_licencia"
       ]
     },
     "carfax_vehicular": {
       "title": "Reporte Carfax de Vehículo Importado",
+      "slug": "reporte-carfax",
       "tax": 1000,
       "fee": 550,
       "category": "impuestos_vehiculos",
@@ -1418,10 +1587,16 @@
           "q": "¿Cuánto tarda?",
           "a": "Es rápido: el mismo día en la mayoría de los casos."
         }
+      ],
+      "relacionados": [
+        "traspaso_vehicular",
+        "certificacion_no_registro_vehicular",
+        "pagos_impuestos"
       ]
     },
     "multas_transito": {
       "title": "Consulta y Pago de Multas de Tránsito (DIGESETT/PGR)",
+      "slug": "pago-de-multas-de-transito",
       "tax": 1000,
       "fee": 550,
       "category": "impuestos_vehiculos",
@@ -1461,10 +1636,16 @@
           "q": "¿Me afecta para renovar la licencia?",
           "a": "Suele bloquearla. Por eso las consultamos antes de agendar la cita."
         }
+      ],
+      "relacionados": [
+        "renovacion_licencia",
+        "pagos_impuestos",
+        "traspaso_vehicular"
       ]
     },
     "legalizacion_mescyt": {
       "title": "Legalización de Títulos Universitarios (MESCYT)",
+      "slug": "legalizacion-de-titulos-mescyt",
       "tax": 1000,
       "fee": 1650,
       "category": "academicos",
@@ -1504,10 +1685,16 @@
           "a": "Sí, el MESCYT trabaja sobre el original. Si estás fuera, coordinamos con alguien de confianza en RD o lo envías por courier."
         }
       ],
-      "intro": "Legalizar el título en el MESCYT es lo que convierte tu grado dominicano en un documento que otra institución, aquí o fuera, puede aceptar como válido. Es el paso previo a la apostilla cuando vas a estudiar, revalidar o trabajar en el exterior."
+      "intro": "Legalizar el título en el MESCYT es lo que convierte tu grado dominicano en un documento que otra institución, aquí o fuera, puede aceptar como válido. Es el paso previo a la apostilla cuando vas a estudiar, revalidar o trabajar en el exterior.",
+      "relacionados": [
+        "record_notas_minerd_mescyt",
+        "apostilla_documentos",
+        "traduccion_documentos"
+      ]
     },
     "record_notas_minerd_mescyt": {
       "title": "Certificación de Récord de Notas (MINERD / MESCYT)",
+      "slug": "record-de-notas-minerd-mescyt",
       "tax": 800,
       "fee": 1320,
       "category": "academicos",
@@ -1548,10 +1735,16 @@
           "q": "¿Cuánto tarda?",
           "a": "Depende de la institución. Te damos el estimado al depositar."
         }
+      ],
+      "relacionados": [
+        "legalizacion_mescyt",
+        "certificacion_estudios",
+        "apostilla_documentos"
       ]
     },
     "certificacion_estudios": {
       "title": "Certificación de Estudios (Bachillerato / Universidad)",
+      "slug": "certificacion-de-estudios",
       "tax": 500,
       "fee": 1320,
       "category": "academicos",
@@ -1592,10 +1785,16 @@
           "q": "¿Sirve para una beca en el exterior?",
           "a": "Sí, normalmente junto al récord de notas y apostillados."
         }
+      ],
+      "relacionados": [
+        "record_notas_minerd_mescyt",
+        "legalizacion_mescyt",
+        "apostilla_documentos"
       ]
     },
     "creacion_cv": {
       "title": "Creación de Currículum (CV) Profesional",
+      "slug": "curriculum-profesional",
       "tax": 0,
       "fee": 1650,
       "category": "academicos",
@@ -1634,10 +1833,16 @@
           "q": "¿Puedo pedir cambios?",
           "a": "Sí. Lo revisamos contigo antes de darlo por terminado."
         }
+      ],
+      "relacionados": [
+        "certificacion_estudios",
+        "legalizacion_mescyt",
+        "traduccion_documentos"
       ]
     },
     "exequatur_ley": {
       "title": "Exequátur de Ley para Ejercicio Profesional",
+      "slug": "exequatur-de-ley",
       "tax": 3500,
       "fee": 5500,
       "category": "academicos",
@@ -1676,10 +1881,16 @@
           "q": "¿Qué pasa si falta un documento?",
           "a": "Devuelven el expediente y pierdes semanas. Por eso lo revisamos completo antes de depositar."
         }
+      ],
+      "relacionados": [
+        "legalizacion_mescyt",
+        "record_notas_minerd_mescyt",
+        "apostilla_documentos"
       ]
     },
     "apostilla_documentos": {
       "title": "Apostilla de Documentos (MIREX Cancillería)",
+      "slug": "apostilla-de-documentos",
       "tax": 620,
       "fee": 1100,
       "category": "academicos",
@@ -1719,10 +1930,16 @@
           "a": "El MIREX toma unos 3 días laborables desde que el documento está en sus manos. Si hay que sacar el documento antes, se suma el tiempo de esa institución."
         }
       ],
-      "intro": "La apostilla es el sello del Ministerio de Relaciones Exteriores que hace que un documento dominicano tenga validez legal en otro país. Te la piden para casarte, estudiar, trabajar, solicitar una residencia o presentar un documento ante cualquier autoridad fuera de RD. Sin ella, tu acta o tu título no se aceptan en el exterior."
+      "intro": "La apostilla es el sello del Ministerio de Relaciones Exteriores que hace que un documento dominicano tenga validez legal en otro país. Te la piden para casarte, estudiar, trabajar, solicitar una residencia o presentar un documento ante cualquier autoridad fuera de RD. Sin ella, tu acta o tu título no se aceptan en el exterior.",
+      "relacionados": [
+        "legalizacion_documentos",
+        "traduccion_documentos",
+        "certificacion_solteria"
+      ]
     },
     "legalizacion_documentos": {
       "title": "Legalización de Documentos Oficiales",
+      "slug": "legalizacion-de-documentos",
       "tax": 500,
       "fee": 1100,
       "category": "academicos",
@@ -1765,10 +1982,16 @@
           "q": "¿Cuánto tarda?",
           "a": "Depende de la institución; te damos el estimado al ver el documento."
         }
+      ],
+      "relacionados": [
+        "apostilla_documentos",
+        "traduccion_documentos",
+        "record_notas_minerd_mescyt"
       ]
     },
     "traduccion_documentos": {
       "title": "Traducción Judicial Oficial (Por página)",
+      "slug": "traduccion-judicial-oficial",
       "tax": 0,
       "fee": 1320,
       "category": "academicos",
@@ -1809,10 +2032,16 @@
           "q": "¿Sirve una traducción que ya tengo?",
           "a": "Solo si la hizo un intérprete judicial y lleva su firma. Si no, la van a rechazar."
         }
+      ],
+      "relacionados": [
+        "apostilla_documentos",
+        "legalizacion_documentos",
+        "legalizacion_mescyt"
       ]
     },
     "turnitin_check": {
       "title": "Verificación Antiplagio Turnitin (Informe Tesis)",
+      "slug": "verificacion-turnitin",
       "tax": 0,
       "fee": 825,
       "category": "academicos",
@@ -1847,10 +2076,16 @@
           "q": "¿Cuánto tarda?",
           "a": "Normalmente el mismo día que nos envías la tesis, salvo que sea un documento muy extenso."
         }
+      ],
+      "relacionados": [
+        "creacion_cv",
+        "certificacion_estudios",
+        "record_notas_minerd_mescyt"
       ]
     },
     "constitucion_empresas": {
       "title": "Constitución Completa de Empresa / SRL",
+      "slug": "constitucion-de-empresa-srl",
       "tax": 12000,
       "fee": 8800,
       "category": "empresas",
@@ -1893,10 +2128,16 @@
           "q": "¿Qué viene después?",
           "a": "Mantener la empresa al día: renovación del Registro Mercantil y declaraciones en la DGII. Te avisamos de las fechas."
         }
+      ],
+      "relacionados": [
+        "registro_empresa_onapi",
+        "contrato_notarial",
+        "pagos_impuestos"
       ]
     },
     "registro_empresa_onapi": {
       "title": "Registro de Nombre Comercial (ONAPI)",
+      "slug": "registro-de-nombre-comercial-onapi",
       "tax": 4755,
       "fee": 2200,
       "category": "empresas",
@@ -1934,6 +2175,11 @@
           "q": "¿Necesito tener empresa?",
           "a": "No. Puedes registrar el nombre primero y constituir la empresa después."
         }
+      ],
+      "relacionados": [
+        "constitucion_empresas",
+        "contrato_notarial",
+        "declaracion_jurada"
       ]
     }
   },

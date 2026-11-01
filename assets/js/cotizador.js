@@ -7,7 +7,7 @@
     'use strict';
     const TF = window.TF; if (!TF) return;
     const { D, C, PAISES, SERV, state, $, $$, esc, t, tc, money, waLink, restart, normal } = TF;
-    const servUrl = k => `servicio?id=${encodeURIComponent(k)}`;
+    const servUrl = TF.servUrl;
 
     const PLANTILLA = `
 <div class="grid lg:grid-cols-12 gap-8 items-start">

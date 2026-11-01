@@ -807,3 +807,6 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .serv-faq p { margin: 0 0 .9rem; font-size: .87rem; color: #475569; line-height: 1.6; }
 .req-estatico { font-size: .88rem; color: #475569; padding-left: 1.1rem; position: relative; }
 .req-estatico::before { content: "•"; position: absolute; left: .2rem; color: #94A3B8; }
+.serv-rel { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.serv-rel a { display: block; padding: .7rem .9rem; border: 1px solid #E2E8F0; border-radius: .8rem; font-size: .88rem; font-weight: 600; color: #002D62; }
+.serv-rel a:hover { border-color: #002D62; background: #F7FAFF; }

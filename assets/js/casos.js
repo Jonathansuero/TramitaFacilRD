@@ -53,7 +53,7 @@
                <p class="mt-1">${esc(t('ok.codigo'))}</p>
                <div class="conf-codigo">${esc(codigo)}</div>
                <p class="text-xs text-emerald-800">${esc(t('ok.guarda'))}</p>
-               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
+               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="/rastreo?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
                <button type="button" class="border border-emerald-300 bg-white text-xs font-bold px-4 py-2 rounded-lg" data-copiar-codigo="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
                <a class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg" target="_blank" rel="noopener" href="${waLink(mensajeWa(d, codigo))}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('ok.confirmar'))}</a></div>`
             : `<div class="font-bold">✅ ${esc(t('ok.wa.t'))}</div><p class="mt-1">${esc(t('ok.wa.d'))}</p>`;

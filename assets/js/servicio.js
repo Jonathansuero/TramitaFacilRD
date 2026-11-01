@@ -1,4 +1,4 @@
-/* TramitaFácil RD — página de detalle: servicio?id=<clave> */
+/* TramitaFácil RD — página de detalle: /servicios/<palabras> (la vieja servicio?id=<clave> redirige) */
 (function () {
     'use strict';
     const TF = window.TF; if (!TF) return;
@@ -6,7 +6,11 @@
     const ct = TF.contacto;
 
     const keys = Object.keys(SERV);
-    let id = new URLSearchParams(location.search).get('id');
+    /** El trámite sale de la dirección: /servicios/<palabras>, o del ?id= de los enlaces viejos. */
+    const porSlug = s => Object.keys(SERV).find(k => SERV[k].slug === s);
+    const idDeUrl = () => porSlug(decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || ''))
+        || new URLSearchParams(location.search).get('id');
+    let id = idDeUrl();
     if (!SERV[id]) id = PAISES[state.pais].destacados[0];
     const CK_STORE = 'tf_checklist_v2';
 
@@ -22,7 +26,7 @@
         $('sFlags').title = t('serv.ideal');
         $('sTitle').textContent = tr.title;
         $('sDesc').textContent = tr.desc;
-        $('sInstHero').innerHTML = s.inst.map(i => `<a href="instituciones#${i}" class="inst-chip-dark">${esc(D.instituciones[i].sigla)} · ${esc(tc('instituciones', i).nombre)}</a>`).join('');
+        $('sInstHero').innerHTML = s.inst.map(i => `<a href="/instituciones#${i}" class="inst-chip-dark">${esc(D.instituciones[i].sigla)} · ${esc(tc('instituciones', i).nombre)}</a>`).join('');
 
         // pasos genéricos del proceso
         $('sSteps').innerHTML = [1, 2, 3, 4].map(n => { const k = 'serv.p' + n + (n === 3 && !s.inst.length ? 'b' : ''); return `<li><span>${n}</span><div><strong>${esc(t(k + '.t'))}</strong><p>${esc(t(k + '.d', { inst: s.inst.map(i => D.instituciones[i].sigla).join(', ') }))}</p></div></li>`; }).join('');
@@ -39,7 +43,7 @@
 
         // instituciones
         $('sInst').innerHTML = s.inst.length ? s.inst.map(i => { const it = tc('instituciones', i);
-            return `<a href="instituciones#${i}" class="flex items-start gap-3 p-3 rounded-2xl border border-slate-200 hover:border-domBlue hover:bg-sky-50 transition-colors">${TF.instBadge(i, 'sm')}<span><strong class="block text-sm text-slate-900">${esc(it.nombre)}</strong><span class="block text-xs text-slate-500">${esc(it.desc)}</span></span></a>`; }).join('')
+            return `<a href="/instituciones#${i}" class="flex items-start gap-3 p-3 rounded-2xl border border-slate-200 hover:border-domBlue hover:bg-sky-50 transition-colors">${TF.instBadge(i, 'sm')}<span><strong class="block text-sm text-slate-900">${esc(it.nombre)}</strong><span class="block text-xs text-slate-500">${esc(it.desc)}</span></span></a>`; }).join('')
             : `<p class="text-sm text-slate-500">${esc(t('serv.sininst'))}</p>`;
 
         precio();
@@ -48,8 +52,8 @@
         // relacionados y navegación anterior/siguiente
         renderRelacionados();
         const i = keys.indexOf(id);
-        $('sPrev').href = `servicio?id=${keys[(i - 1 + keys.length) % keys.length]}`;
-        $('sNext').href = `servicio?id=${keys[(i + 1) % keys.length]}`;
+        $('sPrev').href = TF.servUrl(keys[(i - 1 + keys.length) % keys.length]);
+        $('sNext').href = TF.servUrl(keys[(i + 1) % keys.length]);
         $('sPrev').setAttribute('aria-label', t('serv.anterior')); $('sNext').setAttribute('aria-label', t('serv.siguiente'));
     }
 
@@ -81,7 +85,7 @@
             <p class="text-sm text-slate-600 mt-2">${esc(tr.desc)}</p>
             <div class="rel-cuerpo">
                 <div class="space-y-4">
-                    ${s.inst.length ? `<div><p class="rel-t">${esc(t('serv.ante'))}</p><div class="flex flex-wrap gap-1.5">${s.inst.map(i => `<a href="instituciones#${i}" class="inst-tag">${esc(D.instituciones[i].sigla)}</a>`).join('')}</div></div>` : ''}
+                    ${s.inst.length ? `<div><p class="rel-t">${esc(t('serv.ante'))}</p><div class="flex flex-wrap gap-1.5">${s.inst.map(i => `<a href="/instituciones#${i}" class="inst-tag">${esc(D.instituciones[i].sigla)}</a>`).join('')}</div></div>` : ''}
                     ${ck ? `<div><p class="rel-t">${esc(t('serv.rel.req'))}</p><ul class="rel-req">${ck.map(x => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(x)}</span></li>`).join('')}</ul></div>` : ''}
                 </div>
                 <div class="rel-precio">
@@ -166,7 +170,7 @@
                <p class="mt-1">${esc(t('ok.codigo'))}</p>
                <div class="conf-codigo">${esc(codigo)}</div>
                <p class="text-xs text-emerald-800">${esc(t('ok.guarda'))}</p>
-               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="rastreo?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
+               <div class="flex flex-wrap gap-2 mt-3"><a class="bg-domBlue text-white text-xs font-bold px-4 py-2 rounded-lg" href="/rastreo?c=${encodeURIComponent(codigo)}">${esc(t('ok.estado'))}</a>
                <button type="button" class="border border-emerald-300 bg-white text-xs font-bold px-4 py-2 rounded-lg" data-copiar-codigo="${esc(codigo)}">${esc(t('ok.copiar'))}</button>
                <a class="bg-emerald-600 text-white text-xs font-bold px-4 py-2 rounded-lg" target="_blank" rel="noopener" href="${waLink(mensajeConfirmar(d, codigo))}"><i class="fa-brands fa-whatsapp mr-1"></i>${esc(t('ok.confirmar'))}</a></div>`
             : `<div class="font-bold">✅ ${esc(t('ok.wa.t'))}</div><p class="mt-1">${esc(t('ok.wa.d'))}</p>`;
@@ -232,7 +236,7 @@
        trámite sin recargar, se pide a /api/servicio/<id> y se vuelve a pintar.
        ---------------------------------------------------------- */
     const extraCache = {};
-    let extraPuesto = new URLSearchParams(location.search).get('id') || id;   // lo que escribió el servidor
+    let extraPuesto = id;   // en la primera carga, el bloque lo escribió el servidor para este trámite
 
     function extraHtml(d) {
         const caja = (titulo, dentro) => `<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8"><h2 class="text-lg font-extrabold text-slate-900">${esc(titulo)}</h2>${dentro}</div>`;
@@ -241,6 +245,10 @@
         if (d.intro) html += caja('¿Qué es y cuándo te lo piden?', `<p class="mt-3 text-slate-600 text-sm leading-relaxed">${esc(d.intro)}</p>`);
         if ((d.como || []).length) html += caja('Cómo lo hacemos, estés donde estés', `<ol class="serv-como mt-4">${d.como.map(x => `<li>${esc(x)}</li>`).join('')}</ol>`);
         if (d.entrega) html += caja('Qué recibes', `<p class="mt-3 text-slate-600 text-sm leading-relaxed">${esc(d.entrega)}</p>`);
+        const rel = ((SERV[d.id] || {}).relacionados || []).filter(k => SERV[k]);
+        if (rel.length) html += caja('Trámites que suelen ir con este',
+            `<p class="mt-2 text-slate-500 text-sm">Quien pide este trámite normalmente necesita también:</p>
+             <ul class="serv-rel mt-3">${rel.map(k => `<li><a href="${TF.servUrl(k)}">${esc(tc('servicios', k).title)}</a></li>`).join('')}</ul>`);
         if ((d.faq || []).length) html += caja(`Preguntas frecuentes sobre ${corto}`,
             `<div class="mt-4">${d.faq.map(f => `<details class="serv-faq"><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}</div>`);
         return html ? `<div class="space-y-6 mt-6">${html}</div>` : '';
@@ -267,7 +275,7 @@
         id = nuevo;
         $('pExp').checked = false; $('pEnv').checked = false;
         render();
-        if (guardar) history.pushState({ id }, '', `servicio?id=${encodeURIComponent(id)}`);
+        if (guardar) history.pushState({ id }, '', TF.servUrl(id));
         window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
@@ -285,12 +293,14 @@
         let anchoPrevio = window.innerWidth;
         window.addEventListener('resize', () => { if (abierto && window.innerWidth !== anchoPrevio) { anchoPrevio = window.innerWidth; colocarDetalle(false); } });
         document.addEventListener('click', e => {
-            const a = e.target.closest('a[href^="servicio?id="]');
+            const a = e.target.closest('a[href^="/servicios/"], a[href^="servicio?id="]');
             if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank') return;
-            const nuevo = new URLSearchParams(a.getAttribute('href').split('?')[1]).get('id');
+            const href = a.getAttribute('href');
+            const nuevo = href.startsWith('/servicios/') ? porSlug(href.split('/').pop())
+                : new URLSearchParams(href.split('?')[1]).get('id');
             if (SERV[nuevo]) { e.preventDefault(); e.stopPropagation(); irA(nuevo); }
         }, true);
-        window.addEventListener('popstate', e => { const nuevo = (e.state && e.state.id) || new URLSearchParams(location.search).get('id'); if (nuevo) irA(nuevo, { guardar: false }); });
+        window.addEventListener('popstate', e => { const nuevo = (e.state && e.state.id) || idDeUrl(); if (nuevo) irA(nuevo, { guardar: false }); });
         ['pExp', 'pEnv'].forEach(i => $(i).addEventListener('change', precio));
         $('monedaToggle').addEventListener('click', e => { const b = e.target.closest('[data-moneda]'); if (b) TF.setMoneda(b.dataset.moneda); });
         $('sShare').addEventListener('click', async () => {

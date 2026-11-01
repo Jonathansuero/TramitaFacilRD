@@ -14,7 +14,7 @@
         catPais: params.get('pais') === 'mio' ? 'mio' : 'todos',
         catQuery: (params.get('q') || '').slice(0, 60), catPage: 0, catPaginas: 0, catTotal: 0
     };
-    const servUrl = k => `servicio?id=${encodeURIComponent(k)}`;
+    const servUrl = TF.servUrl;
     const flagsOf = k => SERV[k].paises.map(p => PAISES[p].bandera).join(' ');
 
     // ============================================================
@@ -29,7 +29,7 @@
                 <span class="cat-flags" title="${esc(t('serv.ideal'))}">${flagsOf(k)}</span></div>
             <h3><a href="${servUrl(k)}" class="hover:text-domBlue">${esc(tr.title)}</a></h3><p>${esc(tr.desc)}</p>
             ${TF.tiempo(k) ? `<div class="tiempo-chip"><i class="fa-regular fa-clock" aria-hidden="true"></i>${esc(TF.tiempo(k).txt)}</div>` : ''}
-            ${s.inst.length ? `<div class="flex flex-wrap gap-1 mt-3">${s.inst.map(id => `<a href="instituciones#${id}" class="inst-tag">${esc(D.instituciones[id].sigla)}</a>`).join('')}</div>` : ''}
+            ${s.inst.length ? `<div class="flex flex-wrap gap-1 mt-3">${s.inst.map(id => `<a href="/instituciones#${id}" class="inst-tag">${esc(D.instituciones[id].sigla)}</a>`).join('')}</div>` : ''}
             <div class="flex items-end justify-between gap-2 mt-4">
                 <div class="cat-precio">${esc(t('precio.desde'))}<strong>${money(s.tax + s.fee)}</strong></div>
                 <div class="flex gap-1.5"><a class="cat-btn cat-btn-ghost" href="${servUrl(k)}">${esc(t('cat.ver'))}</a><a class="cat-btn cat-btn-primary" href="/#cotizar=${encodeURIComponent(k)}">${esc(t('cat.cotizar'))}</a></div>
