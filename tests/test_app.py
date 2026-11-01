@@ -964,3 +964,28 @@ def test_rastreo_muestra_pago_parcial_y_completo(client, monkeypatch):
     client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid2, "accion": "confirmar"})
     v = client.get(f"/api/rastreo/{codigo}").json
     assert v["falta_pagar"] is False and v["saldo"]["pct"] == 100 and v["saldo"]["falta"] == 0
+
+
+def test_servicio_trae_su_contenido_escrito_en_el_html(client):
+    """Google debe leer el trámite sin ejecutar JavaScript: título, requisitos, cómo funciona y preguntas."""
+    r = client.get("/servicio?id=apostilla_documentos").get_data(as_text=True)
+    cuerpo = r.split("<body", 1)[1]
+    assert "Apostilla de Documentos (MIREX Cancillería)" in cuerpo          # el h1, no solo el <title>
+    assert "Cómo lo hacemos" in cuerpo and "Qué recibes" in cuerpo
+    assert "¿La apostilla sirve en cualquier país?" in cuerpo               # una pregunta con su respuesta
+    assert "Convenio de La Haya" in cuerpo
+    assert "Preguntas frecuentes sobre Apostilla de Documentos</h2>" in cuerpo   # sin la sigla entre paréntesis
+    # datos estructurados: servicio, migas y preguntas
+    import json as _json, re as _re
+    bloques = [_json.loads(x) for x in _re.findall(r'<script type="application/ld\+json">(.*?)</script>', r, _re.S)]
+    tipos = {t["@type"] for b in bloques for t in b.get("@graph", [])}
+    assert {"Service", "BreadcrumbList", "FAQPage"} <= tipos
+    servicio = next(t for b in bloques for t in b.get("@graph", []) if t["@type"] == "Service")
+    assert servicio["offers"]["priceCurrency"] == "DOP" and int(servicio["offers"]["price"]) > 0
+    # los requisitos de la checklist también se escriben (el JavaScript los vuelve a pintar interactivos)
+    poder = client.get("/servicio?id=poderes_especiales").get_data(as_text=True)
+    assert "Datos completos del apoderado en RD" in poder.split("<body", 1)[1]
+    # un trámite sin contenido ampliado no deja una caja vacía
+    otro = client.get("/servicio?id=turnitin_check").get_data(as_text=True)
+    assert '<div id="sExtra"></div>' in otro
+
