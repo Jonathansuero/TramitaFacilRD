@@ -366,7 +366,7 @@
     function renderFooter() {
         const host = $('tf-footer'); if (!host) return;
         host.innerHTML = `
-<footer class="bg-slate-900 text-white pt-12 pb-8 mt-auto">
+<footer data-nosnippet class="bg-slate-900 text-white pt-12 pb-8 mt-auto">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-5 gap-8 pb-12 border-b border-slate-800">
       <div class="space-y-3 md:col-span-2">
@@ -405,7 +405,7 @@
 </footer>
 <a id="floatWa" href="#" target="_blank" rel="noopener" data-i18n-aria="a11y.wa" class="wa-pulse fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-3xl shadow-xl transition-transform hover:scale-110"><i class="fa-brands fa-whatsapp"></i></a>
 <button id="toTop" data-i18n-aria="a11y.top" class="fixed bottom-24 right-6 z-50 w-10 h-10 rounded-full bg-domBlue text-white shadow-lg opacity-0 pointer-events-none transition-opacity hover:bg-domRed"><i class="fa-solid fa-arrow-up"></i></button>
-<div id="toast" role="status" aria-live="polite" class="toast"></div>
+<div id="toast" data-nosnippet role="status" aria-live="polite" class="toast"></div>
 ${ES_APP ? renderTabbar() : ''}`;
         const p = C.whatsapp;
         $$('[data-wa-display]').forEach(el => el.textContent = waTexto());
@@ -475,6 +475,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         const txt = { en: ['View this site in English?', 'Yes', 'No, thanks'], fr: ['Voir ce site en français ?', 'Oui', 'Non, merci'] }[nav];
         const el = document.createElement('div');
         el.className = 'lang-hint'; el.setAttribute('role', 'dialog'); el.lang = nav;
+        el.setAttribute('data-nosnippet', '');   // que Google no lo tome como descripción del resultado
         el.innerHTML = `<span>🌐 ${txt[0]}</span><button data-lang="${nav}" class="lang-hint-yes">${txt[1]}</button><button class="lang-hint-no">${txt[2]}</button>`;
         el.addEventListener('click', e => { if (e.target.closest('button')) el.remove(); });
         document.body.appendChild(el);
@@ -559,6 +560,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         store.set('tf_app_aviso', Date.now());
         const el = document.createElement('div');
         el.id = 'appHint'; el.className = 'app-hint'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-labelledby', 'appHintT');
+        el.setAttribute('data-nosnippet', '');
         el.innerHTML = `<img src="assets/img/app/icon-192.png" alt="" class="app-hint-ico">
             <div class="min-w-0 flex-1"><strong id="appHintT" class="block text-sm" data-i18n="app.hint.t"></strong><span class="block text-xs text-slate-300" data-i18n="app.hint.d"></span></div>
             <div class="flex flex-col gap-1.5"><button type="button" class="app-hint-si" data-instalar data-i18n="app.hint.si"></button><button type="button" class="app-hint-no" data-cerrar data-i18n="app.hint.no"></button></div>`;
