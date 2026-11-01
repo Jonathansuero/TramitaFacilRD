@@ -200,7 +200,32 @@
         "dgm"
       ],
       "seo_titulo": "Residencia dominicana para extranjeros: requisitos y DGM",
-      "seo": "¿Extranjero y quieres vivir en República Dominicana? Preparamos y depositamos tu expediente de residencia en la DGM, estés aquí o en tu país. Cotiza gratis."
+      "seo": "¿Extranjero y quieres vivir en República Dominicana? Preparamos y depositamos tu expediente de residencia en la DGM, estés aquí o en tu país. Cotiza gratis.",
+      "como": [
+        "Revisamos tu caso y te decimos qué categoría de residencia te corresponde.",
+        "Armamos el expediente completo con los documentos de tu país, legalizados y traducidos si hace falta.",
+        "Lo depositamos en la DGM y damos seguimiento hasta la resolución."
+      ],
+      "entrega": "Recibes el expediente depositado con su número, el seguimiento de cada etapa y el acompañamiento hasta el carné de residencia.",
+      "faq": [
+        {
+          "q": "¿Qué documentos de mi país necesito?",
+          "a": "Normalmente acta de nacimiento, antecedentes penales y certificado médico, apostillados en tu país y traducidos al español. Te damos la lista exacta según tu categoría."
+        },
+        {
+          "q": "¿Puedo empezar antes de viajar?",
+          "a": "Sí, y conviene: lo más lento es reunir y apostillar los documentos de tu país, y eso se adelanta desde allá."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Depende de la categoría y de la DGM. Te damos el estimado al ver tu caso; lo que sí controlamos es que el expediente no se devuelva por un documento mal preparado."
+        },
+        {
+          "q": "¿La residencia me deja trabajar?",
+          "a": "Depende de la categoría que solicites. La definimos al inicio según tu situación, para no pedir la que no te sirve."
+        }
+      ],
+      "intro": "La residencia dominicana es el permiso que te deja vivir legalmente en el país siendo extranjero, y se solicita en la Dirección General de Migración. Hay varias categorías, y la que elijas determina qué documentos te piden y qué puedes hacer con ella."
     },
     "green_card_usa": {
       "title": "Renovación de Residencia / Green Card EE.UU.",
@@ -343,7 +368,32 @@
         "pasaportes"
       ],
       "seo_titulo": "Renovar el pasaporte dominicano desde el exterior",
-      "seo": "Renueva o saca tu pasaporte dominicano por primera vez sin filas. Te guiamos con la cita y los requisitos, desde RD o el exterior. Cotiza gratis hoy."
+      "seo": "Renueva o saca tu pasaporte dominicano por primera vez sin filas. Te guiamos con la cita y los requisitos, desde RD o el exterior. Cotiza gratis hoy.",
+      "como": [
+        "Nos dices si es renovación o primera vez y revisamos qué requisitos te aplican.",
+        "Te conseguimos la cita y te preparamos la lista exacta de lo que debes llevar.",
+        "Si estás fuera, te orientamos sobre el consulado que te corresponde y lo que puedes adelantar desde allá."
+      ],
+      "entrega": "Recibes la cita confirmada, la lista de requisitos revisada y el acompañamiento hasta que tengas el pasaporte en la mano.",
+      "faq": [
+        {
+          "q": "¿Pueden sacarlo sin que yo vaya?",
+          "a": "No. El pasaporte exige tu presencia para la foto y las huellas. Lo que hacemos es la cita, los requisitos y el pago, que es donde se pierde el tiempo."
+        },
+        {
+          "q": "¿Cuánto tarda la entrega?",
+          "a": "De 24 a 48 horas en Gran Santo Domingo y de 48 a 72 horas en el interior, contando desde la cita."
+        },
+        {
+          "q": "¿Y si vivo fuera del país?",
+          "a": "Se tramita en el consulado dominicano de tu zona. Te decimos cuál te toca y qué documentos reunir antes de ir."
+        },
+        {
+          "q": "¿Qué pasa si mi acta tiene un error?",
+          "a": "Hay que corregirla antes, porque los datos tienen que coincidir. Si es tu caso, lo vemos y lo resolvemos primero."
+        }
+      ],
+      "intro": "El pasaporte dominicano es tu documento de viaje y el que te piden en muchas gestiones fuera del país. Renovarlo a tiempo evita que pierdas un viaje: lo que más atrasa a la gente es conseguir la cita, reunir los requisitos y pagar, y es justo esa parte la que resolvemos."
     },
     "visa_ds160": {
       "title": "Visa Americana B1/B2 (DS-160)",
@@ -358,7 +408,32 @@
         "embajada_eeuu"
       ],
       "seo_titulo": "Llenar el DS-160 de la visa americana sin errores",
-      "seo": "¿Vas a pedir la visa americana B1/B2? Llenamos tu DS-160, creamos tu perfil y agendamos tu cita consular desde donde estés. Preséntate seguro. Cotiza hoy."
+      "seo": "¿Vas a pedir la visa americana B1/B2? Llenamos tu DS-160, creamos tu perfil y agendamos tu cita consular desde donde estés. Preséntate seguro. Cotiza hoy.",
+      "como": [
+        "Llenamos tu formulario DS-160 con tus datos, revisando cada respuesta.",
+        "Creamos tu perfil, pagamos la tasa y agendamos la cita en el consulado.",
+        "Te preparamos para la entrevista: qué llevar y qué te van a preguntar."
+      ],
+      "entrega": "Recibes tu DS-160 enviado con su código de confirmación, la cita agendada y la guía de preparación para la entrevista.",
+      "faq": [
+        {
+          "q": "¿Me garantizan la visa?",
+          "a": "No, y desconfía de quien te lo prometa: la visa la decide el cónsul. Lo que hacemos es que tu formulario y tu expediente lleguen sin errores, que es la parte que sí está en tus manos."
+        },
+        {
+          "q": "¿Un error en el DS-160 puede costarme la visa?",
+          "a": "Puede costarte la cita y complicar el caso. Por eso lo revisamos contigo antes de enviarlo."
+        },
+        {
+          "q": "¿Cuánto tardan las citas?",
+          "a": "Depende de la disponibilidad del consulado y cambia constantemente. Te decimos la fecha más cercana en el momento de agendar."
+        },
+        {
+          "q": "¿Pueden acompañarme a la entrevista?",
+          "a": "A la entrevista entras solo, pero te preparamos antes con las preguntas y los documentos."
+        }
+      ],
+      "intro": "El DS-160 es el formulario que hay que llenar antes de solicitar la visa americana B1/B2, y el consulado lo revisa junto con tu entrevista. Una respuesta mal puesta puede obligarte a repetirlo y perder la cita, por eso conviene llenarlo con calma y revisado."
     },
     "certificacion_solteria": {
       "title": "Certificación de Soltería (JCE)",
@@ -376,7 +451,32 @@
         "jce"
       ],
       "seo_titulo": "Certificación de soltería (JCE) sin viajar a RD",
-      "seo": "¿Te vas a casar o la piden en el extranjero? Sacamos tu certificación de soltería de la JCE, lista para apostillar. Desde cualquier país. Cotiza ya."
+      "seo": "¿Te vas a casar o la piden en el extranjero? Sacamos tu certificación de soltería de la JCE, lista para apostillar. Desde cualquier país. Cotiza ya.",
+      "como": [
+        "Nos das tu nombre completo, tu cédula y para qué te piden la certificación.",
+        "La solicitamos en la JCE y la retiramos cuando sale: el mismo día, si se pide antes del mediodía.",
+        "Si la vas a usar fuera del país, la apostillamos en el MIREX antes de enviártela."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y, si la pediste apostillada, también el original por courier a donde estés.",
+      "faq": [
+        {
+          "q": "¿Es la que me piden para casarme fuera?",
+          "a": "Sí. Es el documento con el que demuestras que eres soltero, y casi siempre la piden apostillada: conviene pedirla así de una vez y ahorrarte un segundo trámite."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "No. La solicitamos y la retiramos con tus datos."
+        },
+        {
+          "q": "¿Cuánto tiempo la aceptan?",
+          "a": "Las instituciones suelen aceptarla dentro de los tres a seis meses de emitida, así que conviene sacarla cerca de la fecha en que la vas a usar."
+        },
+        {
+          "q": "¿Sirve si estuve casado antes?",
+          "a": "En ese caso lo que corresponde es la certificación de estado civil con tu divorcio inscrito. Cuéntanos tu caso y te decimos cuál pedir."
+        }
+      ],
+      "intro": "La certificación de soltería es el documento de la Junta Central Electoral que acredita que no estás casado. Te la piden para casarte en el exterior, en algunos trámites de residencia y en gestiones bancarias o de seguros donde debe constar tu estado civil."
     },
     "poderes_especiales": {
       "title": "Poderes Notariales Especiales",
@@ -395,7 +495,32 @@
         "consulados_rd"
       ],
       "seo_titulo": "Poder notarial dominicano desde el exterior, sin viajar",
-      "seo": "¿Vives fuera y necesitas que alguien firme por ti en RD? Redactamos tu poder notarial especial para ventas, compras o gestiones. Cotiza gratis hoy."
+      "seo": "¿Vives fuera y necesitas que alguien firme por ti en RD? Redactamos tu poder notarial especial para ventas, compras o gestiones. Cotiza gratis hoy.",
+      "como": [
+        "Nos cuentas qué necesitas autorizar y a quién: vender, comprar, cobrar, firmar o representarte ante una institución.",
+        "Redactamos el poder con el alcance exacto y te lo mandamos en PDF para que lo revises antes de firmar.",
+        "Lo firmas en el consulado dominicano de tu ciudad, o ante un notario de tu país y lo apostillas; nosotros lo recibimos en RD y lo usamos para la gestión."
+      ],
+      "entrega": "Recibes el poder redactado en PDF listo para firmar, con las instrucciones de qué llevar al consulado o al notario, y el seguimiento de la gestión para la que lo hiciste.",
+      "faq": [
+        {
+          "q": "¿Lo firmo en el consulado o ante un notario?",
+          "a": "En el consulado dominicano queda listo para usarse aquí. Ante un notario de tu país hay que apostillarlo después. Las dos vías sirven; elige la que te quede más cerca."
+        },
+        {
+          "q": "¿A quién puedo poner como apoderado?",
+          "a": "A cualquier persona mayor de edad de tu confianza que esté en RD. Necesitamos su nombre completo y su cédula."
+        },
+        {
+          "q": "¿Por qué se llama poder especial?",
+          "a": "Porque autoriza solo lo que el documento dice: una venta, un cobro, sacar un documento. No es un permiso abierto sobre tus asuntos."
+        },
+        {
+          "q": "¿Hasta cuándo vale?",
+          "a": "Hasta que termine la gestión o hasta la fecha que pongamos en el documento. Puedes revocarlo antes si cambias de opinión."
+        }
+      ],
+      "intro": "Un poder notarial especial es el documento con el que autorizas a alguien de confianza en RD a hacer una gestión concreta en tu nombre. Se usa para vender o comprar una propiedad, cobrar un dinero, firmar un contrato o representarte ante una institución mientras tú estás fuera del país."
     },
     "rectificacion_actas_jce": {
       "title": "Rectificación de Actas de la JCE",
@@ -413,7 +538,32 @@
         "jce"
       ],
       "seo_titulo": "Corregir errores en tu acta de la JCE desde donde estés",
-      "seo": "¿Un error en tu nombre o fecha en el acta? Corregimos actas de nacimiento, matrimonio o defunción ante la JCE, aunque vivas fuera. Cotiza gratis."
+      "seo": "¿Un error en tu nombre o fecha en el acta? Corregimos actas de nacimiento, matrimonio o defunción ante la JCE, aunque vivas fuera. Cotiza gratis.",
+      "como": [
+        "Nos mandas una foto del acta con el error y nos dices cuál es el dato correcto.",
+        "Revisamos en la JCE qué tipo de corrección aplica: administrativa, que se resuelve en la oficialía, o judicial, que pasa por el tribunal.",
+        "Hacemos el depósito, damos seguimiento y te entregamos el acta corregida."
+      ],
+      "entrega": "Recibes el acta corregida escaneada en PDF y el original por courier, apostillada si la necesitas para el exterior.",
+      "faq": [
+        {
+          "q": "¿Todos los errores se corrigen igual?",
+          "a": "No. Una letra o un acento suele resolverse en la oficialía; cambiar un nombre, un apellido o una fecha de nacimiento normalmente pasa por el tribunal. Cuando vemos el acta te decimos cuál es tu caso."
+        },
+        {
+          "q": "¿Puedo hacerlo desde el exterior?",
+          "a": "Sí. Lo gestionamos con tus datos y, si el caso lo requiere, con un poder que firmas en el consulado."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "Una corrección administrativa es cuestión de días; una judicial depende del tribunal y puede tomar meses. Te damos el estimado real al ver el acta."
+        },
+        {
+          "q": "¿Por qué me rechazaron el acta en el consulado?",
+          "a": "Casi siempre porque un dato no coincide con tu pasaporte o tu cédula, o porque es una copia vieja. Revisamos las dos cosas y te decimos qué hay que corregir."
+        }
+      ],
+      "intro": "Una letra cambiada, una fecha equivocada o un apellido mal escrito en tu acta puede frenarte un pasaporte, una visa o una herencia. La rectificación corrige ese dato en los registros de la JCE para que tu acta coincida con el resto de tus documentos."
     },
     "contratos_alquiler": {
       "title": "Contrato de Alquiler Notarizado",
@@ -594,7 +744,32 @@
         "intrant"
       ],
       "seo_titulo": "Renovar la licencia de conducir dominicana desde afuera",
-      "seo": "¿Se venció o perdiste tu licencia de conducir dominicana? Pagamos los impuestos, sacamos tu cita en INTRANT y te preparamos todo desde afuera. Cotiza gratis."
+      "seo": "¿Se venció o perdiste tu licencia de conducir dominicana? Pagamos los impuestos, sacamos tu cita en INTRANT y te preparamos todo desde afuera. Cotiza gratis.",
+      "como": [
+        "Nos dices el tipo de licencia y si es renovación o duplicado por pérdida.",
+        "Pagamos los impuestos y te sacamos la cita en INTRANT.",
+        "Te decimos exactamente qué llevar el día de la cita para que no te devuelvan."
+      ],
+      "entrega": "Recibes la cita confirmada, los impuestos pagados con su comprobante y la lista de requisitos revisada.",
+      "faq": [
+        {
+          "q": "¿Tengo que ir yo?",
+          "a": "Sí, para la foto y la prueba de la vista. Lo que te ahorramos es la fila del banco, la cita y los errores de requisitos."
+        },
+        {
+          "q": "¿Puedo renovarla desde el exterior?",
+          "a": "El pago y la cita los adelantamos, pero la entrega exige tu presencia. Muchos clientes lo dejan listo y van el día que viajan."
+        },
+        {
+          "q": "¿Y si la perdí?",
+          "a": "Se saca un duplicado: el mismo proceso, con la declaración de pérdida."
+        },
+        {
+          "q": "¿Y si está vencida hace años?",
+          "a": "Igual se renueva, aunque pueden aplicarte recargos. Lo verificamos antes de pagar."
+        }
+      ],
+      "intro": "Conducir con la licencia vencida te expone a una multa y complica cualquier gestión con tu vehículo. La renovación y el duplicado por pérdida se hacen en INTRANT, y lo lento son los impuestos y la cita, no el trámite en sí."
     },
     "levantamiento_oposicion": {
       "title": "Levantamiento de Oposición de Vehículos (DGII)",
@@ -660,7 +835,32 @@
         "notarios"
       ],
       "seo_titulo": "Traspasar un vehículo en la DGII sin estar en el país",
-      "seo": "¿Compraste o vendiste un vehículo? Hacemos el traspaso completo en la DGII, con acto de venta legalizado, sin que estés en el país. Cotiza gratis hoy."
+      "seo": "¿Compraste o vendiste un vehículo? Hacemos el traspaso completo en la DGII, con acto de venta legalizado, sin que estés en el país. Cotiza gratis hoy.",
+      "como": [
+        "Nos envías la matrícula del vehículo y los datos del comprador y del vendedor.",
+        "Verificamos en la DGII que el vehículo esté al día y sin oposición.",
+        "Redactamos y legalizamos el acto de venta, pagamos el impuesto y sacamos la matrícula nueva."
+      ],
+      "entrega": "Recibes la matrícula nueva a nombre del comprador y el acto de venta legalizado, en mano o por courier.",
+      "faq": [
+        {
+          "q": "¿Qué pasa si el vehículo tiene oposición?",
+          "a": "No se puede traspasar hasta levantarla. Lo verificamos antes de empezar y, si la tiene, te decimos qué hace falta para quitarla."
+        },
+        {
+          "q": "¿Tienen que estar presentes las dos partes?",
+          "a": "El acto de venta necesita las dos firmas. Si uno de los dos está fuera del país, se resuelve con un poder."
+        },
+        {
+          "q": "¿Cuánto es el impuesto?",
+          "a": "Es un porcentaje del valor del vehículo según la tabla de la DGII. En la calculadora del sitio puedes estimarlo antes de decidir."
+        },
+        {
+          "q": "¿Se puede traspasar con multas pendientes?",
+          "a": "Hay que saldarlas primero. También las consultamos y las pagamos si quieres."
+        }
+      ],
+      "intro": "El traspaso es lo que pone el vehículo legalmente a nombre del comprador en la DGII. Mientras no se haga, las multas, los impuestos y la responsabilidad siguen siendo del vendedor, por eso conviene hacerlo el mismo día de la venta."
     },
     "pagos_impuestos": {
       "title": "Gestión y Pago de Impuestos (DGII / Marbete)",
@@ -729,7 +929,32 @@
         "mescyt"
       ],
       "seo_titulo": "Legalizar tu título universitario (MESCYT) para el exterior",
-      "seo": "¿Vas a estudiar o trabajar en el exterior? Legalizamos tu título universitario en el MESCYT, listo para apostillar. Desde cualquier país. Cotiza."
+      "seo": "¿Vas a estudiar o trabajar en el exterior? Legalizamos tu título universitario en el MESCYT, listo para apostillar. Desde cualquier país. Cotiza.",
+      "como": [
+        "Nos envías una foto de tu título y nos dices para qué país lo necesitas.",
+        "Lo depositamos en el MESCYT para la firma y la legalización.",
+        "Si lo vas a usar fuera, lo apostillamos en el MIREX antes de enviártelo."
+      ],
+      "entrega": "Recibes el título legalizado escaneado y el original por courier, apostillado si lo pediste.",
+      "faq": [
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "El MESCYT toma de 10 a 15 días laborables. Si además hay que apostillar, súmale unos 3 días del MIREX."
+        },
+        {
+          "q": "¿Me sirve para trabajar o estudiar fuera?",
+          "a": "Para eso es. La mayoría de los países piden el título legalizado y apostillado, y a veces traducido; la traducción oficial también la hacemos."
+        },
+        {
+          "q": "¿Y el récord de notas?",
+          "a": "Se legaliza aparte y casi siempre lo piden junto al título. Podemos hacer los dos a la vez."
+        },
+        {
+          "q": "¿Necesitan el original?",
+          "a": "Sí, el MESCYT trabaja sobre el original. Si estás fuera, coordinamos con alguien de confianza en RD o lo envías por courier."
+        }
+      ],
+      "intro": "Legalizar el título en el MESCYT es lo que convierte tu grado dominicano en un documento que otra institución, aquí o fuera, puede aceptar como válido. Es el paso previo a la apostilla cuando vas a estudiar, revalidar o trabajar en el exterior."
     },
     "record_notas_minerd_mescyt": {
       "title": "Certificación de Récord de Notas (MINERD / MESCYT)",
@@ -819,7 +1044,32 @@
         "mirex"
       ],
       "seo_titulo": "Apostillar documentos dominicanos desde EE.UU. o España",
-      "seo": "Apostillamos tus actas, títulos y documentos en la Cancillería (MIREX) para que tengan validez en EE.UU., España y otros países. Cotiza gratis hoy."
+      "seo": "Apostillamos tus actas, títulos y documentos en la Cancillería (MIREX) para que tengan validez en EE.UU., España y otros países. Cotiza gratis hoy.",
+      "como": [
+        "Nos dices qué documento necesitas apostillar y en qué país lo vas a usar.",
+        "Si el documento ya existe, lo retiramos; si hay que sacarlo primero (un acta, un título), lo gestionamos en la institución que lo emite.",
+        "Lo depositamos en el MIREX, retiramos la apostilla y te la enviamos escaneada el mismo día que sale, con el original por courier si lo necesitas."
+      ],
+      "entrega": "Recibes el documento apostillado escaneado en PDF por correo o WhatsApp, y el original por courier a la dirección que nos des, dentro o fuera del país.",
+      "faq": [
+        {
+          "q": "¿La apostilla sirve en cualquier país?",
+          "a": "Sirve en los países del Convenio de La Haya, que son la mayoría. Para uno que no esté en el convenio, el documento se legaliza en su consulado; eso también lo gestionamos."
+        },
+        {
+          "q": "¿Puedo apostillar una copia?",
+          "a": "Se apostilla el documento original emitido por la institución dominicana. Si solo tienes una copia, sacamos el original primero y después lo apostillamos."
+        },
+        {
+          "q": "¿Tengo que estar en el país?",
+          "a": "No. Retiramos y depositamos por ti. Solo necesitamos los datos del documento y, en algunos casos, un poder."
+        },
+        {
+          "q": "¿Cuánto tarda?",
+          "a": "El MIREX toma unos 3 días laborables desde que el documento está en sus manos. Si hay que sacar el documento antes, se suma el tiempo de esa institución."
+        }
+      ],
+      "intro": "La apostilla es el sello del Ministerio de Relaciones Exteriores que hace que un documento dominicano tenga validez legal en otro país. Te la piden para casarte, estudiar, trabajar, solicitar una residencia o presentar un documento ante cualquier autoridad fuera de RD. Sin ella, tu acta o tu título no se aceptan en el exterior."
     },
     "legalizacion_documentos": {
       "title": "Legalización de Documentos Oficiales",

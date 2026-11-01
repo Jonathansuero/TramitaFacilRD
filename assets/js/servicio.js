@@ -14,6 +14,8 @@
         const s = SERV[id], tr = tc('servicios', id), cat = tc('categorias', s.category);
         // En español manda el título pensado para Google; en otros idiomas, el nombre traducido
         document.title = (state.lang === 'es' && s.seo_titulo) || tr.title;
+        // El contenido propio del trámite lo escribe el servidor en español; en otros idiomas se oculta
+        const extra = $('sExtra'); if (extra) extra.hidden = state.lang !== 'es';
         $('sTiempo').innerHTML = TF.tiempoHtml(id, 'tiempo-oscuro');
         $('bcCat').textContent = cat.label;
         $('sCat').innerHTML = `<i class="fa-solid ${D.categorias[s.category].icono} mr-1"></i>${esc(cat.label)}`;

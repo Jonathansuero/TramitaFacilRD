@@ -793,3 +793,17 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .track-espera strong { display: block; color: #0F172A; font-size: .88rem; }
 .track-espera p { margin: .15rem 0 0; color: #475569; font-size: .78rem; line-height: 1.45; }
 .track-espera.hidden { display: none; }
+
+/* Página de servicio: contenido propio escrito desde el servidor */
+.serv-como { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; counter-reset: paso; }
+.serv-como li { position: relative; padding-left: 2.4rem; font-size: .9rem; color: #475569; line-height: 1.55; counter-increment: paso; }
+.serv-como li::before { content: counter(paso); position: absolute; left: 0; top: -.1rem; width: 1.65rem; height: 1.65rem; border-radius: 999px; background: #EAF2FF; color: #002D62; font-weight: 800; font-size: .8rem; display: grid; place-items: center; }
+.serv-faq { border-top: 1px solid #E2E8F0; }
+.serv-faq:first-child { border-top: 0; }
+.serv-faq summary { cursor: pointer; list-style: none; padding: .85rem 1.6rem .85rem 0; font-weight: 700; font-size: .9rem; color: #0F172A; position: relative; }
+.serv-faq summary::-webkit-details-marker { display: none; }
+.serv-faq summary::after { content: "+"; position: absolute; right: .2rem; top: .75rem; font-size: 1.1rem; color: #94A3B8; font-weight: 700; }
+.serv-faq[open] summary::after { content: "−"; }
+.serv-faq p { margin: 0 0 .9rem; font-size: .87rem; color: #475569; line-height: 1.6; }
+.req-estatico { font-size: .88rem; color: #475569; padding-left: 1.1rem; position: relative; }
+.req-estatico::before { content: "•"; position: absolute; left: .2rem; color: #94A3B8; }

@@ -2441,6 +2441,60 @@ def _atr(texto: str) -> str:
     return (texto or "").replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def _rellenar(html: str, elemento_id: str, dentro: str) -> str:
+    """Escribe `dentro` en el elemento vacío con ese id (el JavaScript lo vuelve a pintar igual al cargar)."""
+    patron = re.compile(r'(<([a-zA-Z0-9]+)[^>]*\bid="' + re.escape(elemento_id) + r'"[^>]*>)(</\2>)')
+    return patron.sub(lambda m: m.group(1) + dentro + m.group(3), html, count=1)
+
+
+def _bloque_servicio(serv: dict, sid: str, cat_: dict) -> str:
+    """Lo propio del trámite —cómo funciona, qué recibes, preguntas— escrito en el HTML, no por el navegador."""
+    partes = []
+    if serv.get("intro"):
+        partes.append('<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8">'
+                      '<h2 class="text-lg font-extrabold text-slate-900">¿Qué es y cuándo te lo piden?</h2>'
+                      f'<p class="mt-3 text-slate-600 text-sm leading-relaxed">{_atr(serv["intro"])}</p></div>')
+    if serv.get("como"):
+        pasos = "".join(f"<li>{_atr(x)}</li>" for x in serv["como"])
+        partes.append('<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8">'
+                      f'<h2 class="text-lg font-extrabold text-slate-900">Cómo lo hacemos, estés donde estés</h2>'
+                      f'<ol class="serv-como mt-4">{pasos}</ol></div>')
+    if serv.get("entrega"):
+        partes.append('<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8">'
+                      '<h2 class="text-lg font-extrabold text-slate-900">Qué recibes</h2>'
+                      f'<p class="mt-3 text-slate-600 text-sm leading-relaxed">{_atr(serv["entrega"])}</p></div>')
+    if serv.get("faq"):
+        corto = re.sub(r"\s*\([^)]*\)", "", serv["title"]).strip()   # sin la sigla entre paréntesis, para el título
+        preguntas = "".join(
+            f'<details class="serv-faq"><summary>{_atr(f["q"])}</summary><p>{_atr(f["a"])}</p></details>'
+            for f in serv["faq"])
+        partes.append('<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8">'
+                      f'<h2 class="text-lg font-extrabold text-slate-900">Preguntas frecuentes sobre {_atr(corto)}</h2>'
+                      f'<div class="mt-4">{preguntas}</div></div>')
+    return '<div class="space-y-6 mt-6">' + "".join(partes) + "</div>" if partes else ""
+
+
+def _datos_servicio(serv: dict, sid: str, cat_: dict, sitio: str) -> str:
+    """Datos estructurados del trámite para Google: el servicio, las migas y las preguntas."""
+    url = f"{sitio}/servicio?id={sid}"
+    tax, fee = precios_guardados().get(sid, (serv.get("tax", 0), serv.get("fee", 0)))
+    grafo = [{"@type": "Service", "name": serv["title"], "description": serv.get("desc", ""),
+              "serviceType": serv["title"], "url": url, "areaServed": {"@type": "Country", "name": "República Dominicana"},
+              "provider": {"@type": "Organization", "name": "TramitaFácil RD", "url": sitio + "/"},
+              "offers": {"@type": "Offer", "url": url, "price": str(_entero(tax) + _entero(fee)),
+                         "priceCurrency": "DOP", "availability": "https://schema.org/InStock"}},
+             {"@type": "BreadcrumbList", "itemListElement": [
+                 {"@type": "ListItem", "position": 1, "name": "Inicio", "item": sitio + "/"},
+                 {"@type": "ListItem", "position": 2, "name": "Servicios", "item": sitio + "/servicios"},
+                 {"@type": "ListItem", "position": 3, "name": serv["title"], "item": url}]}]
+    if serv.get("faq"):
+        grafo.append({"@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": f["q"],
+             "acceptedAnswer": {"@type": "Answer", "text": f["a"]}} for f in serv["faq"]]})
+    datos = {"@context": "https://schema.org", "@graph": grafo}
+    return '\n    <script type="application/ld+json">' + json.dumps(datos, ensure_ascii=False).replace("</", "<\\/") + "</script>"
+
+
 def pagina(nombre: str):
     """Sirve una página pública con canonical y Open Graph ya puestos (sin esperar al JavaScript)."""
     html = _leer_html(nombre)
@@ -2463,6 +2517,16 @@ def pagina(nombre: str):
             desc = " ".join((serv.get("seo") or serv.get("desc", "")).split())[:300]
             html = re.sub(r"<title>.*?</title>", f"<title>{_atr(titulo)}</title>", html, count=1, flags=re.S)
             html = re.sub(r'<meta name="description" content="[^"]*"', f'<meta name="description" content="{_atr(desc)}"', html, count=1)
+            # El contenido del trámite, escrito en el HTML: Google ya no depende de que corra el JavaScript
+            html = _rellenar(html, "sTitle", _atr(serv["title"]))
+            html = _rellenar(html, "sDesc", _atr(serv.get("desc", "")))
+            html = _rellenar(html, "bcCat", _atr((cat["categorias"].get(serv["category"], {}) or {}).get("label", "")))
+            reqs = (cat["checklists"].get(sid) or {}).get("items", [])
+            if reqs:
+                html = _rellenar(html, "sReq", "".join(
+                    f'<p class="req-estatico">{_atr(x)}</p>' for x in reqs))
+            html = _rellenar(html, "sExtra", _bloque_servicio(serv, sid, cat))
+            html = html.replace("</title>", "</title>" + _datos_servicio(serv, sid, cat, sitio), 1)
         else:
             ruta = "/servicios"   # sin servicio válido: la dirección oficial es el catálogo
     url = sitio + ruta
