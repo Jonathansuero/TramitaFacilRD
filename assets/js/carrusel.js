@@ -19,7 +19,7 @@
         const tf = (c.solucion.chat || []).find(m => m[0] === 'tf');
         return `<article class="crs-slide" role="group" aria-roledescription="slide" aria-label="${i + 1} / ${total}" data-i="${i}">
             <figure class="crs-img">
-                <img src="assets/img/rd/${esc(c.img)}.webp" alt="${esc(tx(c.lugar))}" width="960" height="600" loading="${i < 2 ? 'eager' : 'lazy'}" decoding="async">
+                <img src="/assets/img/rd/${esc(c.img)}.webp" alt="${esc(tx(c.lugar))}" width="960" height="600" loading="${i < 2 ? 'eager' : 'lazy'}" decoding="async">
                 <figcaption><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${esc(tx(c.lugar))}</figcaption>
             </figure>
             <div class="crs-cuerpo">
@@ -37,7 +37,7 @@
                 ${simple ? `<div class="crs-pie crs-pie-simple">
                     <button type="button" class="crs-btn crs-btn-rojo crs-btn-grande" data-iniciar="${esc(c.servicio)}">${esc(t('crs.iniciar'))} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                 </div>` : `                <div class="crs-pie">
-                    <div class="crs-serv"><a href="servicio?id=${encodeURIComponent(c.servicio)}">${esc(tr.title)}</a>
+                    <div class="crs-serv"><a href="${TF.servUrl(c.servicio)}">${esc(tr.title)}</a>
                         <span>${esc(t('precio.desde'))} <strong>${money(s.tax + s.fee)}</strong>${tiempo ? ` · <i class="fa-regular fa-clock" aria-hidden="true"></i> ${esc(tiempo.txt)}` : ''}</span></div>
                     <div class="crs-botones">
                         <button type="button" class="crs-btn crs-btn-borde" data-calcular="${esc(c.servicio)}"><i class="fa-solid fa-calculator" aria-hidden="true"></i> ${esc(t('casos.calcular'))}</button>

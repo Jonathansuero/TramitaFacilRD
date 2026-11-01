@@ -2451,6 +2451,13 @@ def _atr(texto: str) -> str:
     return (texto or "").replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 
 
+def ruta_servicio(sid: str, serv: dict | None = None) -> str:
+    """Dirección oficial del trámite: /servicios/<palabras>. La vieja (/servicio?id=…) redirige aquí."""
+    serv = serv if serv is not None else catalogo()["servicios"].get(sid, {})
+    slug = serv.get("slug")
+    return f"/servicios/{slug}" if slug else f"/servicio?id={sid}"
+
+
 def _rellenar(html: str, elemento_id: str, dentro: str) -> str:
     """Escribe `dentro` en el elemento vacío con ese id (el JavaScript lo vuelve a pintar igual al cargar)."""
     patron = re.compile(r'(<([a-zA-Z0-9]+)[^>]*\bid="' + re.escape(elemento_id) + r'"[^>]*>)(</\2>)')
@@ -2473,6 +2480,15 @@ def _bloque_servicio(serv: dict, sid: str, cat_: dict) -> str:
         partes.append('<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8">'
                       '<h2 class="text-lg font-extrabold text-slate-900">Qué recibes</h2>'
                       f'<p class="mt-3 text-slate-600 text-sm leading-relaxed">{_atr(serv["entrega"])}</p></div>')
+    rel = [r for r in serv.get("relacionados", []) if r in cat_["servicios"]]
+    if rel:
+        enlaces = "".join(
+            f'<li><a href="{ruta_servicio(r, cat_["servicios"][r])}">{_atr(cat_["servicios"][r]["title"])}</a></li>'
+            for r in rel)
+        partes.append('<div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8">'
+                      '<h2 class="text-lg font-extrabold text-slate-900">Trámites que suelen ir con este</h2>'
+                      '<p class="mt-2 text-slate-500 text-sm">Quien pide este trámite normalmente necesita también:</p>'
+                      f'<ul class="serv-rel mt-3">{enlaces}</ul></div>')
     if serv.get("faq"):
         corto = re.sub(r"\s*\([^)]*\)", "", serv["title"]).strip()   # sin la sigla entre paréntesis, para el título
         preguntas = "".join(
@@ -2486,7 +2502,7 @@ def _bloque_servicio(serv: dict, sid: str, cat_: dict) -> str:
 
 def _datos_servicio(serv: dict, sid: str, cat_: dict, sitio: str) -> str:
     """Datos estructurados del trámite para Google: el servicio, las migas y las preguntas."""
-    url = f"{sitio}/servicio?id={sid}"
+    url = sitio + ruta_servicio(sid, serv)
     tax, fee = precios_guardados().get(sid, (serv.get("tax", 0), serv.get("fee", 0)))
     grafo = [{"@type": "Service", "name": serv["title"], "description": serv.get("desc", ""),
               "serviceType": serv["title"], "url": url, "areaServed": {"@type": "Country", "name": "República Dominicana"},
@@ -2505,7 +2521,7 @@ def _datos_servicio(serv: dict, sid: str, cat_: dict, sitio: str) -> str:
     return '\n    <script type="application/ld+json">' + json.dumps(datos, ensure_ascii=False).replace("</", "<\\/") + "</script>"
 
 
-def pagina(nombre: str):
+def pagina(nombre: str, sid: str = ""):
     """Sirve una página pública con canonical y Open Graph ya puestos (sin esperar al JavaScript)."""
     html = _leer_html(nombre)
     if nombre not in SEO_PAGINAS:
@@ -2517,10 +2533,10 @@ def pagina(nombre: str):
     m = re.search(r'<meta name="description" content="([^"]*)"', html)
     desc = m.group(1) if m else ""
     if nombre == "servicio":
-        sid = request.args.get("id", "")
+        sid = sid or request.args.get("id", "")
         serv = cat["servicios"].get(sid)
         if serv:
-            ruta = f"/servicio?id={sid}"
+            ruta = ruta_servicio(sid, serv)
             # título pensado para Google (data/catalogo.json → "seo_titulo"); si falta, el nombre del servicio
             titulo = serv.get("seo_titulo") or serv["title"]
             # texto pensado para Google (data/catalogo.json → "seo"); si falta, la descripción del servicio
@@ -2585,6 +2601,15 @@ def inicio():
     return pagina("index")
 
 
+@app.get("/servicios/<slug>")
+def pagina_servicio(slug: str):
+    """Dirección oficial del trámite, con palabras: /servicios/apostilla-de-documentos."""
+    for sid, serv in catalogo()["servicios"].items():
+        if serv.get("slug") == slug:
+            return pagina("servicio", sid)
+    return redirect("/servicios", 301)
+
+
 @app.get("/assets/<path:ruta>")
 def assets(ruta: str):
     # 10 min en caché del navegador: cambiar de página no vuelve a pedir estilos ni scripts
@@ -2601,6 +2626,10 @@ def assetlinks():
 
 @app.get("/<nombre>")
 def archivo_raiz(nombre: str):
+    if nombre == "servicio":
+        # dirección vieja: /servicio?id=apostilla_documentos → /servicios/apostilla-de-documentos
+        serv = catalogo()["servicios"].get(request.args.get("id", ""))
+        return redirect(ruta_servicio(request.args.get("id", ""), serv) if serv else "/servicios", 301)
     if nombre in PAGINAS:
         return pagina(nombre)
     if nombre.endswith(".html"):
@@ -2608,6 +2637,9 @@ def archivo_raiz(nombre: str):
         limpio = nombre[:-5]
         if limpio == "index":
             return redirect(_con_busqueda("/"), 301)
+        if limpio == "servicio":   # servicio.html?id=… → directo a la dirección con palabras, sin pasos intermedios
+            serv = catalogo()["servicios"].get(request.args.get("id", ""))
+            return redirect(ruta_servicio(request.args.get("id", ""), serv) if serv else "/servicios", 301)
         if limpio in PAGINAS:
             return redirect(_con_busqueda(f"/{limpio}"), 301)
         abort(404)

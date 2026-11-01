@@ -117,7 +117,8 @@ def test_paises_mundo_validos():
 
 
 def test_paginas_nuevas(client):
-    for page in ("servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora"):
+    for page in ("servicios", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora",
+                 "servicios/e-ticket-republica-dominicana"):
         r = client.get("/" + page)
         assert r.status_code == 200 and b'id="tf-header"' in r.data
 
@@ -230,10 +231,10 @@ def test_varios_tramites_un_codigo(client):
 
 
 def test_direcciones_limpias_y_redireccion(client):
-    r = client.get("/servicio.html?id=e_ticket")
-    assert r.status_code == 301 and r.headers["Location"].endswith("/servicio?id=e_ticket")
+    r = client.get("/servicio.html?id=e_ticket")   # enlace viejo con .html → dirección nueva, de una sola vez
+    assert r.status_code == 301 and r.headers["Location"] == "/servicios/e-ticket-republica-dominicana"
     assert client.get("/index.html").headers["Location"].endswith("/")
-    assert client.get("/servicio?id=e_ticket").status_code == 200
+    assert client.get("/servicios/e-ticket-republica-dominicana").status_code == 200
     assert b"GTM-PTD3KJ4Q" in client.get("/servicios").data
     pagina = client.get("/").data
     assert b"'gtm.start'" in pagina and b"ns.html?id=GTM-PTD3KJ4Q" in pagina   # instalación oficial de Tag Manager
@@ -257,8 +258,8 @@ def test_pausa(client):
 
 
 def test_seo_canonical_y_vista_previa(client):
-    r = client.get("/servicio?id=e_ticket").get_data(as_text=True)
-    assert '<link rel="canonical" href="https://tramitafacilrd.com/servicio?id=e_ticket">' in r
+    r = client.get("/servicios/e-ticket-republica-dominicana").get_data(as_text=True)
+    assert '<link rel="canonical" href="https://tramitafacilrd.com/servicios/e-ticket-republica-dominicana">' in r
     # el título que ve Google va sin la marca; al compartir el enlace sí se ve
     assert "<title>Llenar el E-Ticket de entrada a República Dominicana</title>" in r
     assert 'og:title" content="Llenar el E-Ticket de entrada a República Dominicana | TramitaFácil RD"' in r
@@ -270,7 +271,7 @@ def test_seo_canonical_y_vista_previa(client):
     rastreo = client.get("/rastreo").get_data(as_text=True)
     assert "<title>Rastrear mi trámite con el código de expediente</title>" in rastreo
     assert 'og:title" content="Rastrear mi trámite con el código de expediente | TramitaFácil RD"' in rastreo
-    assert 'canonical" href="https://tramitafacilrd.com/servicios"' in client.get("/servicio?id=nada").get_data(as_text=True)
+    assert client.get("/servicio?id=nada").headers["Location"] == "/servicios"   # id inventado → al catálogo
     assert "canonical" not in client.get("/admin").get_data(as_text=True)
     w = client.get("/servicios?cat=viajes", headers={"Host": "www.tramitafacilrd.com"})
     assert w.status_code == 301 and w.headers["Location"] == "https://tramitafacilrd.com/servicios?cat=viajes"
@@ -339,7 +340,7 @@ def test_panel_cobros_precios_origen(client):
 def test_descripcion_para_google_por_servicio(client):
     for sid, s in CAT["servicios"].items():
         assert 110 <= len(s["seo"]) <= 160, sid          # largo que Google muestra completo
-    html = client.get("/servicio?id=pasaporte_normal").get_data(as_text=True)
+    html = client.get("/servicios/pasaporte-dominicano").get_data(as_text=True)
     seo = CAT["servicios"]["pasaporte_normal"]["seo"]
     assert f'<meta name="description" content="{seo}"' in html and f'<meta property="og:description" content="{seo}"' in html
 
@@ -968,7 +969,7 @@ def test_rastreo_muestra_pago_parcial_y_completo(client, monkeypatch):
 
 def test_servicio_trae_su_contenido_escrito_en_el_html(client):
     """Google debe leer el trámite sin ejecutar JavaScript: título, requisitos, cómo funciona y preguntas."""
-    r = client.get("/servicio?id=apostilla_documentos").get_data(as_text=True)
+    r = client.get("/servicios/apostilla-de-documentos").get_data(as_text=True)
     cuerpo = r.split("<body", 1)[1]
     assert "Apostilla de Documentos (MIREX Cancillería)" in cuerpo          # el h1, no solo el <title>
     assert "Cómo lo hacemos" in cuerpo and "Qué recibes" in cuerpo
@@ -983,7 +984,7 @@ def test_servicio_trae_su_contenido_escrito_en_el_html(client):
     servicio = next(t for b in bloques for t in b.get("@graph", []) if t["@type"] == "Service")
     assert servicio["offers"]["priceCurrency"] == "DOP" and int(servicio["offers"]["price"]) > 0
     # los requisitos de la checklist también se escriben (el JavaScript los vuelve a pintar interactivos)
-    poder = client.get("/servicio?id=poderes_especiales").get_data(as_text=True)
+    poder = client.get("/servicios/poder-notarial-especial").get_data(as_text=True)
     assert "Datos completos del apoderado en RD" in poder.split("<body", 1)[1]
     # los 41 trámites tienen su contenido propio, sin textos repetidos entre ellos
     import app as _app
@@ -1001,4 +1002,31 @@ def test_servicio_trae_su_contenido_escrito_en_el_html(client):
     # ese contenido no viaja en data.js: engordaría cada carga del sitio
     datos = (Path(__file__).resolve().parents[1] / "assets" / "js" / "data.js").read_text(encoding="utf-8")
     assert "¿Qué es y cuándo te lo piden?" not in datos and d["intro"][:60] not in datos
+
+
+def test_direcciones_con_palabras_y_enlaces_internos(client):
+    """La dirección oficial del trámite lleva palabras; la vieja redirige, y cada ficha enlaza a sus afines."""
+    r = client.get("/servicios/apostilla-de-documentos")
+    assert r.status_code == 200
+    cuerpo = r.get_data(as_text=True)
+    assert 'rel="canonical" href="https://tramitafacilrd.com/servicios/apostilla-de-documentos"' in cuerpo
+    # la dirección vieja sigue funcionando: redirección permanente a la nueva
+    v = client.get("/servicio?id=apostilla_documentos")
+    assert v.status_code == 301 and v.headers["Location"] == "/servicios/apostilla-de-documentos"
+    assert client.get("/servicio").status_code == 301
+    assert client.get("/servicios/no-existe").status_code == 301      # slug inventado → al catálogo
+    # enlaces internos de verdad hacia los trámites afines (Google los sigue)
+    assert "Trámites que suelen ir con este" in cuerpo
+    assert '<li><a href="/servicios/legalizacion-de-documentos">' in cuerpo
+    # todos los trámites tienen dirección propia y tres afines válidos
+    import app as _app
+    srv = _app.catalogo()["servicios"]
+    slugs = [s["slug"] for s in srv.values()]
+    assert len(set(slugs)) == len(srv) and all(s.replace("-", "").isalnum() for s in slugs)
+    for sid, s_ in srv.items():
+        assert len(s_["relacionados"]) == 3 and sid not in s_["relacionados"]
+        assert all(x in srv for x in s_["relacionados"])
+    # el sitemap usa las direcciones nuevas
+    mapa = (Path(__file__).resolve().parents[1] / "sitemap.xml").read_text(encoding="utf-8")
+    assert "/servicios/apostilla-de-documentos" in mapa and "servicio?id=" not in mapa
 

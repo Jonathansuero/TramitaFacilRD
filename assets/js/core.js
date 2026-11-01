@@ -288,13 +288,13 @@
     // ENCABEZADO Y PIE (iguales en todas las páginas)
     // ============================================================
     const NAV = [
-        { href: 'servicios', key: 'nav.servicios', page: 'servicios' },
-        { href: 'casos', key: 'nav.casos', page: 'casos' },
-        { href: 'calculadora', key: 'nav.calculadoras', page: 'calculadora' },
-        { href: 'instituciones', key: 'nav.instituciones', page: 'instituciones' },
-        { href: 'diaspora', key: 'nav.diaspora', page: 'diaspora' },
-        { href: 'rastreo', key: 'nav.rastrear', page: 'rastreo' },
-        { href: 'preguntas', key: 'nav.faq', page: 'preguntas' }
+        { href: '/servicios', key: 'nav.servicios', page: 'servicios' },
+        { href: '/casos', key: 'nav.casos', page: 'casos' },
+        { href: '/calculadora', key: 'nav.calculadoras', page: 'calculadora' },
+        { href: '/instituciones', key: 'nav.instituciones', page: 'instituciones' },
+        { href: '/diaspora', key: 'nav.diaspora', page: 'diaspora' },
+        { href: '/rastreo', key: 'nav.rastrear', page: 'rastreo' },
+        { href: '/preguntas', key: 'nav.faq', page: 'preguntas' }
     ];
     const MOBILE = [
         ['presencia', 'fa-earth-americas', 'm.presencia'], ['cotizador', 'fa-calculator', 'm.cotizador'],
@@ -314,7 +314,7 @@
   <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
     <div class="flex items-center gap-2 min-w-0">
       <span class="bg-domRed text-[10px] uppercase font-extrabold px-2 py-0.5 rounded-full tracking-wider shrink-0" data-i18n="top.diaspora"></span>
-      <a href="diaspora" class="truncate hover:text-domGold"><span class="hidden md:inline" data-i18n="top.mundo"></span><span class="md:hidden" data-i18n="top.mundo.corto"></span> <span class="topbar-flags" aria-hidden="true">🇺🇸🇪🇸🇮🇹🇵🇷🇨🇦🇨🇭🌎</span></a>
+      <a href="/diaspora" class="truncate hover:text-domGold"><span class="hidden md:inline" data-i18n="top.mundo"></span><span class="md:hidden" data-i18n="top.mundo.corto"></span> <span class="topbar-flags" aria-hidden="true">🇺🇸🇪🇸🇮🇹🇵🇷🇨🇦🇨🇭🌎</span></a>
     </div>
     <div class="flex items-center gap-3 shrink-0">
       <span class="hidden lg:flex items-center gap-2 text-slate-200"><span id="openDot" class="w-2 h-2 rounded-full bg-slate-400"></span><span><span id="openText"></span> · <strong id="rdClock" class="font-semibold text-white tabular-nums">--:--</strong></span></span>
@@ -350,7 +350,7 @@
   </div>
   <div id="mobileMenu" class="hidden xl:hidden bg-white border-t border-slate-200 px-4 pt-3 pb-4 text-sm max-h-[75vh] overflow-y-auto">
     <button type="button" id="instalarMenu" hidden class="mobile-link ml-install w-full text-left"><span class="ml-ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="ml-txt"><span class="block" data-i18n="app.instalar"></span><span class="block text-[11px] font-medium text-slate-500" data-i18n="app.menu.d"></span></span><i class="fa-solid fa-chevron-right ml-go" aria-hidden="true"></i></button>
-    ${mobileLink('servicios', 'fa-layer-group', 'm.servicios', ` ml-page${PAGE === 'servicios' ? ' nav-active' : ''}`)}
+    ${mobileLink('/servicios', 'fa-layer-group', 'm.servicios', ` ml-page${PAGE === 'servicios' ? ' nav-active' : ''}`)}
     ${mobileLink('casos', 'fa-comments', 'nav.casos', ` ml-page${PAGE === 'casos' ? ' nav-active' : ''}`)}
     ${mobileLink('instituciones', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
     ${mobileLink('diaspora', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
@@ -378,19 +378,19 @@
       </div>
       <div><h4 class="foot-h" data-i18n="foot.paginas"></h4><ul class="foot-ul">
         <li><a href="/" data-i18n="foot.inicio"></a></li>
-        <li><a href="instituciones" data-i18n="nav.instituciones"></a></li>
-        <li><a href="calculadora" data-i18n="nav.calculadoras"></a></li>
-        <li><a href="diaspora" data-i18n="nav.diaspora"></a></li>
-        <li><a href="rastreo" data-i18n="m.rastreo"></a></li>
-        <li><a href="preguntas" data-i18n="m.faq"></a></li>
+        <li><a href="/instituciones" data-i18n="nav.instituciones"></a></li>
+        <li><a href="/calculadora" data-i18n="nav.calculadoras"></a></li>
+        <li><a href="/diaspora" data-i18n="nav.diaspora"></a></li>
+        <li><a href="/rastreo" data-i18n="m.rastreo"></a></li>
+        <li><a href="/preguntas" data-i18n="m.faq"></a></li>
         <li><a href="${homeLink('app')}" data-i18n="tuto.pie"></a></li>
-        <li><a href="servicio?id=apostilla_documentos" data-i18n="foot.ejemplo"></a></li></ul></div>
+        <li><a href="${servUrl('apostilla_documentos')}" data-i18n="foot.ejemplo"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.navega"></h4><ul class="foot-ul">
-        <li><a href="servicios" data-i18n="m.servicios"></a></li>
-        <li><a href="casos" data-i18n="nav.casos"></a></li>
+        <li><a href="/servicios" data-i18n="m.servicios"></a></li>
+        <li><a href="/casos" data-i18n="nav.casos"></a></li>
         <li><a href="${homeLink('cotizador')}" data-i18n="m.cotizador"></a></li>
         <li><a href="${homeLink('solicitud')}" data-i18n="m.solicitud"></a></li>
-        <li><a href="calculadora#herramientas-dgii" data-i18n="m.dgii"></a></li></ul></div>
+        <li><a href="/calculadora#herramientas-dgii" data-i18n="m.dgii"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.contacto"></h4><ul class="foot-ul">
         <li><i class="fa-brands fa-whatsapp text-emerald-400 mr-2"></i><a id="footWa" href="#" target="_blank" rel="noopener" data-wa-display></a></li>
         <li><i class="fa-brands fa-instagram ig-ico mr-2"></i><a href="${igUrl()}" target="_blank" rel="noopener">@${esc(C.instagram)}</a></li>
@@ -400,7 +400,7 @@
     <div class="mt-8 max-w-3xl mx-auto">${avisoOficial('aviso-oficial-oscuro')}</div>
     <p class="mt-8 text-[11px] text-slate-400 leading-relaxed max-w-4xl mx-auto text-center" data-i18n="foot.legal"></p>
     <div class="mt-4 text-center text-xs text-slate-500">© ${new Date().getFullYear()} TramitaFácil RD. <span data-i18n="foot.derechos"></span></div>
-    <div class="mt-3 text-center text-xs"><a href="admin" class="foot-equipo inline-flex items-center gap-2 whitespace-nowrap text-slate-400 border border-slate-800 rounded-full px-3 py-2"><i class="fa-solid fa-lock" aria-hidden="true"></i><span data-i18n="foot.equipo"></span></a></div>
+    <div class="mt-3 text-center text-xs"><a href="/admin" class="foot-equipo inline-flex items-center gap-2 whitespace-nowrap text-slate-400 border border-slate-800 rounded-full px-3 py-2"><i class="fa-solid fa-lock" aria-hidden="true"></i><span data-i18n="foot.equipo"></span></a></div>
   </div>
 </footer>
 <a id="floatWa" href="#" target="_blank" rel="noopener" data-i18n-aria="a11y.wa" class="wa-pulse fixed bottom-5 right-5 z-50 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white flex items-center justify-center text-3xl shadow-xl transition-transform hover:scale-110"><i class="fa-brands fa-whatsapp"></i></a>
@@ -420,7 +420,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         if ($('paisMenu')) {
             $('paisMenu').innerHTML = `<p class="px-3 pt-1 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-400">${esc(t('nav.desde'))}</p>` +
                 Object.keys(PAISES).map(k => { const Q = tc('paises', k); return `<button class="pais-opt" role="option" data-pais="${k}" aria-selected="${k === state.pais}"><span class="flag">${Q.bandera}</span><span><span class="block">${esc(Q.nombre)}</span><span class="block text-[10px] text-slate-400 font-medium">${esc(t('nav.precios', { sym: SYM[PAISES[k].moneda] }))}</span></span></button>`; }).join('') +
-                `<a href="diaspora" class="pais-opt text-domBlue"><span class="flag">🔎</span><span>${esc(t('nav.buscarpais'))}</span></a>`;
+                `<a href="/diaspora" class="pais-opt text-domBlue"><span class="flag">🔎</span><span>${esc(t('nav.buscarpais'))}</span></a>`;
         }
         $$('[data-lang]').forEach(b => { const on = b.dataset.lang === state.lang; b.classList.toggle('is-active', on); b.setAttribute('aria-pressed', on); });
         if ($('footFlags')) $('footFlags').innerHTML = Object.keys(PAISES).map(k => `<button class="foot-flag ${k === state.pais ? 'is-active' : ''}" data-set-pais="${k}" title="${esc(tc('paises', k).nombre)}">${PAISES[k].bandera}</button>`).join('');
@@ -501,9 +501,9 @@ ${ES_APP ? renderTabbar() : ''}`;
     function renderTabbar() {
         const tabs = [
             ['/', 'fa-house', 'tab.inicio', PAGE === 'home'],
-            ['servicios', 'fa-layer-group', 'tab.servicios', PAGE === 'servicios' || PAGE === 'servicio'],
-            ['calculadora', 'fa-calculator', 'tab.calc', PAGE === 'calculadora'],
-            ['rastreo', 'fa-location-crosshairs', 'tab.rastrear', PAGE === 'rastreo']
+            ['/servicios', 'fa-layer-group', 'tab.servicios', PAGE === 'servicios' || PAGE === 'servicio'],
+            ['/calculadora', 'fa-calculator', 'tab.calc', PAGE === 'calculadora'],
+            ['/rastreo', 'fa-location-crosshairs', 'tab.rastrear', PAGE === 'rastreo']
         ];
         return `<nav id="tabbar" class="tabbar" data-i18n-aria="nav.menu">
             ${tabs.map(([href, ico, key, on]) => `<a href="${href}" class="tab ${on ? 'is-active' : ''}" ${on ? 'aria-current="page"' : ''}><i class="fa-solid ${ico}" aria-hidden="true"></i><span data-i18n="${key}"></span></a>`).join('')}
@@ -540,7 +540,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         el.innerHTML = `<div class="app-sheet-fondo" data-cerrar></div>
             <div class="app-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="appSheetT">
                 <div class="flex items-center gap-3">
-                    <img src="assets/img/app/icon-192.png" alt="" class="app-sheet-ico">
+                    <img src="/assets/img/app/icon-192.png" alt="" class="app-sheet-ico">
                     <div><h2 id="appSheetT" class="font-extrabold text-slate-900" data-i18n="app.ios.t"></h2><p class="text-xs text-slate-500" data-i18n="app.hint.d"></p></div>
                 </div>
                 <ol class="app-pasos">${pasos.map(([ico, key], i) => `<li><span class="app-paso-n">${i + 1}</span><i class="fa-solid ${ico}" aria-hidden="true"></i><span data-i18n="${key}"></span></li>`).join('')}</ol>
@@ -561,7 +561,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         const el = document.createElement('div');
         el.id = 'appHint'; el.className = 'app-hint'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-labelledby', 'appHintT');
         el.setAttribute('data-nosnippet', '');
-        el.innerHTML = `<img src="assets/img/app/icon-192.png" alt="" class="app-hint-ico">
+        el.innerHTML = `<img src="/assets/img/app/icon-192.png" alt="" class="app-hint-ico">
             <div class="min-w-0 flex-1"><strong id="appHintT" class="block text-sm" data-i18n="app.hint.t"></strong><span class="block text-xs text-slate-300" data-i18n="app.hint.d"></span></div>
             <div class="flex flex-col gap-1.5"><button type="button" class="app-hint-si" data-instalar data-i18n="app.hint.si"></button><button type="button" class="app-hint-no" data-cerrar data-i18n="app.hint.no"></button></div>`;
         applyI18n(el);
@@ -592,8 +592,11 @@ ${ES_APP ? renderTabbar() : ''}`;
     }
 
     // ---------------- API pública
+    /** Dirección oficial de un trámite: /servicios/<palabras>. La vieja (servicio?id=…) sigue redirigiendo. */
+    const servUrl = k => (SERV[k] && SERV[k].slug) ? `/servicios/${SERV[k].slug}` : `servicio?id=${encodeURIComponent(k)}`;
+
     window.TF = {
-        D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state,
+        D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state, servUrl,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
         t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, tiempo, tiempoHtml, saludo, lugar, toast, api, apiLista, contacto,
         setLang, setPais, setCountry, setMoneda, on, emit,
