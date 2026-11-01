@@ -2421,7 +2421,8 @@ def no_encontrado(_e):
 # ---------------------------------------------------------------- sitio estático
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
 # Direcciones limpias: /servicios, /servicio?id=…, /rastreo… (sin ".html").
-PAGINAS = {"servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora", "offline", "admin"}
+PAGINAS = {"servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora",
+           "nosotros", "privacidad", "terminos", "offline", "admin"}
 # 33200d87b13a122cdb2087cad4e581ff.txt: clave de IndexNow (Bing, Yandex…) para avisar a los buscadores de páginas nuevas
 INDEXNOW_KEY = "33200d87b13a122cdb2087cad4e581ff"
 ARCHIVOS_RAIZ = {"sw.js", "robots.txt", "sitemap.xml", "site.webmanifest", f"{INDEXNOW_KEY}.txt"}
@@ -2435,7 +2436,9 @@ def _con_busqueda(destino: str) -> str:
 # ---------------------------------------------------------------- SEO
 # Cada página sale del servidor con su dirección oficial (canonical) y su vista previa para
 # WhatsApp/Facebook/Google (Open Graph). La página de cada servicio lleva su propio título y descripción.
-SEO_PAGINAS = {"index", "servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora"}
+SEO_PAGINAS = {"index", "servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas",
+               "calculadora", "nosotros", "privacidad", "terminos"} | {f"diaspora-{c}" for c in
+               ("nueva-york", "madrid", "miami", "boston", "barcelona")}
 _html_cache: dict = {}
 
 
@@ -2534,7 +2537,8 @@ def pagina(nombre: str, sid: str = ""):
         return Response(html, mimetype="text/html")
     cat = catalogo()
     sitio = cat["config"].get("sitio", "").rstrip("/")
-    ruta = "/" if nombre == "index" else f"/{nombre}"
+    ruta = "/" if nombre == "index" else (
+        "/diaspora/" + nombre[len("diaspora-"):] if nombre.startswith("diaspora-") else f"/{nombre}")
     titulo = re.search(r"<title>(.*?)</title>", html, re.S).group(1).strip()
     m = re.search(r'<meta name="description" content="([^"]*)"', html)
     desc = m.group(1) if m else ""
@@ -2609,6 +2613,17 @@ def sin_www():
 @app.get("/")
 def inicio():
     return pagina("index")
+
+
+CIUDADES = ("nueva-york", "madrid", "miami", "boston", "barcelona")
+
+
+@app.get("/diaspora/<ciudad>")
+def pagina_ciudad(ciudad: str):
+    """Trámites desde una ciudad con mucha diáspora: /diaspora/nueva-york."""
+    if ciudad not in CIUDADES:
+        return redirect("/diaspora", 301)
+    return pagina(f"diaspora-{ciudad}")
 
 
 @app.get("/servicios/<slug>")

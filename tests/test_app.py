@@ -1042,3 +1042,39 @@ def test_direcciones_con_palabras_y_enlaces_internos(client):
     mapa = (Path(__file__).resolve().parents[1] / "sitemap.xml").read_text(encoding="utf-8")
     assert "/servicios/apostilla-de-documentos" in mapa and "servicio?id=" not in mapa
 
+
+def test_paginas_de_confianza(client):
+    """Quiénes somos, privacidad y términos: existen, se indexan y están enlazadas desde el pie."""
+    for ruta, marca in (("/nosotros", "ONAPI"), ("/privacidad", "Ley 172-13"), ("/terminos", "tasas oficiales")):
+        r = client.get(ruta)
+        assert r.status_code == 200
+        cuerpo = r.get_data(as_text=True)
+        assert marca in cuerpo and f'rel="canonical" href="https://tramitafacilrd.com{ruta}"' in cuerpo
+    # el pie las enlaza en todas las páginas (lo arma el JavaScript, así que se revisa el archivo)
+    pie = (Path(__file__).resolve().parents[1] / "assets" / "js" / "core.js").read_text(encoding="utf-8")
+    assert 'href="/nosotros"' in pie and 'href="/privacidad"' in pie and 'href="/terminos"' in pie
+    mapa = (Path(__file__).resolve().parents[1] / "sitemap.xml").read_text(encoding="utf-8")
+    assert all(f"<loc>https://tramitafacilrd.com{x}</loc>" in mapa for x in ("/nosotros", "/privacidad", "/terminos"))
+
+
+def test_paginas_por_ciudad(client):
+    """Una página por ciudad de la diáspora, con contenido propio y enlaces a los trámites."""
+    ciudades = {"nueva-york": "Nueva York", "madrid": "Madrid", "miami": "Miami",
+                "boston": "Boston", "barcelona": "Barcelona"}
+    textos = {}
+    for slug, nombre in ciudades.items():
+        r = client.get(f"/diaspora/{slug}")
+        assert r.status_code == 200
+        cuerpo = r.get_data(as_text=True)
+        assert nombre in cuerpo
+        assert f'rel="canonical" href="https://tramitafacilrd.com/diaspora/{slug}"' in cuerpo
+        assert '<a class="ciudad-serv" href="/servicios/' in cuerpo      # enlaza trámites de verdad
+        assert cuerpo.count('class="serv-faq"') == 4
+        textos[slug] = cuerpo
+    # contenido realmente distinto: lo de Miami habla de propiedades; lo de Madrid, de títulos
+    assert "IPI" in textos["miami"] and "MESCYT" in textos["madrid"]
+    assert "Department of State" in textos["nueva-york"] and "Colegio Notarial" in textos["barcelona"]
+    assert client.get("/diaspora/paris").status_code == 301       # ciudad sin página → al índice de diáspora
+    mapa = (Path(__file__).resolve().parents[1] / "sitemap.xml").read_text(encoding="utf-8")
+    assert all(f"/diaspora/{s}</loc>" in mapa for s in ciudades)
+

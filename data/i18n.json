@@ -2361,6 +2361,51 @@
       "Real situations of Dominicans abroad with their paperwork back home and how we solved them without them having to travel.",
       "Situations réelles de Dominicains à l'étranger avec leurs démarches au pays et comment nous les avons réglées sans qu'ils voyagent."
     ],
+    "foot.nosotros": [
+      "Quiénes somos",
+      "About us",
+      "Qui sommes-nous"
+    ],
+    "foot.privacidad": [
+      "Privacidad",
+      "Privacy",
+      "Confidentialité"
+    ],
+    "foot.terminos": [
+      "Términos",
+      "Terms",
+      "Conditions"
+    ],
+    "meta.nosotros.title": [
+      "Quiénes somos: la gestoría detrás de TramitaFácil RD",
+      "About us: the team behind TramitaFácil RD",
+      "Qui sommes-nous : l'équipe derrière TramitaFácil RD"
+    ],
+    "meta.nosotros.desc": [
+      "Somos una gestoría dominicana registrada en ONAPI. Hacemos tus trámites ante la JCE, DGII, MIREX y más, para quienes viven en RD y en el exterior.",
+      "We are a Dominican paperwork agency registered with ONAPI. We handle your procedures at the JCE, DGII, MIREX and more, from RD or abroad.",
+      "Nous sommes une agence dominicaine enregistrée à l'ONAPI. Nous réalisons vos démarches auprès de la JCE, la DGII, le MIREX et plus encore."
+    ],
+    "meta.privacidad.title": [
+      "Política de privacidad de TramitaFácil RD",
+      "TramitaFácil RD privacy policy",
+      "Politique de confidentialité de TramitaFácil RD"
+    ],
+    "meta.privacidad.desc": [
+      "Qué datos te pedimos, para qué los usamos, con quién los compartimos, cuánto los guardamos y cómo pedir que los borremos.",
+      "What data we ask for, what we use it for, who we share it with, how long we keep it and how to have it deleted.",
+      "Quelles données nous demandons, à quoi elles servent, avec qui nous les partageons et comment les faire supprimer."
+    ],
+    "meta.terminos.title": [
+      "Términos y condiciones de TramitaFácil RD",
+      "TramitaFácil RD terms and conditions",
+      "Conditions générales de TramitaFácil RD"
+    ],
+    "meta.terminos.desc": [
+      "Qué hacemos al encargarnos un trámite, qué depende de ti, cómo funcionan los precios, los pagos, las cancelaciones y la entrega.",
+      "What we do when you hire us, what depends on you, and how prices, payments, cancellations and delivery work.",
+      "Ce que nous faisons, ce qui dépend de vous, et comment fonctionnent les prix, les paiements, les annulations et la livraison."
+    ],
     "casos.eyebrow": [
       "Casos reales",
       "Real cases",

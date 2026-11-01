@@ -78,7 +78,9 @@ def cmd_sitemap(_args):
     cat = calculos.cargar_catalogo()
     sitio = cat["config"]["sitio"].rstrip("/")
     urls = [("/", "1.0"), ("/instituciones", "0.8"), ("/diaspora", "0.8"),
-            ("/servicios", "0.9"), ("/casos", "0.8"), ("/calculadora", "0.8"), ("/preguntas", "0.7"), ("/rastreo", "0.5")]
+            ("/servicios", "0.9"), ("/casos", "0.8"), ("/calculadora", "0.8"), ("/preguntas", "0.7"), ("/rastreo", "0.5"),
+            ("/nosotros", "0.7"), ("/terminos", "0.3"), ("/privacidad", "0.3")]
+    urls += [(f"/diaspora/{c}", "0.7") for c in ("nueva-york", "madrid", "miami", "boston", "barcelona")]
     urls += [(f"/servicios/{s['slug']}", "0.6") for s in cat["servicios"].values()]
     from datetime import date
     hoy = date.today().isoformat()
