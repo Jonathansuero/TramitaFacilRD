@@ -384,6 +384,7 @@
         <li><a href="/rastreo" data-i18n="m.rastreo"></a></li>
         <li><a href="/preguntas" data-i18n="m.faq"></a></li>
         <li><a href="${homeLink('app')}" data-i18n="tuto.pie"></a></li>
+        <li><a href="/nosotros" data-i18n="foot.nosotros"></a></li>
         <li><a href="${servUrl('apostilla_documentos')}" data-i18n="foot.ejemplo"></a></li></ul></div>
       <div><h4 class="foot-h" data-i18n="foot.navega"></h4><ul class="foot-ul">
         <li><a href="/servicios" data-i18n="m.servicios"></a></li>
@@ -399,7 +400,9 @@
     </div>
     <div class="mt-8 max-w-3xl mx-auto">${avisoOficial('aviso-oficial-oscuro')}</div>
     <p class="mt-8 text-[11px] text-slate-400 leading-relaxed max-w-4xl mx-auto text-center" data-i18n="foot.legal"></p>
-    <div class="mt-4 text-center text-xs text-slate-500">© ${new Date().getFullYear()} TramitaFácil RD. <span data-i18n="foot.derechos"></span></div>
+    <div class="mt-4 text-center text-xs text-slate-500">© ${new Date().getFullYear()} TramitaFácil RD. <span data-i18n="foot.derechos"></span>
+      · <a href="/privacidad" class="underline hover:text-white" data-i18n="foot.privacidad"></a>
+      · <a href="/terminos" class="underline hover:text-white" data-i18n="foot.terminos"></a></div>
     <div class="mt-3 text-center text-xs"><a href="/admin" class="foot-equipo inline-flex items-center gap-2 whitespace-nowrap text-slate-400 border border-slate-800 rounded-full px-3 py-2"><i class="fa-solid fa-lock" aria-hidden="true"></i><span data-i18n="foot.equipo"></span></a></div>
   </div>
 </footer>
