@@ -263,7 +263,9 @@ def test_seo_canonical_y_vista_previa(client):
     # el título que ve Google va sin la marca; al compartir el enlace sí se ve
     assert "<title>Llenar el E-Ticket de entrada a República Dominicana</title>" in r
     assert 'og:title" content="Llenar el E-Ticket de entrada a República Dominicana | TramitaFácil RD"' in r
-    assert 'og:image" content="https://tramitafacilrd.com/assets/img/og-tramitafacil.png"' in r
+    # cada trámite comparte su propia imagen; las demás páginas, la general
+    assert 'og:image" content="https://tramitafacilrd.com/assets/img/servicios/e-ticket-republica-dominicana.jpg"' in r
+    assert 'og:image" content="https://tramitafacilrd.com/assets/img/og-tramitafacil.png"' in client.get("/").get_data(as_text=True)
     assert r.count('rel="canonical"') == 1 and r.count('property="og:title"') == 1
     inicio = client.get("/").get_data(as_text=True)
     assert 'href="https://tramitafacilrd.com/"' in inicio
@@ -967,6 +969,11 @@ def test_rastreo_muestra_pago_parcial_y_completo(client, monkeypatch):
     assert v["falta_pagar"] is False and v["saldo"]["pct"] == 100 and v["saldo"]["falta"] == 0
 
 
+def _app_catalogo_servicios():
+    import app as _app
+    return _app.catalogo()["servicios"]
+
+
 def test_servicio_trae_su_contenido_escrito_en_el_html(client):
     """Google debe leer el trámite sin ejecutar JavaScript: título, requisitos, cómo funciona y preguntas."""
     r = client.get("/servicios/apostilla-de-documentos").get_data(as_text=True)
@@ -976,6 +983,11 @@ def test_servicio_trae_su_contenido_escrito_en_el_html(client):
     assert "¿La apostilla sirve en cualquier país?" in cuerpo               # una pregunta con su respuesta
     assert "Convenio de La Haya" in cuerpo
     assert "Preguntas frecuentes sobre Apostilla de Documentos</h2>" in cuerpo   # sin la sigla entre paréntesis
+    slugs = [x["slug"] for x in _app_catalogo_servicios().values()]
+    assert '<img class="serv-img" src="/assets/img/servicios/apostilla-de-documentos.jpg"' in cuerpo
+    assert 'alt="Apostilla de Documentos — lo gestionamos en RD sin que viajes · TramitaFácil RD"' in cuerpo
+    assert all((Path(__file__).resolve().parents[1] / "assets" / "img" / "servicios" / f"{x}.jpg").exists()
+               for x in slugs)
     # datos estructurados: servicio, migas y preguntas
     import json as _json, re as _re
     bloques = [_json.loads(x) for x in _re.findall(r'<script type="application/ld\+json">(.*?)</script>', r, _re.S)]
