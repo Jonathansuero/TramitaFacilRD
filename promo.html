@@ -36,7 +36,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 /* Landing /promo — fondo blanco, tono formal. Usa encabezado, pie, colores y tipografías del sitio. */
 .lp-w{max-width:80rem;margin:0 auto;padding:0 1rem}@media(min-width:640px){.lp-w{padding:0 1.5rem}}@media(min-width:1024px){.lp-w{padding:0 2rem}}
 .lp-sec{padding:4rem 0;background:#fff}.lp-sec.alt{background:#f1f5f9;border-top:1px solid var(--borde);border-bottom:1px solid var(--borde)}
-.lp-k{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;padding:.25rem .75rem;border-radius:999px;background:#fee2e2;color:var(--rojo)}
+.lp-k{display:inline-block;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.16em;color:#4b6a9b}.lp-k.clara{color:#a9c0e6}
 .lp-h2{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(1.6rem,3.2vw,2.3rem);line-height:1.15;color:var(--azul);letter-spacing:-.02em;margin:.6rem 0 .6rem}
 .lp-lead{color:#475569;max-width:42rem}
 .lp-head{margin-bottom:2.4rem;text-align:center}.lp-head .lp-lead{margin:0 auto}.lp-head.c{text-align:center}.lp-head.c .lp-lead{margin:0 auto}
@@ -129,19 +129,48 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .lp-nav{display:flex;justify-content:space-between;margin-top:1.2rem}
 .lp-atras{background:none;border:0;color:#64748b;font-weight:700;font-size:.85rem;padding:.6rem .2rem;cursor:pointer}.lp-atras:hover{color:var(--azul)}
 .lp-res{display:grid;gap:1.3rem}@media(min-width:780px){.lp-res{grid-template-columns:1fr 1fr}}
-.lp-cot{border:1.5px solid var(--azul);border-radius:.8rem;overflow:hidden;align-self:start}
-.lp-cot-h{background:var(--azul);color:#fff;padding:.9rem 1.1rem}.lp-cot-h small{display:block;color:#b9c8de;font-size:.68rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.lp-cot-h b{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;line-height:1.25;display:block;margin-top:.15rem}
-.lp-cot-b{padding:1rem 1.1rem}
-.lp-cot .fila{display:flex;justify-content:space-between;font-size:.88rem;padding:.5rem 0;border-bottom:1px solid var(--borde);color:#334155;font-variant-numeric:tabular-nums}
-.lp-cot .tot{display:flex;justify-content:space-between;align-items:baseline;margin-top:.8rem;padding-top:.2rem}.lp-cot .tot span{font-size:.75rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#64748b}
-.lp-cot .tot b{font-family:'Plus Jakarta Sans',sans-serif;font-size:1.9rem;color:var(--azul);font-variant-numeric:tabular-nums}
-.lp-cot .nota{display:block;margin-top:.6rem;font-size:.7rem;color:#94a3b8}
-.lp-extra{display:flex;gap:.65rem;align-items:center;font-size:.82rem;margin-top:.6rem;background:#f6f8fb;border:1px solid var(--borde);border-radius:.55rem;padding:.6rem .75rem;cursor:pointer;color:#334155}
-.lp-extra b{color:var(--azul);white-space:nowrap;margin-left:auto}.lp-extra input{width:1.05rem;height:1.05rem;accent-color:var(--azul)}.lp-extra i{color:var(--azul);width:1.1rem;text-align:center}
-.moneda{display:flex;gap:.35rem;margin-bottom:.9rem}
-.moneda button{border:1px solid #cbd5e1;background:#fff;color:#475569;border-radius:.4rem;padding:.2rem .7rem;font-size:.72rem;font-weight:800;cursor:pointer}
-.moneda button[aria-pressed=true]{background:var(--azul);color:#fff;border-color:var(--azul)}
 
+
+/* calculadora clara */
+.lp-cot{border:1px solid #cdd8e6;border-radius:1rem;overflow:hidden;align-self:start;background:#fff;box-shadow:0 18px 40px -26px rgba(0,45,98,.45)}
+.lp-cot-h{background:linear-gradient(135deg,var(--azul),#0b3f85);color:#fff;padding:1.1rem 1.2rem;display:flex;gap:.9rem;align-items:center}
+.lp-cot-h .ic{flex:none;width:2.8rem;height:2.8rem;border-radius:.7rem;background:rgba(255,255,255,.14);display:grid;place-items:center;font-size:1.25rem;color:var(--oro)}
+.lp-cot-h small{display:block;color:#a9c0e6;font-size:.66rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.lp-cot-h b{font-family:'Plus Jakarta Sans',sans-serif;font-size:1rem;line-height:1.25;display:block;margin-top:.1rem}
+.lp-sig{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.45rem}.lp-sig span{font-size:.66rem;font-weight:800;background:rgba(255,255,255,.14);padding:.1rem .5rem;border-radius:99px;letter-spacing:.05em}
+.lp-cot-b{padding:1.1rem 1.2rem 1.2rem}
+.lp-cot .quees{font-size:.72rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:#64748b;margin:.2rem 0 .6rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+.moneda{display:flex;gap:.3rem;margin:0}
+.lp-rows{display:grid;gap:.55rem}
+.lp-row{display:flex;gap:.8rem;align-items:flex-start;padding:.8rem .9rem;border:1px solid var(--borde);border-radius:.7rem;background:#fbfcfe}
+.lp-row .ri{flex:none;width:2.2rem;height:2.2rem;border-radius:.55rem;background:#eaf1fb;color:var(--azul);display:grid;place-items:center;font-size:.95rem}
+.lp-row.h .ri{background:#fdecee;color:var(--rojo)}.lp-row.x .ri{background:#fdf6dc;color:#9a7500}
+.lp-row .rt{flex:1;min-width:0}.lp-row .rt b{display:block;font-size:.88rem;color:#0f172a}.lp-row .rt span{display:block;font-size:.76rem;color:#64748b;margin-top:.1rem;line-height:1.4}
+.lp-row .rm{font-weight:800;color:var(--azul);font-size:.92rem;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lp-barra{display:flex;height:.6rem;border-radius:99px;overflow:hidden;margin:1rem 0 .4rem;background:#e2e8f0}
+.lp-barra i{display:block;height:100%}.lp-barra .b1{background:var(--azul)}.lp-barra .b2{background:var(--rojo)}.lp-barra .b3{background:var(--oro)}
+.lp-leyenda{display:flex;flex-wrap:wrap;gap:.3rem 1rem;font-size:.7rem;color:#64748b}.lp-leyenda span:before{content:"";display:inline-block;width:.6rem;height:.6rem;border-radius:2px;margin-right:.35rem;vertical-align:-1px;background:var(--c)}
+.lp-total{margin-top:1rem;background:#f1f6fd;border:1.5px solid var(--azul);border-radius:.8rem;padding:.9rem 1rem}
+.lp-total .tl{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem}.lp-total .tl span{font-size:.74rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--azul)}
+.lp-total .tl b{font-family:'Plus Jakarta Sans',sans-serif;font-size:2rem;color:var(--azul);font-variant-numeric:tabular-nums;line-height:1.1}
+.lp-total .eq{font-size:.74rem;color:#64748b;margin-top:.3rem}.lp-total .eq b{color:#334155}
+.lp-extras{display:grid;gap:.5rem;margin-top:.9rem}
+.lp-extra{display:flex;gap:.65rem;align-items:flex-start;font-size:.82rem;background:#fff;border:1.5px dashed #c3d0e3;border-radius:.65rem;padding:.65rem .75rem;cursor:pointer;color:#334155}
+.lp-extra:has(input:checked){border-style:solid;border-color:var(--azul);background:#f6f9fd}
+.lp-extra input{width:1.05rem;height:1.05rem;accent-color:var(--azul);margin-top:.15rem;flex:none}
+.lp-extra .et{flex:1}.lp-extra .et b{display:block;color:#0f172a;font-size:.84rem}.lp-extra .et span{font-size:.74rem;color:#64748b}
+.lp-extra .em{font-weight:800;color:var(--azul);white-space:nowrap;font-size:.84rem}
+.lp-info{display:grid;gap:.5rem;margin-top:.9rem}
+.lp-info>div{display:flex;gap:.7rem;font-size:.8rem;color:#334155;align-items:flex-start}.lp-info i{color:var(--azul);margin-top:.15rem;width:1rem;text-align:center}
+.lp-info small{display:block;color:#94a3b8;font-size:.68rem}
+.lp-docs{margin-top:.8rem;border:1px solid var(--borde);border-radius:.65rem;background:#fff}
+.lp-docs summary{padding:.65rem .8rem;font-size:.82rem;font-weight:700;color:var(--azul);cursor:pointer;list-style:none;display:flex;justify-content:space-between}
+.lp-docs summary::-webkit-details-marker{display:none}.lp-docs summary:after{content:"+";color:var(--rojo);font-size:1.1rem;line-height:1}.lp-docs[open] summary:after{content:"–"}
+.lp-docs ul{padding:0 .8rem .8rem 1.9rem;font-size:.78rem;color:#475569;list-style:disc;display:grid;gap:.25rem}
+.lp-incl{margin-top:.9rem;padding-top:.9rem;border-top:1px solid var(--borde);display:grid;gap:.4rem;font-size:.78rem;color:#334155}.lp-incl div:before{content:"\f00c";font-family:"Font Awesome 6 Free";font-weight:900;color:#15803d;margin-right:.5rem;font-size:.7rem}
+.lp-cot .nota{display:block;margin-top:.8rem;font-size:.7rem;color:#94a3b8}
+.moneda button{border:1px solid #cbd5e1;background:#fff;color:#475569;border-radius:.4rem;padding:.2rem .7rem;font-size:.72rem;font-weight:800;cursor:pointer}.moneda button[aria-pressed=true]{background:var(--azul);color:#fff;border-color:var(--azul)}
+@media(min-width:780px){#derecha{position:sticky;top:7rem;align-self:start}}
 /* pasos */
 .lp-pasos{display:grid;gap:1rem;counter-reset:p}@media(min-width:800px){.lp-pasos{grid-template-columns:repeat(4,1fr)}}
 .lp-ps{background:#fff;border:1px solid var(--borde);border-top:3px solid var(--azul);border-radius:.6rem;padding:1.4rem 1.2rem;position:relative}
@@ -289,7 +318,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <section class="py-16 bg-gradient-to-r from-domRed via-[#8a0c1b] to-domBlue text-white" id="confianza"><div class="lp-w">
     <div class="text-center max-w-3xl mx-auto mb-10">
-        <span class="eyebrow bg-white/15 text-white">Por qué confiar en nosotros</span>
+        <span class="lp-k clara">Por qué confiar en nosotros</span>
         <h2 class="font-display text-3xl sm:text-4xl font-extrabold leading-tight mt-3">Claridad en el precio, respaldo en el proceso</h2>
     </div>
     <div class="lp-gars">
@@ -415,18 +444,37 @@ $('#lista').addEventListener('click', e => { const b = e.target.closest('[data-s
 function pintaCot() {
   const s = SERV[st.sid]; if (!s) return;
   const ex = st.express ? C.express_fee : 0, en = st.envio ? C.delivery_fee : 0, m = st.moneda;
+  const tot = s.tax + s.fee + ex + en, pc = v => Math.round(v / tot * 100);
+  const insts = (s.inst || []).map(i => (D.instituciones || {})[i]).filter(Boolean);
+  const nomInst = insts.length ? insts.map(i => i.sigla).join(' / ') : 'la institución';
+  const tm = TF.tiempo ? TF.tiempo(st.sid) : null;
+  const ck = (D.checklists || {})[st.sid];
   $('#cot').innerHTML = `
-    <div class="lp-cot-h"><small>Tu trámite</small><b>${esc(s.title)}</b></div>
+    <div class="lp-cot-h"><span class="ic">${ico(st.sid)}</span><div><small>Tu trámite</small><b>${esc(s.title)}</b>${insts.length ? `<div class="lp-sig">${insts.map(i => `<span title="${esc(i.nombre)}">${esc(i.sigla)}</span>`).join('')}</div>` : ''}</div></div>
     <div class="lp-cot-b">
-    <div class="moneda" role="group" aria-label="Moneda">${['DOP','USD','EUR'].map(x => `<button type="button" data-mon="${x}" aria-pressed="${x === m}">${x}</button>`).join('')}</div>
-    <div class="fila"><span>Tasas oficiales</span><span>${fmt(s.tax, m)}</span></div>
-    <div class="fila"><span>Honorarios TramitaFácil</span><span>${fmt(s.fee, m)}</span></div>
-    ${ex ? `<div class="fila"><span>Servicio Express</span><span>${fmt(ex, m)}</span></div>` : ''}
-    ${en ? `<div class="fila"><span>Envío a domicilio</span><span>${fmt(en, m)}</span></div>` : ''}
-    <div class="tot"><span>Total estimado</span><b>${fmt(s.tax + s.fee + ex + en, m)}</b></div>
-    <label class="lp-extra"><input type="checkbox" data-x="express" ${st.express ? 'checked' : ''}><i class="fa-solid fa-bolt"></i><span>Servicio Express (urgente)</span><b>+${fmt(C.express_fee, m)}</b></label>
-    <label class="lp-extra"><input type="checkbox" data-x="envio" ${st.envio ? 'checked' : ''}><i class="fa-solid fa-truck-fast"></i><span>Envío a domicilio</span><b>+${fmt(C.delivery_fee, m)}</b></label>
-    <span class="nota">Estimado según la tasa de cambio de hoy. Confirmamos el monto final contigo antes de empezar.</span></div>`;
+      <div class="quees"><span>¿Qué estás pagando?</span><div class="moneda" role="group" aria-label="Moneda">${['DOP','USD','EUR'].map(x => `<button type="button" data-mon="${x}" aria-pressed="${x === m}">${x}</button>`).join('')}</div></div>
+      <div class="lp-rows">
+        <div class="lp-row"><span class="ri"><i class="fa-solid fa-building-columns"></i></span><div class="rt"><b>Tasas oficiales</b><span>Lo que cobra ${esc(nomInst)} por el trámite. Es el costo del Estado, aparte de nuestro servicio.</span></div><div class="rm">${fmt(s.tax, m)}</div></div>
+        <div class="lp-row h"><span class="ri"><i class="fa-solid fa-scale-balanced"></i></span><div class="rt"><b>Honorarios TramitaFácil</b><span>Nuestro trabajo: revisar tus documentos, gestionarlo con abogados y notarios y darte seguimiento en línea.</span></div><div class="rm">${fmt(s.fee, m)}</div></div>
+        ${ex ? `<div class="lp-row x"><span class="ri"><i class="fa-solid fa-bolt"></i></span><div class="rt"><b>Servicio Express</b><span>Atención prioritaria para casos urgentes.</span></div><div class="rm">${fmt(ex, m)}</div></div>` : ''}
+        ${en ? `<div class="lp-row x"><span class="ri"><i class="fa-solid fa-truck-fast"></i></span><div class="rt"><b>Envío a domicilio</b><span>Mensajería hasta la dirección que nos indiques.</span></div><div class="rm">${fmt(en, m)}</div></div>` : ''}
+      </div>
+      <div class="lp-barra" aria-hidden="true"><i class="b1" style="width:${pc(s.tax)}%"></i><i class="b2" style="width:${pc(s.fee)}%"></i>${ex + en ? `<i class="b3" style="width:${pc(ex + en)}%"></i>` : ''}</div>
+      <div class="lp-leyenda"><span style="--c:var(--azul)">Institución ${pc(s.tax)}%</span><span style="--c:var(--rojo)">Nuestro servicio ${pc(s.fee)}%</span>${ex + en ? `<span style="--c:var(--oro)">Extras ${pc(ex + en)}%</span>` : ''}</div>
+      <div class="lp-total"><div class="tl"><span>Total estimado</span><b>${fmt(tot, m)}</b></div>
+        <div class="eq">Equivale a ${['DOP','USD','EUR'].filter(x => x !== m).map(x => `<b>${fmt(tot, x)}</b>`).join(' · ')}</div></div>
+      <div class="lp-extras">
+        <label class="lp-extra"><input type="checkbox" data-x="express" ${st.express ? 'checked' : ''}><div class="et"><b>Lo necesito urgente</b><span>Servicio Express: atención prioritaria</span></div><div class="em">+${fmt(C.express_fee, m)}</div></label>
+        <label class="lp-extra"><input type="checkbox" data-x="envio" ${st.envio ? 'checked' : ''}><div class="et"><b>Quiero recibirlo en mi dirección</b><span>Envío a domicilio por mensajería</span></div><div class="em">+${fmt(C.delivery_fee, m)}</div></label>
+      </div>
+      <div class="lp-info">
+        ${tm ? `<div><i class="fa-solid fa-clock"></i><div>Tiempo estimado: <b>${esc(tm.txt)}</b>${tm.fuente ? `<small>Fuente: ${esc(tm.fuente)}</small>` : ''}</div></div>` : '<div><i class="fa-solid fa-clock"></i><div>El tiempo estimado de tu caso te lo confirmamos al escribirnos.</div></div>'}
+        <div><i class="fa-solid fa-file-circle-check"></i><div>Te enviamos la lista exacta de documentos antes de empezar.</div></div>
+      </div>
+      ${ck ? `<details class="lp-docs"><summary>Documentos que suelen pedir</summary><ul>${ck.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></details>` : ''}
+      <div class="lp-incl"><div>Revisión de tus documentos antes de presentarlos</div><div>Gestión con abogados y notarios</div><div>Código para seguir cada avance en línea</div><div>Tus datos tratados con confidencialidad</div></div>
+      <span class="nota">Estimado según la tasa de cambio de hoy. Confirmamos el monto final contigo por WhatsApp antes de empezar.</span>
+    </div>`;
   $('#waCot').href = waLink(waMsg());
 }
 const waMsg = () => { const s = SERV[st.sid]; return `Hola, vengo de su promoción. Quiero iniciar: ${s.title}${st.express ? ' (Express)' : ''}${st.envio ? ' con envío a domicilio' : ''}. Estoy en ${nombrePais(st.pais)}.`; };
