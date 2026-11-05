@@ -10,7 +10,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Tus trámites en RD sin viajar ni hacer filas | TramitaFácil RD</title>
+    <title>Elige tu trámite en RD y cotiza | TramitaFácil RD</title>
     <meta name="description" content="Solicita tu cotización para trámites en República Dominicana: apostillas, poderes, actas, propiedades y más. Seguimiento en línea, abogados y notarios.">
     <meta name="robots" content="noindex, follow">
     <meta property="og:title" content="Tus trámites en RD, resueltos sin viajar">
@@ -109,7 +109,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .lp-prog{display:flex;border-bottom:1px solid var(--borde);background:#f6f8fb}
 .lp-prog div{flex:1;padding:.8rem .6rem;text-align:center;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8;border-bottom:3px solid transparent;margin-bottom:-1px}
 .lp-prog div.on{color:var(--azul);border-bottom-color:var(--rojo);background:#fff}.lp-prog div.hecho{color:var(--azul)}
-.lp-prog div span{display:none}@media(min-width:560px){.lp-prog div span{display:inline}}
+.lp-prog div span{display:none}.lp-prog div.on span{display:inline}@media(min-width:560px){.lp-prog div span{display:inline}}
 .lp-paso{padding:1.5rem;display:none;animation:heroIn .3s ease both}.lp-paso.on{display:block}
 .lp-paso h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.25rem;color:var(--azul);margin-bottom:.2rem}
 .lp-ayuda{color:#64748b;font-size:.88rem;margin-bottom:1.1rem}
@@ -192,6 +192,24 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .lp-fin{background:#f6f8fb;border-top:1px solid var(--borde);padding:3.5rem 0;text-align:center}
 @media(max-width:560px){.lp-cta .lp-btn{width:100%}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* landing: sin menú del sitio, solo el selector */
+body[data-page="promo"] #tf-header,body[data-page="promo"] .lang-hint,body[data-page="promo"] #tabbar{display:none!important}
+.lp-bar{background:#fff;border-bottom:1px solid #e2e8f0;position:sticky;top:0;z-index:40}
+.lp-bar .in{max-width:80rem;margin:0 auto;padding:0 1rem;height:4rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.lp-sel{position:relative;background:linear-gradient(180deg,#0f172a,var(--azul) 55%,#0f172a);color:#fff;padding:3rem 0 4rem;overflow:hidden}
+.lp-sel:before{content:"";position:absolute;inset:0;opacity:.07;background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:48px 48px;mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at center,#000 30%,transparent 75%)}
+.lp-sel .lp-w{position:relative;z-index:1}
+.lp-sel h1{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:clamp(1.9rem,4.4vw,3rem);line-height:1.1;letter-spacing:-.02em;text-align:center;margin:.7rem auto .6rem;max-width:44rem}
+.lp-sel h1 span{background:linear-gradient(90deg,#7dd3fc,#fff,var(--oro));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lp-sel p.sub{text-align:center;color:#cbd5e1;max-width:36rem;margin:0 auto 1.8rem}
+.lp-sel .top{text-align:center}
+.lp-bus{position:relative;margin-bottom:1rem}.lp-bus i{position:absolute;left:.95rem;top:50%;transform:translateY(-50%);color:#64748b}
+.lp-bus input{width:100%;border:2px solid var(--borde);border-radius:.8rem;padding:.9rem 1rem .9rem 2.6rem;font:inherit;font-size:1rem;background:#fff;color:#0f172a}
+.lp-bus input:focus{border-color:var(--azul);outline:none;box-shadow:0 0 0 3px rgba(0,45,98,.1)}
+.lp-estoy{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;margin-bottom:1.1rem;font-size:.8rem;font-weight:700;color:#475569}
+.lp-pill{display:inline-flex;gap:.4rem;align-items:center;padding:.4rem .85rem;border-radius:999px;border:1.5px solid #cbd5e1;background:#fff;font-size:.78rem;font-weight:700;color:#334155;cursor:pointer;transition:all .15s}
+.lp-pill:hover{border-color:var(--azul)}.lp-pill[aria-pressed=true]{background:var(--azul);border-color:var(--azul);color:#fff}
+.lp-sep{display:flex;align-items:center;gap:.8rem;margin:1.2rem 0 .9rem;font-size:.7rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#94a3b8}.lp-sep:before,.lp-sep:after{content:"";flex:1;height:1px;background:var(--borde)}
 </style>
 </head>
 <body data-page="promo" class="bg-slate-50 text-slate-800 flex flex-col min-h-screen selection:bg-domBlue selection:text-white">
@@ -200,94 +218,42 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <div id="tf-header"></div>
+<header class="lp-bar"><div class="in">
+    <a href="/" class="flex items-center gap-2 group shrink-0" aria-label="TramitaFácil RD">
+        <div class="w-10 h-10 rounded-xl bg-domBlue flex items-center justify-center text-white text-xl font-black shadow-md">TF</div>
+        <div><span class="text-xl font-extrabold text-domBlue tracking-tight">TramitaFácil<span class="text-domRed">RD</span></span>
+        <span class="block text-[10px] text-slate-500 font-medium tracking-widest uppercase -mt-1">Gestoría digital dominicana</span></div>
+    </a>
+    <a href="#" class="lp-btn lp-wa" style="padding:.55rem 1rem;font-size:.85rem" data-wa="Hola, vengo de su promoción y quiero información." data-ev="wa_barra"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+</div></header>
 
 <main id="main">
-<section class="relative bg-gradient-to-b from-slate-900 via-domBlue to-slate-900 text-white py-16 md:py-24 overflow-hidden">
-    <div class="absolute inset-0 pointer-events-none">
-        <div class="float-slow absolute top-10 left-10 w-72 h-72 bg-sky-500/20 rounded-full blur-3xl"></div>
-        <div class="float-slower absolute bottom-0 right-10 w-96 h-96 bg-domRed/20 rounded-full blur-3xl"></div>
-        <div class="hero-grid absolute inset-0"></div>
-    </div>
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid md:grid-cols-12 gap-12 items-center">
-        <div class="hero-in md:col-span-7 space-y-6 text-center md:text-left">
-            <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-domGold text-xs font-semibold px-3.5 py-1.5 rounded-full">
-                <span id="heroFlag">🇩🇴</span> <span>Para dominicanos en cualquier parte del mundo</span>
-            </div>
-            <h1 class="font-display text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
-                <span class="block">Tus trámites en RD</span>
-                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-white to-domGold">sin viajar, sin filas.</span>
-            </h1>
-            <p class="text-slate-300 text-base sm:text-lg max-w-2xl leading-relaxed mx-auto md:mx-0">Cuéntanos qué necesitas y recibe tu cotización hoy. Con abogados y notarios, lo gestionamos por ti ante la JCE, DGII, MIREX y más, mientras tú sigues con tu vida.</p>
-            <div class="flex flex-wrap justify-center md:justify-start gap-2" id="heroPaises"></div>
-            <div class="flex flex-wrap justify-center md:justify-start gap-2" id="heroQuick"></div>
-            <div class="lp-cta flex flex-col sm:flex-row items-center gap-4 pt-1 justify-center md:justify-start">
-                <a href="#solicitar" class="w-full sm:w-auto bg-domRed hover:bg-red-700 text-white font-bold px-7 py-3.5 rounded-xl shadow-lg transition-all text-center" data-ev="cta_hero"><i class="fa-solid fa-paper-plane mr-2"></i> Pedir mi cotización</a>
-                <a href="#" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-xl border border-white/20 transition-all text-center" data-wa="Hola, vengo de su promoción y quiero hablar con un asesor." data-ev="wa_hero"><i class="fa-brands fa-whatsapp mr-2"></i> Hablar por WhatsApp</a>
-            </div>
-            <div class="pt-8 border-t border-white/10 grid grid-cols-3 gap-4 text-center md:text-left">
-                <div><div class="text-2xl sm:text-3xl font-extrabold">+5,000</div><div class="text-xs text-slate-400 font-medium">Trámites exitosos</div></div>
-                <div><div class="text-2xl sm:text-3xl font-extrabold">100%</div><div class="text-xs text-slate-400 font-medium">Digital y confidencial</div></div>
-                <div><div class="text-2xl sm:text-3xl font-extrabold">4.9 ★</div><div class="text-xs text-slate-400 font-medium">Satisfacción diáspora</div></div>
-            </div>
-        </div>
-        <div class="hero-in-delay md:col-span-5 bg-white text-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-100" id="solicitar">
-            <div class="flex items-center justify-between mb-1">
-                <h2 class="text-lg font-bold text-domBlue">Solicita tu cotización</h2>
-                <span id="cardBadge" class="text-xs font-semibold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">🇩🇴 RD</span>
-            </div>
-            <p class="text-xs text-slate-500 mb-5">Un asesor te escribe por WhatsApp · sin compromiso</p>
-            <div class="lp-card" style="border:0;box-shadow:none;border-radius:0;overflow:visible"><div id="cardForm">
-<form id="formHero" novalidate>
-            <label class="lbl" for="h_serv">Trámite que necesitas</label>
-            <select id="h_serv" required></select>
-            <label class="lbl" for="h_pais">Desde dónde nos escribes</label>
-            <select id="h_pais" required></select>
-            <label class="lbl" for="h_nombre">Nombre completo</label><input id="h_nombre" type="text" autocomplete="name" required>
-            <div class="lp-2">
-                <div><label class="lbl" for="h_wa">WhatsApp</label><input id="h_wa" type="tel" autocomplete="tel" placeholder="+1 809 000 0000" required></div>
-                <div><label class="lbl" for="h_mail">Correo</label><input id="h_mail" type="email" autocomplete="email" required></div>
-            </div>
-            <input type="text" id="h_web" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
-            <label class="lp-acepta"><input type="checkbox" id="h_ok"><span>Acepto que usen mis datos para gestionar mi trámite. <a href="/privacidad" target="_blank" rel="noopener">Privacidad</a></span></label>
-            <div class="lp-err" id="h_err" role="alert"></div>
-            <button class="lp-btn lp-rojo" style="width:100%" id="h_enviar" type="submit"><i class="fa-solid fa-paper-plane"></i> Solicitar cotización</button>
-        </form>
-        <div class="lp-o">o</div>
-        <a class="lp-btn lp-wa" style="width:100%" href="#" data-wa="Hola, vengo de su promoción y quiero información sobre un trámite." data-ev="wa_hero"><i class="fa-brands fa-whatsapp"></i> Escribir por WhatsApp</a>
-    </div></div>
-        </div>
-    </div>
-</section>
-
-<section class="lp-sec" id="problemas"><div class="lp-w">
-    <div class="lp-head c"><span class="lp-k">Situaciones frecuentes</span>
-        <h2 class="lp-h2">Lo que suele complicar un trámite desde el exterior</h2>
-        <p class="lp-lead">Selecciona la que más se parece a tu caso y mira cómo la resolvemos.</p></div>
-    <div class="lp-sits">
-        <div class="lp-sitl" id="sits" role="tablist"></div>
-        <div class="lp-panel" id="sitPanel" aria-live="polite"></div>
-    </div>
-</div></section>
-
-<section class="lp-sec" id="cotiza" style="background:#f1f5f9"><div class="lp-w">
-    <div class="lp-head c"><span class="lp-k">Cotizador en línea</span>
-        <h2 class="lp-h2">Encuentra tu trámite y consulta el costo</h2>
-        <p class="lp-lead">Tres pasos, sin compromiso. Verás el desglose entre tasas oficiales y honorarios.</p></div>
+<section class="lp-sel" id="cotiza"><div class="lp-w">
+    <div class="top"><span class="lp-k clara">Gestoría para dominicanos en el exterior</span></div>
+    <h1>Elige tu trámite en RD <span>y mira cuánto cuesta</span></h1>
+    <p class="sub">Sin viajar, sin filas. Selecciona lo que necesitas y recibe tu cotización al instante.</p>
     <div class="lp-caja" id="caja">
-        <div class="lp-prog" id="prog"><div class="on"><span>🌎</span> <span>Ubicación</span></div><div><span>🗂️</span> <span>Área</span></div><div><i class="fa-solid fa-list-check"></i> <span>Trámite</span></div><div><i class="fa-solid fa-file-invoice-dollar"></i> <span>Cotización</span></div></div>
-        <div class="lp-paso on" id="p1"><h3>¿Desde dónde nos escribes?</h3><p class="lp-ayuda">Así te mostramos el precio en tu moneda.</p><div class="lp-chips" id="paises"></div></div>
-        <div class="lp-paso" id="p2"><h3>¿Qué necesitas resolver?</h3><p class="lp-ayuda">Elige el área. En el siguiente paso eliges el trámite exacto.</p><div class="lp-chips" id="cats"></div>
+        <div class="lp-prog" id="prog"><div class="on"><i class="fa-solid fa-layer-group"></i> <span>1. Elige el servicio</span></div><div><i class="fa-solid fa-list-check"></i> <span>2. Tu trámite</span></div><div><i class="fa-solid fa-file-invoice-dollar"></i> <span>3. Cotización</span></div></div>
+        <div class="lp-paso on" id="p1">
+            <h3>¿Qué necesitas resolver?</h3>
+            <p class="lp-ayuda">Busca tu trámite o elige el área.</p>
+            <div class="lp-bus"><i class="fa-solid fa-magnifying-glass"></i><input id="bus" type="search" placeholder="Busca: apostilla, pasaporte, poder…" autocomplete="off" aria-label="Buscar trámite"></div>
+            <div class="lp-lista" id="resBus" hidden></div>
+            <div id="areas">
+                <div class="lp-estoy"><span>Estoy en:</span><span id="paises" style="display:contents"></span></div>
+                <div class="lp-chips" id="cats"></div>
+            </div>
+        </div>
+        <div class="lp-paso" id="p2"><h3 id="t2">Elige tu trámite</h3><p class="lp-ayuda" id="ayuda3"></p><div class="lp-lista" id="lista"></div>
             <div class="lp-nav"><button class="lp-atras" data-ir="1"><i class="fa-solid fa-arrow-left"></i> Atrás</button><span></span></div></div>
-        <div class="lp-paso" id="p3"><h3>Elige tu trámite</h3><p class="lp-ayuda" id="ayuda3"></p><div class="lp-lista" id="lista"></div>
-            <div class="lp-nav"><button class="lp-atras" data-ir="2"><i class="fa-solid fa-arrow-left"></i> Atrás</button><span></span></div></div>
         <div class="lp-paso" id="p4">
             <div class="lp-res">
                 <div class="lp-cot" id="cot"></div>
                 <div id="derecha">
                     <h3 style="font-size:1.15rem">Asegura tu trámite</h3>
                     <p class="lp-ayuda">Déjanos tus datos y te escribimos para empezar. Recibirás un código para seguirlo en línea.</p>
-                    <form id="form" class="lp-card-b" style="padding:0" novalidate>
-                        <div class="lp-card" style="border:0;box-shadow:none;overflow:visible">
+                    <form id="form" novalidate><div class="lp-card" style="border:0;box-shadow:none;overflow:visible">
+                        <label class="lbl" for="f_pais">Desde dónde nos escribes</label><select id="f_pais" required></select>
                         <label class="lbl" for="f_nombre">Nombre completo</label><input id="f_nombre" type="text" autocomplete="name" required>
                         <label class="lbl" for="f_wa">WhatsApp (con código de país)</label><input id="f_wa" type="tel" autocomplete="tel" placeholder="+1 809 000 0000" required>
                         <label class="lbl" for="f_mail">Correo electrónico</label><input id="f_mail" type="email" autocomplete="email" required>
@@ -295,17 +261,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <label class="lp-acepta"><input type="checkbox" id="f_ok"><span>Acepto que usen mis datos para gestionar mi trámite. <a href="/privacidad" target="_blank" rel="noopener">Privacidad</a></span></label>
                         <div class="lp-err" id="err" role="alert"></div>
                         <button class="lp-btn lp-rojo" style="width:100%" id="enviar" type="submit"><i class="fa-solid fa-paper-plane"></i> Quiero empezar mi trámite</button>
-                        </div>
-                    </form>
+                    </div></form>
                     <div class="lp-o">o</div>
                     <a class="lp-btn lp-wa" style="width:100%" href="#" id="waCot" data-ev="wa_cotiza"><i class="fa-brands fa-whatsapp"></i> Prefiero escribir por WhatsApp</a>
                 </div>
             </div>
-            <div class="lp-nav"><button class="lp-atras" data-ir="3"><i class="fa-solid fa-arrow-left"></i> Cambiar trámite</button><span></span></div>
+            <div class="lp-nav"><button class="lp-atras" data-ir="2"><i class="fa-solid fa-arrow-left"></i> Cambiar trámite</button><span></span></div>
         </div>
     </div>
 </div></section>
-
 <section class="lp-sec" id="como" style="background:#f8fafc;border-top:1px solid var(--borde);border-bottom:1px solid var(--borde)"><div class="lp-w">
     <div class="lp-head c"><span class="lp-k">100% en línea</span><h2 class="lp-h2">Así de fácil, desde cualquier país</h2></div>
     <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -343,7 +307,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <h2 class="font-display text-3xl sm:text-4xl font-extrabold">Tu tiempo vale más que una fila <span>⏳</span></h2>
     <p class="text-slate-300 mt-3 mb-7">Pide tu cotización ahora o escríbenos y un asesor te orienta hoy mismo.</p>
     <div class="lp-cta flex flex-col sm:flex-row gap-3 justify-center">
-        <a href="#solicitar" class="bg-domRed hover:bg-red-700 text-white font-bold px-7 py-3.5 rounded-xl shadow-lg transition-all" data-ev="cta_final"><i class="fa-solid fa-paper-plane mr-2"></i> Pedir mi cotización</a>
+        <a href="#cotiza" class="bg-domRed hover:bg-red-700 text-white font-bold px-7 py-3.5 rounded-xl shadow-lg transition-all" data-ev="cta_final"><i class="fa-solid fa-paper-plane mr-2"></i> Elegir mi trámite</a>
         <a href="#" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-xl border border-white/20 transition-all" data-wa="Hola, vengo de su promoción y quiero información." data-ev="wa_final"><i class="fa-brands fa-whatsapp mr-2"></i> Escribir por WhatsApp</a>
     </div>
 </div></section>
@@ -363,83 +327,65 @@ const waLink = t => `https://api.whatsapp.com/send?phone=${C.whatsapp}&text=${en
 const ev = (n, o) => { try { (window.dataLayer = window.dataLayer || []).push(Object.assign({event: n}, o || {})); } catch (e) {} };
 const ORIGEN = (q.get('utm_source') || q.get('src') || (q.get('fbclid') ? 'facebook' : '') || (q.get('gclid') ? 'google' : '') || 'directo').toLowerCase().slice(0, 60);
 const CAMP = (q.get('utm_campaign') || '').slice(0, 40);
-
-// un icono propio para cada trámite
 const ICO = {residencia_dominicana:'id-card',green_card_usa:'address-card',peticiones_familiares:'people-roof',movimientos_migratorios:'plane-departure',visa_europea:'earth-europe',e_ticket:'ticket',permiso_menores:'child-reaching',pasaporte_vip:'crown',pasaporte_normal:'passport',visa_ds160:'file-signature',certificacion_solteria:'ring',poderes_especiales:'pen-nib',rectificacion_actas_jce:'file-pen',contratos_alquiler:'file-contract',declaracion_union_libre:'handshake-simple',declaracion_jurada:'gavel',contrato_notarial:'stamp',divorcio_mutuo_acuerdo:'heart-crack',hipotecas_cargas:'building-columns',estado_juridico_inmueble:'house-circle-check',ipi_impuesto:'receipt',deposito_banco_agricola:'piggy-bank',renovacion_licencia:'id-card-clip',levantamiento_oposicion:'lock-open',certificacion_no_registro_vehicular:'car-on',duplicado_matricula:'copy',traspaso_vehicular:'right-left',pagos_impuestos:'money-bill-wave',carfax_vehicular:'magnifying-glass-chart',multas_transito:'traffic-light',legalizacion_mescyt:'graduation-cap',record_notas_minerd_mescyt:'list-check',certificacion_estudios:'scroll',creacion_cv:'user-tie',exequatur_ley:'scale-balanced',apostilla_documentos:'globe',legalizacion_documentos:'file-circle-check',traduccion_documentos:'language',turnitin_check:'spell-check',constitucion_empresas:'briefcase',registro_empresa_onapi:'trademark'};
 const ico = k => `<i class="fa-solid fa-${ICO[k] || 'file-lines'}"></i>`;
-
 document.querySelectorAll('[data-wa]').forEach(a => { a.href = waLink(a.dataset.wa); a.target = '_blank'; a.rel = 'noopener'; });
 document.addEventListener('click', e => { const a = e.target.closest('[data-ev]'); if (a) ev('promo_' + a.dataset.ev); });
 
 const PAISES = [['us','🇺🇸','Estados Unidos','USD','EE.UU.'],['es','🇪🇸','España y Europa','EUR','España'],['rd','🇩🇴','República Dominicana','DOP','RD'],['mundo','🌎','Otro país','USD','Otro país']];
 const nombrePais = p => (PAISES.find(x => x[0] === p) || [0,0,'el exterior'])[2];
-
-// ---- situaciones -> solución
-const SITS = [
-  ['✈️','No puedo viajar a RD para un trámite','Gestionamos todo en República Dominicana y te hacemos llegar el resultado. Si hace falta un poder, te guiamos para otorgarlo desde donde vives.'],
-  ['⏳','Las filas y las vueltas me quitan días','Acudimos a la institución por ti y te informamos cada avance. Recuperas tu tiempo.'],
-  ['😰','No sé qué documentos piden','Te enviamos la lista exacta de tu caso y revisamos todo antes de presentarlo, para evitar rechazos.'],
-  ['🏠','Tengo una propiedad o un vehículo en RD','Con abogados y notarios te representamos: certificaciones, impuestos, traspasos y cargas.'],
-  ['📄','Necesito apostillar o legalizar documentos','Apostilla, legalización y traducción oficial en un solo lugar, listos para usar en EE.UU. o Europa.'],
-  ['🤷','Quiero saber el costo antes de decidir','Ves el desglose entre tasas oficiales y nuestros honorarios antes de empezar. Sin sorpresas.']
-];
-$('#sits').innerHTML = SITS.map((s, i) => `<button class="lp-sit" role="tab" aria-selected="${i === 0}" data-i="${i}"><span class="lp-em">${s[0]}</span><b>${esc(s[1])}</b></button>`).join('');
-function pintaSit(i) {
-  const s = SITS[i];
-  $('#sitPanel').innerHTML = `<div class="lp-fade"><span class="lbl">Cómo lo resolvemos</span><h3>${esc(s[1])}</h3><p>${esc(s[2])}</p><a href="#cotiza" class="lp-btn lp-rojo" data-ev="cta_situacion"><i class="fa-solid fa-calculator"></i> Cotizar mi trámite</a></div>`;
-}
-pintaSit(0);
-$('#sits').addEventListener('click', e => { const b = e.target.closest('.lp-sit'); if (!b) return;
-  document.querySelectorAll('.lp-sit').forEach(x => x.setAttribute('aria-selected', x === b)); pintaSit(+b.dataset.i); ev('promo_situacion', {situacion: b.dataset.i}); });
-
-// ---- formulario principal (arriba): selecciones
-const optgrp = Object.entries(D.categorias).map(([k, c]) => `<optgroup label="${c.emoji} ${esc(c.label)}">${Object.keys(SERV).filter(id => SERV[id].category === k).map(id => `<option value="${id}">${esc(SERV[id].title)}</option>`).join('')}</optgroup>`).join('');
-$('#h_serv').innerHTML = '<option value="">Selecciona tu trámite…</option>' + optgrp;
-$('#h_pais').innerHTML = '<option value="">Selecciona…</option>' + PAISES.map(p => `<option value="${p[0]}">${p[1]} ${p[2]}</option>`).join('');
-
-// ---- héroe: país (banderas) y trámites más pedidos, igual que en el inicio
-const heroPais = { v: 'rd' };
-function pintaHero() {
-  $('#heroPaises').innerHTML = PAISES.map(p => `<button type="button" class="hero-chip ${p[0] === heroPais.v ? 'is-active' : ''}" data-hp="${p[0]}">${p[1]} ${esc(p[4])}</button>`).join('');
-  const P = PAISES.find(p => p[0] === heroPais.v);
-  $('#heroFlag').textContent = P[1]; $('#cardBadge').textContent = `${P[1]} ${P[4]}`;
-  const dest = (D.paises[heroPais.v] || D.paises.mundo || D.paises.rd).destacados || [];
-  $('#heroQuick').innerHTML = dest.map(k => `<button type="button" class="mini-serv" data-hq="${k}"><i class="fa-solid ${D.categorias[SERV[k].category].icono}"></i>${esc(SERV[k].title.replace(/\s*\(.*?\)/g, '').slice(0, 34))}</button>`).join('');
-}
-$('#heroPaises').addEventListener('click', e => { const b = e.target.closest('[data-hp]'); if (!b) return; heroPais.v = b.dataset.hp; $('#h_pais').value = heroPais.v; pintaHero(); ev('promo_hero_pais', {pais: heroPais.v}); });
-$('#heroQuick').addEventListener('click', e => { const b = e.target.closest('[data-hq]'); if (!b) return; $('#h_serv').value = b.dataset.hq; if (!$('#h_pais').value) $('#h_pais').value = heroPais.v;
-  ev('promo_hero_servicio', {servicio: b.dataset.hq}); $('#solicitar').scrollIntoView({behavior: 'smooth', block: 'center'}); setTimeout(() => $('#h_nombre').focus({preventScroll: true}), 450); });
-$('#h_pais').addEventListener('change', e => { if (e.target.value) { heroPais.v = e.target.value; pintaHero(); } });
-pintaHero();
-
-// ---- cotizador
 const st = { pais: null, cat: null, sid: null, express: false, envio: false, moneda: 'DOP' };
-$('#paises').innerHTML = PAISES.map(p => `<button class="lp-chip" data-pais="${p[0]}" aria-pressed="false"><span class="ci" style="font-size:1.4rem">${p[1]}</span><b>${p[2]}</b><small>Precio en ${p[3]}</small></button>`).join('');
-const CAT_ICO = {viajes:'passport', legales:'scale-balanced', inmobiliario:'house-lock', impuestos_vehiculos:'car', academicos:'graduation-cap', empresas:'briefcase'};
+
+$('#paises').innerHTML = PAISES.map(p => `<button type="button" class="lp-pill" data-pais="${p[0]}" aria-pressed="false">${p[1]} ${esc(p[4])}</button>`).join('');
+$('#f_pais').innerHTML = '<option value="">Selecciona…</option>' + PAISES.map(p => `<option value="${p[0]}">${p[1]} ${p[2]}</option>`).join('');
 $('#cats').innerHTML = Object.entries(D.categorias).map(([k, c]) => `<button class="lp-chip" data-cat="${k}"><span class="ci"><i class="fa-solid ${c.icono}"></i></span><b>${c.emoji} ${esc(c.label)}</b><small>${esc(c.resumen)}</small></button>`).join('');
 
 function ir(n) {
-  document.querySelectorAll('.lp-paso').forEach((p, i) => p.classList.toggle('on', i + 1 === n));
-  document.querySelectorAll('#prog div').forEach((b, i) => { b.classList.toggle('on', i + 1 === n); b.classList.toggle('hecho', i + 1 < n); });
+  document.querySelectorAll('.lp-paso').forEach((p, i) => p.classList.toggle('on', i + 1 === n || (n === 3 && p.id === 'p4' )));
+  document.querySelectorAll('#prog div').forEach((b, i) => { b.classList.toggle('on', i + 1 === (n === 4 ? 3 : n)); b.classList.toggle('hecho', i + 1 < (n === 4 ? 3 : n)); });
   const caja = $('#caja'), top = caja.getBoundingClientRect().top;
   if (top < 0 || top > innerHeight * .5) caja.scrollIntoView({behavior: 'smooth', block: 'start'});
 }
-document.addEventListener('click', e => { const b = e.target.closest('[data-ir]'); if (b) ir(+b.dataset.ir); });
+function mostrar(n) { // n: 1 áreas, 2 lista, 3 cotización
+  document.querySelectorAll('.lp-paso').forEach(p => p.classList.remove('on'));
+  $(n === 1 ? '#p1' : n === 2 ? '#p2' : '#p4').classList.add('on');
+  document.querySelectorAll('#prog div').forEach((b, i) => { b.classList.toggle('on', i + 1 === n); b.classList.toggle('hecho', i + 1 < n); });
+  const top = $('#caja').getBoundingClientRect().top; if (top < 0 || top > innerHeight * .5) $('#caja').scrollIntoView({behavior: 'smooth', block: 'start'});
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-ir]'); if (b) mostrar(+b.dataset.ir); });
+
 $('#paises').addEventListener('click', e => { const b = e.target.closest('[data-pais]'); if (!b) return;
-  st.pais = b.dataset.pais; st.moneda = PAISES.find(p => p[0] === st.pais)[3]; ev('promo_pais', {pais: st.pais}); ir(2); });
+  const ya = b.getAttribute('aria-pressed') === 'true';
+  document.querySelectorAll('#paises .lp-pill').forEach(x => x.setAttribute('aria-pressed', false));
+  if (ya) { st.pais = null; st.moneda = 'DOP'; } else { b.setAttribute('aria-pressed', true); st.pais = b.dataset.pais; st.moneda = PAISES.find(p => p[0] === st.pais)[3]; ev('promo_pais', {pais: st.pais}); }
+  if (st.cat) pintaLista(); });
 $('#cats').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (!b) return;
-  st.cat = b.dataset.cat; pintaLista(); ev('promo_categoria', {categoria: st.cat}); ir(3); });
+  st.cat = b.dataset.cat; pintaLista(); ev('promo_categoria', {categoria: st.cat}); mostrar(2); });
 
 const fmt = (dop, cur) => TF.money(dop, cur);
+const opt = (k, dest) => { const s = SERV[k];
+  return `<button class="lp-opt" data-sid="${k}"><span class="ci">${ico(k)}</span><div class="t">${esc(s.title)}${dest && dest.includes(k) ? '<span class="lp-tag">MÁS SOLICITADO</span>' : ''}<small>${esc(s.desc || '')}</small></div><div class="p"><small>desde</small>${fmt(s.tax + s.fee, st.moneda)}</div></button>`; };
 function pintaLista() {
   const dest = (D.paises[st.pais] || {}).destacados || [];
   const ids = Object.keys(SERV).filter(k => SERV[k].category === st.cat).sort((a, b) => dest.includes(b) - dest.includes(a));
-  $('#ayuda3').textContent = `${D.categorias[st.cat].label}: selecciona el trámite que necesitas.`;
-  $('#lista').innerHTML = ids.map(k => { const s = SERV[k];
-    return `<button class="lp-opt" data-sid="${k}"><span class="ci">${ico(k)}</span><div class="t">${esc(s.title)}${dest.includes(k) ? '<span class="lp-tag">MÁS SOLICITADO</span>' : ''}<small>${esc(s.desc || '')}</small></div><div class="p"><small>desde</small>${fmt(s.tax + s.fee, st.moneda)}</div></button>`; }).join('');
+  $('#t2').textContent = D.categorias[st.cat].emoji + ' ' + D.categorias[st.cat].label;
+  $('#ayuda3').textContent = 'Selecciona el trámite que necesitas.';
+  $('#lista').innerHTML = ids.map(k => opt(k, dest)).join('');
 }
-$('#lista').addEventListener('click', e => { const b = e.target.closest('[data-sid]'); if (!b) return;
-  st.sid = b.dataset.sid; st.express = st.envio = false; pintaCot(); ev('promo_servicio', {servicio: st.sid}); ir(4); });
+// buscador: escribe y elige
+const norm = t => String(t).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+$('#bus').addEventListener('input', e => {
+  const t = norm(e.target.value.trim()), box = $('#resBus');
+  if (t.length < 2) { box.hidden = true; $('#areas').hidden = false; return; }
+  const ids = Object.keys(SERV).filter(k => norm(SERV[k].title + ' ' + (SERV[k].desc || '') + ' ' + k).includes(t)).sort((a, b) => norm(SERV[b].title).includes(t) - norm(SERV[a].title).includes(t)).slice(0, 8);
+  $('#areas').hidden = true; box.hidden = false;
+  box.innerHTML = ids.length ? ids.map(k => opt(k)).join('') : '<p class="lp-ayuda" style="margin:0">No encontramos ese trámite. Escríbenos por WhatsApp y te ayudamos.</p>';
+});
+function elegir(sid) { st.sid = sid; st.cat = SERV[sid].category; st.express = st.envio = false; pintaCot(); ev('promo_servicio', {servicio: sid});
+  if (st.pais) $('#f_pais').value = st.pais; mostrar(3); }
+$('#lista').addEventListener('click', e => { const b = e.target.closest('[data-sid]'); if (b) elegir(b.dataset.sid); });
+$('#resBus').addEventListener('click', e => { const b = e.target.closest('[data-sid]'); if (b) elegir(b.dataset.sid); });
+$('#f_pais').addEventListener('change', e => { const p = PAISES.find(x => x[0] === e.target.value); if (p) { st.pais = p[0]; st.moneda = p[3]; if (st.sid) pintaCot(); } });
 
 function pintaCot() {
   const s = SERV[st.sid]; if (!s) return;
@@ -477,18 +423,18 @@ function pintaCot() {
     </div>`;
   $('#waCot').href = waLink(waMsg());
 }
+
 const waMsg = () => { const s = SERV[st.sid]; return `Hola, vengo de su promoción. Quiero iniciar: ${s.title}${st.express ? ' (Express)' : ''}${st.envio ? ' con envío a domicilio' : ''}. Estoy en ${nombrePais(st.pais)}.`; };
 $('#cot').addEventListener('click', e => { const b = e.target.closest('[data-mon]'); if (b) { st.moneda = b.dataset.mon; pintaCot(); } });
 $('#cot').addEventListener('change', e => { const x = e.target.dataset.x; if (x) { st[x] = e.target.checked; pintaCot(); } });
 
-// ---- envío de la solicitud (crea el expediente real con su código)
-async function enviar(o) {
-  const err = $(o.err), btn = $(o.btn); err.textContent = '';
-  const body = { nombre: $(o.nombre).value.trim(), whatsapp: $(o.wa).value.trim(), email: $(o.mail).value.trim(),
-    pais: o.pais(), pais_detalle: '', servicio: o.sid(), express: !!(o.ex && o.ex()), envio: !!(o.en && o.en()), moneda: o.moneda(),
-    mensaje: 'Llegó desde la landing de promoción' + (CAMP ? ` (${CAMP})` : ''), acepta: $(o.ok).checked,
-    web: $(o.web).value, origen: ORIGEN, pagina: '/promo', idioma: 'es' };
-  if (!body.servicio) { err.textContent = 'Selecciona el trámite que necesitas.'; return; }
+$('#form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const err = $('#err'), btn = $('#enviar'); err.textContent = '';
+  const body = { nombre: $('#f_nombre').value.trim(), whatsapp: $('#f_wa').value.trim(), email: $('#f_mail').value.trim(),
+    pais: $('#f_pais').value, pais_detalle: '', servicio: st.sid, express: st.express, envio: st.envio, moneda: st.moneda,
+    mensaje: 'Llegó desde la landing de promoción' + (CAMP ? ` (${CAMP})` : ''), acepta: $('#f_ok').checked,
+    web: $('#f_web').value, origen: ORIGEN, pagina: '/promo', idioma: 'es' };
   if (!body.pais) { err.textContent = 'Indica desde dónde nos escribes.'; return; }
   if (body.nombre.length < 2) { err.textContent = 'Escribe tu nombre.'; return; }
   if (body.whatsapp.replace(/\D/g, '').length < 8) { err.textContent = 'Escribe tu WhatsApp con el código de país.'; return; }
@@ -501,24 +447,18 @@ async function enviar(o) {
     if (!r.ok || !j.codigo) throw new Error(j.error || 'No pudimos enviar tu solicitud. Intenta de nuevo o escríbenos por WhatsApp.');
     ev('promo_solicitud_enviada', {servicio: body.servicio, pais: body.pais});
     const t = SERV[body.servicio].title;
-    $(o.destino).innerHTML = `<div class="lp-exito"><div class="ok"><i class="fa-solid fa-check"></i></div><h3 style="color:var(--azul);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.3rem">Solicitud recibida, ${esc(body.nombre.split(' ')[0])}</h3>
+    $('#derecha').innerHTML = `<div class="lp-exito"><div class="ok"><i class="fa-solid fa-check"></i></div><h3 style="color:var(--azul);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.3rem">Solicitud recibida, ${esc(body.nombre.split(' ')[0])}</h3>
       <p class="lp-ayuda" style="margin:.4rem 0 0">Un asesor te escribe por WhatsApp para comenzar con: <b>${esc(t)}</b>. Guarda tu código de seguimiento:</p>
       <div class="lp-codigo">${esc(j.codigo)}</div>
       <a class="lp-btn lp-azul" style="width:100%;margin-bottom:.6rem" href="/rastreo?c=${encodeURIComponent(j.codigo)}"><i class="fa-solid fa-location-crosshairs"></i> Ver el estado de mi trámite</a>
       <a class="lp-btn lp-wa" style="width:100%" target="_blank" rel="noopener" href="${waLink('Hola, acabo de solicitar: ' + t + '. Mi código es ' + j.codigo + '.')}"><i class="fa-brands fa-whatsapp"></i> Avisar por WhatsApp ahora</a></div>`;
   } catch (x) { err.textContent = x.message; btn.disabled = false; btn.innerHTML = txt; }
-}
-$('#formHero').addEventListener('submit', e => { e.preventDefault(); enviar({err:'#h_err', btn:'#h_enviar', nombre:'#h_nombre', wa:'#h_wa', mail:'#h_mail', ok:'#h_ok', web:'#h_web', destino:'#cardForm',
-  sid: () => $('#h_serv').value, pais: () => $('#h_pais').value, moneda: () => (PAISES.find(p => p[0] === $('#h_pais').value) || [0,0,0,'DOP'])[3]}); });
-$('#form').addEventListener('submit', e => { e.preventDefault(); enviar({err:'#err', btn:'#enviar', nombre:'#f_nombre', wa:'#f_wa', mail:'#f_mail', ok:'#f_ok', web:'#f_web', destino:'#derecha',
-  sid: () => st.sid, pais: () => st.pais, moneda: () => st.moneda, ex: () => st.express, en: () => st.envio}); });
+});
 
-// ---- ?servicio=slug&pais=us: anuncio directo a un trámite concreto
+// ?servicio=slug&pais=us: anuncio directo a un trámite
 const pre = q.get('servicio');
 if (pre) { const id = Object.keys(SERV).find(k => k === pre || SERV[k].slug === pre);
-  if (id) { const p = PAISES.some(x => x[0] === q.get('pais')) ? q.get('pais') : 'us';
-    $('#h_serv').value = id; $('#h_pais').value = p;
-    st.sid = id; st.cat = SERV[id].category; st.pais = p; st.moneda = PAISES.find(x => x[0] === p)[3]; pintaCot(); pintaLista(); } }
+  if (id) { const p = PAISES.find(x => x[0] === q.get('pais')); if (p) { st.pais = p[0]; st.moneda = p[3]; } elegir(id); setTimeout(() => window.scrollTo(0, 0), 0); } }
 })();
 </script>
 </body>
