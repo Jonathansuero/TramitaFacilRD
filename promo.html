@@ -186,6 +186,34 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .lp-g2 p{font-size:.9rem;color:#64748b;line-height:1.55}
 .lp-tira{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem 1.8rem;margin-top:2rem;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.18);font-size:.82rem;font-weight:600;color:#e2e8f0}
 .lp-tira i{color:var(--oro);margin-right:.4rem}
+/* carrusel de trámites */
+.lp-car{background:#fff;padding:4rem 0 4.2rem;border-bottom:1px solid var(--borde);overflow:hidden}
+.lp-car-top{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-bottom:1.6rem}
+.lp-car-top .lp-h2{margin-bottom:0}
+.lp-car-nav{display:flex;gap:.5rem;flex:none}
+.lp-car-nav button{width:2.8rem;height:2.8rem;border-radius:50%;border:1.5px solid #cbd5e1;background:#fff;color:var(--azul);cursor:pointer;font-size:.95rem;transition:all .15s}
+.lp-car-nav button:hover:not(:disabled){background:var(--azul);color:#fff;border-color:var(--azul)}
+.lp-car-nav button:disabled{opacity:.35;cursor:default}
+.lp-car-nav button:focus-visible{outline:3px solid var(--oro);outline-offset:2px}
+.lp-track{display:flex;gap:1.1rem;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:.4rem .2rem 1.2rem;margin:0 -.2rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.lp-track::-webkit-scrollbar{display:none}
+.lp-slide{flex:0 0 78%;scroll-snap-align:start;position:relative;border-radius:1.1rem;overflow:hidden;aspect-ratio:6/5;background:#0f172a;border:0;padding:0;text-align:left;cursor:pointer;box-shadow:0 18px 36px -22px rgba(0,45,98,.6);transition:transform .25s,box-shadow .25s;color:#fff;font:inherit}
+@media(min-width:560px){.lp-slide{flex-basis:calc(50% - .55rem)}}
+@media(min-width:900px){.lp-slide{flex-basis:calc(33.333% - .75rem)}}
+@media(min-width:1200px){.lp-slide{flex-basis:calc(25% - .83rem)}}
+.lp-slide:hover{transform:translateY(-4px);box-shadow:0 26px 44px -22px rgba(0,45,98,.7)}
+.lp-slide:focus-visible{outline:3px solid var(--oro);outline-offset:3px}
+.lp-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;transition:transform .5s}
+.lp-slide:hover img{transform:scale(1.05)}
+.lp-slide:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,31,68,0) 25%,rgba(0,31,68,.93) 100%)}
+.lp-slide .cap{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:1rem 1rem 1.05rem}
+.lp-slide .tg{display:inline-flex;align-items:center;gap:.4rem;font-size:.62rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;background:rgba(212,175,55,.95);color:#3d2e00;padding:.15rem .55rem;border-radius:.3rem;margin-bottom:.45rem}
+.lp-slide b{display:block;font-family:'Plus Jakarta Sans',sans-serif;font-size:1.02rem;line-height:1.2;margin-bottom:.35rem}
+.lp-slide .pr{display:flex;justify-content:space-between;align-items:center;font-size:.76rem;color:#dbe5f3}
+.lp-slide .pr i{background:var(--rojo);color:#fff;font-style:normal;font-weight:800;font-size:.72rem;padding:.25rem .7rem;border-radius:99px}
+.lp-pts{display:flex;justify-content:center;gap:.4rem;margin-top:.2rem}
+.lp-pts button{width:.55rem;height:.55rem;border-radius:99px;border:0;background:#cbd5e1;padding:0;cursor:pointer;transition:all .2s}
+.lp-pts button[aria-current=true]{width:1.6rem;background:var(--rojo)}
 /* pasos */
 .lp-pasos{display:grid;gap:1rem;counter-reset:p}@media(min-width:800px){.lp-pasos{grid-template-columns:repeat(4,1fr)}}
 .lp-ps{background:#fff;border:1px solid var(--borde);border-top:3px solid var(--azul);border-radius:.6rem;padding:1.4rem 1.2rem;position:relative}
@@ -285,6 +313,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </div>
 </div></section>
+<section class="lp-car" id="carrusel" aria-roledescription="carrusel" aria-label="Trámites que gestionamos"><div class="lp-w">
+    <div class="lp-car-top">
+        <div><span class="lp-k">Trámites que gestionamos</span><h2 class="lp-h2">Toca el que necesitas y cotízalo</h2></div>
+        <div class="lp-car-nav"><button type="button" id="carPrev" aria-label="Anterior"><i class="fa-solid fa-arrow-left"></i></button><button type="button" id="carNext" aria-label="Siguiente"><i class="fa-solid fa-arrow-right"></i></button></div>
+    </div>
+    <div class="lp-track" id="carTrack" tabindex="0" aria-live="off"></div>
+    <div class="lp-pts" id="carPts"></div>
+</div></section>
+
 <section class="lp-sec" id="como" style="background:#f8fafc;border-top:1px solid var(--borde);border-bottom:1px solid var(--borde)"><div class="lp-w">
     <div class="lp-head c"><span class="lp-k">100% en línea</span><h2 class="lp-h2">Así de fácil, desde cualquier país</h2></div>
     <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -380,7 +417,7 @@ $('#paises').addEventListener('click', e => { const b = e.target.closest('[data-
   const ya = b.getAttribute('aria-pressed') === 'true';
   document.querySelectorAll('#paises .lp-pill').forEach(x => x.setAttribute('aria-pressed', false));
   if (ya) { st.pais = null; st.moneda = 'DOP'; } else { b.setAttribute('aria-pressed', true); st.pais = b.dataset.pais; st.moneda = PAISES.find(p => p[0] === st.pais)[3]; ev('promo_pais', {pais: st.pais}); }
-  if (st.cat) pintaLista(); });
+  if (st.cat) pintaLista(); if (window.__car) window.__car(); });
 $('#cats').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (!b) return;
   st.cat = b.dataset.cat; pintaLista(); ev('promo_categoria', {categoria: st.cat}); mostrar(2); });
 
@@ -445,7 +482,7 @@ function pintaCot() {
 }
 
 const waMsg = () => { const s = SERV[st.sid]; return `Hola, vengo de su promoción. Quiero iniciar: ${s.title}${st.express ? ' (Express)' : ''}${st.envio ? ' con envío a domicilio' : ''}. Estoy en ${nombrePais(st.pais)}.`; };
-$('#cot').addEventListener('click', e => { const b = e.target.closest('[data-mon]'); if (b) { st.moneda = b.dataset.mon; pintaCot(); } });
+$('#cot').addEventListener('click', e => { const b = e.target.closest('[data-mon]'); if (b) { st.moneda = b.dataset.mon; pintaCot(); if (window.__car) window.__car(); } });
 $('#cot').addEventListener('change', e => { const x = e.target.dataset.x; if (x) { st[x] = e.target.checked; pintaCot(); } });
 
 $('#form').addEventListener('submit', async e => {
@@ -474,6 +511,49 @@ $('#form').addEventListener('submit', async e => {
       <a class="lp-btn lp-wa" style="width:100%" target="_blank" rel="noopener" href="${waLink('Hola, acabo de solicitar: ' + t + '. Mi código es ' + j.codigo + '.')}"><i class="fa-brands fa-whatsapp"></i> Avisar por WhatsApp ahora</a></div>`;
   } catch (x) { err.textContent = x.message; btn.disabled = false; btn.innerHTML = txt; }
 });
+
+
+// ---- carrusel de trámites (fotos propias → abren la cotización de ese trámite)
+const CAR = [
+  ['movimientos-migratorios','Mujer mostrando una certificación de movimientos migratorios','Migración','movimientos_migratorios'],
+  ['certificacion-solteria','Mujer sonriendo con una certificación de soltería','Estado civil','certificacion_solteria'],
+  ['pasaporte','Hombre con su pasaporte dominicano en una oficina','Pasaportes','pasaporte_normal'],
+  ['union-libre','Pareja con su declaración de unión libre','Estado civil','declaracion_union_libre'],
+  ['e-ticket','Viajero con su E-Ticket en el aeropuerto','Viajes','e_ticket'],
+  ['declaracion-jurada','Hombre mostrando una declaración jurada','Notarial','declaracion_jurada'],
+  ['permiso-menores','Madre e hijo con el permiso de salida de menores','Migración','permiso_menores'],
+  ['contrato-propiedad','Pareja firmando un contrato con una casa en miniatura','Inmobiliario','contrato_notarial'],
+  ['pasaporte-mujer','Mujer con su pasaporte dominicano','Pasaportes','pasaporte_vip'],
+  ['documentos-oficina','Asesora revisando documentos en su oficina','Documentos','poderes_especiales'],
+  ['viaje-familia','Madre e hija con pasaportes y boletos en el aeropuerto','Viajes','visa_ds160']
+].filter(c => SERV[c[3]]);
+const track = $('#carTrack');
+function pintaCar() {
+  track.innerHTML = CAR.map((c, i) => `<button type="button" class="lp-slide" data-car="${i}" aria-label="${esc(SERV[c[3]].title)}: cotizar"><img src="/assets/img/promo/${c[0]}.webp" alt="${esc(c[1])}" loading="${i < 3 ? 'eager' : 'lazy'}" decoding="async"><div class="cap"><span class="tg">${esc(c[2])}</span><b>${esc(SERV[c[3]].title.replace(/\s*\(.*?\)/g, ''))}</b><div class="pr"><span>desde ${fmt(SERV[c[3]].tax + SERV[c[3]].fee, st.moneda)}</span><i>Cotizar</i></div></div></button>`).join('');
+  $('#carPts').innerHTML = CAR.map((c, i) => `<button type="button" data-pt="${i}" aria-label="Ir a ${i + 1}" ${i === 0 ? 'aria-current="true"' : ''}></button>`).join('');
+  carEstado();
+}
+const paso = () => { const s = track.querySelector('.lp-slide'); return s ? s.getBoundingClientRect().width + 17.6 : 300; };
+function carEstado() {
+  const max = track.scrollWidth - track.clientWidth - 2;
+  $('#carPrev').disabled = track.scrollLeft <= 2; $('#carNext').disabled = track.scrollLeft >= max;
+  const i = Math.min(CAR.length - 1, Math.round(track.scrollLeft / paso()));
+  document.querySelectorAll('#carPts button').forEach((b, k) => b.setAttribute('aria-current', k === i));
+}
+$('#carPrev').addEventListener('click', () => { pausa(); track.scrollBy({left: -paso(), behavior: 'smooth'}); });
+$('#carNext').addEventListener('click', () => { pausa(); track.scrollBy({left: paso(), behavior: 'smooth'}); });
+$('#carPts').addEventListener('click', e => { const b = e.target.closest('[data-pt]'); if (b) { pausa(); track.scrollTo({left: +b.dataset.pt * paso(), behavior: 'smooth'}); } });
+track.addEventListener('scroll', () => { clearTimeout(track._t); track._t = setTimeout(carEstado, 60); }, {passive: true});
+track.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); $('#carNext').click(); } if (e.key === 'ArrowLeft') { e.preventDefault(); $('#carPrev').click(); } });
+track.addEventListener('click', e => { const b = e.target.closest('[data-car]'); if (!b) return; const c = CAR[+b.dataset.car];
+  ev('promo_carrusel', {servicio: c[3]}); elegir(c[3]); $('#cotiza').scrollIntoView({behavior: 'smooth', block: 'start'}); });
+// avance automático suave; se detiene al tocar, al enfocar o si el visitante prefiere menos movimiento
+let auto = null, quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function pausa() { quieto = true; clearInterval(auto); }
+if (!quieto) { auto = setInterval(() => { if (document.hidden) return; const max = track.scrollWidth - track.clientWidth - 2;
+  if (track.scrollLeft >= max) track.scrollTo({left: 0, behavior: 'smooth'}); else track.scrollBy({left: paso(), behavior: 'smooth'}); }, 4500); }
+['pointerdown', 'focusin', 'touchstart', 'mouseenter'].forEach(ev0 => $('#carrusel').addEventListener(ev0, pausa, {passive: true}));
+window.__car = pintaCar; pintaCar();
 
 // ?servicio=slug&pais=us: anuncio directo a un trámite
 const pre = q.get('servicio');
