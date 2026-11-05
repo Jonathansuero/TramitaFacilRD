@@ -2421,7 +2421,7 @@ def no_encontrado(_e):
 # ---------------------------------------------------------------- sitio estático
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
 # Direcciones limpias: /servicios, /servicio?id=…, /rastreo… (sin ".html").
-PAGINAS = {"servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora",
+PAGINAS = {"promo", "servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora",
            "nosotros", "privacidad", "terminos", "offline", "admin"}
 # 33200d87b13a122cdb2087cad4e581ff.txt: clave de IndexNow (Bing, Yandex…) para avisar a los buscadores de páginas nuevas
 INDEXNOW_KEY = "33200d87b13a122cdb2087cad4e581ff"
