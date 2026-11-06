@@ -601,6 +601,16 @@
         @keyframes abre { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 
         /* cambio de estado con un toque */
+        .paso-n { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--azul); color: #fff; font-size: 11px; margin-right: 4px; letter-spacing: 0; }
+        .tipo-btns { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+        .tipo-b { border: 1.5px solid var(--borde); background: #fff; border-radius: 12px; padding: 10px 6px; font-weight: 700; font-size: 13px; color: #334155; display: grid; gap: 2px; justify-items: center; line-height: 1.2; cursor: pointer; }
+        .tipo-b.on { border-color: var(--azul); background: var(--azul); color: #fff; }
+        .tipo-b:disabled { background: #F1F5F9; color: #94A3B8; border-style: dashed; cursor: not-allowed; } .tipo-b small { font-size: 10.5px; font-weight: 700; color: #059669; }
+        .pleg-ok { color: var(--verde); font-weight: 800; }
+        .candado { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border-radius: 14px; border: 1.5px solid; }
+        .candado.cerrado { background: #FEF2F2; border-color: #FECACA; color: #991B1B; } .candado.abierto { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
+        .candado .cd-t { flex: 1 1 200px; display: grid; gap: 2px; font-size: 14px; } .candado .cd-t small { font-size: 12px; font-weight: 500; opacity: .85; }
+        .candado .btn { min-width: 130px; }
         .rapido { border-color: #C9DAF2; }
         .rapido-f { display: grid; gap: 10px; }
         .rapido-f + .rapido-f { border-top: 1px solid #EEF2F7; padding-top: 12px; }

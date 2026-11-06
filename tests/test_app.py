@@ -1117,6 +1117,10 @@ def test_archivos_se_desbloquean_con_el_pago_completo_o_a_mano(client, monkeypat
     assert r.status_code == 201
     exp = next(x for x in client.get("/api/admin/expedientes").json["expedientes"] if x["codigo"] == codigo)
     assert exp["comprobantes"][0]["nota"].startswith("Pago inicial")
+    client.post(f"/api/rastreo/{codigo}/comprobante", data={"dato": "4321", "monto": "100", "metodo": "Zelle", "concepto": "extra",
+                "archivo": (io.BytesIO(b"%PDF-1.4\n%%EOF\n"), "e.pdf")}, content_type="multipart/form-data")
+    exp = next(x for x in client.get("/api/admin/expedientes").json["expedientes"] if x["codigo"] == codigo)
+    assert any(c["nota"].startswith("Pago extra") for c in exp["comprobantes"])
     # con solo el 50 % confirmado, sigue bloqueado
     pid = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Zelle"}).json["expediente"]["pagos"][-1]["id"]
     client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})

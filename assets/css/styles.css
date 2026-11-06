@@ -868,3 +868,17 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .track-bloq p { margin: .3rem 0 0; color: #7F1D1D; font-size: .8rem; line-height: 1.5; }
 .track-bloq.hidden { display: none; }
 @media (max-width: 520px) { .ts-hitos { grid-template-columns: 1fr; } .track-sec { padding: .9rem; } }
+
+/* Rastreo: tipo de pago en botones y envío de varios archivos */
+.tc-tipos { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.tc-tipo { display: grid; gap: .15rem; text-align: left; padding: .65rem .7rem; border: 1.5px solid #CBD5E1; border-radius: .8rem; background: #fff; cursor: pointer; font: inherit; color: #0F172A; }
+.tc-tipo b { font-size: .8rem; line-height: 1.2; } .tc-tipo small { font-size: .7rem; font-weight: 500; color: #64748B; }
+.tc-tipo.on { border-color: #002D62; background: #EFF4FB; box-shadow: 0 0 0 2px rgba(0,45,98,.12); }
+.tc-tipo:disabled { cursor: not-allowed; background: #F1F5F9; color: #94A3B8; border-style: dashed; } .tc-tipo:disabled small { color: #059669; font-weight: 700; }
+@media (max-width: 520px) { .tc-tipos { grid-template-columns: 1fr; } }
+.tc-ayuda { font-weight: 500; color: #64748B; font-size: .72rem; }
+.td-enviados { list-style: none; margin: 0; padding: 0; display: grid; gap: .35rem; }
+.td-enviados li { display: flex; align-items: center; gap: .55rem; font-size: .8rem; padding: .5rem .7rem; border-radius: .6rem; background: #F8FAFC; border: 1px solid #E2E8F0; }
+.td-enviados li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.td-enviados li.ok { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; } .td-enviados li.mal { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
+.td-enviados li b { font-size: .7rem; }
