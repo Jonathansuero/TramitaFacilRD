@@ -17,7 +17,7 @@ CAT = calculos.cargar_catalogo()
 def test_cotizacion_dop_con_extras():
     r = calculos.cotizar(CAT, "residencia_dominicana", express=True, envio=True)
     cfg = CAT["config"]
-    assert r["total"] == 15000 + 11000 + cfg["express_fee"] + cfg["delivery_fee"]
+    assert r["total"] == 15000 + 22000 + cfg["express_fee"] + cfg["delivery_fee"]
 
 
 def test_cotizacion_en_usd_usa_tasa():
@@ -95,7 +95,7 @@ def test_rastreo_demo_y_desconocido(client):
 
 def test_cotizar_api(client):
     r = client.post("/api/cotizar", json={"servicio": "apostilla_documentos", "moneda": "DOP"}).json
-    assert r["total"] == 1720  # 620 tasas + 1100 honorarios
+    assert r["total"] == 2520  # 620 tasas + 1900 honorarios
 
 
 # ------------------------------------------------ v3: idiomas, instituciones, diáspora
@@ -205,7 +205,7 @@ def test_varios_tramites_un_codigo(client):
         exp = r.json["expediente"]
         codigo, items = exp["codigo"], exp["tramites"]
         assert len(items) == 2 and items[1]["titulo"] == "Certificado de buena conducta"
-        assert exp["total_dop"] == 1720 + 2500
+        assert exp["total_dop"] == 2520 + 2500
 
         # cada trámite avanza por su cuenta; el resumen va al ritmo del más atrasado
         client.post("/api/admin/estado", json={"codigo": codigo, "tramite": items[0]["id"], "paso": 4, "detalle": "Apostilla lista."})
@@ -297,18 +297,18 @@ def test_panel_cobros_precios_origen(client):
         codigo = r.json["codigo"]
         e = client.get("/api/admin/expedientes").json["expedientes"][0]
         assert (e["origen"], e["origen_detalle"], e["pagina"], e["dispositivo"]) == ("instagram", "l.instagram.com", "casos", "movil")
-        assert e["total_dop"] == 1720 and e["pagado"] == 0 and e["pendiente"] == 1720
+        assert e["total_dop"] == 2520 and e["pagado"] == 0 and e["pendiente"] == 2520
 
         # cobro 50 / 50
-        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": 860, "metodo": "Zelle",
+        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": 1260, "metodo": "Zelle",
                                                  "fecha": "2026-10-20"}).json["expediente"]
-        assert e["pagado"] == 860 and e["pendiente"] == 860 and e["pagos"][0]["metodo"] == "Zelle"
+        assert e["pagado"] == 1260 and e["pendiente"] == 1260 and e["pagos"][0]["metodo"] == "Zelle"
         assert client.post("/api/admin/pago", json={"codigo": codigo, "monto": -5}).status_code == 400
         assert client.post("/api/admin/pago", json={"codigo": "RD-NADA", "monto": 5}).status_code == 404
-        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": 860}).json["expediente"]
+        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": 1260}).json["expediente"]
         assert e["pendiente"] == 0
         e = client.post("/api/admin/pago/quitar", json={"codigo": codigo, "id": e["pagos"][1]["id"]}).json["expediente"]
-        assert e["pendiente"] == 860
+        assert e["pendiente"] == 1260
 
         # notas internas (no salen en el rastreo) y documentos recibidos
         e = client.post("/api/admin/nota", json={"codigo": codigo, "texto": "Falta copia de cédula"}).json["expediente"]

@@ -191,7 +191,7 @@
       "title": "Residencia Dominicana para Extranjeros (DGM)",
       "slug": "residencia-dominicana-para-extranjeros",
       "tax": 15000,
-      "fee": 11000,
+      "fee": 22000,
       "category": "viajes",
       "paises": [
         "ext"
@@ -237,7 +237,7 @@
       "title": "Renovación de Residencia / Green Card EE.UU.",
       "slug": "renovacion-green-card-i90",
       "tax": 32000,
-      "fee": 4950,
+      "fee": 18000,
       "category": "viajes",
       "paises": [
         "us",
@@ -284,7 +284,7 @@
       "title": "Peticiones Familiares EE.UU. / Europa (I-130)",
       "slug": "peticion-familiar-i130",
       "tax": 38000,
-      "fee": 8250,
+      "fee": 20000,
       "category": "viajes",
       "paises": [
         "us",
@@ -334,7 +334,7 @@
       "title": "Certificación de Movimientos Migratorios (DGM)",
       "slug": "certificacion-de-movimientos-migratorios",
       "tax": 1200,
-      "fee": 1650,
+      "fee": 2000,
       "category": "viajes",
       "paises": [
         "rd",
@@ -384,7 +384,7 @@
       "title": "Visado Europeo / Schengen (España, Francia, Italia, etc.)",
       "slug": "visa-schengen-europa",
       "tax": 5400,
-      "fee": 4950,
+      "fee": 9100,
       "category": "viajes",
       "paises": [
         "rd"
@@ -530,7 +530,7 @@
       "title": "Pasaporte Dominicano VIP (DGP)",
       "slug": "pasaporte-dominicano-vip",
       "tax": 3000,
-      "fee": 1650,
+      "fee": 2000,
       "category": "viajes",
       "paises": [
         "rd",
@@ -579,7 +579,7 @@
       "title": "Pasaporte Dominicano Normal (DGP)",
       "slug": "pasaporte-dominicano",
       "tax": 1650,
-      "fee": 1320,
+      "fee": 1500,
       "category": "viajes",
       "paises": [
         "rd",
@@ -628,7 +628,7 @@
       "title": "Visa Americana B1/B2 (DS-160)",
       "slug": "visa-americana-ds160",
       "tax": 11100,
-      "fee": 3850,
+      "fee": 8900,
       "category": "viajes",
       "paises": [
         "rd"
@@ -674,7 +674,7 @@
       "title": "Certificación de Soltería (JCE)",
       "slug": "certificacion-de-solteria",
       "tax": 800,
-      "fee": 1320,
+      "fee": 1500,
       "category": "legales",
       "paises": [
         "us",
@@ -1453,7 +1453,7 @@
       "title": "Traspaso Vehicular (DGII + Acto Venta)",
       "slug": "traspaso-de-vehiculo",
       "tax": 2500,
-      "fee": 2750,
+      "fee": 3500,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd",
@@ -1503,7 +1503,7 @@
       "title": "Gestión y Pago de Impuestos (DGII / Marbete)",
       "slug": "pago-de-impuestos-y-marbete",
       "tax": 1500,
-      "fee": 880,
+      "fee": 1600,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd",
@@ -1552,7 +1552,7 @@
       "title": "Reporte Carfax de Vehículo Importado",
       "slug": "reporte-carfax",
       "tax": 1000,
-      "fee": 550,
+      "fee": 800,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd"
@@ -1647,7 +1647,7 @@
       "title": "Legalización de Títulos Universitarios (MESCYT)",
       "slug": "legalizacion-de-titulos-mescyt",
       "tax": 1000,
-      "fee": 1650,
+      "fee": 1850,
       "category": "academicos",
       "paises": [
         "rd",
@@ -1696,7 +1696,7 @@
       "title": "Certificación de Récord de Notas (MINERD / MESCYT)",
       "slug": "record-de-notas-minerd-mescyt",
       "tax": 800,
-      "fee": 1320,
+      "fee": 1450,
       "category": "academicos",
       "paises": [
         "rd",
@@ -1746,7 +1746,7 @@
       "title": "Certificación de Estudios (Bachillerato / Universidad)",
       "slug": "certificacion-de-estudios",
       "tax": 500,
-      "fee": 1320,
+      "fee": 1300,
       "category": "academicos",
       "paises": [
         "rd",
@@ -1892,7 +1892,7 @@
       "title": "Apostilla de Documentos (MIREX Cancillería)",
       "slug": "apostilla-de-documentos",
       "tax": 620,
-      "fee": 1100,
+      "fee": 1900,
       "category": "academicos",
       "paises": [
         "us",
@@ -2043,7 +2043,7 @@
       "title": "Verificación Antiplagio Turnitin (Informe Tesis)",
       "slug": "verificacion-turnitin",
       "tax": 0,
-      "fee": 825,
+      "fee": 1950,
       "category": "academicos",
       "paises": [
         "rd"
@@ -2087,7 +2087,7 @@
       "title": "Constitución Completa de Empresa / SRL",
       "slug": "constitucion-de-empresa-srl",
       "tax": 12000,
-      "fee": 8800,
+      "fee": 18000,
       "category": "empresas",
       "paises": [
         "ext",
@@ -2139,7 +2139,7 @@
       "title": "Registro de Nombre Comercial (ONAPI)",
       "slug": "registro-de-nombre-comercial-onapi",
       "tax": 4755,
-      "fee": 2200,
+      "fee": 2645,
       "category": "empresas",
       "paises": [
         "rd",
