@@ -51,7 +51,7 @@
         ['trackSecPagos', 'trackSecDocs', 'trackSecArchivos'].forEach(id => $(id).classList.toggle('hidden', demo));
         const pago = data.pago || '', saldo = data.saldo || {};
         const hayTotal = saldo.total != null;
-        const completo = pago === 'confirmado' && data.falta_pagar === false;
+        const completo = data.falta_pagar === false;     // administración confirmó el último pago: sin deuda, aunque quede un recibo por revisar
         const inicialOk = completo || (hayTotal ? Number(saldo.pagado) >= Number(saldo.mitad) - 0.01 : pago === 'confirmado');
         const listo = Number(data.step) === 4;
         const verificando = pago === 'por_confirmar';
@@ -79,7 +79,7 @@
         } else { estado = 'ok'; titulo = t('track.pago.inok'); detalle = t('track.pago.inok.d'); }
         const caja = $('trackPago');
         ['ok', 'mal', 'aviso', 'info'].forEach(c => caja.classList.toggle(c, estado === c));
-        caja.classList.toggle('hidden', inicialOk && !listo);   // pagado el primer 50%, no hay aviso hasta que el trámite llegue a LISTO
+        caja.classList.toggle('hidden', inicialOk && !listo && !completo);   // pagado el primer 50%, no hay aviso hasta que el trámite llegue a LISTO
         caja.querySelector('.tp-ico i').className = 'fa-solid ' + { ok: 'fa-circle-check', mal: 'fa-triangle-exclamation', info: 'fa-hourglass-half', aviso: 'fa-circle-exclamation' }[estado];
         $('trackPagoT').textContent = titulo;
         $('trackPagoD').textContent = detalle;

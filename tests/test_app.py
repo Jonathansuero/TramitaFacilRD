@@ -1126,10 +1126,15 @@ def test_archivos_se_desbloquean_con_el_pago_completo_o_a_mano(client, monkeypat
     client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
     assert client.get(f"/api/rastreo/{codigo}").json["archivos_bloqueados"] is True
     assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "4321"}).status_code == 423
+    # un recibo nuevo sin revisar no debe tapar el estado: al confirmar el pago final queda sin deuda
+    client.post(f"/api/rastreo/{codigo}/comprobante", data={"dato": "4321", "monto": "2000", "metodo": "Zelle", "concepto": "final",
+                "archivo": (io.BytesIO(b"%PDF-1.4\n%%EOF\n"), "f.pdf")}, content_type="multipart/form-data")
+    assert client.get(f"/api/rastreo/{codigo}").json["pago"] == "por_confirmar"
     # al confirmarse el resto, se desbloquea solo
-    pid = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Zelle"}).json["expediente"]["pagos"][-1]["id"]
+    pid = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": 2000, "metodo": "Zelle"}).json["expediente"]["pagos"][-1]["id"]
     client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
-    assert client.get(f"/api/rastreo/{codigo}").json["archivos_bloqueados"] is False
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert v["archivos_bloqueados"] is False and v["falta_pagar"] is False and v["pago"] == "por_confirmar"   # el recibo viejo sigue "nuevo", pero ya no hay deuda
     assert len(client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "4321"}).json["archivos"]) == 1
     # administración puede volver a bloquear a mano
     assert client.post("/api/admin/archivos/liberar", json={"codigo": codigo, "liberar": True}).json["ok"]
