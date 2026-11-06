@@ -2616,6 +2616,32 @@ def _datos_servicio(serv: dict, sid: str, cat_: dict, sitio: str) -> str:
     return '\n    <script type="application/ld+json">' + json.dumps(datos, ensure_ascii=False).replace("</", "<\\/") + "</script>"
 
 
+def _catalogo_estatico(cat_: dict) -> str:
+    """Los servicios agrupados por área, como enlaces con texto real (el JavaScript los vuelve a pintar como tarjetas)."""
+    grupos = []
+    for cid, c in cat_["categorias"].items():
+        items = [(sid, sv) for sid, sv in cat_["servicios"].items() if sv.get("category") == cid]
+        if not items:
+            continue
+        lis = "".join(f'<li class="py-1"><a class="font-bold text-domBlue hover:underline" href="{ruta_servicio(sid, sv)}">{_atr(sv["title"])}</a>'
+                      f' <span class="text-slate-500 text-sm">— {_atr(sv.get("desc", ""))}</span></li>' for sid, sv in items)
+        grupos.append(f'<section class="mb-6"><h2 class="text-lg font-extrabold text-slate-900">{_atr(c.get("label", ""))}</h2>'
+                      f'<p class="text-sm text-slate-500 mb-2">{_atr(c.get("resumen", ""))}</p><ul>{lis}</ul></section>')
+    return '<div class="cat-page">' + "".join(grupos) + "</div>"
+
+
+def _preguntas_estaticas(cat_: dict) -> str:
+    return "".join(f'<details class="serv-faq"><summary>{_atr(f["q"])}</summary><p>{_atr(f["a"])}</p></details>'
+                   for f in cat_.get("faq", []))
+
+
+def _instituciones_estaticas(cat_: dict) -> str:
+    return "".join(f'<article class="bg-white border border-slate-200 rounded-2xl p-4"><h2 class="font-extrabold text-slate-900">'
+                   f'{_atr(i.get("nombre", ""))}{" (" + _atr(i["sigla"]) + ")" if i.get("sigla") else ""}</h2>'
+                   f'<p class="text-sm text-slate-600 mt-1">{_atr(i.get("desc", ""))}</p></article>'
+                   for i in cat_.get("instituciones", {}).values())
+
+
 def pagina(nombre: str, sid: str = ""):
     """Sirve una página pública con canonical y Open Graph ya puestos (sin esperar al JavaScript)."""
     html = _leer_html(nombre)
@@ -2652,6 +2678,13 @@ def pagina(nombre: str, sid: str = ""):
             html = html.replace("</title>", "</title>" + _datos_servicio(serv, sid, cat, sitio), 1)
         else:
             ruta = "/servicios"   # sin servicio válido: la dirección oficial es el catálogo
+    # Contenido escrito en el HTML (no solo pintado por JavaScript): lo leen Bing y Google aunque no ejecuten el script
+    if nombre == "servicios":
+        html = _rellenar(html, "catGrid", _catalogo_estatico(cat))
+    elif nombre == "preguntas":
+        html = _rellenar(html, "faqContainer", _preguntas_estaticas(cat))
+    elif nombre == "instituciones":
+        html = _rellenar(html, "iGrid", _instituciones_estaticas(cat))
     url = sitio + ruta
     imagen = f"{sitio}/assets/img/og-tramitafacil.png"
     if nombre == "servicio" and serv and serv.get("slug") and \

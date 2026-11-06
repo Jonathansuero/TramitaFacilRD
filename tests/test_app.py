@@ -1161,3 +1161,11 @@ def test_gestor_pide_documentos_concretos_y_cliente_adjunta_en_cada_uno(client, 
     assert [x["nombre"] for x in v["docs_subidos"] if x["cual"] == "Cédula"] == ["cedula-frente.pdf", "cedula-atras.pdf"]
     assert next(d for d in v["docs_extra"] if d["nombre"] == "Cédula")["enviado"] is True
     assert next(d for d in v["docs_extra"] if d["nombre"] == "Pasaporte")["enviado"] is False
+
+
+def test_servicios_preguntas_e_instituciones_traen_su_contenido_en_el_html(client):
+    """Para Bing y Google: el listado va escrito en el HTML, no solo pintado por JavaScript."""
+    h = client.get("/servicios").get_data(as_text=True)
+    assert 'href="/servicios/' in h and "Residencia Dominicana para Extranjeros" in h
+    assert "¿Necesito viajar a República Dominicana" in client.get("/preguntas").get_data(as_text=True)
+    assert "Dirección General de Migración" in client.get("/instituciones").get_data(as_text=True)
