@@ -601,16 +601,34 @@ $('#form').addEventListener('submit', async e => {
 
 // ---- carrusel de trámites (fotos propias → abren la cotización de ese trámite)
 const CAR = [
-  ['movimientos-migratorios','Mujer mostrando una certificación de movimientos migratorios','Migración','movimientos_migratorios'],
-  ['certificacion-solteria','Mujer sonriendo con una certificación de soltería','Estado civil','certificacion_solteria'],
+  ['visa-americana','Mujer con su pasaporte dominicano y el formulario DS-160 frente a la embajada','Visas','visa_ds160'],
+  ['residencia-dominicana','Mujer mostrando su carné de residencia dominicana','Migración','residencia_dominicana'],
   ['pasaporte','Hombre con su pasaporte dominicano en una oficina','Pasaportes','pasaporte_normal'],
-  ['traspaso-vehiculo','Hombre con las llaves de su vehículo revisando los documentos del traspaso','Vehículos','traspaso_vehicular'],
-  ['union-libre','Pareja con su declaración de unión libre','Estado civil','declaracion_union_libre'],
   ['visa-europa','Mujer mostrando su pasaporte dominicano y una visa europea frente a la Torre Eiffel','Visas','visa_europea'],
-  ['marbete','Mujer revisando en su celular el marbete y los papeles de su vehículo','Vehículos','pagos_impuestos'],
+  ['e-ticket-viajero','Viajero con su E-Ticket en el aeropuerto','Viajes','e_ticket'],
+  ['permiso-menores-madre','Madre e hija con su permiso de salida de menores en el aeropuerto','Migración','permiso_menores'],
   ['peticion-familiar','Madre e hija sonrientes con pasaporte y boletos en el aeropuerto','Familia','peticiones_familiares'],
   ['pasaporte-mujer','Mujer con su pasaporte dominicano','Pasaportes','pasaporte_vip'],
-  ['documentos-oficina','Asesora revisando documentos en su oficina','Documentos','poderes_especiales'],
+  ['movimientos-pasaporte','Hombre revisando sus movimientos migratorios junto a su pasaporte sellado','Migración','movimientos_migratorios'],
+  ['apostilla-documentos','Mujer mostrando un documento apostillado con su sello dorado','Documentos','apostilla_documentos'],
+  ['legalizacion-titulos','Graduada mostrando su título universitario para legalizarlo','Educación','legalizacion_mescyt'],
+  ['traduccion-documentos','Asesora revisando la traducción de un documento del español al inglés','Documentos','traduccion_documentos'],
+  ['solteria-certificado','Mujer feliz al recibir su certificación de soltería','Estado civil','certificacion_solteria'],
+  ['union-libre','Pareja con su declaración de unión libre','Estado civil','declaracion_union_libre'],
+  ['traspaso-vehiculo','Hombre con las llaves de su vehículo revisando los documentos del traspaso','Vehículos','traspaso_vehicular'],
+  ['duplicado-matricula','Hombre recibiendo su matrícula del vehículo junto a las llaves','Vehículos','duplicado_matricula'],
+  ['licencia-conducir','Mujer mostrando su licencia de conducir dominicana','Vehículos','renovacion_licencia'],
+  ['marbete','Mujer revisando en su celular el marbete y los papeles de su vehículo','Vehículos','pagos_impuestos'],
+  ['multas-transito','Hombre consultando en su celular sus multas de tránsito','Vehículos','multas_transito'],
+  ['levantamiento-oposicion','Mujer feliz al conocer que su vehículo no tiene oposición','Vehículos','levantamiento_oposicion'],
+  ['carfax-vehiculo','Pareja revisando el reporte Carfax de un vehículo en una tablet','Vehículos','carfax_vehicular'],
+  ['estado-juridico','Pareja revisando con su abogado el estado jurídico de un inmueble','Inmobiliario','estado_juridico_inmueble'],
+  ['hipotecas-cargas','Hombre entregando documentos en el banco para su hipoteca','Inmobiliario','hipotecas_cargas'],
+  ['deposito-agricola','Productor agrícola entregando su depósito en el Banco Agrícola','Inmobiliario','deposito_banco_agricola'],
+  ['constitucion-empresa','Empresario sonriente en su oficina con su laptop','Empresas','constitucion_empresas'],
+  ['nombre-comercial','Pareja revisando los bocetos del logo y la marca de su negocio','Empresas','registro_empresa_onapi'],
+  ['cv-profesional','Pareja revisando un currículum profesional en laptop','Empleo','creacion_cv'],
+  ['documentos-oficina','Asesora revisando documentos en su oficina','Documentos','poderes_especiales']
 ].filter(c => SERV[c[3]]);
 const track = $('#carTrack');
 function pintaCar() {
