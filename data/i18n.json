@@ -1097,9 +1097,9 @@
       "Quel document envoyez-vous ?"
     ],
     "track.pide.archivo": [
-      "Foto o PDF del documento",
-      "Photo or PDF of the document",
-      "Photo ou PDF du document"
+      "Fotos o PDF de tus documentos",
+      "Photos or PDFs of your documents",
+      "Photos ou PDF de vos documents"
     ],
     "track.pide.otro": [
       "Otro documento",
@@ -1107,14 +1107,14 @@
       "Un autre document"
     ],
     "track.pide.btn": [
-      "Enviar documento",
-      "Send document",
-      "Envoyer le document"
+      "Enviar documentos",
+      "Send documents",
+      "Envoyer les documents"
     ],
     "track.pide.ok": [
-      "Recibimos tu documento. Nuestro equipo lo revisará y seguimos con tu trámite.",
-      "We received your document. Our team will review it and continue with your request.",
-      "Nous avons reçu votre document. Notre équipe va l'examiner et poursuivre votre démarche."
+      "Recibimos tus archivos y quedaron registrados. Puedes seguir subiendo más.",
+      "We received your files and they are saved. You can keep uploading more.",
+      "Nous avons reçu vos fichiers. Vous pouvez en ajouter d’autres."
     ],
     "track.docs.t": [
       "Tus documentos están listos",
@@ -2676,11 +2676,6 @@
       "Final payment (50%)",
       "Paiement final (50 %)"
     ],
-    "track.comp.c.otro": [
-      "Otro pago",
-      "Other payment",
-      "Autre paiement"
-    ],
     "track.lock.t": [
       "Tus archivos están listos, pero bloqueados",
       "Your files are ready, but locked",
@@ -2715,6 +2710,51 @@
       "Por ahora no te hemos pedido documentos. Si necesitas enviar alguno, súbelo aquí.",
       "We have not asked for documents yet. If you need to send one, upload it here.",
       "Nous ne vous avons pas encore demandé de documents. Si vous devez en envoyer un, téléversez-le ici."
+    ],
+    "track.comp.c.extra": [
+      "Pago extra",
+      "Extra payment",
+      "Paiement supplémentaire"
+    ],
+    "track.comp.c.extra.d": [
+      "Opcional",
+      "Optional",
+      "Facultatif"
+    ],
+    "track.comp.c.final.d": [
+      "Cuando tu trámite esté listo",
+      "When your request is ready",
+      "Quand votre démarche sera prête"
+    ],
+    "track.comp.c.ini.ok": [
+      "Ya confirmado",
+      "Already confirmed",
+      "Déjà confirmé"
+    ],
+    "track.comp.c.ini.d": [
+      "Para iniciar el trámite",
+      "To start your request",
+      "Pour démarrer la démarche"
+    ],
+    "track.pide.multi": [
+      "Puedes seleccionar varios archivos a la vez y seguir subiendo más cuando quieras.",
+      "You can select several files at once and keep uploading more whenever you like.",
+      "Vous pouvez choisir plusieurs fichiers à la fois et en ajouter d’autres à tout moment."
+    ],
+    "track.pide.enviando": [
+      "Enviando {i} de {n}…",
+      "Sending {i} of {n}…",
+      "Envoi {i} sur {n}…"
+    ],
+    "track.pide.regis": [
+      "Registrado",
+      "Saved",
+      "Enregistré"
+    ],
+    "track.pide.falla": [
+      "No se pudo enviar",
+      "Could not send",
+      "Échec de l’envoi"
     ]
   },
   "contenido": {

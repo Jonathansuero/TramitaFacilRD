@@ -97,8 +97,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                         <i class="fa-solid fa-chevron-down tc-flecha"></i>
                                                     </button>
                                                     <form id="trackCompForm" class="hidden tc-form" novalidate>
-                                                        <label class="tc-campo"><span data-i18n="track.comp.concepto">¿Qué pago es?</span>
-                                                            <select id="trackCompConcepto"><option value="inicial" data-i18n="track.comp.c.inicial">Pago inicial (50%)</option><option value="final" data-i18n="track.comp.c.final">Pago final (50%)</option><option value="otro" data-i18n="track.comp.c.otro">Otro pago</option></select></label>
+                                                        <div class="tc-campo"><span data-i18n="track.comp.concepto">¿Qué pago es?</span>
+                                                            <input type="hidden" id="trackCompConcepto" value="inicial">
+                                                            <div class="tc-tipos" role="group">
+                                                                <button type="button" class="tc-tipo" data-concepto="inicial"><b data-i18n="track.comp.c.inicial">Pago inicial (50%)</b><small id="tcTipoIni"></small></button>
+                                                                <button type="button" class="tc-tipo" data-concepto="final"><b data-i18n="track.comp.c.final">Pago final (50%)</b><small data-i18n="track.comp.c.final.d">Cuando tu trámite esté listo</small></button>
+                                                                <button type="button" class="tc-tipo" data-concepto="extra"><b data-i18n="track.comp.c.extra">Pago extra</b><small data-i18n="track.comp.c.extra.d">Opcional</small></button>
+                                                            </div></div>
                                                         <label class="tc-campo"><span data-i18n="track.comp.archivo">Foto o PDF del comprobante</span>
                                                             <input type="file" id="trackCompArchivo" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
                                                         <div class="tc-fila">
@@ -139,11 +144,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                         <form id="trackDocForm" novalidate>
                                                             <label class="tc-campo"><span data-i18n="track.pide.cual">¿Cuál documento envías?</span>
                                                                 <select id="trackDocCual"></select></label>
-                                                            <label class="tc-campo"><span data-i18n="track.pide.archivo">Foto o PDF del documento</span>
-                                                                <input type="file" id="trackDocArchivo" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
+                                                            <label class="tc-campo"><span data-i18n="track.pide.archivo">Fotos o PDF de tus documentos</span>
+                                                                <small class="tc-ayuda" data-i18n="track.pide.multi">Puedes seleccionar varios archivos a la vez y seguir subiendo más cuando quieras.</small>
+                                                                <input type="file" id="trackDocArchivo" multiple accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
                                                             <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
                                                                 <input type="text" id="trackDocDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com" required></label>
                                                             <p id="trackDocError" class="hidden td-error" role="alert"></p>
+                                                            <ul id="trackDocEnviados" class="hidden td-enviados" aria-live="polite"></ul>
                                                             <button type="submit" id="trackDocBtn" data-i18n="track.pide.btn">Enviar documento</button>
                                                         </form>
                                                         <p id="trackDocOk" class="hidden tc-ok"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.pide.ok">Recibimos tu documento. Nuestro equipo lo revisará y seguimos con tu trámite.</span></p>

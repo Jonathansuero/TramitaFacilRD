@@ -953,7 +953,7 @@ def api_comprobante(codigo: str):
     carpeta.mkdir(parents=True, exist_ok=True)
     guardado = f"comprobante-{secrets.token_hex(10)}{ext}"
     (carpeta / guardado).write_bytes(datos)
-    concepto = {"inicial": "Pago inicial (50%)", "final": "Pago final (50%)"}.get(str(request.form.get("concepto", "")), "")
+    concepto = {"inicial": "Pago inicial (50%)", "final": "Pago final (50%)", "extra": "Pago extra"}.get(str(request.form.get("concepto", "")), "")
     nota = (f"{concepto} · " if concepto else "") + str(request.form.get("nota", "")).strip()
     nota = nota.strip(" ·")[:200]
     db.execute("INSERT INTO comprobantes (codigo, nombre, archivo, tipo, tamano, monto, moneda, metodo, nota, creado) VALUES (?,?,?,?,?,?,?,?,?,?)",
