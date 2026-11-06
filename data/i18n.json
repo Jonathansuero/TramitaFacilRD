@@ -872,19 +872,19 @@
       "Aucun dossier avec ce code. Vérifiez et réessayez."
     ],
     "track.pago.pend": [
-      "Pago pendiente por confirmar",
-      "Payment pending confirmation",
-      "Paiement en attente de confirmation"
+      "Recibo recibido: estamos verificando tu pago",
+      "Receipt received: we are verifying your payment",
+      "Reçu reçu : nous vérifions votre paiement"
     ],
     "track.pago.pend.d": [
-      "Recibimos el registro de tu pago. Nuestro equipo está verificando que llegó; te avisaremos cuando quede confirmado.",
-      "We have your payment on record. Our team is verifying it arrived; we will let you know once it is confirmed.",
-      "Nous avons enregistré votre paiement. Notre équipe vérifie sa réception ; nous vous préviendrons dès qu'il sera confirmé."
+      "Nuestro equipo está comprobando que tu pago llegó; te avisaremos cuando quede confirmado.",
+      "Our team is checking that your payment arrived; we will let you know once it is confirmed.",
+      "Notre équipe vérifie que votre paiement est arrivé ; nous vous préviendrons dès sa confirmation."
     ],
     "track.pago.full": [
-      "Pago completo realizado",
-      "Payment completed",
-      "Paiement intégral effectué"
+      "Pagado: 100% confirmado",
+      "Paid: 100% confirmed",
+      "Payé : 100 % confirmé"
     ],
     "track.pago.full.d": [
       "Tu pago está completo y verificado por nuestro equipo. ¡Gracias!",
@@ -971,33 +971,23 @@
       "We couldn't validate your payment: {motivo}. Please send the receipt again, or message us on WhatsApp and we'll sort it out with you.",
       "Nous n'avons pas pu valider votre paiement : {motivo}. Renvoyez le reçu ou écrivez-nous sur WhatsApp et nous réglerons cela avec vous."
     ],
-    "track.comp.o": [
-      "¿Prefieres enviarlo por WhatsApp?",
-      "Prefer to send it on WhatsApp?",
-      "Vous préférez l'envoyer sur WhatsApp ?"
-    ],
-    "track.comp.wa": [
-      "Enviarlo por WhatsApp",
-      "Send it on WhatsApp",
-      "L'envoyer sur WhatsApp"
-    ],
     "wa.comp": [
       "Les escribo por mi expediente {code}. Les envío por aquí el comprobante de mi pago.",
       "I'm writing about my request {code}. I'm sending you my payment receipt here.",
       "Je vous écris au sujet de mon dossier {code}. Je vous envoie ici mon reçu de paiement."
     ],
     "track.comp.t": [
-      "¿Ya pagaste? Sube tu comprobante",
-      "Already paid? Upload your receipt",
-      "Déjà payé ? Envoyez votre reçu"
+      "Subir recibo de pago",
+      "Upload payment receipt",
+      "Téléverser le reçu de paiement"
     ],
     "track.comp.sub": [
-      "Opcional: así confirmamos tu pago más rápido. También puedes enviarlo por WhatsApp.",
-      "Optional: it helps us confirm your payment faster. You can also send it on WhatsApp.",
-      "Facultatif : cela nous aide à confirmer votre paiement plus vite. Vous pouvez aussi l'envoyer sur WhatsApp."
+      "Sube la foto o el PDF de tu recibo. Nuestro equipo lo verifica y confirma tu pago.",
+      "Upload a photo or PDF of your receipt. Our team verifies it and confirms your payment.",
+      "Téléversez la photo ou le PDF de votre reçu. Notre équipe le vérifie et confirme votre paiement."
     ],
     "track.comp.archivo": [
-      "Foto o PDF del comprobante",
+      "Foto o PDF del recibo",
       "Photo or PDF of the receipt",
       "Photo ou PDF du reçu"
     ],
@@ -1047,7 +1037,7 @@
       "Note (facultatif)"
     ],
     "track.comp.btn": [
-      "Enviar comprobante",
+      "Enviar recibo",
       "Send receipt",
       "Envoyer le reçu"
     ],
@@ -1057,9 +1047,9 @@
       "Envoi…"
     ],
     "track.comp.ok": [
-      "Recibimos tu comprobante. Nuestro equipo lo verificará y te avisaremos cuando el pago quede confirmado.",
-      "We received your receipt. Our team will verify it and let you know once the payment is confirmed.",
-      "Nous avons reçu votre reçu. Notre équipe va le vérifier et vous prévenir dès que le paiement sera confirmé."
+      "Recibimos tu recibo. Nuestro equipo lo verificará y tu pago aparecerá como confirmado.",
+      "We received your receipt. Our team will verify it and your payment will show as confirmed.",
+      "Nous avons reçu votre reçu. Notre équipe le vérifiera et votre paiement apparaîtra comme confirmé."
     ],
     "track.comp.e.archivo": [
       "Elige la foto o el PDF del comprobante.",
@@ -1082,9 +1072,9 @@
       "Documents nécessaires"
     ],
     "track.pide.sub": [
-      "Faltan {n}. Puedes enviarlos por aquí o por WhatsApp.",
-      "{n} missing. You can send them here or on WhatsApp.",
-      "Il en manque {n}. Envoyez-les ici ou sur WhatsApp."
+      "Faltan {n}. Súbelos aquí cuando los tengas.",
+      "{n} missing. Upload them here when you have them.",
+      "Il en manque {n}. Téléversez-les ici dès que vous les avez."
     ],
     "track.pide.ok.todos": [
       "Ya tenemos todos tus documentos. ¡Gracias!",
@@ -2565,6 +2555,166 @@
       "Acceso del equipo",
       "Team access",
       "Accès équipe"
+    ],
+    "track.sec.pagos.t": [
+      "Pagos",
+      "Payments",
+      "Paiements"
+    ],
+    "track.sec.pagos.d": [
+      "Tu pago se divide en dos partes: 50% para iniciar tu trámite y 50% cuando esté listo.",
+      "Your payment is split in two: 50% to start your request and 50% when it is ready.",
+      "Votre paiement se fait en deux parties : 50 % pour démarrer et 50 % lorsque la démarche est prête."
+    ],
+    "track.sec.docs.t": [
+      "Tus documentos",
+      "Your documents",
+      "Vos documents"
+    ],
+    "track.sec.docs.d": [
+      "Sube aquí lo que te pidamos para avanzar con tu trámite.",
+      "Upload here what we ask for to move your request forward.",
+      "Téléversez ici ce que nous vous demandons pour faire avancer votre démarche."
+    ],
+    "track.sec.arch.t": [
+      "Tus archivos",
+      "Your files",
+      "Vos fichiers"
+    ],
+    "track.sec.arch.d": [
+      "Los documentos finales de tu trámite se desbloquean al completar el pago.",
+      "The final documents of your request unlock once the payment is complete.",
+      "Les documents finaux de votre démarche se débloquent une fois le paiement complété."
+    ],
+    "track.hito.ini": [
+      "Pago inicial (50%)",
+      "Initial payment (50%)",
+      "Paiement initial (50 %)"
+    ],
+    "track.hito.fin": [
+      "Pago final (50%)",
+      "Final payment (50%)",
+      "Paiement final (50 %)"
+    ],
+    "track.hito.conf": [
+      "Confirmado",
+      "Confirmed",
+      "Confirmé"
+    ],
+    "track.hito.ver": [
+      "En verificación",
+      "Being verified",
+      "En vérification"
+    ],
+    "track.hito.pend": [
+      "Pendiente",
+      "Pending",
+      "En attente"
+    ],
+    "track.hito.espera": [
+      "Se paga cuando tu trámite esté listo",
+      "Paid when your request is ready",
+      "À régler lorsque la démarche est prête"
+    ],
+    "track.hito.ahora": [
+      "Págalo ahora",
+      "Pay it now",
+      "À régler maintenant"
+    ],
+    "track.pago.ini": [
+      "Falta tu pago inicial del 50%",
+      "Your initial 50% payment is missing",
+      "Votre paiement initial de 50 % est manquant"
+    ],
+    "track.pago.ini.d": [
+      "Para iniciar tu trámite, realiza el 50% ({monto}) y sube aquí tu recibo. Nuestro equipo lo confirma.",
+      "To start your request, pay 50% ({monto}) and upload your receipt here. Our team will confirm it.",
+      "Pour démarrer votre démarche, réglez 50 % ({monto}) et téléversez votre reçu ici. Notre équipe le confirmera."
+    ],
+    "track.pago.ini.d0": [
+      "Para iniciar tu trámite, realiza el 50% del pago y sube aquí tu recibo. Nuestro equipo lo confirma.",
+      "To start your request, pay 50% and upload your receipt here. Our team will confirm it.",
+      "Pour démarrer votre démarche, réglez 50 % et téléversez votre reçu ici. Notre équipe le confirmera."
+    ],
+    "track.pago.inok": [
+      "Pago inicial confirmado",
+      "Initial payment confirmed",
+      "Paiement initial confirmé"
+    ],
+    "track.pago.inok.d": [
+      "Tu trámite está en proceso. El 50% restante lo pagas cuando esté listo.",
+      "Your request is in progress. You pay the remaining 50% when it is ready.",
+      "Votre démarche est en cours. Vous réglez les 50 % restants lorsqu’elle est prête."
+    ],
+    "track.pago.listo": [
+      "Tu trámite está listo: realiza el 50% restante",
+      "Your request is ready: pay the remaining 50%",
+      "Votre démarche est prête : réglez les 50 % restants"
+    ],
+    "track.pago.listo.d": [
+      "Recuerda pagar el 50% restante ({monto}) y subir tu recibo. Cuando administración lo confirme, se desbloquean tus archivos.",
+      "Remember to pay the remaining 50% ({monto}) and upload your receipt. Once our team confirms it, your files unlock.",
+      "N’oubliez pas de régler les 50 % restants ({monto}) et de téléverser votre reçu. Dès que notre équipe le confirme, vos fichiers sont débloqués."
+    ],
+    "track.pago.listo.d0": [
+      "Recuerda pagar el 50% restante y subir tu recibo. Cuando administración lo confirme, se desbloquean tus archivos.",
+      "Remember to pay the remaining 50% and upload your receipt. Once our team confirms it, your files unlock.",
+      "N’oubliez pas de régler les 50 % restants et de téléverser votre reçu. Dès que notre équipe le confirme, vos fichiers sont débloqués."
+    ],
+    "track.comp.concepto": [
+      "¿Qué pago es?",
+      "Which payment is it?",
+      "De quel paiement s’agit-il ?"
+    ],
+    "track.comp.c.inicial": [
+      "Pago inicial (50%)",
+      "Initial payment (50%)",
+      "Paiement initial (50 %)"
+    ],
+    "track.comp.c.final": [
+      "Pago final (50%)",
+      "Final payment (50%)",
+      "Paiement final (50 %)"
+    ],
+    "track.comp.c.otro": [
+      "Otro pago",
+      "Other payment",
+      "Autre paiement"
+    ],
+    "track.lock.t": [
+      "Tus archivos están listos, pero bloqueados",
+      "Your files are ready, but locked",
+      "Vos fichiers sont prêts, mais verrouillés"
+    ],
+    "track.lock.d": [
+      "Para desbloquearlos, realiza el 50% restante ({monto}) y sube tu recibo en la sección de pagos. Nuestro equipo lo confirmará y los verás aquí.",
+      "To unlock them, pay the remaining 50% ({monto}) and upload your receipt in the payments section. Our team will confirm it and you will see them here.",
+      "Pour les débloquer, réglez les 50 % restants ({monto}) et téléversez votre reçu dans la section paiements. Notre équipe le confirmera et vous les verrez ici."
+    ],
+    "track.lock.d0": [
+      "Para desbloquearlos, completa el pago y sube tu recibo en la sección de pagos. Nuestro equipo lo confirmará y los verás aquí.",
+      "To unlock them, complete the payment and upload your receipt in the payments section. Our team will confirm it and you will see them here.",
+      "Pour les débloquer, complétez le paiement et téléversez votre reçu dans la section paiements. Notre équipe le confirmera et vous les verrez ici."
+    ],
+    "track.lock.n1": [
+      "1 archivo en espera",
+      "1 file waiting",
+      "1 fichier en attente"
+    ],
+    "track.lock.n": [
+      "{n} archivos en espera",
+      "{n} files waiting",
+      "{n} fichiers en attente"
+    ],
+    "track.docs.bloq": [
+      "Tus archivos siguen bloqueados hasta que administración confirme el pago del 50% restante.",
+      "Your files stay locked until our team confirms the remaining 50% payment.",
+      "Vos fichiers restent verrouillés jusqu’à la confirmation des 50 % restants."
+    ],
+    "track.pide.vacio": [
+      "Por ahora no te hemos pedido documentos. Si necesitas enviar alguno, súbelo aquí.",
+      "We have not asked for documents yet. If you need to send one, upload it here.",
+      "Nous ne vous avons pas encore demandé de documents. Si vous devez en envoyer un, téléversez-le ici."
     ]
   },
   "contenido": {

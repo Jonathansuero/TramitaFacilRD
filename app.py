@@ -391,6 +391,9 @@ def migrar(db: sqlite3.Connection) -> None:
         db.execute("ALTER TABLE pagos ADD COLUMN avisar_cliente INTEGER NOT NULL DEFAULT 1")
     if "pago_wa" not in cols_s:
         db.execute("ALTER TABLE seguimiento ADD COLUMN pago_wa TEXT")   # el cliente avisó que paga por WhatsApp
+    for col in ("archivos_liberados", "archivos_liberados_por"):    # desbloqueo manual de los archivos finales (solo administración)
+        if col not in cols_s:
+            db.execute(f"ALTER TABLE seguimiento ADD COLUMN {col} TEXT")
     if "docs" not in {r[1] for r in db.execute("PRAGMA table_info(tramites)")}:
         db.execute("ALTER TABLE tramites ADD COLUMN docs TEXT")  # documentos recibidos (lista JSON)
     # Expedientes de antes de "varios trámites por código": cada uno pasa a tener su trámite
@@ -740,6 +743,7 @@ def api_rastreo(codigo: str):
                         "archivos": get_db().execute("SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='entrega'", (codigo,)).fetchone()[0],
                         **estado_pago_cliente(get_db(), codigo), "falta_pagar": falta_por_pagar(get_db(), codigo),
                         "saldo": saldo_cliente(get_db(), codigo),
+                        "archivos_bloqueados": not archivos_desbloqueados(get_db(), codigo),
                         "pide_docs": sorted(set(pedidos)),
                         "docs_enviados": get_db().execute(
                             "SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='recibido' AND usuario='cliente'", (codigo,)).fetchone()[0],
@@ -779,7 +783,18 @@ def saldo_cliente(db: sqlite3.Connection, codigo: str) -> dict:
         return {"total": None, "pagado": pagado, "falta": None, "pct": None}
     falta = max(0, round(total - pagado, 2))
     pct = 100 if total <= 0 else max(0, min(100, round(pagado / total * 100)))
-    return {"total": total, "pagado": pagado, "falta": falta, "pct": pct}
+    mitad = round(total / 2, 2)    # el primer 50% se paga para empezar; el otro 50%, cuando el trámite esté listo
+    return {"total": total, "pagado": pagado, "falta": falta, "pct": pct,
+            "mitad": mitad, "falta_mitad": max(0, round(mitad - pagado, 2))}
+
+
+def archivos_desbloqueados(db: sqlite3.Connection, codigo: str) -> bool:
+    """Los archivos finales se entregan cuando administración confirmó todo el pago, o los desbloqueó a mano."""
+    fila = db.execute("SELECT archivos_liberados FROM seguimiento WHERE codigo=?", (codigo,)).fetchone()
+    if fila and fila["archivos_liberados"]:
+        return True
+    s = saldo_cliente(db, codigo)
+    return s["total"] is not None and s["falta"] <= 0
 
 
 def falta_por_pagar(db: sqlite3.Connection, codigo: str) -> bool:
@@ -799,6 +814,8 @@ def api_rastreo_archivos(codigo: str):
                      " WHERE o.codigo=? AND s.eliminado IS NULL", (codigo,)).fetchone()
     if not sol or not contacto_coincide(sol["contacto"], cuerpo_json().get("dato", "")):
         return error("Los datos no coinciden con este expediente.", 403)
+    if not archivos_desbloqueados(db, codigo):
+        return error("Tus archivos se desbloquean cuando administración confirme el pago del 50% restante.", 423)
     lista = [{"nombre": a["nombre"], "tamano": a["tamano"], "url": enlace_descarga(a["id"])} for a in archivos_de(db, codigo)]
     return jsonify({"ok": True, "archivos": lista})
 
@@ -813,6 +830,9 @@ def descarga(token: str):
     r = get_db().execute("SELECT a.* FROM archivos a JOIN seguimiento s ON s.codigo = a.codigo"
                          " WHERE a.id=? AND a.clase='entrega' AND s.eliminado IS NULL", (int(datos.get("a", 0)),)).fetchone()
     ruta = carpeta_archivos() / r["archivo"] if r else None
+    if r and not archivos_desbloqueados(get_db(), r["codigo"]):
+        return Response("Tus archivos se desbloquean cuando administración confirme el pago del 50% restante. Escríbenos por WhatsApp si ya pagaste.",
+                        status=423, mimetype="text/plain; charset=utf-8")
     if not r or not ruta.is_file():
         return Response("Este documento ya no está disponible. Escríbenos por WhatsApp.", status=404, mimetype="text/plain; charset=utf-8")
     resp = send_file(ruta, mimetype=r["tipo"], as_attachment=True, download_name=r["nombre"])
@@ -933,7 +953,9 @@ def api_comprobante(codigo: str):
     carpeta.mkdir(parents=True, exist_ok=True)
     guardado = f"comprobante-{secrets.token_hex(10)}{ext}"
     (carpeta / guardado).write_bytes(datos)
-    nota = str(request.form.get("nota", "")).strip()[:200]
+    concepto = {"inicial": "Pago inicial (50%)", "final": "Pago final (50%)"}.get(str(request.form.get("concepto", "")), "")
+    nota = (f"{concepto} · " if concepto else "") + str(request.form.get("nota", "")).strip()
+    nota = nota.strip(" ·")[:200]
     db.execute("INSERT INTO comprobantes (codigo, nombre, archivo, tipo, tamano, monto, moneda, metodo, nota, creado) VALUES (?,?,?,?,?,?,?,?,?,?)",
                (codigo, nombre, f"{codigo}/{guardado}", TIPOS_ARCHIVO[ext], len(datos), round(monto, 2), moneda, metodo, nota, ahora()))
     db.execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
@@ -1147,6 +1169,8 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["correos"] = [dict(r) for r in db.execute(
         "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
     d["pago_wa"] = db.execute("SELECT pago_wa FROM seguimiento WHERE codigo=?", (d["codigo"],)).fetchone()["pago_wa"]
+    d["archivos_bloqueados"] = not archivos_desbloqueados(db, d["codigo"])
+    d["archivos_liberados_manual"] = bool(db.execute("SELECT archivos_liberados FROM seguimiento WHERE codigo=?", (d["codigo"],)).fetchone()[0])
     d["comprobantes"] = [dict(r) for r in db.execute(
         "SELECT id, nombre, tipo, tamano, monto, moneda, metodo, nota, creado, estado, pago_id, revisado_por, motivo, avisar_cliente"
         " FROM comprobantes WHERE codigo=? ORDER BY id",
@@ -1501,9 +1525,11 @@ def correo_estado(db: sqlite3.Connection, codigo: str, titulo: str, paso: int, e
     if not avisos.configurado():
         return "no_configurado"
     T = avisos.textos(sol["idioma"])
-    archivos = archivos_de(db, codigo) if paso == 4 else []
+    todos = archivos_de(db, codigo) if paso == 4 else []
+    libres = archivos_desbloqueados(db, codigo)
+    archivos = todos if libres else []          # sin pago confirmado no se mandan enlaces
     if paso == 4:
-        parrafos = [T["listo"] if archivos else T["listo_sin"]]
+        parrafos = [T["listo"] if archivos else (T["listo_pago"] if todos else T["listo_sin"])]
     else:
         parrafos = [T["intro"]]
     texto, html_ = avisos.plantilla(
@@ -1536,13 +1562,14 @@ def admin_avisar():
         return error("El envío de correos aún no está activado. En el servidor escribe: tramita correo", 503)
     T = avisos.textos(sol["idioma"])
     listo = all(t["paso"] == 4 for t in items)
-    archivos = archivos_de(db, codigo) if any(t["paso"] == 4 for t in items) else []
+    todos = archivos_de(db, codigo) if any(t["paso"] == 4 for t in items) else []
+    archivos = todos if archivos_desbloqueados(db, codigo) else []
     datos = [(T["codigo"], codigo)]
     for t in items:
         datos += [(T["tramite"], t["titulo"]), (T["estado"], f"{t['estado']} · {T['paso'].format(n=t['paso'])}"), (T["mensaje"], t["detalle"])]
     texto, html_ = avisos.plantilla(
         T["listo_t"] if listo else T["titulo"], T["hola"].format(nombre=sol["nombre"].split()[0]),
-        [T["listo"] if archivos else (T["listo_sin"] if listo else T["intro"])], datos=datos,
+        [T["listo"] if archivos else (T["listo_pago"] if todos else (T["listo_sin"] if listo else T["intro"]))], datos=datos,
         enlaces=[(a["nombre"], enlace_descarga(a["id"])) for a in archivos],
         boton=(T["boton"], f"{avisos.sitio()}/rastreo?c={codigo}"), pie=(T["vence"] + " " if archivos else "") + T["pie"])
     asunto = T["asunto"].format(codigo=codigo)
@@ -1746,6 +1773,25 @@ def admin_pago_validar():
               + ("" if avisar or estado == "confirmado" else " (sin avisar al cliente)"))
     db.commit()
     return jsonify({"ok": True, "estado": estado, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/archivos/liberar")
+@requiere("pagos")
+def admin_archivos_liberar():
+    """Administración o contabilidad desbloquea (o vuelve a bloquear) los archivos finales: {codigo, liberar: true|false}."""
+    if not puede_validar():
+        return error("Solo administración o contabilidad pueden desbloquear los archivos.", 403)
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    if not codigo:
+        return error("No existe ese código.", 404)
+    db, yo = get_db(), usuario_actual()
+    liberar = d.get("liberar") is not False
+    db.execute("UPDATE seguimiento SET archivos_liberados=?, archivos_liberados_por=? WHERE codigo=?",
+               (ahora() if liberar else None, yo["usuario"] if liberar else None, codigo))
+    registrar("Desbloqueó los archivos del cliente" if liberar else "Quitó el desbloqueo manual de los archivos", codigo)
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 
 
 @app.post("/api/admin/pago/quitar")
@@ -1990,6 +2036,8 @@ def admin_archivo_enviar():
     archivos = archivos_de(db, codigo)
     if not archivos:
         return error("Primero sube los documentos.")
+    if not archivos_desbloqueados(db, codigo):
+        return error("Los archivos siguen bloqueados: el cliente aún no completa el 50% restante. Confirma su pago o desbloquéalos antes de enviarlos.")
     para = avisos.correo_de(sol["contacto"]) if sol else ""
     if not para:
         return error("Este cliente no tiene correo. Agrégalo en «Editar datos del cliente» o envíalos por WhatsApp.")

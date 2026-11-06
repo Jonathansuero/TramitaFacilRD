@@ -75,91 +75,106 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                             </div>
                         </div>
                         <div class="bg-white p-3.5 rounded-xl border border-slate-200 text-xs text-slate-600"><strong class="text-slate-800" data-i18n="track.ultima">Última actualización:</strong> <span id="trackDetailDisplay"></span></div>
-                        <div id="trackPago" class="hidden track-pago" role="status">
-                            <span class="tp-ico"><i class="fa-solid fa-hourglass-half"></i></span>
-                            <div><strong id="trackPagoT"></strong><p id="trackPagoD"></p>
-                                <button type="button" id="trackPagoVer" class="hidden tp-ver" aria-expanded="false" aria-controls="trackPagoDesglose" data-i18n="track.pago.ver">Ver desglose</button>
-                                <dl id="trackPagoDesglose" class="hidden tp-desglose"></dl>
-                            </div>
-                        </div>
-                        <div id="trackDocsPide" class="hidden track-pide">
-                            <button type="button" id="trackPideAbrir" class="tc-abrir" aria-expanded="false" aria-controls="trackPideCuerpo">
-                                <span class="tc-ico"><i class="fa-solid fa-paperclip"></i></span>
-                                <span class="tc-txt"><strong data-i18n="track.pide.t">Documentos que necesitamos</strong><small id="trackPideSub"></small></span>
-                                <i class="fa-solid fa-chevron-down tc-flecha"></i>
-                            </button>
-                            <div id="trackPideCuerpo" class="hidden tc-form">
-                                <ul id="trackPideLista" class="td-check"></ul>
-                                <form id="trackDocForm" novalidate>
-                                    <label class="tc-campo"><span data-i18n="track.pide.cual">¿Cuál documento envías?</span>
-                                        <select id="trackDocCual"></select></label>
-                                    <label class="tc-campo"><span data-i18n="track.pide.archivo">Foto o PDF del documento</span>
-                                        <input type="file" id="trackDocArchivo" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
-                                    <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
-                                        <input type="text" id="trackDocDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com" required></label>
-                                    <p id="trackDocError" class="hidden td-error" role="alert"></p>
-                                    <button type="submit" id="trackDocBtn" data-i18n="track.pide.btn">Enviar documento</button>
-                                </form>
-                                <p id="trackDocOk" class="hidden tc-ok"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.pide.ok">Recibimos tu documento. Nuestro equipo lo revisará y seguimos con tu trámite.</span></p>
-                            </div>
-                        </div>
-                        <div id="trackComp" class="hidden track-comp">
-                            <button type="button" id="trackCompAbrir" class="tc-abrir" aria-expanded="false" aria-controls="trackCompForm">
-                                <span class="tc-ico"><i class="fa-solid fa-receipt"></i></span>
-                                <span class="tc-txt"><strong data-i18n="track.comp.t">¿Ya pagaste? Sube tu comprobante</strong><small data-i18n="track.comp.sub">Opcional: así confirmamos tu pago más rápido. También puedes enviarlo por WhatsApp.</small></span>
-                                <i class="fa-solid fa-chevron-down tc-flecha"></i>
-                            </button>
-                            <div id="trackCompWa" class="tc-wa"><span data-i18n="track.comp.o">¿Prefieres enviarlo por WhatsApp?</span>
-                                <a id="trackCompWaBtn" href="#" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp"></i> <span data-i18n="track.comp.wa">Enviarlo por WhatsApp</span></a></div>
-                            <form id="trackCompForm" class="hidden tc-form" novalidate>
-                                <label class="tc-campo"><span data-i18n="track.comp.archivo">Foto o PDF del comprobante</span>
-                                    <input type="file" id="trackCompArchivo" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
-                                <div class="tc-fila">
-                                    <label class="tc-campo"><span data-i18n="track.comp.monto">Monto pagado</span>
-                                        <span class="tc-monto"><select id="trackCompMoneda" data-i18n-aria="track.comp.moneda"><option value="DOP">RD$</option><option value="USD">US$</option><option value="EUR">€</option></select>
-                                        <input type="number" id="trackCompMonto" min="1" step="any" inputmode="decimal" required></span></label>
-                                    <label class="tc-campo"><span data-i18n="track.comp.metodo">¿Cómo pagaste?</span>
-                                        <select id="trackCompMetodo">
-                                            <option value="Transferencia" data-i18n="track.comp.m.transferencia">Transferencia</option>
-                                            <option value="Zelle">Zelle</option>
-                                            <option value="Remesa" data-i18n="track.comp.m.remesa">Remesa</option>
-                                            <option value="PayPal">PayPal</option>
-                                            <option value="Tarjeta" data-i18n="track.comp.m.tarjeta">Tarjeta</option>
-                                            <option value="Efectivo" data-i18n="track.comp.m.efectivo">Efectivo</option>
-                                            <option value="Otro" data-i18n="track.comp.m.otro">Otro</option>
-                                        </select></label>
-                                </div>
-                                <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
-                                    <input type="text" id="trackCompDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com" required></label>
-                                <label class="tc-campo"><span data-i18n="track.comp.nota">Nota (opcional)</span>
-                                    <input type="text" id="trackCompNota" maxlength="200"></label>
-                                <p id="trackCompError" class="hidden td-error" role="alert"></p>
-                                <button type="submit" id="trackCompBtn" data-i18n="track.comp.btn">Enviar comprobante</button>
-                            </form>
-                            <p id="trackCompOk" class="hidden tc-ok" role="status"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.comp.ok">Recibimos tu comprobante. Nuestro equipo lo verificará y te avisaremos cuando el pago quede confirmado.</span></p>
-                        </div>
                         <div id="trackItems" class="hidden mt-5">
                             <button type="button" id="trackItemsVer" class="track-items-t" aria-expanded="false" aria-controls="trackItemsList">
                                 <span data-i18n="track.items">Tus trámites en este código</span><span id="trackItemsN" class="ti-n"></span><i class="fa-solid fa-chevron-down ti-f"></i></button>
                             <ul id="trackItemsList" class="hidden track-items"></ul>
                         </div>
-                        <div id="trackEspera" class="hidden track-espera" role="status">
-                            <span class="te-ico"><i class="fa-regular fa-clock"></i></span>
-                            <div><strong data-i18n="track.espera.t">A la espera del documento</strong>
-                                <p data-i18n="track.espera.d">Cuando tu documento esté listo aparecerá aquí para descargarlo con tu código. También te avisamos por correo y por WhatsApp.</p></div>
-                        </div>
-                        <div id="trackDocs" class="hidden track-docs">
-                            <div class="td-cab"><span class="td-ico"><i class="fa-solid fa-file-arrow-down"></i></span>
-                                <div><strong data-i18n="track.docs.t">Tus documentos están listos</strong><small id="trackDocsN"></small>
-                                <p data-i18n="track.docs.sub">Para descargarlos, confirma los últimos 4 dígitos de tu WhatsApp o tu correo.</p></div></div>
-                            <form id="trackDocsForm" class="td-form">
-                                <input type="text" id="trackDocsDato" data-i18n-aria="track.docs.aria" placeholder="1234 · tu@correo.com" autocomplete="off" maxlength="120" required>
-                                <button type="submit" data-i18n="track.docs.btn">Ver documentos</button>
-                            </form>
-                            <p id="trackDocsError" class="hidden td-error" data-i18n="track.docs.error">Los datos no coinciden con este expediente. Revisa e intenta de nuevo.</p>
-                            <ul id="trackDocsList" class="td-lista"></ul>
-                            <p id="trackDocsVence" class="hidden td-nota" data-i18n="track.docs.vence">Los enlaces son personales y vencen en 30 días.</p>
-                        </div>
+                        <section id="trackSecPagos" class="track-sec hidden" aria-labelledby="tsPagosT">
+                                                    <header class="ts-cab"><span class="ts-n">1</span><div><h3 id="tsPagosT" data-i18n="track.sec.pagos.t">Pagos</h3><p data-i18n="track.sec.pagos.d">Tu pago se divide en dos partes: 50% para iniciar tu trámite y 50% cuando esté listo.</p></div></header>
+                                                    <ul id="trackHitos" class="ts-hitos"></ul>
+                                                    <div id="trackPago" class="hidden track-pago" role="status">
+                                                    <span class="tp-ico"><i class="fa-solid fa-hourglass-half"></i></span>
+                                                    <div><strong id="trackPagoT"></strong><p id="trackPagoD"></p>
+                                                        <button type="button" id="trackPagoVer" class="hidden tp-ver" aria-expanded="false" aria-controls="trackPagoDesglose" data-i18n="track.pago.ver">Ver desglose</button>
+                                                        <dl id="trackPagoDesglose" class="hidden tp-desglose"></dl>
+                                                    </div>
+                                                </div>
+                                                <div id="trackComp" class="hidden track-comp">
+                                                    <button type="button" id="trackCompAbrir" class="tc-abrir" aria-expanded="false" aria-controls="trackCompForm">
+                                                        <span class="tc-ico"><i class="fa-solid fa-receipt"></i></span>
+                                                        <span class="tc-txt"><strong data-i18n="track.comp.t">Subir recibo de pago</strong><small data-i18n="track.comp.sub">Sube la foto o el PDF de tu recibo. Nuestro equipo lo verifica y confirma tu pago.</small></span>
+                                                        <i class="fa-solid fa-chevron-down tc-flecha"></i>
+                                                    </button>
+                                                    <form id="trackCompForm" class="hidden tc-form" novalidate>
+                                                        <label class="tc-campo"><span data-i18n="track.comp.concepto">¿Qué pago es?</span>
+                                                            <select id="trackCompConcepto"><option value="inicial" data-i18n="track.comp.c.inicial">Pago inicial (50%)</option><option value="final" data-i18n="track.comp.c.final">Pago final (50%)</option><option value="otro" data-i18n="track.comp.c.otro">Otro pago</option></select></label>
+                                                        <label class="tc-campo"><span data-i18n="track.comp.archivo">Foto o PDF del comprobante</span>
+                                                            <input type="file" id="trackCompArchivo" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
+                                                        <div class="tc-fila">
+                                                            <label class="tc-campo"><span data-i18n="track.comp.monto">Monto pagado</span>
+                                                                <span class="tc-monto"><select id="trackCompMoneda" data-i18n-aria="track.comp.moneda"><option value="DOP">RD$</option><option value="USD">US$</option><option value="EUR">€</option></select>
+                                                                <input type="number" id="trackCompMonto" min="1" step="any" inputmode="decimal" required></span></label>
+                                                            <label class="tc-campo"><span data-i18n="track.comp.metodo">¿Cómo pagaste?</span>
+                                                                <select id="trackCompMetodo">
+                                                                    <option value="Transferencia" data-i18n="track.comp.m.transferencia">Transferencia</option>
+                                                                    <option value="Zelle">Zelle</option>
+                                                                    <option value="Remesa" data-i18n="track.comp.m.remesa">Remesa</option>
+                                                                    <option value="PayPal">PayPal</option>
+                                                                    <option value="Tarjeta" data-i18n="track.comp.m.tarjeta">Tarjeta</option>
+                                                                    <option value="Efectivo" data-i18n="track.comp.m.efectivo">Efectivo</option>
+                                                                    <option value="Otro" data-i18n="track.comp.m.otro">Otro</option>
+                                                                </select></label>
+                                                        </div>
+                                                        <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
+                                                            <input type="text" id="trackCompDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com" required></label>
+                                                        <label class="tc-campo"><span data-i18n="track.comp.nota">Nota (opcional)</span>
+                                                            <input type="text" id="trackCompNota" maxlength="200"></label>
+                                                        <p id="trackCompError" class="hidden td-error" role="alert"></p>
+                                                        <button type="submit" id="trackCompBtn" data-i18n="track.comp.btn">Enviar comprobante</button>
+                                                    </form>
+                                                    <p id="trackCompOk" class="hidden tc-ok" role="status"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.comp.ok">Recibimos tu comprobante. Nuestro equipo lo verificará y te avisaremos cuando el pago quede confirmado.</span></p>
+                                                </div>
+                                                </section>
+                        <section id="trackSecDocs" class="track-sec hidden" aria-labelledby="tsDocsT">
+                                                    <header class="ts-cab"><span class="ts-n">2</span><div><h3 id="tsDocsT" data-i18n="track.sec.docs.t">Tus documentos</h3><p data-i18n="track.sec.docs.d">Sube aquí lo que te pidamos para avanzar con tu trámite.</p></div></header>
+                                                    <div id="trackDocsPide" class="track-pide">
+                                                    <button type="button" id="trackPideAbrir" class="tc-abrir" aria-expanded="false" aria-controls="trackPideCuerpo">
+                                                        <span class="tc-ico"><i class="fa-solid fa-paperclip"></i></span>
+                                                        <span class="tc-txt"><strong data-i18n="track.pide.t">Documentos que necesitamos</strong><small id="trackPideSub"></small></span>
+                                                        <i class="fa-solid fa-chevron-down tc-flecha"></i>
+                                                    </button>
+                                                    <div id="trackPideCuerpo" class="hidden tc-form">
+                                                        <ul id="trackPideLista" class="td-check"></ul>
+                                                        <form id="trackDocForm" novalidate>
+                                                            <label class="tc-campo"><span data-i18n="track.pide.cual">¿Cuál documento envías?</span>
+                                                                <select id="trackDocCual"></select></label>
+                                                            <label class="tc-campo"><span data-i18n="track.pide.archivo">Foto o PDF del documento</span>
+                                                                <input type="file" id="trackDocArchivo" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
+                                                            <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
+                                                                <input type="text" id="trackDocDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com" required></label>
+                                                            <p id="trackDocError" class="hidden td-error" role="alert"></p>
+                                                            <button type="submit" id="trackDocBtn" data-i18n="track.pide.btn">Enviar documento</button>
+                                                        </form>
+                                                        <p id="trackDocOk" class="hidden tc-ok"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.pide.ok">Recibimos tu documento. Nuestro equipo lo revisará y seguimos con tu trámite.</span></p>
+                                                    </div>
+                                                </div>
+                                                </section>
+                        <section id="trackSecArchivos" class="track-sec hidden" aria-labelledby="tsArchT">
+                                                    <header class="ts-cab"><span class="ts-n">3</span><div><h3 id="tsArchT" data-i18n="track.sec.arch.t">Tus archivos</h3><p data-i18n="track.sec.arch.d">Los documentos finales de tu trámite se desbloquean al completar el pago.</p></div></header>
+                                                    <div id="trackBloq" class="hidden track-bloq" role="status">
+                                                        <span class="tb-ico"><i class="fa-solid fa-lock"></i></span>
+                                                        <div><strong data-i18n="track.lock.t">Tus archivos están listos, pero bloqueados</strong><small id="trackBloqN"></small>
+                                                            <p id="trackBloqD"></p></div>
+                                                    </div>
+                                                    <div id="trackEspera" class="hidden track-espera" role="status">
+                                                    <span class="te-ico"><i class="fa-regular fa-clock"></i></span>
+                                                    <div><strong data-i18n="track.espera.t">A la espera del documento</strong>
+                                                        <p data-i18n="track.espera.d">Cuando tu documento esté listo aparecerá aquí para descargarlo con tu código. También te avisamos por correo y por WhatsApp.</p></div>
+                                                </div>
+                                                <div id="trackDocs" class="hidden track-docs">
+                                                    <div class="td-cab"><span class="td-ico"><i class="fa-solid fa-file-arrow-down"></i></span>
+                                                        <div><strong data-i18n="track.docs.t">Tus documentos están listos</strong><small id="trackDocsN"></small>
+                                                        <p data-i18n="track.docs.sub">Para descargarlos, confirma los últimos 4 dígitos de tu WhatsApp o tu correo.</p></div></div>
+                                                    <form id="trackDocsForm" class="td-form">
+                                                        <input type="text" id="trackDocsDato" data-i18n-aria="track.docs.aria" placeholder="1234 · tu@correo.com" autocomplete="off" maxlength="120" required>
+                                                        <button type="submit" data-i18n="track.docs.btn">Ver documentos</button>
+                                                    </form>
+                                                    <p id="trackDocsError" class="hidden td-error" data-i18n="track.docs.error">Los datos no coinciden con este expediente. Revisa e intenta de nuevo.</p>
+                                                    <ul id="trackDocsList" class="td-lista"></ul>
+                                                    <p id="trackDocsVence" class="hidden td-nota" data-i18n="track.docs.vence">Los enlaces son personales y vencen en 30 días.</p>
+                                                </div>
+                        </section>
                     </div>
                     <div id="trackError" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 text-center text-red-700 text-xs" data-i18n="track.error">No encontramos ningún expediente con ese código. Verifica e intenta de nuevo.</div>
                 </div>
