@@ -1134,3 +1134,25 @@ def test_archivos_se_desbloquean_con_el_pago_completo_o_a_mano(client, monkeypat
     # administración puede volver a bloquear a mano
     assert client.post("/api/admin/archivos/liberar", json={"codigo": codigo, "liberar": True}).json["ok"]
     assert client.post("/api/admin/archivos/liberar", json={"codigo": codigo, "liberar": False}).json["ok"]
+
+
+def test_gestor_pide_documentos_concretos_y_cliente_adjunta_en_cada_uno(client, monkeypatch):
+    """Los documentos que pide el gestor salen como espacios en Rastrear; el cliente adjunta varios en cada uno."""
+    import io
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    codigo = client.post("/api/admin/nuevo", json={"nombre": "Rosa Díaz", "contacto": "+1 809 555 9876 · rosa@correo.com",
+                         "pais": "us", "servicios": [{"servicio": "creacion_cv", "precio": 1650}]}).json["expediente"]["codigo"]
+    r = client.post("/api/admin/docs/pedir", json={"codigo": codigo, "docs": ["Cédula", " Pasaporte ", "Cédula", "Título"]})
+    assert r.json["expediente"]["docs_pedidos"] == ["Cédula", "Pasaporte", "Título"]
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert [d["nombre"] for d in v["docs_extra"]] == ["Cédula", "Pasaporte", "Título"] and "Cédula" in v["pide_docs"]
+    pdf = b"%PDF-1.4\n%%EOF\n"
+    for nombre in ("cedula-frente.pdf", "cedula-atras.pdf"):
+        assert client.post(f"/api/rastreo/{codigo}/documento", data={"dato": "9876", "cual": "Cédula", "archivo": (io.BytesIO(pdf), nombre)},
+                           content_type="multipart/form-data").status_code == 201
+    v = client.get(f"/api/rastreo/{codigo}").json
+    assert [x["nombre"] for x in v["docs_subidos"] if x["cual"] == "Cédula"] == ["cedula-frente.pdf", "cedula-atras.pdf"]
+    assert next(d for d in v["docs_extra"] if d["nombre"] == "Cédula")["enviado"] is True
+    assert next(d for d in v["docs_extra"] if d["nombre"] == "Pasaporte")["enviado"] is False

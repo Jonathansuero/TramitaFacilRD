@@ -882,3 +882,13 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .td-enviados li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .td-enviados li.ok { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; } .td-enviados li.mal { background: #FEF2F2; border-color: #FECACA; color: #991B1B; }
 .td-enviados li b { font-size: .7rem; }
+
+/* Rastreo: un espacio de adjuntos por documento pedido */
+.slots { display: grid; gap: .6rem; }
+.slot { border: 1px solid #E2E8F0; border-radius: .9rem; padding: .7rem .8rem; display: grid; gap: .5rem; background: #fff; }
+.slot.ok { background: #ECFDF5; border-color: #A7F3D0; } .slot.env { background: #FFFBEB; border-color: #FDE68A; }
+.slot-cab { display: flex; align-items: center; gap: .55rem; font-size: .88rem; } .slot-cab b { flex: 1; min-width: 0; }
+.slot-cab em { font-style: normal; font-size: .72rem; font-weight: 700; color: #64748B; } .slot.ok .slot-cab i, .slot.ok em { color: #047857; } .slot.env em, .slot.env .slot-cab i { color: #B45309; }
+.slot-add { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .6rem; border: 1.5px dashed #94A3B8; border-radius: .7rem; color: #002D62; font-weight: 700; font-size: .85rem; cursor: pointer; background: #F8FAFC; }
+.slot-add:hover { border-color: #002D62; background: #EFF4FB; } .slot-add input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.slot-add:focus-within { outline: 2px solid #002D62; outline-offset: 2px; }

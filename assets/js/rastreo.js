@@ -100,20 +100,27 @@
         else elegirConcepto($('trackCompConcepto').value);
         if (compDe !== code) { $('trackCompForm').classList.add('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'false'); compDe = code; }
         if (pago === 'rechazado' && listo) { $('trackCompForm').classList.remove('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'true'); }
-        // Documentos que le pedimos: puede subirlos desde aquí
-        const todosDocs = (Array.isArray(data.items) ? data.items : []).flatMap(it => it.docs || []);
+        // Documentos que le pedimos: cada uno tiene su propio espacio para adjuntar (uno o varios archivos)
+        const extra = Array.isArray(data.docs_extra) ? data.docs_extra : [], subidos = Array.isArray(data.docs_subidos) ? data.docs_subidos : [];
+        const baseDocs = (Array.isArray(data.items) ? data.items : []).flatMap(it => it.docs || []);
+        const todosDocs = [...baseDocs, ...extra].filter((d, i, a) => a.findIndex(x => x.nombre === d.nombre) === i);
         const faltan = todosDocs.filter(d => !d.recibido && !d.enviado);
         $('trackPideSub').textContent = !todosDocs.length ? t('track.pide.vacio') : faltan.length ? t('track.pide.sub', { n: faltan.length }) : t('track.pide.ok.todos');
-        $('trackPideLista').innerHTML = todosDocs.map(d => {
-            const est = d.recibido ? 'ok' : d.enviado ? 'env' : '';
-            const ico = d.recibido ? 'fa-circle-check' : d.enviado ? 'fa-clock' : 'fa-circle';
-            return `<li class="${est}"><i class="fa-solid ${ico}"></i><span>${esc(d.nombre)}
-                ${d.recibido ? `<b>${esc(t('track.pide.tenemos'))}</b>` : d.enviado ? `<b>${esc(t('track.pide.revision'))}</b>` : ''}</span></li>`;
-        }).join('');
-        $('trackDocCual').innerHTML = (faltan.length ? faltan.map(d => d.nombre) : todosDocs.map(d => d.nombre))
-            .map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('') + `<option value="">${esc(t('track.pide.otro'))}</option>`;
+        const nombres = new Set(todosDocs.map(d => d.nombre));
+        const slot = (nombre, d, propios) => {
+            const rec = d && d.recibido, env = propios.length > 0;
+            const est = rec ? 'ok' : env ? 'env' : '';
+            const ico = rec ? 'fa-circle-check' : env ? 'fa-clock' : 'fa-circle';
+            const txt = rec ? t('track.pide.tenemos') : env ? t('track.pide.revision') : t('track.slot.pend');
+            return `<div class="slot ${est}"><div class="slot-cab"><i class="fa-solid ${ico}"></i><b>${esc(nombre || t('track.slot.otro'))}</b><em>${esc(txt)}</em></div>
+                ${propios.length ? `<ul class="td-enviados">${propios.map(p => `<li class="ok"><i class="fa-solid fa-circle-check"></i><span>${esc(p.nombre)}</span><b>${esc(t('track.pide.regis'))}</b></li>`).join('')}</ul>` : ''}
+                ${rec ? '' : `<label class="slot-add"><input type="file" multiple data-slot="${esc(nombre)}" accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf">
+                    <i class="fa-solid fa-paperclip"></i><span>${esc(t(propios.length ? 'track.slot.mas' : 'track.slot.adj'))}</span></label>`}</div>`;
+        };
+        $('trackSlots').innerHTML = todosDocs.map(d => slot(d.nombre, d, subidos.filter(x => x.cual === d.nombre))).join('')
+            + slot('', null, subidos.filter(x => !nombres.has(x.cual)));
         $('trackPideAbrir').classList.toggle('urge', faltan.length > 0 && !data.docs_enviados);
-        if (pideDe !== code) { $('trackPideCuerpo').classList.add('hidden'); $('trackDocOk').classList.add('hidden'); $('trackPideAbrir').setAttribute('aria-expanded', 'false'); pideDe = code; $('trackDocEnviados').innerHTML = ''; $('trackDocEnviados').classList.add('hidden'); }
+        if (pideDe !== code) { $('trackPideCuerpo').classList.add('hidden'); $('trackDocOk').classList.add('hidden'); $('trackPideAbrir').setAttribute('aria-expanded', 'false'); pideDe = code; }
         // Archivos finales: bloqueados hasta que administración confirme el 50% restante (o los desbloquee)
         const nDocs = Number(data.archivos || 0), bloqueados = !!data.archivos_bloqueados;
         $('trackBloq').classList.toggle('hidden', demo || !nDocs || !bloqueados);
@@ -175,39 +182,34 @@
         document.querySelectorAll('.tc-tipo').forEach(b => { const on = b.dataset.concepto === v; b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on)); });
     }
 
-    async function enviarDocumento() {
-        const code = ultimo && ultimo.code, err = $('trackDocError'), btn = $('trackDocBtn'), lista = $('trackDocEnviados');
-        const archivos = Array.from($('trackDocArchivo').files || []), dato = $('trackDocDato').value.trim();
-        if (!archivos.length || !dato) { err.textContent = !archivos.length ? t('track.comp.e.archivo') : t('track.docs.aria'); err.classList.remove('hidden'); restart(err, 'shake'); return; }
-        if (archivos.some(a => a.size > 10 * 1024 * 1024)) { err.textContent = t('track.comp.e.peso'); err.classList.remove('hidden'); return; }
-        btn.disabled = true; err.classList.add('hidden'); $('trackDocOk').classList.add('hidden');
+    /** Sube los archivos de un espacio (un documento pedido): uno por uno, y cada uno queda registrado. */
+    async function enviarDocumento(input) {
+        const code = ultimo && ultimo.code, err = $('trackDocError'), dato = $('trackDocDato').value.trim();
+        const archivos = Array.from(input.files || []), cual = input.dataset.slot || '';
+        if (!archivos.length) return;
+        if (!dato) { err.textContent = t('track.docs.aria'); err.classList.remove('hidden'); restart(err, 'shake'); $('trackDocDato').focus(); input.value = ''; return; }
+        if (archivos.some(a => a.size > 10 * 1024 * 1024)) { err.textContent = t('track.comp.e.peso'); err.classList.remove('hidden'); input.value = ''; return; }
+        err.classList.add('hidden'); $('trackDocOk').classList.add('hidden');
+        const rotulo = input.parentElement.querySelector('span'); input.disabled = true;
         let enviados = 0;
         for (let i = 0; i < archivos.length; i++) {
-            btn.textContent = t('track.pide.enviando', { i: i + 1, n: archivos.length });
-            const li = document.createElement('li'); li.className = 'env'; li.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>${esc(archivos[i].name)}</span>`;
-            lista.appendChild(li); lista.classList.remove('hidden');
+            rotulo.textContent = t('track.pide.enviando', { i: i + 1, n: archivos.length });
             try {
                 const chico = await window.TF_IMAGEN.achicar(archivos[i]);
                 const fd = new FormData();
-                fd.append('archivo', chico, chico.name); fd.append('dato', dato); fd.append('cual', $('trackDocCual').value);
+                fd.append('archivo', chico, chico.name); fd.append('dato', dato); fd.append('cual', cual);
                 const r = await fetch('/api/rastreo/' + encodeURIComponent(code) + '/documento', { method: 'POST', body: fd });
                 const j = await r.json().catch(() => ({}));
                 if (!r.ok || j.ok === false) throw Object.assign(new Error(window.TF_IMAGEN.errorSubida(r.status, j)), { status: r.status });
-                li.className = 'ok'; li.innerHTML = `<i class="fa-solid fa-circle-check"></i><span>${esc(archivos[i].name)}</span><b>${esc(t('track.pide.regis'))}</b>`;
                 enviados++;
             } catch (e) {
-                li.className = 'mal'; li.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><span>${esc(archivos[i].name)}</span><b>${esc(t('track.pide.falla'))}</b>`;
-                err.textContent = e.status === 403 ? t('track.docs.error') : e.message; err.classList.remove('hidden'); restart(err, 'shake');
+                err.textContent = (e.status === 403 ? t('track.docs.error') : e.message) + ' · ' + archivos[i].name; err.classList.remove('hidden'); restart(err, 'shake');
                 if (e.status === 403) break;
             }
         }
-        btn.disabled = false; btn.textContent = t('track.pide.btn');
-        $('trackDocArchivo').value = '';                      // el formulario queda listo para seguir subiendo
-        if (enviados) {
-            $('trackDocOk').classList.remove('hidden');
-            try { const d = await TF.api('/rastreo/' + encodeURIComponent(code)); ultimo = { code, data: d }; mostrar(code, d); } catch (e) { /* sigue */ }
-            $('trackPideCuerpo').classList.remove('hidden'); $('trackDocOk').classList.remove('hidden'); $('trackPideAbrir').setAttribute('aria-expanded', 'true');
-        }
+        try { const d = await TF.api('/rastreo/' + encodeURIComponent(code)); ultimo = { code, data: d }; mostrar(code, d); } catch (e) { /* sigue */ }
+        if (enviados) $('trackDocOk').classList.remove('hidden');
+        $('trackPideCuerpo').classList.remove('hidden'); $('trackPideAbrir').setAttribute('aria-expanded', 'true');
     }
 
     function actualizarWa() {
@@ -237,10 +239,10 @@
         $('trackPideAbrir').addEventListener('click', () => {
             const cu = $('trackPideCuerpo'), abre = cu.classList.contains('hidden');
             cu.classList.toggle('hidden', !abre); $('trackPideAbrir').setAttribute('aria-expanded', String(abre));
-            if (abre) $('trackDocArchivo').focus();
+            if (abre) $('trackDocDato').focus();
         });
         document.querySelectorAll('.tc-tipo').forEach(b => b.addEventListener('click', () => { if (!b.disabled) elegirConcepto(b.dataset.concepto); }));
-        $('trackDocForm').addEventListener('submit', e => { e.preventDefault(); enviarDocumento(); });
+        $('trackSlots').addEventListener('change', e => { if (e.target.matches('input[data-slot]')) enviarDocumento(e.target); });
         $('trackInput').addEventListener('input', actualizarWa);
         document.addEventListener('click', e => {
             const b = e.target.closest('[data-demo-code]');

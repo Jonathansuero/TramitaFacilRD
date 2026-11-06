@@ -140,19 +140,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                                                         <i class="fa-solid fa-chevron-down tc-flecha"></i>
                                                     </button>
                                                     <div id="trackPideCuerpo" class="hidden tc-form">
-                                                        <ul id="trackPideLista" class="td-check"></ul>
-                                                        <form id="trackDocForm" novalidate>
-                                                            <label class="tc-campo"><span data-i18n="track.pide.cual">¿Cuál documento envías?</span>
-                                                                <select id="trackDocCual"></select></label>
-                                                            <label class="tc-campo"><span data-i18n="track.pide.archivo">Fotos o PDF de tus documentos</span>
-                                                                <small class="tc-ayuda" data-i18n="track.pide.multi">Puedes seleccionar varios archivos a la vez y seguir subiendo más cuando quieras.</small>
-                                                                <input type="file" id="trackDocArchivo" multiple accept="image/jpeg,image/png,image/webp,application/pdf,.jpg,.jpeg,.png,.webp,.pdf" required></label>
-                                                            <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
-                                                                <input type="text" id="trackDocDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com" required></label>
-                                                            <p id="trackDocError" class="hidden td-error" role="alert"></p>
-                                                            <ul id="trackDocEnviados" class="hidden td-enviados" aria-live="polite"></ul>
-                                                            <button type="submit" id="trackDocBtn" data-i18n="track.pide.btn">Enviar documento</button>
-                                                        </form>
+                                                        <label class="tc-campo"><span data-i18n="track.docs.aria">Últimos 4 dígitos de tu WhatsApp o tu correo</span>
+                                                            <input type="text" id="trackDocDato" autocomplete="off" maxlength="120" placeholder="1234 · tu@correo.com"></label>
+                                                        <p class="tc-ayuda" data-i18n="track.pide.multi">Adjunta tus archivos en el espacio de cada documento. Puedes subir varios en cada uno y seguir subiendo cuando quieras.</p>
+                                                        <div id="trackSlots" class="slots"></div>
+                                                        <p id="trackDocError" class="hidden td-error" role="alert"></p>
                                                         <p id="trackDocOk" class="hidden tc-ok"><i class="fa-solid fa-circle-check"></i> <span data-i18n="track.pide.ok">Recibimos tu documento. Nuestro equipo lo revisará y seguimos con tu trámite.</span></p>
                                                     </div>
                                                 </div>

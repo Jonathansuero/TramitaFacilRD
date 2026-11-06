@@ -391,6 +391,8 @@ def migrar(db: sqlite3.Connection) -> None:
         db.execute("ALTER TABLE pagos ADD COLUMN avisar_cliente INTEGER NOT NULL DEFAULT 1")
     if "pago_wa" not in cols_s:
         db.execute("ALTER TABLE seguimiento ADD COLUMN pago_wa TEXT")   # el cliente avisó que paga por WhatsApp
+    if "docs_pedidos" not in cols_s:
+        db.execute("ALTER TABLE seguimiento ADD COLUMN docs_pedidos TEXT")   # documentos que el gestor pide a este cliente (lista JSON)
     for col in ("archivos_liberados", "archivos_liberados_por"):    # desbloqueo manual de los archivos finales (solo administración)
         if col not in cols_s:
             db.execute(f"ALTER TABLE seguimiento ADD COLUMN {col} TEXT")
@@ -716,6 +718,12 @@ def api_traspaso():
         return error(str(exc) or "Valor inválido.")
 
 
+def docs_pedidos_de(db: sqlite3.Connection, codigo: str) -> list[str]:
+    """Documentos específicos que el gestor le pidió a este cliente, además de la lista del trámite."""
+    r = db.execute("SELECT docs_pedidos FROM seguimiento WHERE codigo=?", (codigo,)).fetchone()
+    return _lista_json(r["docs_pedidos"]) if r else []
+
+
 @app.get("/api/rastreo/<codigo>")
 def api_rastreo(codigo: str):
     if limitar("rastreo", 30, 60):
@@ -729,7 +737,11 @@ def api_rastreo(codigo: str):
         enviados = {str(r["nota"] or "").strip() for r in get_db().execute(
             "SELECT nota FROM archivos WHERE codigo=? AND clase='recibido' AND usuario='cliente'", (codigo,))}
         enviados.discard("")
-        pedidos, items = [], []
+        subidos = [{"cual": r["nota"] or "", "nombre": r["nombre"], "estado": r["estado"]} for r in get_db().execute(
+            "SELECT nota, nombre, estado FROM archivos WHERE codigo=? AND clase='recibido' AND usuario='cliente' ORDER BY id", (codigo,))]
+        validados = {s_["cual"] for s_ in subidos if s_["estado"] == "validado"}
+        extra = [{"nombre": x, "recibido": x in validados, "enviado": x in enviados} for x in docs_pedidos_de(get_db(), codigo)]
+        pedidos, items = [x["nombre"] for x in extra if not x["recibido"]], []
         for t in tramites_de(get_db(), codigo):
             lista = (cat_["checklists"].get(t["servicio_id"]) or {}).get("items", [])
             recibidos = set(t["docs"])
@@ -744,7 +756,7 @@ def api_rastreo(codigo: str):
                         **estado_pago_cliente(get_db(), codigo), "falta_pagar": falta_por_pagar(get_db(), codigo),
                         "saldo": saldo_cliente(get_db(), codigo),
                         "archivos_bloqueados": not archivos_desbloqueados(get_db(), codigo),
-                        "pide_docs": sorted(set(pedidos)),
+                        "pide_docs": sorted(set(pedidos)), "docs_extra": extra, "docs_subidos": subidos,
                         "docs_enviados": get_db().execute(
                             "SELECT COUNT(*) FROM archivos WHERE codigo=? AND clase='recibido' AND usuario='cliente'", (codigo,)).fetchone()[0],
                         "docs_nombres": sorted(enviados)})
@@ -874,7 +886,7 @@ def api_pago_whatsapp(codigo: str):
 @app.post("/api/rastreo/<codigo>/documento")
 def api_documento_cliente(codigo: str):
     """El cliente sube un documento que le pedimos (cédula, acta, pasaporte…). Llega a «Documentos recibidos»."""
-    if limitar("documento", 12, 3600):
+    if limitar("documento", 40, 3600):
         return error("Ya recibimos varios documentos. Si falta alguno, escríbenos por WhatsApp.", 429)
     codigo = codigo.strip().upper()[:12]
     db = get_db()
@@ -1168,6 +1180,7 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
                       for a in archivos_de(db, d["codigo"], "recibido")]
     d["correos"] = [dict(r) for r in db.execute(
         "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
+    d["docs_pedidos"] = docs_pedidos_de(db, d["codigo"])
     d["pago_wa"] = db.execute("SELECT pago_wa FROM seguimiento WHERE codigo=?", (d["codigo"],)).fetchone()["pago_wa"]
     d["archivos_bloqueados"] = not archivos_desbloqueados(db, d["codigo"])
     d["archivos_liberados_manual"] = bool(db.execute("SELECT archivos_liberados FROM seguimiento WHERE codigo=?", (d["codigo"],)).fetchone()[0])
@@ -1860,6 +1873,29 @@ def admin_docs():
                       (json.dumps(docs, ensure_ascii=False), numero(d.get("tramite")), codigo)).rowcount:
         return error("Ese trámite no existe.", 404)
     registrar("Actualizó documentos recibidos", codigo, f"{len(docs)} recibidos")
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/docs/pedir")
+@requiere("expedientes")
+def admin_docs_pedir():
+    """Documentos específicos que se le piden al cliente (cada uno tendrá su espacio en Rastrear): {codigo, docs: [...]}."""
+    d = cuerpo_json()
+    codigo = _codigo_existente(d)
+    if not codigo:
+        return error("No existe ese código.", 404)
+    docs = d.get("docs")
+    if not isinstance(docs, list):
+        return error("Lista de documentos inválida.")
+    limpio = []
+    for x in docs:
+        x = re.sub(r"\s+", " ", str(x)).strip()[:80]
+        if x and x not in limpio:
+            limpio.append(x)
+    db = get_db()
+    db.execute("UPDATE seguimiento SET docs_pedidos=? WHERE codigo=?", (json.dumps(limpio[:20], ensure_ascii=False), codigo))
+    registrar("Actualizó los documentos que pide al cliente", codigo, ", ".join(limpio[:20])[:200])
     db.commit()
     return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
 

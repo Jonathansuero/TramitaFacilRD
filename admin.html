@@ -611,6 +611,13 @@
         .candado.cerrado { background: #FEF2F2; border-color: #FECACA; color: #991B1B; } .candado.abierto { background: #ECFDF5; border-color: #A7F3D0; color: #065F46; }
         .candado .cd-t { flex: 1 1 200px; display: grid; gap: 2px; font-size: 14px; } .candado .cd-t small { font-size: 12px; font-weight: 500; opacity: .85; }
         .candado .btn { min-width: 130px; }
+        .pedir { display: grid; gap: 8px; padding: 12px; border: 1px dashed #9DB5D6; border-radius: 12px; background: #F5F9FF; }
+        .pedir > b { font-size: 13.5px; color: var(--azul); display: flex; gap: 6px; align-items: center; }
+        .chips-pedidos, .sugeridos { display: flex; flex-wrap: wrap; gap: 6px; }
+        .chip-ped { display: inline-flex; align-items: center; gap: 6px; background: var(--azul); color: #fff; border-radius: 999px; padding: 5px 6px 5px 12px; font-size: 13px; font-weight: 600; }
+        .chip-ped button { border: 0; background: rgba(255,255,255,.2); color: #fff; width: 20px; height: 20px; border-radius: 50%; cursor: pointer; line-height: 1; }
+        .chip-sug { border: 1px dashed #9DB5D6; background: #fff; color: var(--azul); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .form-pedir { display: flex; gap: 6px; } .form-pedir .input { flex: 1; min-width: 0; }
         .rapido { border-color: #C9DAF2; }
         .rapido-f { display: grid; gap: 10px; }
         .rapido-f + .rapido-f { border-top: 1px solid #EEF2F7; padding-top: 12px; }
