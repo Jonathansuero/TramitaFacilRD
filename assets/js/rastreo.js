@@ -46,64 +46,77 @@
                 <div class="ti-bar" aria-label="${esc(t('track.s' + it.step))}">${[1, 2, 3, 4].map(i => `<i class="${i <= it.step ? (it.step === 4 ? 'on ok' : 'on') : ''}"></i>`).join('')}</div>
                 <p>${esc(it.detail)}</p>
             </li>`).join('');
-        // Estado del pago: amarillo mientras falte algo, verde cuando está completo
+        // Tres espacios: 1) pagos y recibos · 2) documentos que enviamos y pedimos · 3) archivos finales
+        const demo = !!data.demo || !state.api;
+        ['trackSecPagos', 'trackSecDocs', 'trackSecArchivos'].forEach(id => $(id).classList.toggle('hidden', demo));
         const pago = data.pago || '', saldo = data.saldo || {};
+        const hayTotal = saldo.total != null;
         const completo = pago === 'confirmado' && data.falta_pagar === false;
-        const parcial = pago === 'confirmado' && !completo;
-        const estado = pago === 'rechazado' ? 'mal' : completo ? 'ok' : 'aviso';
+        const inicialOk = completo || (hayTotal ? Number(saldo.pagado) >= Number(saldo.mitad) - 0.01 : pago === 'confirmado');
+        const listo = Number(data.step) === 4;
+        const verificando = pago === 'por_confirmar';
+        // Los dos pagos del trámite: 50% para empezar y 50% cuando esté listo
+        const mitad = hayTotal ? rd(saldo.mitad) : '';
+        const hito = (nombre, est, texto) => `<li class="${est}"><i class="fa-solid ${{ ok: 'fa-circle-check', ver: 'fa-hourglass-half', pend: 'fa-circle-exclamation', espera: 'fa-clock' }[est]}"></i>
+            <div><b>${esc(t(nombre))}</b>${mitad ? `<span>${esc(mitad)}</span>` : ''}</div><em>${esc(t(texto))}</em></li>`;
+        $('trackHitos').innerHTML =
+            hito('track.hito.ini', inicialOk ? 'ok' : verificando ? 'ver' : 'pend', inicialOk ? 'track.hito.conf' : verificando ? 'track.hito.ver' : 'track.hito.pend') +
+            hito('track.hito.fin', completo ? 'ok' : inicialOk && verificando ? 'ver' : inicialOk && listo ? 'pend' : 'espera',
+                completo ? 'track.hito.conf' : inicialOk && verificando ? 'track.hito.ver' : inicialOk && listo ? 'track.hito.ahora' : 'track.hito.espera');
+        // El aviso grande: amarillo solo cuando falta el primer 50% o cuando el trámite ya está listo y falta el resto
+        let estado, titulo, detalle;
+        if (pago === 'rechazado') {
+            estado = 'mal'; titulo = t('track.pago.mal');
+            detalle = data.pago_motivo ? t('track.pago.mal.d.motivo', { motivo: data.pago_motivo }) : t('track.pago.mal.d');
+        } else if (completo) { estado = 'ok'; titulo = t('track.pago.full'); detalle = t('track.pago.full.d'); }
+        else if (verificando) { estado = 'info'; titulo = t('track.pago.pend'); detalle = t('track.pago.pend.d'); }
+        else if (!inicialOk) {
+            estado = 'aviso'; titulo = t('track.pago.ini');
+            detalle = hayTotal ? t('track.pago.ini.d', { monto: rd(Math.max(0, saldo.falta_mitad)) }) : t('track.pago.ini.d0');
+        } else if (listo) {
+            estado = 'aviso'; titulo = t('track.pago.listo');
+            detalle = hayTotal ? t('track.pago.listo.d', { monto: rd(saldo.falta) }) : t('track.pago.listo.d0');
+        } else { estado = 'ok'; titulo = t('track.pago.inok'); detalle = t('track.pago.inok.d'); }
         const caja = $('trackPago');
-        caja.classList.toggle('hidden', !!data.demo || !state.api);
-        caja.classList.toggle('ok', estado === 'ok');
-        caja.classList.toggle('mal', estado === 'mal');
-        caja.classList.toggle('aviso', estado === 'aviso');
-        caja.querySelector('.tp-ico i').className = 'fa-solid ' + (estado === 'ok' ? 'fa-circle-check'
-            : estado === 'mal' ? 'fa-triangle-exclamation' : pago === 'por_confirmar' ? 'fa-hourglass-half' : 'fa-circle-exclamation');
-        $('trackPagoT').textContent = pago === 'rechazado' ? t('track.pago.mal')
-            : completo ? t('track.pago.full')
-            : parcial ? t('track.pago.parcial', { pct: saldo.pct != null ? saldo.pct : '' })
-            : pago === 'por_confirmar' ? t('track.pago.pend') : t('track.pago.falta');
-        $('trackPagoD').textContent = pago === 'rechazado'
-                ? (data.pago_motivo ? t('track.pago.mal.d.motivo', { motivo: data.pago_motivo }) : t('track.pago.mal.d'))
-            : completo ? t('track.pago.full.d')
-            : parcial ? (saldo.falta != null ? t('track.pago.parcial.d', { pct: saldo.pct, falta: rd(saldo.falta) }) : t('track.pago.ok.d'))
-            : pago === 'por_confirmar' ? t('track.pago.pend.d') : t('track.pago.falta.d');
+        ['ok', 'mal', 'aviso', 'info'].forEach(c => caja.classList.toggle(c, estado === c));
+        caja.classList.remove('hidden');
+        caja.querySelector('.tp-ico i').className = 'fa-solid ' + { ok: 'fa-circle-check', mal: 'fa-triangle-exclamation', info: 'fa-hourglass-half', aviso: 'fa-circle-exclamation' }[estado];
+        $('trackPagoT').textContent = titulo;
+        $('trackPagoD').textContent = detalle;
         // El desglose de montos solo si lo pide
-        const hayMontos = saldo.total != null;
-        $('trackPagoVer').classList.toggle('hidden', !hayMontos);
-        $('trackPagoDesglose').innerHTML = !hayMontos ? '' : `
+        $('trackPagoVer').classList.toggle('hidden', !hayTotal);
+        $('trackPagoDesglose').innerHTML = !hayTotal ? '' : `
             <div><dt>${esc(t('track.pago.total'))}</dt><dd>${esc(rd(saldo.total))}</dd></div>
             <div><dt>${esc(t('track.pago.pagado'))}</dt><dd>${esc(rd(saldo.pagado))}</dd></div>
             ${saldo.falta > 0 ? `<div class="falta"><dt>${esc(t('track.pago.resta'))}</dt><dd>${esc(rd(saldo.falta))}</dd></div>` : ''}`;
         if (pagoDe !== code) { $('trackPagoDesglose').classList.add('hidden'); $('trackPagoVer').setAttribute('aria-expanded', 'false'); pagoDe = code; }
-        $('trackCompAbrir').classList.toggle('falta', estado !== 'ok');
-        // Documentos que le pedimos: puede subirlos desde aquí
-        const pide = Array.isArray(data.pide_docs) ? data.pide_docs : [];
-        const todosDocs = (Array.isArray(data.items) ? data.items : []).flatMap(it => it.docs || []);
-        $('trackDocsPide').classList.toggle('hidden', !!data.demo || !state.api || !todosDocs.length);
-        if (todosDocs.length) {
-            const faltan = todosDocs.filter(d => !d.recibido && !d.enviado);
-            $('trackPideSub').textContent = faltan.length ? t('track.pide.sub', { n: faltan.length }) : t('track.pide.ok.todos');
-            $('trackPideLista').innerHTML = todosDocs.map(d => {
-                const est = d.recibido ? 'ok' : d.enviado ? 'env' : '';
-                const ico = d.recibido ? 'fa-circle-check' : d.enviado ? 'fa-clock' : 'fa-circle';
-                return `<li class="${est}"><i class="fa-solid ${ico}"></i><span>${esc(d.nombre)}
-                    ${d.recibido ? `<b>${esc(t('track.pide.tenemos'))}</b>` : d.enviado ? `<b>${esc(t('track.pide.revision'))}</b>` : ''}</span></li>`;
-            }).join('');
-            $('trackDocCual').innerHTML = (faltan.length ? faltan.map(d => d.nombre) : todosDocs.map(d => d.nombre))
-                .map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('') + `<option value="">${esc(t('track.pide.otro'))}</option>`;
-            $('trackPideAbrir').classList.toggle('urge', faltan.length > 0 && !data.docs_enviados);
-            if (pideDe !== code) { $('trackPideCuerpo').classList.add('hidden'); $('trackDocOk').classList.add('hidden'); $('trackPideAbrir').setAttribute('aria-expanded', 'false'); pideDe = code; }
-        }
-        // Comprobante de pago (opcional). Si ya está todo pagado, no se le pide nada más.
-        const yaPago = pago === 'confirmado' && data.falta_pagar === false;
-        $('trackComp').classList.toggle('hidden', !!data.demo || !state.api || yaPago);
+        $('trackCompAbrir').classList.toggle('falta', estado === 'aviso' || estado === 'mal');
+        // Recibo de pago: solo se pide mientras falte algo por pagar
+        $('trackComp').classList.toggle('hidden', demo || completo);
+        $('trackCompConcepto').value = inicialOk ? 'final' : 'inicial';
         if (compDe !== code) { $('trackCompForm').classList.add('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'false'); compDe = code; }
         if (pago === 'rechazado') { $('trackCompForm').classList.remove('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'true'); }
-        $('trackCompWaBtn').href = waLink(saludo(t('wa.comp', { code })));
-        // Documentos listos para descargar (se piden los últimos 4 del WhatsApp o el correo)
-        const nDocs = Number(data.archivos || 0);
-        $('trackDocs').classList.toggle('hidden', !nDocs || data.demo);
-        $('trackEspera').classList.toggle('hidden', !!nDocs || !!data.demo || !state.api);
+        // Documentos que le pedimos: puede subirlos desde aquí
+        const todosDocs = (Array.isArray(data.items) ? data.items : []).flatMap(it => it.docs || []);
+        const faltan = todosDocs.filter(d => !d.recibido && !d.enviado);
+        $('trackPideSub').textContent = !todosDocs.length ? t('track.pide.vacio') : faltan.length ? t('track.pide.sub', { n: faltan.length }) : t('track.pide.ok.todos');
+        $('trackPideLista').innerHTML = todosDocs.map(d => {
+            const est = d.recibido ? 'ok' : d.enviado ? 'env' : '';
+            const ico = d.recibido ? 'fa-circle-check' : d.enviado ? 'fa-clock' : 'fa-circle';
+            return `<li class="${est}"><i class="fa-solid ${ico}"></i><span>${esc(d.nombre)}
+                ${d.recibido ? `<b>${esc(t('track.pide.tenemos'))}</b>` : d.enviado ? `<b>${esc(t('track.pide.revision'))}</b>` : ''}</span></li>`;
+        }).join('');
+        $('trackDocCual').innerHTML = (faltan.length ? faltan.map(d => d.nombre) : todosDocs.map(d => d.nombre))
+            .map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join('') + `<option value="">${esc(t('track.pide.otro'))}</option>`;
+        $('trackPideAbrir').classList.toggle('urge', faltan.length > 0 && !data.docs_enviados);
+        if (pideDe !== code) { $('trackPideCuerpo').classList.add('hidden'); $('trackDocOk').classList.add('hidden'); $('trackPideAbrir').setAttribute('aria-expanded', 'false'); pideDe = code; }
+        // Archivos finales: bloqueados hasta que administración confirme el 50% restante (o los desbloquee)
+        const nDocs = Number(data.archivos || 0), bloqueados = !!data.archivos_bloqueados;
+        $('trackBloq').classList.toggle('hidden', demo || !nDocs || !bloqueados);
+        $('trackBloqN').textContent = nDocs === 1 ? t('track.lock.n1') : t('track.lock.n', { n: nDocs });
+        $('trackBloqD').textContent = hayTotal && inicialOk ? t('track.lock.d', { monto: rd(saldo.falta) }) : t('track.lock.d0');
+        $('trackDocs').classList.toggle('hidden', !nDocs || demo || bloqueados);
+        $('trackEspera').classList.toggle('hidden', !!nDocs || demo);
         $('trackDocsN').textContent = !nDocs ? '' : nDocs === 1 ? t('track.docs.n1') : t('track.docs.n', { n: nDocs });
         if (!docsDe || docsDe !== code) { $('trackDocsList').innerHTML = ''; $('trackDocsForm').classList.remove('hidden'); $('trackDocsVence').classList.add('hidden'); $('trackDocsError').classList.add('hidden'); docsDe = null; }
         $('trackLineFill').style.width = '0%';
@@ -126,7 +139,7 @@
                 <i class="fa-solid ${/\.pdf$/i.test(a.nombre) ? 'fa-file-pdf' : 'fa-file-image'}"></i><span>${esc(a.nombre)}<small>${kb(a.tamano)}</small></span><i class="fa-solid fa-download"></i></a></li>`).join('');
             $('trackDocsForm').classList.add('hidden'); $('trackDocsVence').classList.remove('hidden'); docsDe = code;
         } catch (e) {
-            const err = $('trackDocsError'); err.textContent = e.status === 429 ? e.message : t('track.docs.error');
+            const err = $('trackDocsError'); err.textContent = e.status === 429 ? e.message : e.status === 423 ? t('track.docs.bloq') : t('track.docs.error');
             err.classList.remove('hidden'); restart(err, 'shake');
         } finally { btn.disabled = false; }
     }
@@ -142,7 +155,7 @@
             const chico = await window.TF_IMAGEN.achicar(archivo);
             const fd = new FormData();
             fd.append('archivo', chico, chico.name); fd.append('monto', String(monto)); fd.append('moneda', $('trackCompMoneda').value);
-            fd.append('metodo', $('trackCompMetodo').value); fd.append('dato', dato); fd.append('nota', $('trackCompNota').value.trim());
+            fd.append('metodo', $('trackCompMetodo').value); fd.append('concepto', $('trackCompConcepto').value); fd.append('dato', dato); fd.append('nota', $('trackCompNota').value.trim());
             const r = await fetch('/api/rastreo/' + encodeURIComponent(code) + '/comprobante', { method: 'POST', body: fd });
             const j = await r.json().catch(() => ({}));
             if (!r.ok || j.ok === false) throw Object.assign(new Error(window.TF_IMAGEN.errorSubida(r.status, j)), { status: r.status });
@@ -151,13 +164,6 @@
         } catch (e) {
             err.textContent = e.status === 403 ? t('track.docs.error') : e.message; err.classList.remove('hidden'); restart(err, 'shake');
         } finally { btn.disabled = false; btn.textContent = t('track.comp.btn'); }
-    }
-
-    /** El cliente dice que enviará el pago por WhatsApp: se avisa al equipo y se abre el chat. */
-    async function avisarPagoWa() {
-        const code = ultimo && ultimo.code;
-        if (!code || !state.api) return;
-        try { await fetch('/api/rastreo/' + encodeURIComponent(code) + '/pago-whatsapp', { method: 'POST' }); } catch (e) { /* igual se abre el chat */ }
     }
 
     async function enviarDocumento() {
@@ -196,7 +202,6 @@
             if (abre) $('trackCompArchivo').focus();
         });
         $('trackCompForm').addEventListener('submit', e => { e.preventDefault(); enviarComprobante(); });
-        $('trackCompWaBtn').addEventListener('click', () => avisarPagoWa());
         $('trackPagoVer').addEventListener('click', () => {
             const d = $('trackPagoDesglose'), abre = d.classList.contains('hidden');
             d.classList.toggle('hidden', !abre); $('trackPagoVer').setAttribute('aria-expanded', String(abre));

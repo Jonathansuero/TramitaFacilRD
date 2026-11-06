@@ -743,9 +743,6 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .track-pago.mal .tp-ico { background: #CE1126; }
 .track-pago.mal strong { color: #991B1B; }
 .track-pago.mal p { color: #7F1D1D; }
-.tc-wa { display: flex; flex-wrap: wrap; gap: .5rem .75rem; align-items: center; justify-content: space-between; margin: 0 1rem .9rem; padding: .7rem .85rem; background: #F0FDF4; border: 1px solid #A7F3D0; border-radius: .75rem; font-size: .8rem; color: #065F46; font-weight: 600; }
-.tc-wa a { display: inline-flex; gap: .4rem; align-items: center; background: #128C4A; color: #fff; font-weight: 700; padding: .5rem .9rem; border-radius: .6rem; text-decoration: none; white-space: nowrap; }
-.tc-wa a:hover { background: #0E7A3E; }
 
 /* Rastreo: documentos que pedimos al cliente */
 .track-pide { margin-top: 1rem; border: 1px solid #BFD3EE; border-radius: 1rem; background: #fff; overflow: hidden; text-align: left; }
@@ -835,3 +832,39 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .ml-ciudades { display: flex; flex-wrap: wrap; gap: .4rem; padding: .2rem 0 .6rem 3.1rem; }
 .ml-ciudad { font-size: .78rem; font-weight: 600; color: #475569; background: #F1F5F9; border-radius: 999px; padding: .3rem .7rem; }
 .ml-ciudad.nav-active { background: #EAF2FF; color: #002D62; }
+
+/* ---------- Rastreo: tres espacios (pagos · documentos · archivos) ---------- */
+.track-sec { margin-top: 1.25rem; background: #fff; border: 1px solid #D5E1F0; border-radius: 1.1rem; padding: 1.1rem; text-align: left; box-shadow: 0 10px 24px -20px rgba(0, 45, 98, .55); }
+.track-sec.hidden { display: none; }
+.ts-cab { display: flex; gap: .8rem; align-items: flex-start; margin-bottom: .35rem; }
+.ts-n { flex: 0 0 auto; width: 2rem; height: 2rem; border-radius: 50%; background: #002D62; color: #fff; display: grid; place-items: center; font-weight: 800; font-size: .9rem; }
+.ts-cab h3 { margin: 0; color: #002D62; font-weight: 800; font-size: 1.02rem; line-height: 1.2; }
+.ts-cab p { margin: .15rem 0 0; color: #64748B; font-size: .78rem; line-height: 1.45; }
+.track-sec .track-pago, .track-sec .track-comp, .track-sec .track-pide, .track-sec .track-docs, .track-sec .track-espera { margin-top: .8rem; }
+.track-sec .track-comp, .track-sec .track-pide, .track-sec .track-docs { border-color: #E2E8F0; }
+.ts-hitos { list-style: none; margin: .8rem 0 0; padding: 0; display: grid; gap: .5rem; grid-template-columns: 1fr 1fr; }
+.ts-hitos li { display: grid; grid-template-columns: auto 1fr; gap: .15rem .6rem; align-items: center; padding: .7rem .8rem; border: 1px solid #E2E8F0; border-radius: .8rem; background: #F8FAFC; }
+.ts-hitos li > i { grid-row: 1 / 3; font-size: 1.15rem; color: #94A3B8; }
+.ts-hitos b { color: #0F172A; font-size: .84rem; }
+.ts-hitos span { margin-left: .4rem; color: #002D62; font-weight: 800; font-size: .8rem; }
+.ts-hitos em { font-style: normal; color: #64748B; font-size: .74rem; line-height: 1.3; }
+.ts-hitos li.ok { background: #ECFDF5; border-color: #A7F3D0; }
+.ts-hitos li.ok > i { color: #0E7A52; }
+.ts-hitos li.ok em { color: #065F46; font-weight: 700; }
+.ts-hitos li.ver { background: #EFF6FF; border-color: #BFDBFE; }
+.ts-hitos li.ver > i { color: #1D4ED8; }
+.ts-hitos li.ver em { color: #1E40AF; font-weight: 700; }
+.ts-hitos li.pend { background: #FFFBEB; border-color: #FDE68A; }
+.ts-hitos li.pend > i { color: #D97706; }
+.ts-hitos li.pend em { color: #92400E; font-weight: 700; }
+.track-pago.info { background: #EFF6FF; border-color: #BFDBFE; }
+.track-pago.info .tp-ico { background: #2563EB; }
+.track-pago.info strong { color: #1E3A8A; }
+.track-pago.info p { color: #1E40AF; }
+.track-bloq { margin-top: .8rem; display: flex; gap: .75rem; align-items: flex-start; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 1rem; padding: .9rem 1rem; }
+.track-bloq .tb-ico { width: 2.5rem; height: 2.5rem; border-radius: .75rem; background: #CE1126; color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+.track-bloq strong { display: block; color: #7F1D1D; font-size: .92rem; }
+.track-bloq small { display: block; color: #991B1B; font-weight: 700; font-size: .75rem; }
+.track-bloq p { margin: .3rem 0 0; color: #7F1D1D; font-size: .8rem; line-height: 1.5; }
+.track-bloq.hidden { display: none; }
+@media (max-width: 520px) { .ts-hitos { grid-template-columns: 1fr; } .track-sec { padding: .9rem; } }

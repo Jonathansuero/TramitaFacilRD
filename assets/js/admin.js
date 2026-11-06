@@ -456,10 +456,13 @@
                 ${gestiona ? `<button type="button" class="x" data-quitar-archivo="${a.id}" data-codigo="${esc(e.codigo)}" title="Quitar documento" aria-label="Quitar documento">×</button>` : ''}
             </li>`).join('')}</ul>` : '<p class="ayuda">Sube el documento escaneado (PDF o foto) para que el cliente lo reciba y pueda descargarlo con su número de expediente.</p>'}
             ${gestiona ? bloqueSubida(e, 'entrega', arch.length, 'Al guardar, el cliente podrá descargarlos en la página (Rastrear) con su número de expediente. No hace falta enviárselos.') : ''}
-            ${arch.length ? `<p class="disponible">${ico('ok', 16)}<span>Disponibles para el cliente en <b>Rastrear</b> con su código ${esc(e.codigo)}. Enviárselos es opcional:</span></p>
+            ${arch.length && e.archivos_bloqueados ? `<p class="disponible bloqueado">${ico('validar_pagos', 16)}<span><b>Bloqueados para el cliente.</b> Se desbloquean solos cuando se confirma el pago completo${e.pendiente ? ` (falta ${rd(e.pendiente)})` : ''}. ${puedeValidar() ? 'También puedes desbloquearlos tú:' : 'Solo administración o contabilidad pueden desbloquearlos.'}</span></p>
+            ${puedeValidar() ? `<div class="acciones"><button type="button" class="btn btn-verde btn-sm" data-liberar-archivos="${esc(e.codigo)}">Desbloquear archivos</button></div>` : ''}` : ''}
+            ${arch.length && !e.archivos_bloqueados ? `<p class="disponible">${ico('ok', 16)}<span>Disponibles para el cliente en <b>Rastrear</b> con su código ${esc(e.codigo)} (${e.archivos_liberados_manual ? 'los desbloqueó administración' : 'pago completo confirmado'}). Enviárselos es opcional:</span></p>
             <div class="acciones">
                 ${gestiona ? `<button type="button" class="btn btn-azul btn-sm" data-enviar-docs="${esc(e.codigo)}"${!email || !correoActivo ? ' disabled' : ''}>${ico('correo')} Enviar por correo</button>` : ''}
                 <a class="btn btn-wa btn-sm" href="${linkEntrega(e)}" target="_blank" rel="noopener">${ico('chat')} Enviar por WhatsApp</a>
+                ${e.archivos_liberados_manual && puedeValidar() ? `<button type="button" class="btn btn-borde btn-sm" data-bloquear-archivos="${esc(e.codigo)}">Volver a bloquear</button>` : ''}
             </div>
             <small class="ayuda">${!email ? 'El cliente no tiene correo registrado. ' : !correoActivo ? 'El envío de correos aún no está activado en el servidor (tramita correo). ' : `El correo se enviaría a ${esc(email)} con los documentos adjuntos. `}Para descargarlos en Rastrear, el cliente confirma los últimos 4 dígitos de su WhatsApp o su correo.</small>` : ''}`,
             hayListo && !arch.length);
@@ -1855,6 +1858,16 @@
             av.disabled = true;
             try { const r = await post('/admin/avisar', { codigo: av.dataset.avisarCorreo }); reemplazar(r.expediente); pintar(); toast(`Aviso enviado por correo a ${r.para}`); }
             catch (e) { if (e.message !== 'sesion') toast(e.message); av.disabled = false; }
+            return;
+        }
+        const lib = ev.target.closest('[data-liberar-archivos], [data-bloquear-archivos]');
+        if (lib) {
+            const abrir = lib.hasAttribute('data-liberar-archivos');
+            lib.disabled = true;
+            try {
+                const r = await post('/admin/archivos/liberar', { codigo: lib.dataset.liberarArchivos || lib.dataset.bloquearArchivos, liberar: abrir });
+                reemplazar(r.expediente); pintar(); toast(abrir ? 'Archivos desbloqueados: el cliente ya puede descargarlos' : 'Archivos bloqueados de nuevo');
+            } catch (e) { if (e.message !== 'sesion') toast(e.message); lib.disabled = false; }
             return;
         }
         const ed2 = ev.target.closest('[data-enviar-docs]');

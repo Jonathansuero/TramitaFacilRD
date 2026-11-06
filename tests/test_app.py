@@ -489,6 +489,17 @@ def test_correos_documentos_y_avisos(client, monkeypatch, tmp_path):
     enlace = r.json["expediente"]["archivos"][0]["enlace"]
     # al pasar a Listo el correo lleva el enlace de descarga
     client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar", "avisar": True})
+    cuerpo = enviados[-1].get_body(("plain",)).get_content()
+    assert "/descarga/" not in cuerpo and "50%" in cuerpo       # sin el pago confirmado no se mandan enlaces
+    # los archivos siguen bloqueados: ni el cliente ni el correo manual pueden entregarlos
+    assert client.post("/api/admin/archivo/enviar", json={"codigo": codigo}).status_code == 400
+    assert client.get(f"/api/rastreo/{codigo}").json["archivos_bloqueados"] is True
+    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"}).status_code == 423
+    assert client.get("/descarga/" + enlace.split("/descarga/")[1]).status_code == 423
+    # administración los desbloquea y el aviso ya lleva el enlace
+    r = client.post("/api/admin/archivos/liberar", json={"codigo": codigo})
+    assert r.json["expediente"]["archivos_bloqueados"] is False and r.json["expediente"]["archivos_liberados_manual"] is True
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar", "avisar": True})
     assert "/descarga/" in enviados[-1].get_body(("plain",)).get_content()
     # enviar los documentos por correo (adjuntos)
     assert client.post("/api/admin/archivo/enviar", json={"codigo": codigo}).json["para"] == "ana@correo.com"
@@ -800,7 +811,7 @@ def test_documentos_recibidos_avisos_y_registro(client, monkeypatch, tmp_path):
     assert len(enviados) == n + 1                                  # le avisó a quien confirma (el dueño)
     rid = e["recibidos"][0]["id"]
     assert client.get(f"/api/rastreo/{codigo}").json["archivos"] == 0   # el cliente no ve los recibidos
-    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"}).json["archivos"] == []
+    assert (client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"}).json or {}).get("archivos", []) == []
     assert client.post("/api/admin/archivo/validar", json={"codigo": codigo, "id": rid, "accion": "validar"}).status_code == 403
     # avisar al equipo desde el expediente
     assert client.post("/api/admin/avisar-equipo", json={"codigo": codigo, "texto": "Falta el acta apostillada", "para": "todos"}).json["ok"]
@@ -936,7 +947,8 @@ def test_cliente_sube_documentos_pedidos(client, monkeypatch, tmp_path):
     assert all(r["estado"] == "nuevo" for r in e["recibidos"])
     assert client.get("/api/admin/avisos").json["avisos"][-1]["tipo"] in ("solicitud", "recibido")
     # el cliente no puede descargarlos: son internos
-    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"}).json["archivos"] == []
+    r = client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "1234"})
+    assert (r.json or {}).get("archivos", []) == []
     # al marcar el documento como recibido, deja de pedírsele
     tid = e["tramites"][0]["id"]
     client.post("/api/admin/docs", json={"codigo": codigo, "tramite": tid, "docs": ["Acta de nacimiento apostillada"]})
@@ -955,7 +967,8 @@ def test_rastreo_muestra_pago_parcial_y_completo(client, monkeypatch):
     codigo = e["codigo"]
     # sin pagos todavía: no hay nada cobrado y falta todo
     v = client.get(f"/api/rastreo/{codigo}").json
-    assert v["pago"] is None and v["saldo"] == {"total": 4000, "pagado": 0, "falta": 4000, "pct": 0}
+    assert v["pago"] is None and {k: v["saldo"][k] for k in ("total", "pagado", "falta", "pct")} == {"total": 4000, "pagado": 0, "falta": 4000, "pct": 0}
+    assert v["saldo"]["mitad"] == 2000 and v["saldo"]["falta_mitad"] == 2000 and v["archivos_bloqueados"] is True
     # mitad pagada y confirmada: sigue faltando, el cliente ve el 50 %
     pid = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Transferencia"}).json["expediente"]["pagos"][-1]["id"]
     client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
@@ -1085,3 +1098,35 @@ def test_landing_promo(client):
     assert r.status_code == 200
     html = r.get_data(as_text=True)
     assert "noindex" in html and "api/solicitud" in html and "#cotiza" in html
+
+
+def test_archivos_se_desbloquean_con_el_pago_completo_o_a_mano(client, monkeypatch):
+    """Bloqueados hasta que administración confirme el 50 % restante (o los libere a mano)."""
+    import io
+    from werkzeug.security import generate_password_hash
+    monkeypatch.setenv("TF_ADMIN_HASH", generate_password_hash("clave-del-dueno"))
+    client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"})
+    e = client.post("/api/admin/nuevo", json={"nombre": "Luis Pérez", "contacto": "+1 809 555 4321 · luis@correo.com",
+                    "pais": "us", "servicios": [{"servicio": "creacion_cv", "precio": 4000}]}).json["expediente"]
+    codigo = e["codigo"]
+    client.post("/api/admin/archivo", data={"codigo": codigo, "clase": "entrega", "archivo": (io.BytesIO(b"%PDF-1.4\n%%EOF\n"), "cv.pdf")},
+                content_type="multipart/form-data")
+    # el cliente declara si su recibo es del pago inicial o final
+    r = client.post(f"/api/rastreo/{codigo}/comprobante", data={"dato": "4321", "monto": "2000", "metodo": "Zelle", "concepto": "inicial",
+                    "archivo": (io.BytesIO(b"%PDF-1.4\n%%EOF\n"), "r.pdf")}, content_type="multipart/form-data")
+    assert r.status_code == 201
+    exp = next(x for x in client.get("/api/admin/expedientes").json["expedientes"] if x["codigo"] == codigo)
+    assert exp["comprobantes"][0]["nota"].startswith("Pago inicial")
+    # con solo el 50 % confirmado, sigue bloqueado
+    pid = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Zelle"}).json["expediente"]["pagos"][-1]["id"]
+    client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
+    assert client.get(f"/api/rastreo/{codigo}").json["archivos_bloqueados"] is True
+    assert client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "4321"}).status_code == 423
+    # al confirmarse el resto, se desbloquea solo
+    pid = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Zelle"}).json["expediente"]["pagos"][-1]["id"]
+    client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
+    assert client.get(f"/api/rastreo/{codigo}").json["archivos_bloqueados"] is False
+    assert len(client.post(f"/api/rastreo/{codigo}/archivos", json={"dato": "4321"}).json["archivos"]) == 1
+    # administración puede volver a bloquear a mano
+    assert client.post("/api/admin/archivos/liberar", json={"codigo": codigo, "liberar": True}).json["ok"]
+    assert client.post("/api/admin/archivos/liberar", json={"codigo": codigo, "liberar": False}).json["ok"]
