@@ -521,9 +521,27 @@
                 <small class="ayuda">El cliente también puede subirlos él mismo en <b>Rastrear</b> con su código ${esc(e.codigo)}. Cuando llegue uno, les avisamos a todos.</small>
                 <div class="acciones"><a class="btn btn-wa btn-sm" href="${linkDocs(e)}" target="_blank" rel="noopener">${ico('chat')} Pedirlos por WhatsApp</a></div>
             </div>` : ''}
+            ${bloquePedir(e)}
             ${bloqueSubida(e, 'recibido', lista.length, 'Al guardar, el equipo recibe un aviso para revisarlos. El cliente no los ve.', faltan)}
             ${sinRev && !puedeValidar() ? `<small class="ayuda">${ico('campana', 14)} Ya avisamos a quien confirma los pagos y documentos.</small>` : ''}
             ${bloqueAvisarEquipo(e)}`, !!sinRev);
+    }
+    /** El gestor pide documentos concretos: cada uno aparece como un espacio para adjuntar en Rastrear. */
+    const SUGERIDOS = ['Cédula', 'Pasaporte', 'Título', 'Acta de nacimiento', 'Foto 2x2'];
+    function bloquePedir(e) {
+        if (!puede('expedientes')) return '';
+        const pedidos = e.docs_pedidos || [];
+        const sug = SUGERIDOS.filter(x => !pedidos.includes(x));
+        return `<div class="pedir">
+            <b>${ico('clip', 14)} Pedir documentos al cliente</b>
+            <small class="ayuda">Cada documento que pidas le aparece al cliente en Rastrear con su propio espacio para adjuntar (puede subir varios archivos en cada uno).</small>
+            ${pedidos.length ? `<div class="chips-pedidos">${pedidos.map((d, i) => `<span class="chip-ped">${esc(d)}<button type="button" data-pedir-quitar="${i}" data-codigo="${esc(e.codigo)}" aria-label="Quitar ${esc(d)}">×</button></span>`).join('')}</div>` : ''}
+            ${sug.length ? `<div class="sugeridos">${sug.map(x => `<button type="button" class="chip-sug" data-pedir-rapido="${esc(x)}" data-codigo="${esc(e.codigo)}">+ ${esc(x)}</button>`).join('')}</div>` : ''}
+            <form class="form-pedir" data-codigo="${esc(e.codigo)}">
+                <input class="input" name="doc" maxlength="80" placeholder="Otro documento. Ej.: Carta de trabajo" aria-label="Documento a pedir">
+                <button class="btn btn-azul btn-sm" type="submit">Pedir</button>
+            </form>
+        </div>`;
     }
     function bloqueAvisarEquipo(e) {
         if (avisandoEquipo !== e.codigo) return `<button type="button" class="link avisar-abrir" data-avisar-equipo="${esc(e.codigo)}">${ico('campana', 14)} Avisar al equipo sobre este expediente</button>`;
@@ -568,6 +586,8 @@
             const tengo = new Set(t.docs || []);
             for (const d of checklist(t)) if (!tengo.has(d)) vistos.add(d);
         }
+        const val = new Set((e.recibidos || []).filter(r => r.estado === 'validado').map(r => r.nota));
+        for (const d of e.docs_pedidos || []) if (!val.has(d)) vistos.add(d);
         return [...vistos];
     }
 
@@ -1824,6 +1844,15 @@
         const ae = ev.target.closest('[data-avisar-equipo]');
         if (ae) { avisandoEquipo = ae.dataset.avisarEquipo; pintar(); const i = document.getElementById('ae-' + avisandoEquipo); if (i) i.focus(); return; }
         if (ev.target.closest('[data-cancelar-avisar]')) { avisandoEquipo = null; pintar(); return; }
+        const pq = ev.target.closest('[data-pedir-quitar],[data-pedir-rapido]');
+        if (pq) {
+            const e = expedientes.find(x => x.codigo === pq.dataset.codigo); if (!e) return;
+            const l = [...(e.docs_pedidos || [])];
+            if (pq.dataset.pedirQuitar !== undefined) l.splice(Number(pq.dataset.pedirQuitar), 1); else l.push(pq.dataset.pedirRapido);
+            try { reemplazar((await post('/admin/docs/pedir', { codigo: e.codigo, docs: l })).expediente); pintar(); }
+            catch (err) { if (err.message !== 'sesion') toast(err.message); }
+            return;
+        }
         const tb = ev.target.closest('[data-tipo-pago]');
         if (tb) {
             if (!tb.disabled) {
@@ -1920,6 +1949,11 @@
                 if (ventana) ventana.location.href = linkAvance(r.expediente, Number(form.dataset.tramite));
                 const avisos = [r.correo === 'enviando' ? `correo a ${r.expediente.correo_cliente}` : '', ventana ? 'WhatsApp abierto' : ''].filter(Boolean);
                 toast(avisos.length ? `Estado guardado · aviso por ${avisos.join(' y ')}` : 'Estado guardado (sin aviso). El cliente lo verá en Rastrear.');
+            } else if (form.classList.contains('form-pedir')) {
+                const e = expedientes.find(x => x.codigo === form.dataset.codigo), nuevo = form.doc.value.trim();
+                if (!e || !nuevo) return;
+                const r = await post('/admin/docs/pedir', { codigo: e.codigo, docs: [...(e.docs_pedidos || []), nuevo] });
+                reemplazar(r.expediente); pintar(); toast('Listo: el cliente verá un espacio para adjuntar «' + nuevo + '» en Rastrear.');
             } else if (form.classList.contains('agregar')) {
                 const r = await post('/admin/agregar', { codigo: form.dataset.codigo, ...leerServicio(form) });
                 agregando.delete(form.dataset.codigo); reemplazar(r.expediente); pintar();

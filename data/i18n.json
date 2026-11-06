@@ -1091,26 +1091,6 @@
       "· sent, under review",
       "· envoyé, en cours de vérification"
     ],
-    "track.pide.cual": [
-      "¿Cuál documento envías?",
-      "Which document are you sending?",
-      "Quel document envoyez-vous ?"
-    ],
-    "track.pide.archivo": [
-      "Fotos o PDF de tus documentos",
-      "Photos or PDFs of your documents",
-      "Photos ou PDF de vos documents"
-    ],
-    "track.pide.otro": [
-      "Otro documento",
-      "Another document",
-      "Un autre document"
-    ],
-    "track.pide.btn": [
-      "Enviar documentos",
-      "Send documents",
-      "Envoyer les documents"
-    ],
     "track.pide.ok": [
       "Recibimos tus archivos y quedaron registrados. Puedes seguir subiendo más.",
       "We received your files and they are saved. You can keep uploading more.",
@@ -2737,9 +2717,9 @@
       "Pour démarrer la démarche"
     ],
     "track.pide.multi": [
-      "Puedes seleccionar varios archivos a la vez y seguir subiendo más cuando quieras.",
-      "You can select several files at once and keep uploading more whenever you like.",
-      "Vous pouvez choisir plusieurs fichiers à la fois et en ajouter d’autres à tout moment."
+      "Adjunta tus archivos en el espacio de cada documento. Puedes subir varios en cada uno y seguir subiendo cuando quieras.",
+      "Attach your files in each document’s space. You can upload several in each and keep uploading whenever you like.",
+      "Joignez vos fichiers dans l’espace de chaque document. Vous pouvez en envoyer plusieurs et en ajouter à tout moment."
     ],
     "track.pide.enviando": [
       "Enviando {i} de {n}…",
@@ -2755,6 +2735,26 @@
       "No se pudo enviar",
       "Could not send",
       "Échec de l’envoi"
+    ],
+    "track.slot.pend": [
+      "Pendiente",
+      "Pending",
+      "En attente"
+    ],
+    "track.slot.otro": [
+      "Otro documento (opcional)",
+      "Another document (optional)",
+      "Autre document (facultatif)"
+    ],
+    "track.slot.adj": [
+      "Adjuntar",
+      "Attach",
+      "Joindre"
+    ],
+    "track.slot.mas": [
+      "Adjuntar más",
+      "Attach more",
+      "Joindre d’autres"
     ]
   },
   "contenido": {
