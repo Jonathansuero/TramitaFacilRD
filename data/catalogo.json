@@ -527,7 +527,7 @@
       ]
     },
     "pasaporte_vip": {
-      "title": "Pasaporte Dominicano VIP (MIP)",
+      "title": "Pasaporte Dominicano VIP (DGP)",
       "slug": "pasaporte-dominicano-vip",
       "tax": 3000,
       "fee": 1650,
@@ -538,7 +538,7 @@
         "es",
         "mundo"
       ],
-      "desc": "Asignación rápida de cita en la Dirección General de Pasaportes (MIP).",
+      "desc": "Asignación rápida de cita en la Dirección General de Pasaportes (DGP).",
       "inst": [
         "pasaportes"
       ],
@@ -576,7 +576,7 @@
       ]
     },
     "pasaporte_normal": {
-      "title": "Pasaporte Dominicano Normal (MIP)",
+      "title": "Pasaporte Dominicano Normal (DGP)",
       "slug": "pasaporte-dominicano",
       "tax": 1650,
       "fee": 1320,
@@ -2468,19 +2468,19 @@
       "desc": "Procesos como el divorcio por mutuo consentimiento."
     },
     "camara": {
-      "sigla": "CCP",
+      "sigla": "Cámaras de Comercio",
       "tipo": "privada",
       "nombre": "Cámaras de Comercio y Producción",
       "desc": "Registro Mercantil para la constitución de empresas."
     },
     "notarios": {
-      "sigla": "NOT",
+      "sigla": "Notarios",
       "tipo": "privada",
       "nombre": "Notarios públicos",
       "desc": "Poderes, declaraciones juradas, contratos y actos de venta."
     },
     "interpretes": {
-      "sigla": "IJ",
+      "sigla": "Intérpretes",
       "tipo": "privada",
       "nombre": "Intérpretes judiciales",
       "desc": "Traducciones oficiales en inglés, francés, italiano y alemán."
@@ -2498,7 +2498,7 @@
       "desc": "Historial de vehículos importados de EE.UU. y Canadá."
     },
     "consulados_rd": {
-      "sigla": "CONS. RD",
+      "sigla": "Consulados RD",
       "tipo": "internacional",
       "nombre": "Consulados dominicanos en el exterior",
       "desc": "Poderes y legalizaciones firmados desde el país donde vives."
@@ -2510,7 +2510,7 @@
       "desc": "Formularios I-90 (Green Card) e I-130 (peticiones familiares)."
     },
     "embajada_eeuu": {
-      "sigla": "EMB. EE.UU.",
+      "sigla": "Embajada EE.UU.",
       "tipo": "internacional",
       "nombre": "Embajada de EE.UU. en Santo Domingo",
       "desc": "Formulario DS-160 y cita consular para visas B1/B2."
