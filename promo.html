@@ -499,8 +499,7 @@ function marcaPais() {
 $('#mapa').addEventListener('click', e => { const b = e.target.closest('[data-pais]'); if (!b) return;
   const k = b.dataset.pais, ya = st.pais === k;
   if (ya) { st.pais = null; st.moneda = 'DOP'; } else { st.pais = k; st.moneda = PAISES.find(p => p[0] === k)[3]; ev('promo_pais', {pais: k}); }
-  marcaPais(); if (st.cat) pintaLista(); if (st.sid) pintaCot(); if (window.__car) window.__car();
-  if (!ya && !st.sid) { const bus = $('#caja'); if (bus.getBoundingClientRect().top > innerHeight * .75) bus.scrollIntoView({behavior: 'smooth', block: 'start'}); } });
+  marcaPais(); if (st.cat) pintaLista(); if (st.sid) pintaCot(); if (window.__car) window.__car(); });
 $('#cats').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (!b) return;
   st.cat = b.dataset.cat; pintaLista(); ev('promo_categoria', {categoria: st.cat}); mostrar(2); });
 
