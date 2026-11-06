@@ -1078,3 +1078,10 @@ def test_paginas_por_ciudad(client):
     mapa = (Path(__file__).resolve().parents[1] / "sitemap.xml").read_text(encoding="utf-8")
     assert all(f"/diaspora/{s}</loc>" in mapa for s in ciudades)
 
+
+
+def test_landing_promo(client):
+    r = client.get("/promo")
+    assert r.status_code == 200
+    html = r.get_data(as_text=True)
+    assert "noindex" in html and "api/solicitud" in html and "#cotiza" in html
