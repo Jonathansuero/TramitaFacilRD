@@ -181,7 +181,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 .lp-gars2{display:grid;gap:1.1rem}@media(min-width:800px){.lp-gars2{grid-template-columns:repeat(3,1fr);gap:1.4rem}}
 .lp-g2{background:#fff;color:#334155;border-radius:1.1rem;padding:1.7rem 1.5rem 1.5rem;position:relative;border-top:4px solid var(--oro);box-shadow:0 24px 44px -26px rgba(0,0,0,.65);transition:transform .2s,box-shadow .2s}
 .lp-g2:hover{transform:translateY(-4px);box-shadow:0 30px 50px -26px rgba(0,0,0,.75)}
-.lp-g2 .gi{width:3.4rem;height:3.4rem;border-radius:1rem;background:linear-gradient(135deg,var(--azul),#0b3f85);display:grid;place-items:center;font-size:1.6rem;margin-bottom:1rem;box-shadow:0 10px 20px -10px rgba(0,45,98,.8)}
+.lp-g2 .gi{width:3.4rem;height:3.4rem;border-radius:1rem;background:linear-gradient(135deg,var(--azul),#0b3f85);display:grid;place-items:center;font-size:1.4rem;color:#fff;margin-bottom:1rem;box-shadow:0 10px 20px -10px rgba(0,45,98,.8)}
 .lp-g2 h3{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:1.1rem;color:var(--azul);margin-bottom:.4rem}
 .lp-g2 p{font-size:.9rem;color:#64748b;line-height:1.55}
 .lp-tira{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:.6rem 1.8rem;margin-top:2rem;padding-top:1.4rem;border-top:1px solid rgba(255,255,255,.18);font-size:.82rem;font-weight:600;color:#e2e8f0}
@@ -410,9 +410,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="lp-head c" style="margin-bottom:2.2rem"><span class="lp-k clara">Por qué confiar en nosotros</span>
         <h2 class="lp-h2" style="color:#fff;max-width:34rem;margin-left:auto;margin-right:auto">Claridad en el precio,<br class="hidden sm:inline"> respaldo en el proceso</h2></div>
     <div class="lp-gars2">
-        <article class="lp-g2"><div class="gi">⚖️</div><h3>Respaldo legal real</h3><p>Empresa registrada legalmente en ONAPI. Trabajamos con abogados y notarios en cada gestión.</p></article>
-        <article class="lp-g2"><div class="gi">🧾</div><h3>Precio sin sorpresas</h3><p>Separamos las tasas oficiales de las instituciones de nuestros honorarios. Ves ambos antes de decidir.</p></article>
-        <article class="lp-g2"><div class="gi">📍</div><h3>Seguimiento en línea</h3><p>Un código para consultar el estado, subir documentos y ver tus pagos a cualquier hora.</p></article>
+        <article class="lp-g2"><div class="gi"><i class="fa-solid fa-scale-balanced"></i></div><h3>Respaldo legal real</h3><p>Empresa registrada legalmente en ONAPI. Trabajamos con abogados y notarios en cada gestión.</p></article>
+        <article class="lp-g2"><div class="gi"><i class="fa-solid fa-receipt"></i></div><h3>Precio sin sorpresas</h3><p>Separamos las tasas oficiales de las instituciones de nuestros honorarios. Ves ambos antes de decidir.</p></article>
+        <article class="lp-g2"><div class="gi"><i class="fa-solid fa-location-dot"></i></div><h3>Seguimiento en línea</h3><p>Un código para consultar el estado, subir documentos y ver tus pagos a cualquier hora.</p></article>
     </div>
 </div></section>
 
@@ -462,7 +462,7 @@ const st = { pais: null, cat: null, sid: null, express: false, envio: false, mon
 
 $('#paises').innerHTML = PAISES.map(p => `<button type="button" class="lp-pill" data-pais="${p[0]}" aria-pressed="false">${p[1]} ${esc(p[4])}</button>`).join('');
 $('#f_pais').innerHTML = '<option value="">Selecciona…</option>' + PAISES.map(p => `<option value="${p[0]}">${p[1]} ${p[2]}</option>`).join('');
-$('#cats').innerHTML = Object.entries(D.categorias).map(([k, c]) => `<button class="lp-chip" data-cat="${k}"><span class="ci"><i class="fa-solid ${c.icono}"></i></span><b>${c.emoji} ${esc(c.label)}</b></button>`).join('');
+$('#cats').innerHTML = Object.entries(D.categorias).map(([k, c]) => `<button class="lp-chip" data-cat="${k}"><span class="ci"><i class="fa-solid ${c.icono}"></i></span><b>${esc(c.label)}</b></button>`).join('');
 
 function ir(n) {
   document.querySelectorAll('.lp-paso').forEach((p, i) => p.classList.toggle('on', i + 1 === n || (n === 3 && p.id === 'p4' )));
@@ -509,7 +509,7 @@ const opt = (k, dest) => { const s = SERV[k];
 function pintaLista() {
   const dest = (D.paises[st.pais] || {}).destacados || [];
   const ids = Object.keys(SERV).filter(k => SERV[k].category === st.cat).sort((a, b) => dest.includes(b) - dest.includes(a));
-  $('#t2').textContent = D.categorias[st.cat].emoji + ' ' + D.categorias[st.cat].label;
+  $('#t2').textContent = D.categorias[st.cat].label;
   $('#lista').innerHTML = ids.map(k => opt(k, dest)).join('');
 }
 // buscador: escribe y elige
@@ -540,7 +540,7 @@ function pintaCot() {
       <span class="lc-l">Prioridad</span>
       <div class="lc-2">
         <label class="opcion"><input type="radio" name="speed" value="standard" ${st.express ? '' : 'checked'}><div><b>Estándar</b><small>Tiempo regular</small></div></label>
-        <label class="opcion"><input type="radio" name="speed" value="express" ${st.express ? 'checked' : ''}><div><b>Express 🔥</b><small>+ ${fmt(C.express_fee, m)}</small></div></label>
+        <label class="opcion"><input type="radio" name="speed" value="express" ${st.express ? 'checked' : ''}><div><b>Express</b><small>+ ${fmt(C.express_fee, m)}</small></div></label>
       </div>
       <span class="lc-l">Entrega</span>
       <label class="opcion"><input type="checkbox" data-x="envio" ${st.envio ? 'checked' : ''}><div><b>Envío por mensajería</b><small>+ ${fmt(C.delivery_fee, m)}</small></div></label>
