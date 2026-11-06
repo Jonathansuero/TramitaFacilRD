@@ -65,7 +65,7 @@
                 completo ? 'track.hito.conf' : inicialOk && verificando ? 'track.hito.ver' : inicialOk && listo ? 'track.hito.ahora' : 'track.hito.espera');
         // El aviso grande: amarillo solo cuando falta el primer 50% o cuando el trámite ya está listo y falta el resto
         let estado, titulo, detalle;
-        if (pago === 'rechazado') {
+        if (pago === 'rechazado' && listo) {      // el aviso de rechazo solo aparece cuando el trámite llega a LISTO
             estado = 'mal'; titulo = t('track.pago.mal');
             detalle = data.pago_motivo ? t('track.pago.mal.d.motivo', { motivo: data.pago_motivo }) : t('track.pago.mal.d');
         } else if (completo) { estado = 'ok'; titulo = t('track.pago.full'); detalle = t('track.pago.full.d'); }
@@ -79,7 +79,7 @@
         } else { estado = 'ok'; titulo = t('track.pago.inok'); detalle = t('track.pago.inok.d'); }
         const caja = $('trackPago');
         ['ok', 'mal', 'aviso', 'info'].forEach(c => caja.classList.toggle(c, estado === c));
-        caja.classList.remove('hidden');
+        caja.classList.toggle('hidden', inicialOk && !listo);   // pagado el primer 50%, no hay aviso hasta que el trámite llegue a LISTO
         caja.querySelector('.tp-ico i').className = 'fa-solid ' + { ok: 'fa-circle-check', mal: 'fa-triangle-exclamation', info: 'fa-hourglass-half', aviso: 'fa-circle-exclamation' }[estado];
         $('trackPagoT').textContent = titulo;
         $('trackPagoD').textContent = detalle;
@@ -99,7 +99,7 @@
         if (compDe !== code || (inicialOk && $('trackCompConcepto').value === 'inicial')) elegirConcepto(inicialOk ? 'final' : 'inicial');
         else elegirConcepto($('trackCompConcepto').value);
         if (compDe !== code) { $('trackCompForm').classList.add('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'false'); compDe = code; }
-        if (pago === 'rechazado') { $('trackCompForm').classList.remove('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'true'); }
+        if (pago === 'rechazado' && listo) { $('trackCompForm').classList.remove('hidden'); $('trackCompOk').classList.add('hidden'); $('trackCompAbrir').setAttribute('aria-expanded', 'true'); }
         // Documentos que le pedimos: puede subirlos desde aquí
         const todosDocs = (Array.isArray(data.items) ? data.items : []).flatMap(it => it.docs || []);
         const faltan = todosDocs.filter(d => !d.recibido && !d.enviado);
