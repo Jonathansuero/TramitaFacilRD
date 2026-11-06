@@ -2511,7 +2511,7 @@ PAGINAS = {"promo", "servicios", "servicio", "casos", "instituciones", "diaspora
            "nosotros", "privacidad", "terminos", "offline", "admin"}
 # 33200d87b13a122cdb2087cad4e581ff.txt: clave de IndexNow (Bing, Yandex…) para avisar a los buscadores de páginas nuevas
 INDEXNOW_KEY = "33200d87b13a122cdb2087cad4e581ff"
-ARCHIVOS_RAIZ = {"sw.js", "robots.txt", "sitemap.xml", "site.webmanifest", f"{INDEXNOW_KEY}.txt"}
+ARCHIVOS_RAIZ = {"sw.js", "robots.txt", "sitemap.xml", "BingSiteAuth.xml", "site.webmanifest", f"{INDEXNOW_KEY}.txt"}
 
 
 def _con_busqueda(destino: str) -> str:
