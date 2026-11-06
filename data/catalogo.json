@@ -1503,7 +1503,7 @@
       "title": "Gestión y Pago de Impuestos (DGII / Marbete)",
       "slug": "pago-de-impuestos-y-marbete",
       "tax": 1500,
-      "fee": 950,
+      "fee": 1600,
       "category": "impuestos_vehiculos",
       "paises": [
         "rd",
