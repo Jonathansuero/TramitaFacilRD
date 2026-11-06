@@ -805,12 +805,14 @@ def archivos_desbloqueados(db: sqlite3.Connection, codigo: str) -> bool:
     fila = db.execute("SELECT archivos_liberados FROM seguimiento WHERE codigo=?", (codigo,)).fetchone()
     if fila and fila["archivos_liberados"]:
         return True
-    s = saldo_cliente(db, codigo)
-    return s["total"] is not None and s["falta"] <= 0
+    return not falta_por_pagar(db, codigo)
 
 
 def falta_por_pagar(db: sqlite3.Connection, codigo: str) -> bool:
-    """¿Al cliente todavía le queda saldo? Si no, ya no se le pide otro comprobante."""
+    """¿Al cliente todavía le queda saldo? Si no, ya no se le pide otro comprobante.
+    Cuando administración confirma el pago final (saldo 50%), el cliente queda al día."""
+    if db.execute("SELECT 1 FROM pagos WHERE codigo=? AND tipo='saldo' AND estado='confirmado' LIMIT 1", (codigo,)).fetchone():
+        return False
     s = saldo_cliente(db, codigo)
     return True if s["total"] is None else s["falta"] > 0
 
