@@ -491,6 +491,12 @@ ${ES_APP ? renderTabbar() : ''}`;
         el.innerHTML = `<span>🌐 ${txt[0]}</span><button data-lang="${nav}" class="lang-hint-yes">${txt[1]}</button><button class="lang-hint-no">${txt[2]}</button>`;
         el.addEventListener('click', e => { if (e.target.closest('button')) el.remove(); });
         document.body.appendChild(el);
+        // Que no estorbe al llenar la solicitud: se esconde mientras el formulario está en pantalla y se va solo.
+        const form = $('confirmar');
+        if (form && 'IntersectionObserver' in window) {
+            new IntersectionObserver(([e]) => el.classList.toggle('is-oculto', e.isIntersecting)).observe(form);
+        }
+        setTimeout(() => el.remove(), 15000);
     }
 
     /** Sello visual propio de una institución (no reproduce logos oficiales). */
