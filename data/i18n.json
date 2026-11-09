@@ -1861,6 +1861,21 @@
       "Link copied: the client only adds their details 🔗",
       "Lien copié : le client n'a plus qu'à saisir ses données 🔗"
     ],
+    "cot.t": [
+      "Tu cotización está lista",
+      "Your quote is ready",
+      "Votre devis est prêt"
+    ],
+    "cot.d": [
+      "Revisa el resumen y el precio. Solo falta que pongas tus datos.",
+      "Review the summary and price. You only need to add your details.",
+      "Consultez le résumé et le prix. Il ne reste que vos coordonnées."
+    ],
+    "cot.ir": [
+      "Continuar con mis datos ↓",
+      "Continue with my details ↓",
+      "Continuer avec mes coordonnées ↓"
+    ],
     "toast.enlace": [
       "Enlace copiado 🔗",
       "Link copied 🔗",

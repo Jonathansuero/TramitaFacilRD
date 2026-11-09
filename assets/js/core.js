@@ -621,7 +621,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         q.set('moneda', state.moneda); q.set('pais', state.pais);
         if (state.detalle) q.set('det', state.detalle);
         q.set('src', 'cotizacion');
-        return `${location.origin}${servUrl(k)}?${q}#confirmar`;
+        return `${location.origin}${servUrl(k)}?${q}`;
     };
     /** Aplica ?express=&envio=&moneda=&pais= de un enlace; devuelve lo leído (o null si no trae nada). */
     const leerEnlace = () => {

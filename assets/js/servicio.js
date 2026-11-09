@@ -284,6 +284,10 @@
         render();
         initConfirmar();
         if (dePedido) { $('pExp').checked = dePedido.express; $('pEnv').checked = dePedido.envio; }
+        if (dePedido) {                        // llega por el enlace del gestor: abre arriba, con aviso y botón al formulario
+            $('sCotizacion').classList.remove('hidden');
+            $('sCotizacionIr').addEventListener('click', () => irAConfirmar());
+        }
         precio();
         history.replaceState({ id }, '', location.href);
         $('sRel').addEventListener('click', e => {

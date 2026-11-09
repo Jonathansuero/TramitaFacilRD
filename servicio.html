@@ -41,6 +41,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <div class="hero-grid absolute inset-0 pointer-events-none"></div>
         <div class="max-w-6xl mx-auto px-4 sm:px-6 relative">
             <nav class="breadcrumb" aria-label="breadcrumb"><a href="/" data-i18n="foot.inicio">Inicio</a><span>›</span><a href="/servicios" data-i18n="nav.servicios">Servicios</a><span>›</span><span id="bcCat"></span></nav>
+            <div id="sCotizacion" class="hidden mt-6 max-w-3xl rounded-2xl bg-white/10 border border-white/25 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center gap-4" role="status">
+                <div class="flex items-start gap-3 flex-1">
+                    <span class="shrink-0 w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center"><i class="fa-solid fa-check" aria-hidden="true"></i></span>
+                    <div><div class="font-extrabold text-base sm:text-lg" data-i18n="cot.t">Tu cotización está lista</div>
+                    <p class="text-sm text-slate-200 mt-0.5" data-i18n="cot.d">Revisa el resumen y el precio. Solo falta que pongas tus datos.</p></div>
+                </div>
+                <button type="button" id="sCotizacionIr" class="bg-domRed hover:bg-red-700 font-bold py-3 px-5 rounded-xl text-sm whitespace-nowrap" data-i18n="cot.ir">Continuar con mis datos ↓</button>
+            </div>
             <div class="flex flex-wrap items-center gap-2 mt-6"><span id="sCat" class="eyebrow bg-white/15 text-white"></span><span id="sFlags" class="text-lg tracking-widest"></span></div>
             <h1 id="sTitle" class="font-display text-3xl sm:text-5xl font-extrabold tracking-tight mt-3 max-w-4xl"></h1>
             <p id="sDesc" class="text-slate-300 text-base sm:text-lg mt-4 max-w-3xl"></p>
