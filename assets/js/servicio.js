@@ -280,8 +280,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        const dePedido = TF.leerEnlace();      // enlace del gestor: opciones ya elegidas
         render();
         initConfirmar();
+        if (dePedido) { $('pExp').checked = dePedido.express; $('pEnv').checked = dePedido.envio; }
         precio();
         history.replaceState({ id }, '', location.href);
         $('sRel').addEventListener('click', e => {
@@ -304,7 +306,7 @@
         ['pExp', 'pEnv'].forEach(i => $(i).addEventListener('change', precio));
         $('monedaToggle').addEventListener('click', e => { const b = e.target.closest('[data-moneda]'); if (b) TF.setMoneda(b.dataset.moneda); });
         $('sShare').addEventListener('click', async () => {
-            const url = location.origin && location.protocol.startsWith('http') ? `${location.origin}${location.pathname}?id=${id}` : location.href;
+            const url = location.protocol.startsWith('http') ? TF.enlaceCliente(id, { express: $('pExp').checked, envio: $('pEnv').checked }) : location.href;
             const title = tc('servicios', id).title;
             try { if (navigator.share) await navigator.share({ title, url }); else { await navigator.clipboard.writeText(url); toast(t('toast.enlace')); } } catch (e) { /* cancelado */ }
         });

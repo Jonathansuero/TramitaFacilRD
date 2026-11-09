@@ -1851,6 +1851,16 @@
       "Code copied 📋",
       "Code copié 📋"
     ],
+    "calc.copiar": [
+      "Copiar enlace para el cliente",
+      "Copy link for the client",
+      "Copier le lien pour le client"
+    ],
+    "calc.copiado": [
+      "Enlace copiado: el cliente solo pone sus datos 🔗",
+      "Link copied: the client only adds their details 🔗",
+      "Lien copié : le client n'a plus qu'à saisir ses données 🔗"
+    ],
     "toast.enlace": [
       "Enlace copiado 🔗",
       "Link copied 🔗",

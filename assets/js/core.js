@@ -607,7 +607,28 @@ ${ES_APP ? renderTabbar() : ''}`;
     /** Dirección oficial de un trámite: /servicios/<palabras>. La vieja (servicio?id=…) sigue redirigiendo. */
     const servUrl = k => (SERV[k] && SERV[k].slug) ? `/servicios/${SERV[k].slug}` : `servicio?id=${encodeURIComponent(k)}`;
 
+    /** Enlace listo para el cliente: trámite + opciones + país/moneda; al abrirlo solo faltan sus datos. */
+    const enlaceCliente = (k, { express = false, envio = false } = {}) => {
+        const q = new URLSearchParams();
+        if (express) q.set('express', '1');
+        if (envio) q.set('envio', '1');
+        q.set('moneda', state.moneda); q.set('pais', state.pais);
+        if (state.detalle) q.set('det', state.detalle);
+        q.set('src', 'cotizacion');
+        return `${location.origin}${servUrl(k)}?${q}#confirmar`;
+    };
+    /** Aplica ?express=&envio=&moneda=&pais= de un enlace; devuelve lo leído (o null si no trae nada). */
+    const leerEnlace = () => {
+        const q = new URLSearchParams(location.search);
+        if (!q.has('moneda') && !q.has('pais') && !q.has('express') && !q.has('envio')) return null;
+        const pais = q.get('pais'), mon = q.get('moneda');
+        if (pais && PAISES[pais]) setPais(pais, { keepMoneda: true, animate: false, detalle: q.get('det') || null });
+        if (mon && ['DOP', 'USD', 'EUR'].includes(mon)) setMoneda(mon);
+        return { express: q.get('express') === '1', envio: q.get('envio') === '1' };
+    };
+
     window.TF = {
+        enlaceCliente, leerEnlace,
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state, servUrl,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
         t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, tiempo, tiempoHtml, saludo, lugar, toast, api, apiLista, contacto,

@@ -41,7 +41,9 @@
     const refrescarDgii = () => { calculateIPI(); calculateVehicleTransfer(); };
 
     document.addEventListener('DOMContentLoaded', () => {
+        const dePedido = TF.leerEnlace();
         TF.cotizador.mount('cotizadorApp');
+        if (dePedido) TF.cotizador.fijar(dePedido);
         const s = new URLSearchParams(location.search).get('s');
         if (SERV[s]) TF.cotizador.seleccionar(s);
 

@@ -60,6 +60,7 @@
             <a id="quoteWaBtn" href="#" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</a>
             <button id="quoteFormBtn" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-sm" data-i18n="calc.iniciar">Iniciar solicitud →</button>
         </div>
+        <button id="quoteCopyBtn" type="button" class="w-full mt-3 bg-domGold/90 hover:bg-domGold text-slate-900 font-bold py-3 px-4 rounded-xl text-sm"><i class="fa-solid fa-link mr-1"></i> <span data-i18n="calc.copiar">Copiar enlace para el cliente</span></button>
         <a id="quotePageLink" href="#" class="block text-center text-xs text-sky-200 hover:text-white mt-3 underline" data-i18n="calc.detalle">Ver detalles y requisitos del servicio</a>
     </div>
 </div>`;
@@ -155,10 +156,23 @@
             const k = $('calcServiceSelect').value;
             if (opts.onSolicitar) opts.onSolicitar(k); else location.href = `/#solicitar=${encodeURIComponent(k)}`;
         });
+        $('quoteCopyBtn').addEventListener('click', async () => {
+            const url = TF.enlaceCliente($('calcServiceSelect').value, opciones());
+            try { await navigator.clipboard.writeText(url); TF.toast(t('calc.copiado')); }
+            catch (e) { window.prompt(t('calc.copiar'), url); }
+        });
         TF.on('lang', () => buildServiceSelect($('calcServiceSearch').value));
         TF.on('pais', () => { renderPais(); calcular(); });
         TF.on('moneda', calcular);
     }
 
-    TF.cotizador = { mount, seleccionar, opciones };
+    /** Marca Express / envío (desde un enlace). */
+    function fijar({ express, envio }) {
+        if (!montado()) return;
+        document.querySelector(`input[name="speed"][value="${express ? 'express' : 'standard'}"]`).checked = true;
+        $('calcDelivery').checked = !!envio;
+        calcular();
+    }
+
+    TF.cotizador = { mount, seleccionar, opciones, fijar };
 })();
