@@ -2904,6 +2904,10 @@
           "Dominican Passport Standard",
           "Standard processing for renewal or first passport."
         ],
+        "pasaporte_electronico": [
+          "Dominican e-Passport (DGP)",
+          "Chip booklet: 10 years of validity for adults."
+        ],
         "visa_ds160": [
           "US B1/B2 Visa (DS-160)",
           "Full DS-160 form, profile setup and consular appointment."
@@ -3403,6 +3407,10 @@
         "pasaporte_normal": [
           "Passeport dominicain standard",
           "Traitement standard pour renouvellement ou première demande."
+        ],
+        "pasaporte_electronico": [
+          "Passeport électronique dominicain (DGP)",
+          "Carnet à puce : 10 ans de validité pour les adultes."
         ],
         "visa_ds160": [
           "Visa américain B1/B2 (DS-160)",

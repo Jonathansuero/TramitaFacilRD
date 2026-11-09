@@ -529,8 +529,8 @@
     "pasaporte_vip": {
       "title": "Pasaporte Dominicano VIP (DGP)",
       "slug": "pasaporte-dominicano-vip",
-      "tax": 3000,
-      "fee": 2000,
+      "tax": 4000,
+      "fee": 3000,
       "category": "viajes",
       "paises": [
         "rd",
@@ -570,16 +570,16 @@
         }
       ],
       "relacionados": [
+        "pasaporte_electronico",
         "pasaporte_normal",
-        "e_ticket",
-        "rectificacion_actas_jce"
+        "e_ticket"
       ]
     },
     "pasaporte_normal": {
       "title": "Pasaporte Dominicano Normal (DGP)",
       "slug": "pasaporte-dominicano",
-      "tax": 6700,
-      "fee": 4000,
+      "tax": 3000,
+      "fee": 2000,
       "category": "viajes",
       "paises": [
         "rd",
@@ -619,8 +619,57 @@
       ],
       "intro": "El pasaporte dominicano es tu documento de viaje y el que te piden en muchas gestiones fuera del país. Renovarlo a tiempo evita que pierdas un viaje: lo que más atrasa a la gente es conseguir la cita, reunir los requisitos y pagar, y es justo esa parte la que resolvemos.",
       "relacionados": [
+        "pasaporte_electronico",
         "pasaporte_vip",
-        "rectificacion_actas_jce",
+        "rectificacion_actas_jce"
+      ]
+    },
+    "pasaporte_electronico": {
+      "title": "Pasaporte Electrónico Dominicano (DGP)",
+      "slug": "pasaporte-electronico-dominicano",
+      "tax": 6700,
+      "fee": 4500,
+      "category": "viajes",
+      "paises": [
+        "rd",
+        "us",
+        "es",
+        "mundo"
+      ],
+      "desc": "Libreta electrónica con chip: 10 años de vigencia para adultos.",
+      "inst": [
+        "pasaportes"
+      ],
+      "seo_titulo": "Pasaporte electrónico dominicano: costo y cómo sacarlo",
+      "seo": "Saca o renueva el pasaporte electrónico dominicano, con 10 años de vigencia. Te conseguimos la cita, estés en RD o fuera. Cotiza gratis.",
+      "intro": "La Dirección General de Pasaportes emite el pasaporte electrónico, la libreta con chip que guarda tus datos biométricos y agiliza los controles de migración. Para adultos tiene 10 años de vigencia y para menores de edad, 5 años. Es la libreta que conviene si viajas seguido o no quieres volver al trámite en años.",
+      "como": [
+        "Nos dices si es tu primera vez o una renovación, y revisamos qué requisitos te aplican.",
+        "Te conseguimos la cita en Pasaportes y te preparamos la lista exacta de lo que debes llevar.",
+        "Si vives fuera, te decimos qué consulado te corresponde y qué puedes adelantar desde allá."
+      ],
+      "entrega": "Recibes la cita confirmada, la lista de requisitos revisada y el acompañamiento hasta que tengas la libreta en la mano.",
+      "faq": [
+        {
+          "q": "¿En qué se diferencia del pasaporte normal?",
+          "a": "La libreta electrónica lleva un chip con tus datos biométricos y dura 10 años para adultos, en vez de la vigencia más corta de la libreta anterior. En los aeropuertos agiliza el paso por migración."
+        },
+        {
+          "q": "¿Tengo que ir en persona?",
+          "a": "Sí. La foto y las huellas exigen tu presencia. Lo que resolvemos nosotros es la cita, los requisitos y el pago, que es donde se pierde el tiempo."
+        },
+        {
+          "q": "¿Cuánto dura para un menor de edad?",
+          "a": "Cinco años. Además hacen falta los documentos y la presencia de los padres o tutores; te pasamos la lista completa antes de la cita."
+        },
+        {
+          "q": "¿Y si vivo fuera del país?",
+          "a": "Se tramita en el consulado dominicano de tu zona. Te decimos cuál te toca, qué documentos reunir y si el costo cambia allá, porque el consulado puede manejar sus propias tarifas."
+        }
+      ],
+      "relacionados": [
+        "pasaporte_normal",
+        "pasaporte_vip",
         "e_ticket"
       ]
     },
@@ -2758,6 +2807,12 @@
       "en": "Immediate (up to 3 business days at peak demand)",
       "fr": "Immédiat (jusqu'à 3 jours ouvrables en forte demande)",
       "fuente": "DGII"
+    },
+    "pasaporte_electronico": {
+      "es": "24 a 48 horas en Gran Santo Domingo; 48 a 72 horas en el interior",
+      "en": "24–48 hours in Greater Santo Domingo; 48–72 hours elsewhere in the country",
+      "fr": "24 à 48 h dans le Grand Saint-Domingue ; 48 à 72 h en province",
+      "fuente": "Dirección General de Pasaportes"
     }
   },
   "casos": [
