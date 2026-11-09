@@ -60,7 +60,7 @@
             <a id="quoteWaBtn" href="#" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</a>
             <button id="quoteFormBtn" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-sm" data-i18n="calc.iniciar">Iniciar solicitud →</button>
         </div>
-        <button id="quoteCopyBtn" type="button" class="w-full mt-3 bg-domGold/90 hover:bg-domGold text-slate-900 font-bold py-3 px-4 rounded-xl text-sm"><i class="fa-solid fa-link mr-1"></i> <span data-i18n="calc.copiar">Copiar enlace para el cliente</span></button>
+        <button id="quoteCopyBtn" type="button" class="w-full mt-3 bg-white hover:bg-sky-100 text-domBlue font-bold py-3 px-4 rounded-xl text-sm"><i class="fa-solid fa-link mr-1"></i> <span data-i18n="calc.copiar">Copiar enlace para el cliente</span></button>
         <a id="quotePageLink" href="#" class="block text-center text-xs text-sky-200 hover:text-white mt-3 underline" data-i18n="calc.detalle">Ver detalles y requisitos del servicio</a>
     </div>
 </div>`;
