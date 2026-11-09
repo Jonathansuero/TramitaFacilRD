@@ -578,8 +578,8 @@
     "pasaporte_normal": {
       "title": "Pasaporte Dominicano Normal (DGP)",
       "slug": "pasaporte-dominicano",
-      "tax": 1650,
-      "fee": 1500,
+      "tax": 6700,
+      "fee": 4000,
       "category": "viajes",
       "paises": [
         "rd",
