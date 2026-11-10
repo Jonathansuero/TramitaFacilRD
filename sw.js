@@ -54,16 +54,19 @@ self.addEventListener('fetch', event => {
     if (EXTERNOS.includes(url.hostname)) event.respondWith(recurso(req, CACHE_EXT));
 });
 
-/** Páginas: red primero (máx. 4 s); si no hay red, la copia guardada; si tampoco, offline. */
+/** Páginas: siempre la red. Si tarda más de 4 s y hay copia guardada, se muestra la copia;
+ *  si no hay copia, se espera a la red (lenta no es «sin conexión»). «Sin conexión» solo si la red falla de verdad. */
 async function pagina(req) {
     const cache = await caches.open(CACHE);
-    try {
-        const resp = await Promise.race([fetch(req), new Promise((_, no) => setTimeout(() => no(new Error('lento')), 4000))]);
-        if (resp && resp.ok) cache.put(req, resp.clone());
-        return resp;
-    } catch (e) {
-        return (await cache.match(req)) || (await cache.match(req, { ignoreSearch: true })) || cache.match('./offline');
+    const red = fetch(req).then(resp => { if (resp && resp.ok) cache.put(req, resp.clone()); return resp; });
+    red.catch(() => {});
+    const guardada = (await cache.match(req)) || (await cache.match(req, { ignoreSearch: true }));
+    if (guardada) {
+        try { return await Promise.race([red, new Promise((_, no) => setTimeout(() => no(new Error('lento')), 4000))]); }
+        catch (e) { return guardada; }
     }
+    try { return await red; }
+    catch (e) { return (await cache.match('./offline')) || Response.error(); }
 }
 
 /** Recursos: copia guardada al instante y actualización en segundo plano. */
