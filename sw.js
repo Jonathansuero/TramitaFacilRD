@@ -6,7 +6,7 @@
    - /api/ nunca se guarda (solicitudes y rastreo siempre en vivo).
    VERSION la actualiza `python manage.py build`; al cambiar, los teléfonos reciben la nueva versión.
    ========================================================== */
-const VERSION = 'c96c82712e';
+const VERSION = 'e3a1d437f9';
 const CACHE = `tramitafacil-${VERSION}`;
 const CACHE_EXT = 'tramitafacil-externos';
 
@@ -54,19 +54,39 @@ self.addEventListener('fetch', event => {
     if (EXTERNOS.includes(url.hostname)) event.respondWith(recurso(req, CACHE_EXT));
 });
 
-/** Páginas: siempre la red. Si tarda más de 4 s y hay copia guardada, se muestra la copia;
- *  si no hay copia, se espera a la red (lenta no es «sin conexión»). «Sin conexión» solo si la red falla de verdad. */
+/** Páginas: siempre la red, con hasta 2 reintentos si la conexión se corta un instante
+ *  (el navegador no reintenta solo cuando la app maneja la página). Si tarda más de 4 s y hay copia
+ *  guardada, la copia. «Sin conexión» solo si la red falla de verdad, con el detalle para diagnosticar. */
 async function pagina(req) {
     const cache = await caches.open(CACHE);
-    const red = fetch(req).then(resp => { if (resp && resp.ok) cache.put(req, resp.clone()); return resp; });
-    red.catch(() => {});
+    const t0 = Date.now(); let ultimoError = '';
+    const intentar = async () => {
+        for (let i = 0; i < 3; i++) {
+            try {
+                const resp = await fetch(req);
+                if (resp && resp.ok) cache.put(req, resp.clone());
+                return resp;
+            } catch (e) {
+                ultimoError = `${e && e.name || 'Error'}: ${e && e.message || e}`;
+                if (i < 2) await new Promise(r => setTimeout(r, 400 * (i + 1)));
+            }
+        }
+        throw new Error(ultimoError);
+    };
+    const red = intentar(); red.catch(() => {});
     const guardada = (await cache.match(req)) || (await cache.match(req, { ignoreSearch: true }));
     if (guardada) {
         try { return await Promise.race([red, new Promise((_, no) => setTimeout(() => no(new Error('lento')), 4000))]); }
         catch (e) { return guardada; }
     }
     try { return await red; }
-    catch (e) { return (await cache.match('./offline')) || Response.error(); }
+    catch (e) {
+        const off = await cache.match('./offline');
+        if (!off) return Response.error();
+        const detalle = `${ultimoError} · ${new URL(req.url).pathname} · ${((Date.now() - t0) / 1000).toFixed(1)} s · ${navigator.onLine ? 'en línea' : 'sin red'} · v${VERSION}`;
+        const html = (await off.text()).replace('</body>', `<p class="nota" id="diag" style="font-size:11px;opacity:.6">${detalle.replace(/[<>&]/g, '')}</p></body>`);
+        return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+    }
 }
 
 /** Recursos: copia guardada al instante y actualización en segundo plano. */

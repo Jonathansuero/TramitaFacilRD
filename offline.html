@@ -56,6 +56,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <script>
         document.getElementById('reintentar').addEventListener('click', () => location.reload());
         window.addEventListener('online', () => location.reload());
+        // con internet, un corte de un instante: reintenta solo (máx. 2 veces por página)
+        try {
+            const k = 'tf_reint_' + location.pathname, n = +(sessionStorage.getItem(k) || 0);
+            if (navigator.onLine && n < 2) { sessionStorage.setItem(k, n + 1); setTimeout(() => location.reload(), 2000); }
+        } catch (e) { /* sin almacenamiento: solo el botón */ }
     </script>
 </body>
 </html>
