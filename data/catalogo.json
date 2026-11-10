@@ -198,11 +198,11 @@
       ],
       "desc": "Procesamiento y depósito de expediente para Residencia Temporal o Permanente en la DGM.",
       "incluye": [
-        "Tasas oficiales de la DGM",
-        "Revisión de tu categoría de residencia",
-        "Armado del expediente completo",
+        "Pago de las tasas de la DGM",
+        "Revisión de qué categoría de residencia te corresponde",
+        "Expediente completo, con documentos legalizados y traducidos si hace falta",
         "Depósito en la DGM",
-        "Seguimiento hasta el carné"
+        "Seguimiento hasta el carné de residencia"
       ],
       "inst": [
         "dgm"
@@ -252,11 +252,11 @@
       ],
       "desc": "Llenado de formulario I-90, actualización de datos y preparación de expediente para reemplazo/renovación.",
       "incluye": [
-        "Tasa oficial de USCIS",
-        "Llenado del formulario I-90",
-        "Expediente con copias y fotos",
-        "Instrucciones de envío",
-        "Guía para la cita de biométricos"
+        "Pago de la tasa de USCIS",
+        "Formulario I-90 lleno y revisado",
+        "Expediente con copias y fotos que pide USCIS",
+        "Instrucciones paso a paso para enviarlo",
+        "Guía de lo que viene después: recibo, biométricos y tiempos"
       ],
       "inst": [
         "uscis"
@@ -308,11 +308,11 @@
       ],
       "desc": "Proceso de reunificación familiar, llenado de formulario I-130 y subida de evidencias al sistema.",
       "incluye": [
-        "Tasa oficial de la petición",
-        "Revisión de la evidencia necesaria",
-        "Documentos dominicanos legalizados",
-        "Llenado del formulario I-130",
-        "Subida de evidencias y seguimiento"
+        "Pago de la tasa de USCIS",
+        "Revisión de quién pide a quién y qué evidencia hace falta",
+        "Actas y documentos dominicanos legalizados y apostillados",
+        "Formulario I-130 lleno y evidencias subidas al sistema",
+        "Seguimiento con tu número de recibo"
       ],
       "inst": [
         "uscis",
@@ -366,10 +366,10 @@
       ],
       "desc": "Certificado oficial de entradas y salidas del territorio dominicano expedido por Migración.",
       "incluye": [
-        "Tasa oficial de Migración",
-        "Solicitud en la DGM",
-        "Seguimiento hasta que sale",
-        "Certificación escaneada en PDF"
+        "Pago de la tasa de la DGM",
+        "Solicitud en Migración y seguimiento",
+        "Certificación en PDF",
+        "Original por courier si lo necesitas"
       ],
       "inst": [
         "dgm"
@@ -418,12 +418,12 @@
       ],
       "desc": "Gestión de expediente Schengen: reservas, seguro de viaje, formulario y cita consular BLS.",
       "incluye": [
-        "Tasa consular",
-        "Cita consular (BLS)",
-        "Formulario de solicitud",
+        "Pago de la tasa consular (€90)",
+        "Cita consular en BLS",
+        "Formulario de solicitud lleno y revisado",
         "Reservas de vuelo y hotel",
         "Seguro de viaje",
-        "Revisión del expediente antes de la cita"
+        "Revisión del expediente completo antes de la cita"
       ],
       "inst": [
         "consulados_ext"
@@ -476,10 +476,9 @@
       ],
       "desc": "Formulario digital obligatorio de entrada o salida para la Dirección General de Migración.",
       "incluye": [
-        "Llenado del formulario de entrada o salida",
-        "Revisión con los datos del pasaporte",
-        "Código QR listo para el aeropuerto",
-        "Envío por correo o WhatsApp"
+        "Formulario de entrada o salida lleno por nosotros",
+        "Revisión de que todo coincida con el pasaporte",
+        "Código QR listo para el aeropuerto, por correo o WhatsApp"
       ],
       "inst": [
         "dgm"
@@ -531,11 +530,11 @@
       ],
       "desc": "Certificación oficial de salida de niños/adolescentes que viajan con un solo padre o tutor.",
       "incluye": [
-        "Tasa oficial de la DGM",
-        "Redacción de la autorización",
-        "Firma ante notario",
-        "Depósito en Migración",
-        "Permiso listo antes del viaje"
+        "Pago de la tasa de la DGM",
+        "Revisión de qué firmas hacen falta",
+        "Redacción de la autorización notarial",
+        "Depósito en Migración y seguimiento",
+        "Permiso entregado antes del viaje (escaneado y original)"
       ],
       "inst": [
         "dgm",
@@ -588,14 +587,13 @@
       ],
       "desc": "Asignación rápida de cita en la Dirección General de Pasaportes (DGP).",
       "incluye": [
-        "Pago del impuesto",
-        "Te conseguimos la cita",
+        "Pago de la tasa oficial con urgencia (RD$10,700)",
+        "Te conseguimos la cita más próxima disponible",
         "Toma de foto",
         "Toma de huellas",
-        "Orientación de los documentos a depositar",
-        "Pase rápido en el aeropuerto"
+        "Orientación sobre los documentos que debes llevar",
+        "Pase rápido en aeropuerto"
       ],
-      "destacado": "Retira tu pasaporte en 48 horas",
       "inst": [
         "pasaportes"
       ],
@@ -630,7 +628,8 @@
         "pasaporte_electronico",
         "pasaporte_normal",
         "e_ticket"
-      ]
+      ],
+      "destacado": "Retira tu pasaporte en 48 horas"
     },
     "pasaporte_normal": {
       "title": "Pasaporte Dominicano Normal (DGP)",
@@ -701,14 +700,13 @@
       ],
       "desc": "Libreta electrónica con chip: 10 años de vigencia para adultos.",
       "incluye": [
-        "Pago del impuesto",
-        "Te conseguimos la cita",
+        "Pago de la tasa oficial de Pasaportes (RD$6,700)",
+        "Te conseguimos la cita en la DGP",
         "Toma de foto",
         "Toma de huellas",
-        "Orientación de los documentos a depositar",
-        "Pase rápido en el aeropuerto"
+        "Orientación sobre los documentos que debes llevar",
+        "Si vives fuera, te decimos qué consulado te corresponde"
       ],
-      "destacado": "Retira tu pasaporte en 48 horas",
       "inst": [
         "pasaportes"
       ],
@@ -756,11 +754,11 @@
       ],
       "desc": "Llenado completo de formulario DS-160, creación de perfil y cita consular.",
       "incluye": [
-        "Pago de la tasa consular",
-        "Llenado del formulario DS-160",
-        "Creación de tu perfil",
-        "Cita en el consulado",
-        "Preparación para la entrevista"
+        "Pago de la tasa consular (MRV)",
+        "Formulario DS-160 lleno y revisado",
+        "Creación de tu perfil en el sistema de citas",
+        "Cita en el consulado agendada",
+        "Preparación para la entrevista: qué llevar y qué te van a preguntar"
       ],
       "inst": [
         "embajada_eeuu"
@@ -812,10 +810,10 @@
       ],
       "desc": "Documento oficial expedido por la JCE acreditando el estado civil soltero.",
       "incluye": [
-        "Tasa oficial de la JCE",
-        "Solicitud y retiro en la JCE",
+        "Pago de la tasa de la JCE",
+        "Solicitud y retiro en la JCE (el mismo día si se pide temprano)",
         "Certificación escaneada en PDF",
-        "Apostilla si es para el exterior"
+        "Apostilla en el MIREX si la vas a usar fuera"
       ],
       "inst": [
         "jce"
@@ -867,11 +865,11 @@
       ],
       "desc": "Redacción y legalización notarial de poderes de representación para compras, ventas y gestiones.",
       "incluye": [
-        "Gastos notariales",
-        "Redacción del poder a tu medida",
-        "Revisión en PDF antes de firmar",
-        "Instrucciones para firmar en tu país",
-        "Uso del poder en tu gestión"
+        "Pago de los gastos notariales",
+        "Redacción del poder con el alcance exacto que necesitas",
+        "Borrador en PDF para que lo revises antes de firmar",
+        "Instrucciones para firmarlo en el consulado o ante notario de tu país",
+        "Seguimiento de la gestión para la que se usa el poder"
       ],
       "inst": [
         "notarios",
@@ -924,11 +922,10 @@
       ],
       "desc": "Corrección de errores en nombres, fechas o datos en actas de nacimiento, matrimonio o defunción.",
       "incluye": [
-        "Tasas oficiales de la JCE",
-        "Revisión del tipo de corrección",
-        "Depósito del expediente",
-        "Seguimiento hasta que sale",
-        "Acta corregida escaneada y en original"
+        "Pago de la tasa de la JCE",
+        "Revisión de qué tipo de corrección aplica",
+        "Depósito y seguimiento en la JCE",
+        "Acta corregida en PDF y original por courier"
       ],
       "inst": [
         "jce"
@@ -981,11 +978,11 @@
       ],
       "desc": "Redacción e imposición de firma notarial para alquileres residenciales o comerciales.",
       "incluye": [
-        "Gastos notariales",
-        "Redacción del contrato",
-        "Revisión de ambas partes en PDF",
-        "Firma ante notario",
-        "Copia para cada parte"
+        "Pago de los gastos notariales",
+        "Redacción del contrato con tus condiciones (monto, plazo, depósito)",
+        "Borrador en PDF para que lo revisen las dos partes",
+        "Firma ante notario coordinada",
+        "Copia legalizada para cada parte"
       ],
       "inst": [
         "notarios"
@@ -1036,10 +1033,10 @@
       ],
       "desc": "Acto notarial de convivencia y estado civil para trámites bancarios, visas o seguro.",
       "incluye": [
-        "Gastos notariales",
-        "Redacción del acto",
-        "Firma ante notario",
-        "Documento en PDF y en original"
+        "Pago de los gastos notariales",
+        "Redacción del acto con los datos de la pareja y los testigos",
+        "Firma ante notario coordinada",
+        "Documento en PDF y original, apostillado si es para el exterior"
       ],
       "inst": [
         "notarios"
@@ -1091,10 +1088,10 @@
       ],
       "desc": "Instrumentación legal notariada para fines personales o gubernamentales.",
       "incluye": [
-        "Gastos notariales",
-        "Redacción según la institución que lo pide",
-        "Firma ante notario",
-        "Documento en PDF y en original"
+        "Pago de los gastos notariales",
+        "Redacción con el texto que espera la institución que te la pide",
+        "Firma ante notario coordinada",
+        "Documento en PDF y original, apostillado si es para el exterior"
       ],
       "inst": [
         "notarios"
@@ -1144,10 +1141,10 @@
       ],
       "desc": "Elaboración y autenticación notarial de acuerdos bilaterales o promesas de venta.",
       "incluye": [
-        "Gastos notariales",
-        "Redacción del contrato",
-        "Revisión de ambas partes en PDF",
-        "Firma ante notario",
+        "Pago de los gastos notariales",
+        "Redacción del contrato según el acuerdo de las partes",
+        "Borrador en PDF para revisar antes de firmar",
+        "Firma ante notario coordinada",
         "Copia legalizada para cada parte"
       ],
       "inst": [
@@ -1200,11 +1197,11 @@
       ],
       "desc": "Proceso judicial express, redacción de estipulaciones y sentencia definitiva.",
       "incluye": [
-        "Gastos judiciales y notariales",
-        "Redacción de las estipulaciones",
-        "Firma ante notario",
-        "Depósito y seguimiento en el tribunal",
-        "Sentencia e inscripción en el acta"
+        "Pago de los gastos judiciales",
+        "Redacción de las estipulaciones (bienes, pensión, hijos)",
+        "Firma ante notario de ambas partes",
+        "Depósito en el tribunal y seguimiento",
+        "Sentencia e inscripción en el acta, en original y escaneadas"
       ],
       "inst": [
         "poder_judicial",
@@ -1257,11 +1254,11 @@
       ],
       "desc": "Gestión de levantamiento de oposición o radicación de cargas ante el Registro de Títulos.",
       "incluye": [
-        "Tasas del Registro de Títulos",
-        "Revisión del certificado de título",
-        "Preparación de los documentos",
+        "Pago de las tasas del Registro de Títulos",
+        "Revisión del certificado de título y de la carga",
+        "Documentos que exige el Registro (incluida la carta de saldo del banco)",
         "Depósito y seguimiento",
-        "Certificado de título actualizado"
+        "Certificado de título actualizado, en original y escaneado"
       ],
       "inst": [
         "ji",
@@ -1314,10 +1311,10 @@
       ],
       "desc": "Certificado expedido por Jurisdicción Inmobiliaria comprobando titularidad y gravámenes.",
       "incluye": [
-        "Tasa oficial del Registro",
-        "Solicitud de la certificación",
-        "Certificación en PDF y en original",
-        "Explicación de lo que dice"
+        "Pago de la tasa de Jurisdicción Inmobiliaria",
+        "Solicitud en el Registro Inmobiliario",
+        "Certificación en PDF y original",
+        "Explicación clara de cada carga que aparezca"
       ],
       "inst": [
         "ji"
@@ -1370,10 +1367,10 @@
       ],
       "desc": "Declaración, cálculo, exención o pago del impuesto inmobiliario ante la DGII.",
       "incluye": [
-        "Revisión de tu propiedad en la DGII",
-        "Cálculo del impuesto o exención",
-        "Declaración presentada",
-        "Comprobante y certificación al día"
+        "Revisión de tu propiedad en la DGII: declaración, exención y deuda",
+        "Cálculo del impuesto o solicitud de exención",
+        "Pago y comprobante",
+        "Certificación de estar al día con la DGII"
       ],
       "inst": [
         "dgii"
@@ -1425,9 +1422,10 @@
       ],
       "desc": "Depósito legal obligatorio de valores de alquiler de propiedades inmobiliarias.",
       "incluye": [
-        "Revisión del contrato",
-        "Depósito en el Banco Agrícola",
-        "Comprobante de cada depósito"
+        "Revisión del contrato para confirmar que el depósito aplica",
+        "Depósito a nombre de quien corresponde",
+        "Comprobante que sirve como prueba de pago",
+        "Depósito mensual al día si lo necesitas"
       ],
       "inst": [
         "bagricola"
@@ -1479,9 +1477,9 @@
       ],
       "desc": "Pago de impuestos, solicitud de cita y preparación para renovación o duplicado de licencia.",
       "incluye": [
-        "Pago de los impuestos",
-        "Cita en INTRANT",
-        "Lista de requisitos revisada",
+        "Pago de los impuestos de la licencia",
+        "Te conseguimos la cita en INTRANT",
+        "Lista exacta de lo que debes llevar el día de la cita",
         "Comprobante de pago"
       ],
       "inst": [
@@ -1531,11 +1529,10 @@
       ],
       "desc": "Retiro de oposición en DGII por saldo de préstamo, cesación o venta.",
       "incluye": [
-        "Tasas oficiales de la DGII",
-        "Verificación de la oposición",
-        "Documentos para levantarla",
-        "Depósito y seguimiento",
-        "Confirmación del vehículo libre"
+        "Pago de la tasa de la DGII",
+        "Verificación de quién puso la oposición",
+        "Carta de saldo o liberación gestionada",
+        "Depósito y seguimiento hasta que el vehículo quede libre"
       ],
       "inst": [
         "dgii",
@@ -1586,9 +1583,9 @@
       ],
       "desc": "Certificado emitido por la DGII demostrando presencia o ausencia de vehículos registrados.",
       "incluye": [
-        "Tasa oficial de la DGII",
-        "Solicitud de la certificación",
-        "Certificación escaneada en PDF",
+        "Pago de la tasa de la DGII",
+        "Solicitud en la DGII",
+        "Certificación en PDF y original por courier",
         "Apostilla si es para el exterior"
       ],
       "inst": [
@@ -1638,10 +1635,10 @@
       ],
       "desc": "Gestión de pérdida en la Policía Nacional, publicación de periódico y emisión en DGII.",
       "incluye": [
-        "Tasas oficiales de la DGII",
-        "Denuncia de pérdida en la Policía",
-        "Publicación en el periódico",
-        "Solicitud y retiro de la matrícula nueva"
+        "Pago de la tasa de la DGII",
+        "Denuncia de pérdida en la Policía Nacional",
+        "Publicación del aviso en el periódico",
+        "Depósito en la DGII y retiro de la matrícula nueva"
       ],
       "inst": [
         "dgii"
@@ -1693,10 +1690,10 @@
       ],
       "desc": "Redacción de acto de venta, legalización y emisión de matrícula en DGII.",
       "incluye": [
-        "Impuesto de traspaso",
-        "Verificación del vehículo en la DGII",
-        "Acto de venta legalizado",
-        "Matrícula nueva a nombre del comprador"
+        "Pago del impuesto de traspaso",
+        "Verificación en la DGII de que el vehículo está al día y sin oposición",
+        "Redacción y legalización del acto de venta",
+        "Matrícula nueva a nombre del comprador, en mano o por courier"
       ],
       "inst": [
         "dgii",
@@ -1749,10 +1746,10 @@
       ],
       "desc": "Consultas, liquidación e impresión de certificaciones al día en DGII.",
       "incluye": [
-        "Consulta de lo que debes",
+        "Consulta de lo que debe tu vehículo o tu RNC",
         "Liquidación y pago",
         "Comprobantes de pago",
-        "Certificación al día"
+        "Certificación de estar al día con la DGII"
       ],
       "inst": [
         "dgii"
@@ -1801,9 +1798,9 @@
       ],
       "desc": "Historial de accidentes, kilometraje, robos y mantenimientos de vehículos importados (EE.UU. / Canadá).",
       "incluye": [
-        "Reporte oficial Carfax",
-        "Envío en PDF por correo",
-        "Puntos de alerta señalados"
+        "Reporte oficial con historial de accidentes, millaje y robos",
+        "Entrega en PDF por correo",
+        "Puntos de alerta señalados antes de comprar"
       ],
       "inst": [
         "carfax"
@@ -1854,9 +1851,9 @@
       ],
       "desc": "Verificación y saldo oficial de contravenciones de tránsito ante la PGR.",
       "incluye": [
-        "Consulta de tus multas",
-        "Detalle de cada una",
-        "Pago y comprobante"
+        "Consulta de tus multas con tu cédula o tu placa",
+        "Detalle de cada multa: fecha y monto",
+        "Pago y comprobante de cada una"
       ],
       "inst": [
         "digesett",
@@ -1909,10 +1906,10 @@
       ],
       "desc": "Procesamiento de firma e inserción de legalización oficial en el Ministerio de Educación Superior.",
       "incluye": [
-        "Tasa oficial del MESCYT",
+        "Pago de la tasa del MESCYT",
         "Depósito para firma y legalización",
-        "Título legalizado escaneado",
-        "Apostilla si es para el exterior"
+        "Título legalizado en PDF y original por courier",
+        "Apostilla en el MIREX si lo vas a usar fuera"
       ],
       "inst": [
         "mescyt"
@@ -1964,9 +1961,9 @@
       ],
       "desc": "Legalización institucional de notas escolares y universitarias.",
       "incluye": [
-        "Tasa oficial de legalización",
-        "Depósito en el MINERD o MESCYT",
-        "Récord legalizado escaneado",
+        "Pago de la tasa de la institución",
+        "Depósito en el MINERD o el MESCYT para legalizar",
+        "Récord en PDF y original por courier",
         "Apostilla si es para el exterior"
       ],
       "inst": [
@@ -2020,9 +2017,9 @@
       ],
       "desc": "Solicitamos y retiramos tu certificación de bachiller en el MINERD o tu certificación de estudios universitarios, lista para legalizar o apostillar.",
       "incluye": [
-        "Tasa oficial",
-        "Solicitud y retiro de la certificación",
-        "Certificación escaneada",
+        "Pago de la tasa de la institución",
+        "Solicitud y retiro en el MINERD o en tu universidad",
+        "Certificación en PDF y original por courier",
         "Lista para legalizar o apostillar"
       ],
       "inst": [
@@ -2077,10 +2074,10 @@
       ],
       "desc": "Redactamos y diseñamos tu CV en español o inglés, listo para empleos en RD o en el exterior. Entrega en PDF y Word.",
       "incluye": [
-        "Redacción profesional",
-        "Diseño según el país o puesto",
-        "Español o inglés",
-        "Entrega en PDF y en Word"
+        "Redacción y diseño con el formato que piden en tu país destino",
+        "En español o en inglés",
+        "Entrega en PDF listo para enviar",
+        "Archivo en Word para que lo actualices tú"
       ],
       "inst": [],
       "seo_titulo": "Currículum profesional listo para aplicar a empleos",
@@ -2128,10 +2125,10 @@
       ],
       "desc": "Trámite de decreto o resolución de exequátur profesional para abogados, médicos, ingenieros, etc.",
       "incluye": [
-        "Tasas oficiales",
+        "Pago de las tasas del MESCYT y la PGR",
         "Revisión de lo que exige tu profesión",
-        "Armado del expediente",
-        "Depósito y seguimiento hasta el decreto"
+        "Expediente completo: título legalizado, récord y antecedentes",
+        "Depósito y seguimiento hasta el decreto o la resolución"
       ],
       "inst": [
         "mescyt",
@@ -2184,10 +2181,11 @@
       ],
       "desc": "Apostilla de La Haya en el Ministerio de Relaciones Exteriores para validez internacional.",
       "incluye": [
-        "Tasa oficial del MIREX",
-        "Retiro del documento",
-        "Depósito en el MIREX",
-        "Documento apostillado escaneado el mismo día"
+        "Pago de la tasa del MIREX",
+        "Retiro del documento, o lo sacamos primero si hace falta",
+        "Depósito en Cancillería y retiro de la apostilla",
+        "Documento apostillado en PDF el mismo día",
+        "Original por courier a donde estés"
       ],
       "inst": [
         "mirex"
@@ -2239,9 +2237,9 @@
       ],
       "desc": "Legalización institucional en JCE, MESCYT, MINERD o PGR.",
       "incluye": [
-        "Tasa oficial de legalización",
+        "Pago de la tasa de la institución (JCE, MESCYT, MINERD o PGR)",
         "Depósito en la institución que corresponde",
-        "Documento legalizado escaneado",
+        "Documento legalizado en PDF y original por courier",
         "Apostilla si es para el exterior"
       ],
       "inst": [
@@ -2298,9 +2296,10 @@
       ],
       "desc": "Traducción legal certificada por intérprete judicial (inglés, francés, italiano, alemán).",
       "incluye": [
-        "Traducción por intérprete judicial",
+        "Traducción por intérprete judicial autorizado",
         "Firma del intérprete",
-        "Entrega en PDF y en original"
+        "Entrega en PDF y original",
+        "Idiomas: inglés, francés, italiano y alemán"
       ],
       "inst": [
         "interpretes"
@@ -2349,9 +2348,9 @@
       ],
       "desc": "Escaneo de tesis en Turnitin sin guardar en repositorio + reporte PDF.",
       "incluye": [
-        "Escaneo en Turnitin",
-        "Sin guardar en el repositorio",
-        "Informe de similitud en PDF"
+        "Revisión de tu tesis en Turnitin",
+        "Sin guardarla en el repositorio",
+        "Informe en PDF con el porcentaje y las fuentes que coinciden"
       ],
       "inst": [],
       "seo_titulo": "Verificar tu tesis en Turnitin y recibir el informe",
@@ -2402,9 +2401,9 @@
       ],
       "desc": "Constitución empresarial: Registro de Nombre en ONAPI + Registro Mercantil + RNC en DGII.",
       "incluye": [
-        "Tasas de ONAPI, Cámara y DGII",
-        "Registro del nombre en ONAPI",
-        "Redacción de los estatutos",
+        "Pago de las tasas de ONAPI, Cámara de Comercio y DGII",
+        "Registro del nombre comercial en ONAPI",
+        "Redacción de estatutos y documentos de constitución",
         "Registro Mercantil",
         "RNC en la DGII"
       ],
@@ -2458,10 +2457,10 @@
       ],
       "desc": "Registro de marca/nombre comercial en la Oficina Nacional de la Propiedad Industrial.",
       "incluye": [
-        "Tasa oficial de ONAPI",
-        "Verificación de que el nombre está libre",
-        "Depósito de la solicitud",
-        "Certificado de registro"
+        "Pago de la tasa de ONAPI",
+        "Verificación de que el nombre está disponible antes de pagar",
+        "Solicitud preparada y depositada",
+        "Certificado de registro en original y escaneado"
       ],
       "inst": [
         "onapi"
