@@ -2823,6 +2823,24 @@ def pagina_servicio(slug: str):
     return redirect("/servicios", 301)
 
 
+@app.get("/assets/js/data.js")
+def assets_data():
+    """data.js con los cambios del panel ya puestos (precios y trámites ocultos): la página nace con lo
+    actual y no muestra por un instante un precio viejo o un trámite oculto."""
+    texto = (BASE_DIR / "assets" / "js" / "data.js").read_text(encoding="utf-8")
+    base = catalogo_base()["servicios"]
+    ocultos = sorted(ocultos_guardados() & base.keys())
+    precios = {k: {"tax": _entero(t), "fee": _entero(f)} for k, (t, f) in precios_guardados().items()
+               if k in base and k not in ocultos}
+    if precios or ocultos:
+        texto += ("\n;(function (S, P, O) { if (!S) return; Object.keys(P).forEach(function (k) { if (S[k]) { S[k].tax = P[k].tax; S[k].fee = P[k].fee; } });"
+                  " O.forEach(function (k) { delete S[k]; }); })(window.TF_DATA && window.TF_DATA.servicios, "
+                  + json.dumps(precios) + ", " + json.dumps(ocultos) + ");\n")
+    resp = Response(texto, mimetype="text/javascript")
+    resp.headers["Cache-Control"] = "public, max-age=60"   # un cambio del panel llega en un minuto como mucho
+    return resp
+
+
 @app.get("/assets/<path:ruta>")
 def assets(ruta: str):
     # 10 min en caché del navegador: cambiar de página no vuelve a pedir estilos ni scripts
