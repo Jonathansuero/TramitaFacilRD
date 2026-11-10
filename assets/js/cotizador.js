@@ -160,10 +160,12 @@
         });
         $('quoteCopyBtn').addEventListener('click', async () => {
             const url = TF.enlaceCliente($('calcServiceSelect').value, opciones());
+            if (!url) { TF.toast(t('calc.elige')); $('calcServiceSearch').focus(); return; }
             try { await navigator.clipboard.writeText(url); TF.toast(t('calc.copiado')); }
             catch (e) { window.prompt(t('calc.copiar'), url); }
         });
         TF.on('lang', () => buildServiceSelect($('calcServiceSearch').value));
+        TF.on('moneda', () => { const v = $('calcServiceSelect').value; if (v && !SERV[v]) buildServiceSelect($('calcServiceSearch').value); });
         TF.on('pais', () => { renderPais(); calcular(); });
         TF.on('moneda', calcular);
     }
