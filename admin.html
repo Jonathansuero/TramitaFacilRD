@@ -214,7 +214,7 @@
         .rapidos a:hover { background: #DCFCE7; }
 
         /* ---------- precios */
-        .precio-fila { display: grid; grid-template-columns: 1fr 120px 120px 110px 132px; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--borde); }
+        .precio-fila { display: grid; grid-template-columns: 1fr 110px 110px 112px 200px; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--borde); }
         .precio-fila:last-child { border-bottom: 0; }
         .precio-fila .input { padding: 8px 10px; border-radius: 10px; font-size: 14px; text-align: right; font-variant-numeric: tabular-nums; }
         .precio-fila .nom b { display: block; font-size: 14px; line-height: 1.3; }
@@ -222,10 +222,15 @@
         .precio-fila .tot { text-align: right; font-weight: 800; color: var(--azul); font-variant-numeric: tabular-nums; }
         .precio-fila .btn:disabled { background: #EEF2F7; color: var(--suave-2); opacity: 1; }
         .precio-fila .acc { display: flex; gap: 4px; justify-content: flex-end; }
-        .precio-cab { display: grid; grid-template-columns: 1fr 120px 120px 110px 132px; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--suave-2); padding-bottom: 6px; border-bottom: 1px solid var(--borde); }
+        .precio-cab { display: grid; grid-template-columns: 1fr 110px 110px 112px 200px; gap: 8px; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--suave-2); padding-bottom: 6px; border-bottom: 1px solid var(--borde); }
         .precio-cab span:not(:first-child) { text-align: right; }
         .pin small { display: none; font-size: 11px; font-weight: 700; color: var(--suave); margin-bottom: 3px; }
         .mod { display: inline-block; background: #FEF3C7; color: #92400E; font-size: 11px; font-weight: 700; border-radius: 99px; padding: 1px 7px; margin-left: 4px; }
+        .precio-oculto .nom, .precio-oculto .pin, .precio-oculto .tot, .precio-oculto [type=submit] { opacity: .5; }
+        .btn-ojo { white-space: nowrap; gap: 5px; }
+        .btn-ojo svg { flex-shrink: 0; }
+        .precio-oculto .nom b { text-decoration: line-through; text-decoration-color: var(--suave-2); }
+        .oculto-tag { background: #FEE2E2 !important; color: #991B1B !important; }
         .cat-t { margin: 14px 0 0; font-size: 12px; font-weight: 800; color: var(--rojo); letter-spacing: .06em; text-transform: uppercase; }
         .enlace { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13px; padding: 8px 0; border-bottom: 1px dashed var(--borde); }
         .enlace:last-child { border-bottom: 0; }
