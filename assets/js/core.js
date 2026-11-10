@@ -113,7 +113,8 @@
     /** Tiempo estimado oficial de la institución (solo los servicios que lo tienen claro). */
     const tiempo = id => { const x = (D.tiempos || {})[id]; return x ? { txt: x[state.lang] || x.es, fuente: x.fuente } : null; };
     const tiempoHtml = (id, variante = '') => {
-        const x = tiempo(id); if (!x) return '';
+        const x = tiempo(id);
+        if (!x) return `<div class="tiempo-est ${variante}"><i class="fa-regular fa-clock" aria-hidden="true"></i><div><div class="tiempo-t">${esc(t('tiempo.entrega'))}</div><div class="tiempo-v">${esc(t('tiempo.inst'))}</div></div></div>`;
         return `<div class="tiempo-est ${variante}"><i class="fa-regular fa-clock" aria-hidden="true"></i><div><div class="tiempo-t">${esc(t('tiempo.t'))}</div><div class="tiempo-v">${esc(x.txt)}</div><div class="tiempo-f">${esc(t('tiempo.fuente', { fuente: x.fuente }))}</div></div></div>`;
     };
     const igUrl = () => `https://www.instagram.com/${C.instagram}/`;
