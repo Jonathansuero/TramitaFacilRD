@@ -1025,6 +1025,8 @@
         try { precios = await api('/admin/precios'); pintarPrecios(); }
         catch (e) { if (e.message !== 'sesion') $('tPrecios').innerHTML = `<div class="vacio"><b>No se pudieron cargar los precios</b>${esc(e.message)}</div>`; }
     }
+    const OJO = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>', OJO_NO = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10 10 0 0 1 12 5c6.5 0 10 7 10 7a17 17 0 0 1-3.2 4.1M6.6 6.6C3.8 8.4 2 12 2 12s3.5 7 10 7a9.6 9.6 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+    const txtOjo = oculto => oculto ? OJO + 'Mostrar' : OJO_NO + 'Ocultar';
     function pintarPrecios() {
         const foco = document.activeElement && document.activeElement.id;
         const q = preciosQ.toLowerCase();
@@ -1048,7 +1050,7 @@
                         <label class="pin"><small>Tasa oficial</small><input class="input" id="tax-${esc(s.id)}" name="tax" type="number" min="0" step="any" inputmode="decimal" value="${s.tax}" aria-label="Tasa oficial de ${esc(s.title)}" title="Tasa oficial (lo que cobra la institución)"></label>
                         <label class="pin"><small>Honorario</small><input class="input" id="fee-${esc(s.id)}" name="fee" type="number" min="0" step="any" inputmode="decimal" value="${s.fee}" aria-label="Honorario de ${esc(s.title)}" title="Tu honorario"></label>
                         <span class="tot" data-tot>${esc(rd(s.tax + s.fee))}</span>
-                        <span class="acc"><button class="btn btn-azul btn-sm" type="submit" disabled>Guardar</button>${s.modificado ? `<button class="btn btn-borde btn-sm" type="button" data-restaurar="${esc(s.id)}" title="Volver al precio original">↺</button>` : ''}<button class="btn btn-sm ${s.oculto ? 'btn-rojo' : 'btn-borde'}" type="button" data-ocultar="${esc(s.id)}" data-visible="${s.oculto ? '1' : '0'}" title="${s.oculto ? 'Mostrar en la página' : 'Ocultar de la página'}">${s.oculto ? '👁 Mostrar' : '👁‍🗨 Ocultar'}</button></span>
+                        <span class="acc"><button class="btn btn-azul btn-sm" type="submit" disabled>Guardar</button>${s.modificado ? `<button class="btn btn-borde btn-sm" type="button" data-restaurar="${esc(s.id)}" title="Volver al precio original">↺</button>` : ''}<button class="btn btn-sm btn-ojo ${s.oculto ? 'btn-rojo' : 'btn-borde'}" type="button" data-ocultar="${esc(s.id)}" data-visible="${s.oculto ? '1' : '0'}" title="${s.oculto ? 'Mostrar en la página' : 'Ocultar de la página'}">${txtOjo(s.oculto)}</button></span>
                     </form>`).join('')).join('') || '<p class="rank-vacio" style="margin-top:12px">Ningún servicio coincide.</p>'}
             </div>
             <div class="card"><h3>Historial de cambios</h3><p class="sub">Cada cambio de precio queda anotado</p>
@@ -2038,7 +2040,7 @@
                 try { precios = await api('/admin/precios'); } catch (_) {}
                 pintarPrecios();
                 toast(visible ? `${s ? s.title : sid}: visible en la página` : `${s ? s.title : sid}: oculto de la página`);
-            } catch (e) { if (e.message !== 'sesion') toast(e.message); o.disabled = false; o.textContent = visible ? '👁 Mostrar' : '👁‍🗨 Ocultar'; }
+            } catch (e) { if (e.message !== 'sesion') toast(e.message); o.disabled = false; o.innerHTML = txtOjo(visible); }
             return;
         }
         const r = ev.target.closest('[data-restaurar]'); if (!r) return;
