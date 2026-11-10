@@ -603,7 +603,7 @@ $('#form').addEventListener('submit', async e => {
 const CAR = [
   ['visa-americana','Mujer con su pasaporte dominicano y el formulario DS-160 frente a la embajada','Visas','visa_ds160'],
   ['residencia-dominicana','Mujer mostrando su carné de residencia dominicana','Migración','residencia_dominicana'],
-  ['pasaporte','Hombre con su pasaporte dominicano en una oficina','Pasaportes','pasaporte_normal'],
+  ['pasaporte','Hombre con su pasaporte electrónico dominicano en una oficina','Pasaportes','pasaporte_electronico'],
   ['visa-europa','Mujer mostrando su pasaporte dominicano y una visa europea frente a la Torre Eiffel','Visas','visa_europea'],
   ['e-ticket-viajero','Viajero con su E-Ticket en el aeropuerto','Viajes','e_ticket'],
   ['permiso-menores-madre','Madre e hija con su permiso de salida de menores en el aeropuerto','Migración','permiso_menores'],
@@ -629,10 +629,12 @@ const CAR = [
   ['nombre-comercial','Pareja revisando los bocetos del logo y la marca de su negocio','Empresas','registro_empresa_onapi'],
   ['cv-profesional','Pareja revisando un currículum profesional en laptop','Empleo','creacion_cv'],
   ['documentos-oficina','Asesora revisando documentos en su oficina','Documentos','poderes_especiales']
-].filter(c => SERV[c[3]]);
+];
+let carVis = [];
 const track = $('#carTrack');
 function pintaCar() {
-  track.innerHTML = CAR.map((c, i) => { const s = SERV[c[3]]; return `<button type="button" class="lp-slide" data-car="${i}" aria-label="${esc(s.title)}: cotizar"><span class="ph"><img src="/assets/img/promo/${c[0]}.webp" alt="${esc(c[1])}" loading="${i < 3 ? 'eager' : 'lazy'}" decoding="async"></span><span class="bd"><b>${esc(s.title)}</b><span class="pr"><span>Desde <strong>${fmt(s.tax + s.fee, st.moneda)}</strong></span><i class="fa-solid fa-arrow-right"></i></span></span></button>`; }).join('');
+  carVis = CAR.filter(c => SERV[c[3]]);   // sin los trámites ocultos desde el panel
+  track.innerHTML = carVis.map((c, i) => { const s = SERV[c[3]]; return `<button type="button" class="lp-slide" data-car="${i}" aria-label="${esc(s.title)}: cotizar"><span class="ph"><img src="/assets/img/promo/${c[0]}.webp" alt="${esc(c[1])}" loading="${i < 3 ? 'eager' : 'lazy'}" decoding="async"></span><span class="bd"><b>${esc(s.title)}</b><span class="pr"><span>Desde <strong>${fmt(s.tax + s.fee, st.moneda)}</strong></span><i class="fa-solid fa-arrow-right"></i></span></span></button>`; }).join('');
   carEstado();
 }
 const paso = () => { const s = track.querySelector('.lp-slide'); return s ? s.getBoundingClientRect().width + 17.6 : 300; };
@@ -644,7 +646,7 @@ $('#carPrev').addEventListener('click', () => { pausa(); track.scrollBy({left: -
 $('#carNext').addEventListener('click', () => { pausa(); track.scrollBy({left: paso(), behavior: 'smooth'}); });
 track.addEventListener('scroll', () => { clearTimeout(track._t); track._t = setTimeout(carEstado, 60); }, {passive: true});
 track.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { e.preventDefault(); $('#carNext').click(); } if (e.key === 'ArrowLeft') { e.preventDefault(); $('#carPrev').click(); } });
-track.addEventListener('click', e => { const b = e.target.closest('[data-car]'); if (!b) return; const c = CAR[+b.dataset.car];
+track.addEventListener('click', e => { const b = e.target.closest('[data-car]'); if (!b) return; const c = carVis[+b.dataset.car];
   ev('promo_carrusel', {servicio: c[3]}); elegir(c[3]); $('#caja').scrollIntoView({behavior: 'smooth', block: 'start'}); });
 // avance automático suave; se detiene al tocar, al enfocar o si el visitante prefiere menos movimiento
 let auto = null, quieto = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -653,6 +655,8 @@ if (!quieto) { auto = setInterval(() => { if (document.hidden) return; const max
   if (track.scrollLeft >= max) track.scrollTo({left: 0, behavior: 'smooth'}); else track.scrollBy({left: paso(), behavior: 'smooth'}); }, 4500); }
 ['pointerdown', 'focusin', 'touchstart', 'mouseenter'].forEach(ev0 => $('#carrusel').addEventListener(ev0, pausa, {passive: true}));
 window.__car = pintaCar; pintaCar();
+// precios nuevos u ocultos del panel: llegan después de cargar → se vuelve a dibujar con lo actual
+TF.on('moneda', pintaCar);
 
 // ?servicio=slug&pais=us: anuncio directo a un trámite
 const pre = q.get('servicio');

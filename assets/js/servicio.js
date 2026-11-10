@@ -5,7 +5,7 @@
     const { D, C, PAISES, SERV, state, $, $$, esc, t, tc, money, waLink, saludo, toast, restart } = TF;
     const ct = TF.contacto;
 
-    const keys = Object.keys(SERV);
+    let keys = Object.keys(SERV);   // se actualiza si el panel oculta algún trámite
     /** El trámite sale de la dirección: /servicios/<palabras>, o del ?id= de los enlaces viejos. */
     const porSlug = s => Object.keys(SERV).find(k => SERV[k].slug === s);
     const idDeUrl = () => porSlug(decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || ''))
@@ -314,7 +314,7 @@
             const title = tc('servicios', id).title;
             try { if (navigator.share) await navigator.share({ title, url }); else { await navigator.clipboard.writeText(url); toast(t('toast.enlace')); } } catch (e) { /* cancelado */ }
         });
-        TF.on('lang', () => { render(); renderConfirmar(); }); TF.on('pais', () => { render(); renderConfirmar(); }); TF.on('moneda', precio);
+        TF.on('lang', () => { render(); renderConfirmar(); }); TF.on('pais', () => { render(); renderConfirmar(); }); TF.on('moneda', () => { const n = keys.length; keys = Object.keys(SERV); if (keys.length !== n && SERV[id]) { render(); } precio(); });
         if (location.hash === '#confirmar') setTimeout(() => irAConfirmar(false), 50);
     });
 })();
