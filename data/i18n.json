@@ -741,6 +741,11 @@
       "Estimated total",
       "Total estimé"
     ],
+    "inc.t": [
+      "Este precio incluye",
+      "This price includes",
+      "Ce prix comprend"
+    ],
     "calc.nota": [
       "*Montos estimados sujetos a confirmación.",
       "*Estimated amounts, subject to confirmation.",

@@ -247,6 +247,11 @@
             Object.entries((r && r.precios) || {}).forEach(([k, v]) => {
                 if (SERV[k] && (SERV[k].tax !== v.tax || SERV[k].fee !== v.fee)) { SERV[k].tax = v.tax; SERV[k].fee = v.fee; cambio = true; }
             });
+            Object.entries((r && r.incluye) || {}).forEach(([k, v]) => {
+                if (SERV[k] && JSON.stringify([SERV[k].incluye, SERV[k].destacado || '']) !== JSON.stringify([v.incluye, v.destacado || ''])) {
+                    SERV[k].incluye = v.incluye; SERV[k].destacado = v.destacado; cambio = true;
+                }
+            });
             ((r && r.ocultos) || []).forEach(k => { if (SERV[k]) { delete SERV[k]; cambio = true; } });
             if (cambio) emit('moneda', state.moneda);
         }).catch(() => { /* precios del catálogo */ });

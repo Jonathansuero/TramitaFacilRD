@@ -894,3 +894,13 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .slot-add { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .6rem; border: 1.5px dashed #94A3B8; border-radius: .7rem; color: #002D62; font-weight: 700; font-size: .85rem; cursor: pointer; background: #F8FAFC; }
 .slot-add:hover { border-color: #002D62; background: #EFF4FB; } .slot-add input { position: absolute; width: 1px; height: 1px; opacity: 0; }
 .slot-add:focus-within { outline: 2px solid #002D62; outline-offset: 2px; }
+
+/* Lo que incluye el precio (página del trámite) */
+.serv-incluye { margin-top: 1rem; padding: 1rem 1.1rem; border-radius: 1rem; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); }
+.serv-incluye-t { font-size: 13px; font-weight: 800; color: #fff; margin-bottom: .5rem; }
+.serv-incluye ul { display: grid; gap: .4rem; }
+.serv-incluye li { position: relative; padding-left: 1.6rem; font-size: 13.5px; line-height: 1.35; color: #E2E8F0; }
+.serv-incluye li::before { content: ''; position: absolute; left: 0; top: .1rem; width: 1.1rem; height: 1.1rem; border-radius: 50%; background: #16A34A; }
+.serv-incluye li::after { content: ''; position: absolute; left: .34rem; top: .38rem; width: .45rem; height: .26rem; border: solid #fff; border-width: 0 0 2px 2px; transform: rotate(-45deg); }
+.serv-destacado { margin-top: .8rem; display: inline-flex; align-items: center; gap: .45rem; background: #D4AF37; color: #0F172A; font-weight: 800; font-size: 13px; padding: .45rem .8rem; border-radius: .7rem; }
+.serv-incluye ul + .serv-destacado { margin-top: .85rem; }
