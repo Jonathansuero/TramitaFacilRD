@@ -215,7 +215,17 @@
         if (boxes.length && c === boxes.length) toast('🎉 ' + t('req.completo'));
     }
 
+    /** Lo que incluye el precio (catálogo o panel), debajo del total. */
+    function incluye() {
+        const s = SERV[id] || {}, box = $('sIncluye'), lista = s.incluye || [];
+        if (!box) return;
+        box.hidden = !lista.length && !s.destacado;
+        box.innerHTML = (lista.length ? `<div class="serv-incluye-t">${esc(t('inc.t'))}</div><ul>${lista.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '')
+            + (s.destacado ? `<div class="serv-destacado"><i class="fa-solid fa-bolt"></i> ${esc(s.destacado)}</div>` : '');
+    }
+
     function precio() {
+        incluye();
         const s = SERV[id], exp = $('pExp').checked, env = $('pEnv').checked;
         $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
         $('pTax').textContent = money(s.tax); $('pFee').textContent = money(s.fee);

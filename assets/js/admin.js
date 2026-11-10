@@ -81,7 +81,7 @@
     const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios', mensajes: 'usuarios', registro: 'usuarios' };
     const filtro = { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
     let tab = 'inicio', periodo = 30;
-    let precios = null, preciosQ = '', preciosCat = '';
+    let precios = null, preciosQ = '', preciosCat = '', incAbierto = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
     const recien = new Set();        // solicitudes que acaban de llegar (se resaltan unos segundos)
     let borrando = null, avisandoEquipo = null, enfocado = null;   // enfocado: se trabaja un solo cliente, sin el resto de la lista
@@ -1046,12 +1046,18 @@
                 <div class="precio-cab"><span>Servicio</span><span>Tasa oficial</span><span>Honorario</span><span>Total</span><span></span></div>
                 ${Object.entries(porCat).map(([c, arr]) => `<p class="cat-t">${esc(precios.categorias[c] || c)}</p>` + arr.map(s => `
                     <form class="precio-fila${s.oculto ? ' precio-oculto' : ''}" data-sid="${esc(s.id)}">
-                        <div class="nom"><b>${esc(s.title)}${s.modificado ? '<span class="mod">cambiado</span>' : ''}${s.oculto ? '<span class="mod oculto-tag">oculto</span>' : ''}</b>${s.modificado ? `<small>Original: ${esc(rd(s.tax_base))} + ${esc(rd(s.fee_base))}</small>` : ''}</div>
+                        <div class="nom"><b>${esc(s.title)}${s.modificado ? '<span class="mod">cambiado</span>' : ''}${s.oculto ? '<span class="mod oculto-tag">oculto</span>' : ''}</b>${s.modificado ? `<small>Original: ${esc(rd(s.tax_base))} + ${esc(rd(s.fee_base))}</small>` : ''}<button type="button" class="inc-link${incAbierto === s.id ? ' is-on' : ''}" data-inc="${esc(s.id)}" aria-expanded="${incAbierto === s.id}">Qué incluye (${(s.incluye || []).length})${s.incluye_mod ? ' · editado' : ''}</button></div>
                         <label class="pin"><small>Tasa oficial</small><input class="input" id="tax-${esc(s.id)}" name="tax" type="number" min="0" step="any" inputmode="decimal" value="${s.tax}" aria-label="Tasa oficial de ${esc(s.title)}" title="Tasa oficial (lo que cobra la institución)"></label>
                         <label class="pin"><small>Honorario</small><input class="input" id="fee-${esc(s.id)}" name="fee" type="number" min="0" step="any" inputmode="decimal" value="${s.fee}" aria-label="Honorario de ${esc(s.title)}" title="Tu honorario"></label>
                         <span class="tot" data-tot>${esc(rd(s.tax + s.fee))}</span>
                         <span class="acc"><button class="btn btn-azul btn-sm" type="submit" disabled>Guardar</button>${s.modificado ? `<button class="btn btn-borde btn-sm" type="button" data-restaurar="${esc(s.id)}" title="Volver al precio original">↺</button>` : ''}<button class="btn btn-sm btn-ojo ${s.oculto ? 'btn-rojo' : 'btn-borde'}" type="button" data-ocultar="${esc(s.id)}" data-visible="${s.oculto ? '1' : '0'}" title="${s.oculto ? 'Mostrar en la página' : 'Ocultar de la página'}">${txtOjo(s.oculto)}</button></span>
-                    </form>`).join('')).join('') || '<p class="rank-vacio" style="margin-top:12px">Ningún servicio coincide.</p>'}
+                    </form>${incAbierto === s.id ? `<div class="inc-editor" data-inc-sid="${esc(s.id)}">
+                        <label><small>Este precio incluye <span>(una cosa por línea)</span></small>
+                            <textarea class="input" id="incTxt" rows="${Math.max(4, (s.incluye || []).length + 1)}">${esc((s.incluye || []).join('\n'))}</textarea></label>
+                        <label><small>Destacado <span>(opcional, sale en dorado, ej.: Retira tu pasaporte en 48 horas)</span></small>
+                            <input class="input" id="incDest" maxlength="120" value="${esc(s.destacado || '')}"></label>
+                        <div class="inc-acc"><button class="btn btn-azul btn-sm" type="button" data-inc-guardar="${esc(s.id)}">Guardar</button>${s.incluye_mod ? `<button class="btn btn-borde btn-sm" type="button" data-inc-restaurar="${esc(s.id)}">↺ Volver al original</button>` : ''}<button class="btn btn-borde btn-sm" type="button" data-inc="${esc(s.id)}">Cerrar</button></div>
+                    </div>` : ''}`).join('')).join('') || '<p class="rank-vacio" style="margin-top:12px">Ningún servicio coincide.</p>'}
             </div>
             <div class="card"><h3>Historial de cambios</h3><p class="sub">Cada cambio de precio queda anotado</p>
                 ${precios.historial.length ? `<ul class="filas">${precios.historial.slice(0, 30).map(h => `<li><span><b>${esc(h.title)}</b><br><small>${esc(fecha(h.fecha))}</small></span>
@@ -2028,6 +2034,24 @@
         catch (e) { if (e.message !== 'sesion') toast(e.message); btn.disabled = false; btn.textContent = 'Guardar'; }
     });
     $('tPrecios').addEventListener('click', async ev => {
+        const ia = ev.target.closest('[data-inc]');
+        if (ia) { incAbierto = incAbierto === ia.dataset.inc ? '' : ia.dataset.inc; pintarPrecios(); if (incAbierto && $('incTxt')) $('incTxt').focus(); return; }
+        const ig = ev.target.closest('[data-inc-guardar], [data-inc-restaurar]');
+        if (ig) {
+            const sid = ig.dataset.incGuardar || ig.dataset.incRestaurar, restaurar = !!ig.dataset.incRestaurar;
+            const s = precios.servicios.find(x => x.id === sid);
+            if (restaurar && !window.confirm('¿Volver a la lista original de este servicio?')) return;
+            const cuerpo = restaurar ? { servicio: sid, restaurar: true }
+                : { servicio: sid, incluye: $('incTxt').value.split('\n').map(x => x.replace(/^[\s•*\-✓✅]+/, '').trim()).filter(Boolean), destacado: $('incDest').value.trim() };
+            ig.disabled = true; ig.textContent = '…';
+            try {
+                await post('/admin/incluye', cuerpo);
+                try { precios = await api('/admin/precios'); } catch (_) {}
+                incAbierto = ''; pintarPrecios();
+                toast(`${s ? s.title : sid}: lista actualizada en la página`);
+            } catch (e) { if (e.message !== 'sesion') toast(e.message); ig.disabled = false; ig.textContent = restaurar ? '↺ Volver al original' : 'Guardar'; }
+            return;
+        }
         const o = ev.target.closest('[data-ocultar]');
         if (o) {
             const sid = o.dataset.ocultar, visible = o.dataset.visible === '1';

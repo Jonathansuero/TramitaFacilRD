@@ -43,6 +43,7 @@ Pagos: los registra quien tiene «pagos», pero solo cuentan como cobrados cuand
     GET  /api/admin/precios          Precios de todos los servicios + historial + estado oculto
     POST /api/admin/precio           {servicio, tax, fee} o {servicio, restaurar: true}
     POST /api/admin/ocultar          {servicio, oculto: true/false}  Ocultar/mostrar un servicio
+    POST /api/admin/incluye          {servicio, incluye: [..], destacado} o {servicio, restaurar: true}
     GET  /api/admin/respaldo         Copia de la base de datos
     GET  /api/precios                (público) precios cambiados desde el panel
     POST /api/admin/cliente          {codigo, nombre, contacto, pais, pais_detalle?}  Corregir datos del cliente
@@ -161,6 +162,30 @@ def ocultos_guardados() -> set[str]:
     return {r[0] for r in rows}
 
 
+def incluye_guardados() -> dict[str, tuple[list[str], str]]:
+    """Lo que incluye el precio, cambiado desde el panel (tabla `servicios_incluye`): {servicio_id: (lista, destacado)}."""
+    sql = "SELECT servicio_id, incluye, destacado FROM servicios_incluye"
+    try:
+        if has_app_context():
+            rows = get_db().execute(sql).fetchall()
+        else:
+            if not DB_PATH.exists():
+                return {}
+            with sqlite3.connect(DB_PATH) as db:
+                db.executescript(SCHEMA)
+                rows = db.execute(sql).fetchall()
+    except sqlite3.Error:
+        return {}
+    out = {}
+    for sid, inc, dest in rows:
+        try:
+            lista = [str(x) for x in json.loads(inc) if str(x).strip()]
+        except (ValueError, TypeError):
+            continue
+        out[sid] = (lista, dest or "")
+    return out
+
+
 def _entero(v: float):
     return int(v) if float(v).is_integer() else v
 
@@ -173,13 +198,17 @@ def catalogo() -> dict:
     base = catalogo_base()
     guardados = {k: v for k, v in precios_guardados().items() if k in base["servicios"]}
     ocultos = ocultos_guardados()
-    if not guardados and not ocultos:
+    incluye = {k: v for k, v in incluye_guardados().items() if k in base["servicios"]}
+    if not guardados and not ocultos and not incluye:
         return base
-    clave = (_catalogo_cache["mtime"], tuple(sorted(guardados.items())), frozenset(ocultos))
+    clave = (_catalogo_cache["mtime"], tuple(sorted(guardados.items())), frozenset(ocultos),
+             tuple(sorted((k, tuple(l), d) for k, (l, d) in incluye.items())))
     if _catalogo_precios["clave"] != clave:
         servicios = dict(base["servicios"])
         for sid, (tax, fee) in guardados.items():
             servicios[sid] = {**servicios[sid], "tax": _entero(tax), "fee": _entero(fee)}
+        for sid, (lista, dest) in incluye.items():
+            servicios[sid] = {**servicios[sid], "incluye": lista, "destacado": dest}
         for sid in ocultos:
             if sid in servicios:
                 servicios[sid] = {**servicios[sid], "oculto": True}
@@ -369,6 +398,12 @@ CREATE TABLE IF NOT EXISTS ajustes (
 CREATE TABLE IF NOT EXISTS servicios_ocultos (
     servicio_id TEXT PRIMARY KEY,
     oculto INTEGER NOT NULL DEFAULT 1,
+    actualizado TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS servicios_incluye (
+    servicio_id TEXT PRIMARY KEY,
+    incluye TEXT NOT NULL,
+    destacado TEXT NOT NULL DEFAULT '',
     actualizado TEXT NOT NULL
 );
 """
@@ -712,6 +747,8 @@ def api_precios():
     return jsonify({"ok": True,
                     "precios": {k: {"tax": _entero(t), "fee": _entero(f)}
                                 for k, (t, f) in precios_guardados().items() if k in base and k not in ocultos},
+                    "incluye": {k: {"incluye": l, "destacado": d}
+                                for k, (l, d) in incluye_guardados().items() if k in base and k not in ocultos},
                     "ocultos": sorted(ocultos & base.keys())})
 
 
@@ -2457,11 +2494,14 @@ def admin_precios():
     """Precios de todos los servicios (catálogo + cambios del panel) y el historial de cambios."""
     base, guardados = catalogo_base(), precios_guardados()
     ocultos = ocultos_guardados()
+    incluye = incluye_guardados()
     servicios = []
     for sid, s in base["servicios"].items():
         tax, fee = guardados.get(sid, (s["tax"], s["fee"]))
+        inc, dest = incluye.get(sid, (s.get("incluye", []), s.get("destacado", "")))
         servicios.append({"id": sid, "title": s["title"], "category": s["category"], "tax": _entero(tax), "fee": _entero(fee),
-                          "tax_base": s["tax"], "fee_base": s["fee"], "modificado": sid in guardados, "oculto": sid in ocultos})
+                          "tax_base": s["tax"], "fee_base": s["fee"], "modificado": sid in guardados, "oculto": sid in ocultos,
+                          "incluye": inc, "destacado": dest, "incluye_mod": sid in incluye})
     historial = [dict(r) for r in get_db().execute(
         "SELECT * FROM precios_historial ORDER BY id DESC LIMIT 100").fetchall()]
     for h in historial:
@@ -2501,6 +2541,36 @@ def admin_precio():
     db.commit()
     return jsonify({"ok": True, "servicio": {"id": sid, "tax": _entero(tax), "fee": _entero(fee),
                                              "modificado": (tax, fee) != (base[sid]["tax"], base[sid]["fee"])}})
+
+
+@app.post("/api/admin/incluye")
+@requiere("precios")
+def admin_incluye():
+    """Lo que incluye el precio de un servicio: {servicio, incluye: [..], destacado} o {servicio, restaurar: true}."""
+    d = cuerpo_json()
+    base = catalogo_base()["servicios"]
+    sid = str(d.get("servicio", ""))
+    if sid not in base:
+        return error("Ese servicio no existe.", 404)
+    db = get_db()
+    if d.get("restaurar"):
+        db.execute("DELETE FROM servicios_incluye WHERE servicio_id=?", (sid,))
+        registrar("Restauró lo que incluye un servicio", None, base[sid]["title"])
+    else:
+        lista = d.get("incluye")
+        if not isinstance(lista, list):
+            return error("Falta la lista de lo que incluye.")
+        lista = [re.sub(r"^[\s•*\-✓✅]+", "", str(x)).strip()[:120] for x in lista]
+        lista = [x for x in lista if x][:12]
+        dest = str(d.get("destacado") or "").strip()[:120]
+        db.execute("INSERT INTO servicios_incluye (servicio_id, incluye, destacado, actualizado) VALUES (?,?,?,?) "
+                   "ON CONFLICT(servicio_id) DO UPDATE SET incluye=excluded.incluye, destacado=excluded.destacado, "
+                   "actualizado=excluded.actualizado", (sid, json.dumps(lista, ensure_ascii=False), dest, ahora()))
+        registrar("Cambió lo que incluye un servicio", None, base[sid]["title"])
+    db.commit()
+    _catalogo_precios.update(clave=None, data=None)
+    _catalogo_publico.update(clave=None, data=None)
+    return jsonify({"ok": True})
 
 
 @app.post("/api/admin/ocultar")
@@ -2832,10 +2902,13 @@ def assets_data():
     ocultos = sorted(ocultos_guardados() & base.keys())
     precios = {k: {"tax": _entero(t), "fee": _entero(f)} for k, (t, f) in precios_guardados().items()
                if k in base and k not in ocultos}
-    if precios or ocultos:
-        texto += ("\n;(function (S, P, O) { if (!S) return; Object.keys(P).forEach(function (k) { if (S[k]) { S[k].tax = P[k].tax; S[k].fee = P[k].fee; } });"
+    incluye = {k: {"incluye": l, "destacado": d} for k, (l, d) in incluye_guardados().items()
+               if k in base and k not in ocultos}
+    if precios or ocultos or incluye:
+        texto += ("\n;(function (S, P, O, I) { if (!S) return; Object.keys(P).forEach(function (k) { if (S[k]) { S[k].tax = P[k].tax; S[k].fee = P[k].fee; } });"
+                  " Object.keys(I).forEach(function (k) { if (S[k]) { S[k].incluye = I[k].incluye; S[k].destacado = I[k].destacado; } });"
                   " O.forEach(function (k) { delete S[k]; }); })(window.TF_DATA && window.TF_DATA.servicios, "
-                  + json.dumps(precios) + ", " + json.dumps(ocultos) + ");\n")
+                  + json.dumps(precios) + ", " + json.dumps(ocultos) + ", " + json.dumps(incluye, ensure_ascii=False) + ");\n")
     resp = Response(texto, mimetype="text/javascript")
     resp.headers["Cache-Control"] = "public, max-age=60"   # un cambio del panel llega en un minuto como mucho
     return resp
