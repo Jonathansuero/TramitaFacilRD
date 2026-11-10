@@ -2820,7 +2820,23 @@ def pagina_servicio(slug: str):
     for sid, serv in catalogo_publico()["servicios"].items():
         if serv.get("slug") == slug:
             return pagina("servicio", sid)
+    # oculto desde el panel: desvío temporal (302) para que Google no lo dé por eliminado si vuelve a mostrarse
+    if any(s.get("slug") == slug for s in catalogo_base()["servicios"].values()):
+        return redirect("/servicios", 302)
     return redirect("/servicios", 301)
+
+
+@app.get("/sitemap.xml")
+def sitemap():
+    """El sitemap sin los trámites ocultos desde el panel (Google no debe recibir páginas que redirigen)."""
+    texto = (BASE_DIR / "sitemap.xml").read_text(encoding="utf-8")
+    base = catalogo_base()["servicios"]
+    sitio = catalogo_base()["config"].get("sitio", "").rstrip("/")
+    for sid in ocultos_guardados() & base.keys():
+        slug = base[sid].get("slug")
+        if slug:
+            texto = re.sub(r"\s*<url><loc>" + re.escape(f"{sitio}/servicios/{slug}") + r"</loc>.*?</url>", "", texto)
+    return Response(texto, mimetype="application/xml")
 
 
 @app.get("/assets/js/data.js")
