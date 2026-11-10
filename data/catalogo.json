@@ -629,7 +629,7 @@
         "pasaporte_normal",
         "e_ticket"
       ],
-      "destacado": "Retira tu pasaporte en 48 horas"
+      "destacado": "Retira tu pasaporte el mismo día"
     },
     "pasaporte_normal": {
       "title": "Pasaporte Dominicano Normal (DGP)",
@@ -3076,9 +3076,15 @@
       "fuente": "DGII"
     },
     "pasaporte_electronico": {
-      "es": "24 a 48 horas en Gran Santo Domingo; 48 a 72 horas en el interior",
-      "en": "24–48 hours in Greater Santo Domingo; 48–72 hours elsewhere in the country",
-      "fr": "24 à 48 h dans le Grand Saint-Domingue ; 48 à 72 h en province",
+      "es": "24 a 48 horas",
+      "en": "24 to 48 hours",
+      "fr": "24 à 48 heures",
+      "fuente": "Dirección General de Pasaportes"
+    },
+    "pasaporte_vip": {
+      "es": "El mismo día",
+      "en": "Same day",
+      "fr": "Le jour même",
       "fuente": "Dirección General de Pasaportes"
     }
   },

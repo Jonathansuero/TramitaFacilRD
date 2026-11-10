@@ -2271,6 +2271,16 @@
       "Institution's estimated time",
       "Délai estimé de l'institution"
     ],
+    "tiempo.entrega": [
+      "Fecha de entrega",
+      "Delivery date",
+      "Date de livraison"
+    ],
+    "tiempo.inst": [
+      "La fecha de entrega la determina la institución.",
+      "The delivery date is set by the institution.",
+      "La date de livraison est fixée par l'institution."
+    ],
     "tiempo.fuente": [
       "Según {fuente}. Puede variar según la demanda.",
       "According to {fuente}. May vary with demand.",
