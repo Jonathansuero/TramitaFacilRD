@@ -117,6 +117,13 @@
         if (!x) return `<div class="tiempo-est ${variante}"><i class="fa-regular fa-clock" aria-hidden="true"></i><div><div class="tiempo-t">${esc(t('tiempo.entrega'))}</div><div class="tiempo-v">${esc(t('tiempo.inst'))}</div></div></div>`;
         return `<div class="tiempo-est ${variante}"><i class="fa-regular fa-clock" aria-hidden="true"></i><div><div class="tiempo-t">${esc(t('tiempo.t'))}</div><div class="tiempo-v">${esc(x.txt)}</div><div class="tiempo-f">${esc(t('tiempo.fuente', { fuente: x.fuente }))}</div></div></div>`;
     };
+    /** «Este precio incluye» + destacado de un trámite (catálogo o panel), para tarjetas oscuras. */
+    const incluyeHtml = id => {
+        const s = SERV[id] || {}, lista = s.incluye || [];
+        if (!lista.length && !s.destacado) return '';
+        return `<div class="serv-incluye">${lista.length ? `<div class="serv-incluye-t">${esc(t('inc.t'))}</div><ul>${lista.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`
+            + `${s.destacado ? `<div class="serv-destacado"><i class="fa-solid fa-bolt" aria-hidden="true"></i> ${esc(s.destacado)}</div>` : ''}</div>`;
+    };
     const igUrl = () => `https://www.instagram.com/${C.instagram}/`;
     const waLink = text => `https://api.whatsapp.com/send?phone=${C.whatsapp}&text=${encodeURIComponent(String(text).normalize('NFC'))}`;
     /** Nombre del lugar desde donde escribe el visitante (país exacto si lo eligió). */
@@ -645,7 +652,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         enlaceCliente, leerEnlace,
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state, servUrl,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
-        t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, tiempo, tiempoHtml, saludo, lugar, toast, api, apiLista, contacto,
+        t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, tiempo, tiempoHtml, incluyeHtml, saludo, lugar, toast, api, apiLista, contacto,
         setLang, setPais, setCountry, setMoneda, on, emit,
         fmtHora, offsetMin, abierto, observe, reveal, instBadge, ES_APP, instalar
     };

@@ -217,11 +217,9 @@
 
     /** Lo que incluye el precio (catálogo o panel), debajo del total. */
     function incluye() {
-        const s = SERV[id] || {}, box = $('sIncluye'), lista = s.incluye || [];
-        if (!box) return;
-        box.hidden = !lista.length && !s.destacado;
-        box.innerHTML = (lista.length ? `<div class="serv-incluye-t">${esc(t('inc.t'))}</div><ul>${lista.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '')
-            + (s.destacado ? `<div class="serv-destacado"><i class="fa-solid fa-bolt"></i> ${esc(s.destacado)}</div>` : '');
+        const box = $('sIncluye'); if (!box) return;
+        const html = TF.incluyeHtml(id);
+        box.hidden = !html; box.innerHTML = html ? html.replace(/^<div class="serv-incluye">|<\/div>$/g, '') : '';
     }
 
     function precio() {

@@ -553,6 +553,7 @@ function pintaCot() {
       ${extras ? `<div class="lc-r x"><span>Recargos (${[ex ? 'Express' : '', en ? 'Envío' : ''].filter(Boolean).join(' + ')})</span><b>${fmt(extras, m)}</b></div>` : ''}
       <div class="lc-tot"><div class="k">Total estimado</div><div class="v">${fmt(tot, m)}</div>
         <div class="e">≈ ${['DOP','USD','EUR'].filter(x => x !== m).map(x => fmt(tot, x)).join(' · ')}</div></div>
+      ${TF.incluyeHtml ? TF.incluyeHtml(st.sid) : ''}
       ${TF.tiempoHtml ? TF.tiempoHtml(st.sid, 'tiempo-oscuro') : ''}
       <div class="pago-5050"><div class="pago-t"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span>Forma de pago: 50% y 50%</span></div>
         <div class="pago-fila"><span><b>1</b><span>Para iniciar el trámite</span></span><strong>${fmt(mitad, m)}</strong></div>
@@ -656,7 +657,7 @@ if (!quieto) { auto = setInterval(() => { if (document.hidden) return; const max
 ['pointerdown', 'focusin', 'touchstart', 'mouseenter'].forEach(ev0 => $('#carrusel').addEventListener(ev0, pausa, {passive: true}));
 window.__car = pintaCar; pintaCar();
 // precios nuevos u ocultos del panel: llegan después de cargar → se vuelve a dibujar con lo actual
-TF.on('moneda', pintaCar);
+TF.on('moneda', () => { pintaCar(); if (st.sid) pintaCot(); });
 
 // ?servicio=slug&pais=us: anuncio directo a un trámite
 const pre = q.get('servicio');
