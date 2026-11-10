@@ -626,10 +626,11 @@ ${ES_APP ? renderTabbar() : ''}`;
 
     // ---------------- API pública
     /** Dirección oficial de un trámite: /servicios/<palabras>. La vieja (servicio?id=…) sigue redirigiendo. */
-    const servUrl = k => (SERV[k] && SERV[k].slug) ? `/servicios/${SERV[k].slug}` : `servicio?id=${encodeURIComponent(k)}`;
+    const servUrl = k => (SERV[k] && SERV[k].slug) ? `/servicios/${SERV[k].slug}` : (k && SERV[k] ? `/servicio?id=${encodeURIComponent(k)}` : '/servicios');
 
     /** Enlace listo para el cliente: trámite + opciones + país/moneda; al abrirlo solo faltan sus datos. */
     const enlaceCliente = (k, { express = false, envio = false } = {}) => {
+        if (!k || !SERV[k]) return null;   // sin trámite elegido no hay enlace que mandar
         const q = new URLSearchParams();
         if (express) q.set('express', '1');
         if (envio) q.set('envio', '1');

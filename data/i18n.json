@@ -1861,6 +1861,11 @@
       "Copy link for the client",
       "Copier le lien pour le client"
     ],
+    "calc.elige": [
+      "Primero elige un trámite de la lista.",
+      "First choose a service from the list.",
+      "Choisissez d'abord une démarche dans la liste."
+    ],
     "calc.copiado": [
       "Enlace copiado: el cliente solo pone sus datos 🔗",
       "Link copied: the client only adds their details 🔗",

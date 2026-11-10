@@ -318,7 +318,7 @@
         ['pExp', 'pEnv'].forEach(i => $(i).addEventListener('change', precio));
         $('monedaToggle').addEventListener('click', e => { const b = e.target.closest('[data-moneda]'); if (b) TF.setMoneda(b.dataset.moneda); });
         $('sShare').addEventListener('click', async () => {
-            const url = location.protocol.startsWith('http') ? TF.enlaceCliente(id, { express: $('pExp').checked, envio: $('pEnv').checked }) : location.href;
+            const url = (location.protocol.startsWith('http') && TF.enlaceCliente(id, { express: $('pExp').checked, envio: $('pEnv').checked })) || location.href;
             const title = tc('servicios', id).title;
             try { if (navigator.share) await navigator.share({ title, url }); else { await navigator.clipboard.writeText(url); toast(t('toast.enlace')); } } catch (e) { /* cancelado */ }
         });
