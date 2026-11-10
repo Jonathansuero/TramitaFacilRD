@@ -529,8 +529,8 @@
     "pasaporte_vip": {
       "title": "Pasaporte Dominicano VIP (DGP)",
       "slug": "pasaporte-dominicano-vip",
-      "tax": 4000,
-      "fee": 3000,
+      "tax": 10700,
+      "fee": 3500,
       "category": "viajes",
       "paises": [
         "rd",
