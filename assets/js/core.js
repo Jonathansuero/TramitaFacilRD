@@ -241,11 +241,13 @@
         if (!state.api) return;
         emit('api', true);
         // precios cambiados desde el panel: se aplican encima del catálogo y se vuelven a dibujar
+        // servicios ocultos desde el panel: se eliminan del catálogo del navegador
         api('/precios').then(r => {
             let cambio = false;
             Object.entries((r && r.precios) || {}).forEach(([k, v]) => {
                 if (SERV[k] && (SERV[k].tax !== v.tax || SERV[k].fee !== v.fee)) { SERV[k].tax = v.tax; SERV[k].fee = v.fee; cambio = true; }
             });
+            ((r && r.ocultos) || []).forEach(k => { if (SERV[k]) { delete SERV[k]; cambio = true; } });
             if (cambio) emit('moneda', state.moneda);
         }).catch(() => { /* precios del catálogo */ });
         try {

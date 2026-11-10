@@ -40,8 +40,9 @@ Pagos: los registra quien tiene «pagos», pero solo cuentan como cobrados cuand
 «validar_pagos» (o un administrador). Mientras tanto el cliente ve «Pago pendiente por confirmar».
     POST /api/admin/nota             {codigo, texto}                                · /api/admin/nota/quitar {codigo, id}
     POST /api/admin/docs             {codigo, tramite, docs:[…]}                    Documentos recibidos
-    GET  /api/admin/precios          Precios de todos los servicios + historial
+    GET  /api/admin/precios          Precios de todos los servicios + historial + estado oculto
     POST /api/admin/precio           {servicio, tax, fee} o {servicio, restaurar: true}
+    POST /api/admin/ocultar          {servicio, oculto: true/false}  Ocultar/mostrar un servicio
     GET  /api/admin/respaldo         Copia de la base de datos
     GET  /api/precios                (público) precios cambiados desde el panel
     POST /api/admin/cliente          {codigo, nombre, contacto, pais, pais_detalle?}  Corregir datos del cliente
@@ -144,23 +145,58 @@ def precios_guardados() -> dict[str, tuple[float, float]]:
     return {r[0]: (r[1], r[2]) for r in rows}
 
 
+def ocultos_guardados() -> set[str]:
+    """Servicios marcados como ocultos desde el panel (tabla `servicios_ocultos`): conjunto de servicio_id."""
+    try:
+        if has_app_context():
+            rows = get_db().execute("SELECT servicio_id FROM servicios_ocultos WHERE oculto=1").fetchall()
+        else:
+            if not DB_PATH.exists():
+                return set()
+            with sqlite3.connect(DB_PATH) as db:
+                db.executescript(SCHEMA)
+                rows = db.execute("SELECT servicio_id FROM servicios_ocultos WHERE oculto=1").fetchall()
+    except sqlite3.Error:
+        return set()
+    return {r[0] for r in rows}
+
+
 def _entero(v: float):
     return int(v) if float(v).is_integer() else v
 
 
+_catalogo_publico = {"clave": None, "data": None}
+
+
 def catalogo() -> dict:
-    """Catálogo con los precios del panel aplicados (lo que usan la API y la página)."""
+    """Catálogo con los precios del panel aplicados y servicios ocultos marcados (admin ve todo)."""
     base = catalogo_base()
     guardados = {k: v for k, v in precios_guardados().items() if k in base["servicios"]}
-    if not guardados:
+    ocultos = ocultos_guardados()
+    if not guardados and not ocultos:
         return base
-    clave = (_catalogo_cache["mtime"], tuple(sorted(guardados.items())))
+    clave = (_catalogo_cache["mtime"], tuple(sorted(guardados.items())), frozenset(ocultos))
     if _catalogo_precios["clave"] != clave:
         servicios = dict(base["servicios"])
         for sid, (tax, fee) in guardados.items():
             servicios[sid] = {**servicios[sid], "tax": _entero(tax), "fee": _entero(fee)}
+        for sid in ocultos:
+            if sid in servicios:
+                servicios[sid] = {**servicios[sid], "oculto": True}
         _catalogo_precios.update(clave=clave, data={**base, "servicios": servicios})
     return _catalogo_precios["data"]
+
+
+def catalogo_publico() -> dict:
+    """Catálogo público: servicios ocultos no aparecen."""
+    cat = catalogo()
+    ocultos = {sid for sid, s in cat["servicios"].items() if s.get("oculto")}
+    if not ocultos:
+        return cat
+    clave = (id(cat), frozenset(ocultos))
+    if _catalogo_publico["clave"] != clave:
+        _catalogo_publico.update(clave=clave, data={**cat, "servicios": {k: v for k, v in cat["servicios"].items() if not v.get("oculto")}})
+    return _catalogo_publico["data"]
 
 
 # ---------------------------------------------------------------- base de datos
@@ -329,6 +365,11 @@ CREATE TABLE IF NOT EXISTS push_subs (
 CREATE TABLE IF NOT EXISTS ajustes (
     clave TEXT PRIMARY KEY,
     valor TEXT
+);
+CREATE TABLE IF NOT EXISTS servicios_ocultos (
+    servicio_id TEXT PRIMARY KEY,
+    oculto INTEGER NOT NULL DEFAULT 1,
+    actualizado TEXT NOT NULL
 );
 """
 
@@ -660,21 +701,24 @@ def salud():
 
 @app.get("/api/catalogo")
 def api_catalogo():
-    return jsonify(catalogo())
+    return jsonify(catalogo_publico())
 
 
 @app.get("/api/precios")
 def api_precios():
-    """Precios cambiados desde el panel; la página los aplica encima de data.js."""
+    """Precios cambiados desde el panel; la página los aplica encima de data.js. No incluye servicios ocultos."""
     base = catalogo_base()["servicios"]
-    return jsonify({"ok": True, "precios": {k: {"tax": _entero(t), "fee": _entero(f)}
-                                            for k, (t, f) in precios_guardados().items() if k in base}})
+    ocultos = ocultos_guardados()
+    return jsonify({"ok": True,
+                    "precios": {k: {"tax": _entero(t), "fee": _entero(f)}
+                                for k, (t, f) in precios_guardados().items() if k in base and k not in ocultos},
+                    "ocultos": sorted(ocultos & base.keys())})
 
 
 @app.get("/api/servicio/<sid>")
 def api_servicio(sid: str):
     """Contenido propio de un trámite, para cuando el visitante cambia de servicio sin recargar la página."""
-    serv = catalogo()["servicios"].get(sid)
+    serv = catalogo_publico()["servicios"].get(sid)
     if not serv:
         return error("Ese trámite no existe.", 404)
     return jsonify({"ok": True, "id": sid, "titulo": serv["title"], "intro": serv.get("intro", ""),
@@ -691,7 +735,7 @@ def api_cotizar():
     d = cuerpo_json()
     try:
         tasas = obtener_tasas()
-        res = calculos.cotizar(catalogo(), str(d.get("servicio", "")), bool(d.get("express")),
+        res = calculos.cotizar(catalogo_publico(), str(d.get("servicio", "")), bool(d.get("express")),
                                bool(d.get("envio")), str(d.get("moneda", "DOP")),
                                {k: tasas[k] for k in ("USD", "EUR")})
     except ValueError as exc:
@@ -1018,7 +1062,7 @@ def api_solicitud():
     origen = clasificar_origen(origen_detalle)
     pagina_origen = nombre_pagina(str(d.get("pagina", "")))
     dispositivo = tipo_dispositivo(request.headers.get("User-Agent", ""))
-    cat = catalogo()
+    cat = catalogo_publico()
 
     if len(nombre) < 2:
         return error("Escribe tu nombre.")
@@ -2412,11 +2456,12 @@ def admin_mensaje_quitar():
 def admin_precios():
     """Precios de todos los servicios (catálogo + cambios del panel) y el historial de cambios."""
     base, guardados = catalogo_base(), precios_guardados()
+    ocultos = ocultos_guardados()
     servicios = []
     for sid, s in base["servicios"].items():
         tax, fee = guardados.get(sid, (s["tax"], s["fee"]))
         servicios.append({"id": sid, "title": s["title"], "category": s["category"], "tax": _entero(tax), "fee": _entero(fee),
-                          "tax_base": s["tax"], "fee_base": s["fee"], "modificado": sid in guardados})
+                          "tax_base": s["tax"], "fee_base": s["fee"], "modificado": sid in guardados, "oculto": sid in ocultos})
     historial = [dict(r) for r in get_db().execute(
         "SELECT * FROM precios_historial ORDER BY id DESC LIMIT 100").fetchall()]
     for h in historial:
@@ -2456,6 +2501,30 @@ def admin_precio():
     db.commit()
     return jsonify({"ok": True, "servicio": {"id": sid, "tax": _entero(tax), "fee": _entero(fee),
                                              "modificado": (tax, fee) != (base[sid]["tax"], base[sid]["fee"])}})
+
+
+@app.post("/api/admin/ocultar")
+@requiere("precios")
+def admin_ocultar():
+    """Oculta o muestra un servicio en la página pública: {servicio, oculto: true/false}."""
+    d = cuerpo_json()
+    base = catalogo_base()["servicios"]
+    sid = str(d.get("servicio", ""))
+    if sid not in base:
+        return error("Ese servicio no existe.", 404)
+    oculto = bool(d.get("oculto", True))
+    db = get_db()
+    if oculto:
+        db.execute("INSERT INTO servicios_ocultos (servicio_id, oculto, actualizado) VALUES (?,1,?) "
+                   "ON CONFLICT(servicio_id) DO UPDATE SET oculto=1, actualizado=excluded.actualizado", (sid, ahora()))
+    else:
+        db.execute("DELETE FROM servicios_ocultos WHERE servicio_id=?", (sid,))
+    registrar("Ocultó un servicio" if oculto else "Mostró un servicio", None, base[sid]["title"])
+    db.commit()
+    # Invalidar la caché del catálogo
+    _catalogo_precios.update(clave=None, data=None)
+    _catalogo_publico.update(clave=None, data=None)
+    return jsonify({"ok": True, "servicio": sid, "oculto": oculto})
 
 
 @app.get("/api/admin/respaldo")
@@ -2647,7 +2716,7 @@ def pagina(nombre: str, sid: str = ""):
     html = _leer_html(nombre)
     if nombre not in SEO_PAGINAS:
         return Response(html, mimetype="text/html")
-    cat = catalogo()
+    cat = catalogo_publico()
     sitio = cat["config"].get("sitio", "").rstrip("/")
     ruta = "/" if nombre == "index" else (
         "/diaspora/" + nombre[len("diaspora-"):] if nombre.startswith("diaspora-") else f"/{nombre}")
@@ -2748,7 +2817,7 @@ def pagina_ciudad(ciudad: str):
 @app.get("/servicios/<slug>")
 def pagina_servicio(slug: str):
     """Dirección oficial del trámite, con palabras: /servicios/apostilla-de-documentos."""
-    for sid, serv in catalogo()["servicios"].items():
+    for sid, serv in catalogo_publico()["servicios"].items():
         if serv.get("slug") == slug:
             return pagina("servicio", sid)
     return redirect("/servicios", 301)
@@ -2772,7 +2841,7 @@ def assetlinks():
 def archivo_raiz(nombre: str):
     if nombre == "servicio":
         # dirección vieja: /servicio?id=apostilla_documentos → /servicios/apostilla-de-documentos
-        serv = catalogo()["servicios"].get(request.args.get("id", ""))
+        serv = catalogo_publico()["servicios"].get(request.args.get("id", ""))
         return redirect(ruta_servicio(request.args.get("id", ""), serv) if serv else "/servicios", 301)
     if nombre in PAGINAS:
         return pagina(nombre)
@@ -2782,7 +2851,7 @@ def archivo_raiz(nombre: str):
         if limpio == "index":
             return redirect(_con_busqueda("/"), 301)
         if limpio == "servicio":   # servicio.html?id=… → directo a la dirección con palabras, sin pasos intermedios
-            serv = catalogo()["servicios"].get(request.args.get("id", ""))
+            serv = catalogo_publico()["servicios"].get(request.args.get("id", ""))
             return redirect(ruta_servicio(request.args.get("id", ""), serv) if serv else "/servicios", 301)
         if limpio in PAGINAS:
             return redirect(_con_busqueda(f"/{limpio}"), 301)

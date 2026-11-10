@@ -1031,23 +1031,24 @@
         const lista = precios.servicios.filter(s => (!preciosCat || s.category === preciosCat) && (!q || s.title.toLowerCase().includes(q)));
         const porCat = {}; lista.forEach(s => (porCat[s.category] = porCat[s.category] || []).push(s));
         const mods = precios.servicios.filter(s => s.modificado).length;
+        const ocultos = precios.servicios.filter(s => s.oculto).length;
         $('tPrecios').innerHTML = `<div class="pila">
-            <div class="cabecera" style="margin:0"><div><h2>Precios</h2><p>Precio al cliente = tasa oficial + tu honorario. Al guardar, la página se actualiza al momento.</p></div></div>
+            <div class="cabecera" style="margin:0"><div><h2>Precios y visibilidad</h2><p>Precio al cliente = tasa oficial + tu honorario. Puedes ocultar un servicio para que no aparezca en la página.</p></div></div>
             <div class="card">
                 <div class="dos" style="margin-bottom:6px">
                     <div class="buscar" style="margin:0"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
                         <input id="pQ" class="input" type="search" placeholder="Buscar servicio" value="${esc(preciosQ)}"></div>
                     <select id="pCat" class="input"><option value="">Todas las categorías</option>${Object.entries(precios.categorias).map(([k, n]) => `<option value="${esc(k)}"${preciosCat === k ? ' selected' : ''}>${esc(n)}</option>`).join('')}</select>
                 </div>
-                <p class="sub" style="margin:6px 0 4px">${precios.servicios.length} servicios${mods ? ` · ${mods} con precio cambiado` : ''}</p>
+                <p class="sub" style="margin:6px 0 4px">${precios.servicios.length} servicios${mods ? ` · ${mods} con precio cambiado` : ''}${ocultos ? ` · <span style="color:var(--rojo)">${ocultos} oculto${ocultos > 1 ? 's' : ''}</span>` : ''}</p>
                 <div class="precio-cab"><span>Servicio</span><span>Tasa oficial</span><span>Honorario</span><span>Total</span><span></span></div>
                 ${Object.entries(porCat).map(([c, arr]) => `<p class="cat-t">${esc(precios.categorias[c] || c)}</p>` + arr.map(s => `
-                    <form class="precio-fila" data-sid="${esc(s.id)}">
-                        <div class="nom"><b>${esc(s.title)}${s.modificado ? '<span class="mod">cambiado</span>' : ''}</b>${s.modificado ? `<small>Original: ${esc(rd(s.tax_base))} + ${esc(rd(s.fee_base))}</small>` : ''}</div>
+                    <form class="precio-fila${s.oculto ? ' precio-oculto' : ''}" data-sid="${esc(s.id)}">
+                        <div class="nom"><b>${esc(s.title)}${s.modificado ? '<span class="mod">cambiado</span>' : ''}${s.oculto ? '<span class="mod oculto-tag">oculto</span>' : ''}</b>${s.modificado ? `<small>Original: ${esc(rd(s.tax_base))} + ${esc(rd(s.fee_base))}</small>` : ''}</div>
                         <label class="pin"><small>Tasa oficial</small><input class="input" id="tax-${esc(s.id)}" name="tax" type="number" min="0" step="any" inputmode="decimal" value="${s.tax}" aria-label="Tasa oficial de ${esc(s.title)}" title="Tasa oficial (lo que cobra la institución)"></label>
                         <label class="pin"><small>Honorario</small><input class="input" id="fee-${esc(s.id)}" name="fee" type="number" min="0" step="any" inputmode="decimal" value="${s.fee}" aria-label="Honorario de ${esc(s.title)}" title="Tu honorario"></label>
                         <span class="tot" data-tot>${esc(rd(s.tax + s.fee))}</span>
-                        <span class="acc"><button class="btn btn-azul btn-sm" type="submit" disabled>Guardar</button>${s.modificado ? `<button class="btn btn-borde btn-sm" type="button" data-restaurar="${esc(s.id)}" title="Volver al precio original">↺</button>` : ''}</span>
+                        <span class="acc"><button class="btn btn-azul btn-sm" type="submit" disabled>Guardar</button>${s.modificado ? `<button class="btn btn-borde btn-sm" type="button" data-restaurar="${esc(s.id)}" title="Volver al precio original">↺</button>` : ''}<button class="btn btn-sm ${s.oculto ? 'btn-rojo' : 'btn-borde'}" type="button" data-ocultar="${esc(s.id)}" data-visible="${s.oculto ? '1' : '0'}" title="${s.oculto ? 'Mostrar en la página' : 'Ocultar de la página'}">${s.oculto ? '👁 Mostrar' : '👁‍🗨 Ocultar'}</button></span>
                     </form>`).join('')).join('') || '<p class="rank-vacio" style="margin-top:12px">Ningún servicio coincide.</p>'}
             </div>
             <div class="card"><h3>Historial de cambios</h3><p class="sub">Cada cambio de precio queda anotado</p>
@@ -2025,6 +2026,21 @@
         catch (e) { if (e.message !== 'sesion') toast(e.message); btn.disabled = false; btn.textContent = 'Guardar'; }
     });
     $('tPrecios').addEventListener('click', async ev => {
+        const o = ev.target.closest('[data-ocultar]');
+        if (o) {
+            const sid = o.dataset.ocultar, visible = o.dataset.visible === '1';
+            const s = precios.servicios.find(x => x.id === sid);
+            if (!visible && !window.confirm(`¿Ocultar «${s ? s.title : sid}» de la página?\n\nLos clientes no lo verán ni podrán solicitarlo mientras esté oculto.`)) return;
+            o.disabled = true; o.textContent = '…';
+            try {
+                await post('/admin/ocultar', { servicio: sid, oculto: !visible });
+                s.oculto = !visible;
+                try { precios = await api('/admin/precios'); } catch (_) {}
+                pintarPrecios();
+                toast(visible ? `${s ? s.title : sid}: visible en la página` : `${s ? s.title : sid}: oculto de la página`);
+            } catch (e) { if (e.message !== 'sesion') toast(e.message); o.disabled = false; o.textContent = visible ? '👁 Mostrar' : '👁‍🗨 Ocultar'; }
+            return;
+        }
         const r = ev.target.closest('[data-restaurar]'); if (!r) return;
         if (!window.confirm('¿Volver al precio original del catálogo?')) return;
         try { await guardarPrecio(r.dataset.restaurar, { restaurar: true }); } catch (e) { if (e.message !== 'sesion') toast(e.message); }
