@@ -48,6 +48,7 @@
             <div id="resTotal" class="text-3xl font-black text-domGold my-1 tabular-nums">—</div>
             <p class="text-[11px] text-slate-400 italic" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
             <p id="rateNote" class="text-[11px] text-slate-400 mt-1"></p>
+            <div id="resIncluye"></div>
             <div id="resTiempo"></div>
         </div>
         <div class="pago-5050" aria-labelledby="pagoT">
@@ -95,6 +96,7 @@
         $$('[data-express-fee]').forEach(el => el.textContent = money(C.express_fee));
         $$('[data-delivery-fee]').forEach(el => el.textContent = money(C.delivery_fee));
         $('resTitulo').textContent = tc('servicios', k).title;
+        $('resIncluye').innerHTML = TF.incluyeHtml(k);
         $('resTiempo').innerHTML = TF.tiempoHtml(k, 'tiempo-oscuro');
         $('resTax').textContent = money(s.tax);
         $('resFee').textContent = money(s.fee);
