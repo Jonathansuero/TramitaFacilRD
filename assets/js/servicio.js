@@ -275,16 +275,73 @@
             extraCache[pedido] = d;
             if (id !== pedido) return;              // cambió de trámite mientras cargaba
             caja.innerHTML = extraHtml(d); extraPuesto = pedido;
+            mantenerAncla();                        // este texto va arriba: no debe empujar la página
         } catch (e) { /* sin contenido: la página funciona igual */ }
     }
 
-    function irA(nuevo, { guardar = true } = {}) {
+    /** Sube al principio de la página y lo repite en los cuadros siguientes: al cambiar la
+     *  dirección, algunos navegadores (Safari) devuelven la página a donde estaba. */
+    function subirArriba() {
+        const arriba = () => {
+            try { saltar(0); } catch (e) { /* navegador antiguo */ }
+            document.documentElement.scrollTop = 0; document.body.scrollTop = 0;
+        };
+        arriba();
+        requestAnimationFrame(() => { arriba(); requestAnimationFrame(arriba); });
+        setTimeout(arriba, 150);
+    }
+
+    // Con las flechas anterior/siguiente la página se queda donde está: se guarda a qué altura
+    // de la pantalla estaba la flecha y se devuelve ahí, porque el texto de arriba cambia de alto.
+    let ancla = null;                   // { el, top } mientras dura el cambio de trámite
+    let anclaVigila = null;             // observador del alto de la página, mientras dura
+
+    /** Mueve la página al instante: la hoja de estilos pide desplazamiento suave y aquí estorba,
+     *  porque cada ajuste se animaba y el siguiente medía a medio camino. */
+    function saltar(y) {
+        const raiz = document.documentElement, antes = raiz.style.scrollBehavior;
+        raiz.style.scrollBehavior = 'auto';
+        window.scrollTo(0, y);
+        raiz.style.scrollBehavior = antes;
+    }
+
+    function mantenerAncla() {
+        if (!ancla) return;
+        const dif = Math.round(ancla.el.getBoundingClientRect().top - ancla.top);
+        if (dif) saltar(window.scrollY + dif);
+    }
+
+    function soltarAncla() {
+        ancla = null;
+        if (anclaVigila) { anclaVigila.disconnect(); anclaVigila = null; }
+    }
+
+    /** Cambia de trámite sin mover la página, para seguir mirando donde estabas. */
+    function irASinSaltar(nuevo, referencia) {
+        if (!SERV[nuevo] || nuevo === id) return;
+        const el = referencia || $('sRel');
+        soltarAncla();
+        ancla = { el, top: el.getBoundingClientRect().top };
+        irA(nuevo, { subir: false });
+        mantenerAncla();
+        // el texto de arriba llega después (y con él las fotos y las letras): se sujeta mientras cambia de alto
+        if (window.ResizeObserver) {
+            anclaVigila = new ResizeObserver(mantenerAncla);
+            anclaVigila.observe(document.body);
+        }
+        requestAnimationFrame(mantenerAncla);
+        setTimeout(soltarAncla, 2000);
+    }
+
+    function irA(nuevo, { guardar = true, subir = true } = {}) {
         if (!SERV[nuevo] || nuevo === id) return;
         id = nuevo;
+        abierto = null;                 // cerrar el detalle del trámite anterior
         $('pExp').checked = false; $('pEnv').checked = false;
+        if (subir) subirArriba();       // antes de pushState: el navegador guarda esta posición
         render();
         if (guardar) history.pushState({ id }, '', TF.servUrl(id));
-        window.scrollTo({ top: 0, behavior: 'instant' });
+        if (subir) subirArriba();
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -299,11 +356,13 @@
         precio();
         history.replaceState({ id }, '', location.href);
         $('sRel').addEventListener('click', e => {
-            const f = e.target.closest('[data-rel-ficha]'); if (f) { abierto = null; irA(f.dataset.relFicha); return; }
-            const so = e.target.closest('[data-rel-solicitar]'); if (so) { abierto = null; irA(so.dataset.relSolicitar); irAConfirmar(false); return; }
+            const f = e.target.closest('[data-rel-ficha]'); if (f) { irA(f.dataset.relFicha); return; }
+            const so = e.target.closest('[data-rel-solicitar]'); if (so) { irA(so.dataset.relSolicitar); irAConfirmar(false); return; }
             if (e.target.closest('[data-rel-cerrar]')) { abrirRelacionado(abierto); return; }
             const c = e.target.closest('[data-rel]'); if (c) abrirRelacionado(c.dataset.rel);
         });
+        // si el visitante mueve la página él mismo, dejamos de sujetarla
+        ['wheel', 'touchmove', 'keydown'].forEach(ev => window.addEventListener(ev, soltarAncla, { passive: true }));
         let anchoPrevio = window.innerWidth;
         window.addEventListener('resize', () => { if (abierto && window.innerWidth !== anchoPrevio) { anchoPrevio = window.innerWidth; colocarDetalle(false); } });
         document.addEventListener('click', e => {
@@ -312,7 +371,10 @@
             const href = a.getAttribute('href');
             const nuevo = href.startsWith('/servicios/') ? porSlug(href.split('/').pop())
                 : new URLSearchParams(href.split('?')[1]).get('id');
-            if (SERV[nuevo]) { e.preventDefault(); e.stopPropagation(); irA(nuevo); }
+            if (!SERV[nuevo]) return;
+            e.preventDefault(); e.stopPropagation();
+            // las flechas anterior/siguiente no mueven la página; los demás enlaces abren el trámite desde arriba
+            if (a.id === 'sPrev' || a.id === 'sNext') irASinSaltar(nuevo, a); else irA(nuevo);
         }, true);
         window.addEventListener('popstate', e => { const nuevo = (e.state && e.state.id) || idDeUrl(); if (nuevo) irA(nuevo, { guardar: false }); });
         ['pExp', 'pEnv'].forEach(i => $(i).addEventListener('change', precio));
