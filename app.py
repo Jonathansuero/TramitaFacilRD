@@ -2649,7 +2649,9 @@ def no_encontrado(_e):
 # Direcciones limpias: /servicios, /servicio?id=…, /rastreo… (sin ".html").
 # Guías: /guias/<slug> lo sirve guia-<slug>.html. Añadir una guía = crear el archivo y una línea aquí.
 GUIAS = {
-    "pasaporte-dominicano": "2026-11-11",   # slug → fecha de la última revisión (sitemap y datos de Google)
+    # slug → fecha de la última revisión (sitemap y datos de Google) y los trámites que resuelven lo que cuenta
+    "pasaporte-dominicano": {"fecha": "2026-11-11",
+                             "servicios": ["pasaporte_electronico", "pasaporte_vip", "rectificacion_actas_jce"]},
 }
 
 PAGINAS = {"promo", "servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora",
@@ -2763,7 +2765,7 @@ def _datos_servicio(serv: dict, sid: str, cat_: dict, sitio: str) -> str:
 
 def _datos_guia(slug: str, titulo: str, desc: str, url: str, sitio: str, html: str) -> str:
     """Para Google: artículo con su fecha, migas de pan y las preguntas que ya están escritas en la página."""
-    fecha = GUIAS.get(slug, "")
+    fecha = GUIAS.get(slug, {}).get("fecha", "")
     nombre = re.sub(r"\s*[:·|].*$", "", titulo).strip() or titulo
     grafo = [{"@type": "Article", "headline": titulo[:110], "description": desc, "url": url,
               "inLanguage": "es-DO", "datePublished": fecha, "dateModified": fecha,
@@ -2783,6 +2785,25 @@ def _datos_guia(slug: str, titulo: str, desc: str, url: str, sitio: str, html: s
              "acceptedAnswer": {"@type": "Answer", "text": limpio(r)}} for q, r in preguntas]})
     datos = {"@context": "https://schema.org", "@graph": grafo}
     return '\n    <script type="application/ld+json">' + json.dumps(datos, ensure_ascii=False).replace("</", "<\\/") + "</script>"
+
+
+def _servicios_guia(slug: str, cat_: dict) -> str:
+    """Los trámites que resuelven lo que la guía explica, con su precio y el botón de cotizar."""
+    tarjetas = []
+    for sid in GUIAS.get(slug, {}).get("servicios", []):
+        sv = cat_["servicios"].get(sid)
+        if not sv:
+            continue   # oculto desde el panel: no se ofrece
+        total = _entero(sv.get("tax", 0)) + _entero(sv.get("fee", 0))
+        tarjetas.append(
+            f'<article class="cat-card"><h3><a class="hover:text-domBlue" href="{ruta_servicio(sid, sv)}">{_atr(sv["title"])}</a></h3>'
+            f'<p>{_atr(sv.get("desc", ""))}</p>'
+            f'<div class="flex items-end justify-between gap-2 mt-4"><div class="cat-precio">Desde<strong>RD$ {total:,.0f}</strong></div>'
+            f'<div class="flex gap-1.5"><a class="cat-btn cat-btn-ghost" href="{ruta_servicio(sid, sv)}">Ver más</a>'
+            f'<a class="cat-btn cat-btn-primary" href="/#cotizar={sid}">Cotizar</a></div></div></article>')
+    if not tarjetas:
+        return ""
+    return '<div class="grid sm:grid-cols-2 gap-4">' + "".join(tarjetas) + "</div>"
 
 
 def _catalogo_estatico(cat_: dict) -> str:
@@ -2860,6 +2881,8 @@ def pagina(nombre: str, sid: str = ""):
     if nombre == "servicio" and serv and serv.get("slug") and \
             (BASE_DIR / "assets" / "img" / "servicios" / f'{serv["slug"]}.jpg').exists():
         imagen = f'{sitio}/assets/img/servicios/{serv["slug"]}.jpg'
+    if nombre.startswith("guia-") and (BASE_DIR / "assets" / "img" / "guias" / f'{nombre[len("guia-"):]}.jpg').exists():
+        imagen = f'{sitio}/assets/img/guias/{nombre[len("guia-"):]}.jpg'
     # Al compartir el enlace (WhatsApp, Facebook) sí se ve la marca, aunque el título de Google no la lleve
     og_titulo = titulo if "TramitaFácil RD" in titulo else f"{titulo} | TramitaFácil RD"
     etiquetas = f"""
@@ -2877,6 +2900,7 @@ def pagina(nombre: str, sid: str = ""):
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="{imagen}">"""
     if nombre.startswith("guia-"):
+        html = _rellenar(html, "gServicios", _servicios_guia(nombre[len("guia-"):], cat))
         html = html.replace("</title>", "</title>" + _datos_guia(nombre[len("guia-"):], titulo, desc, url, sitio, html), 1)
     if nombre == "index":
         # Para Google: nombre del sitio y logo de la empresa (no depende del JavaScript)

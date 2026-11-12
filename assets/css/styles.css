@@ -904,3 +904,18 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .serv-incluye li::after { content: ''; position: absolute; left: .34rem; top: .38rem; width: .45rem; height: .26rem; border: solid #fff; border-width: 0 0 2px 2px; transform: rotate(-45deg); }
 .serv-destacado { margin-top: .8rem; display: inline-flex; align-items: center; gap: .45rem; background: #D4AF37; color: #0F172A; font-weight: 800; font-size: 13px; padding: .45rem .8rem; border-radius: .7rem; }
 .serv-incluye ul + .serv-destacado { margin-top: .85rem; }
+
+/* ---------- Guías: foto junto al resumen, rejilla de consulados ---------- */
+.guia-dos { display: grid; gap: 1.25rem; }
+.guia-dos > div > h2 { margin-top: 0; }
+.guia-dos img, .guia-foto { width: 100%; height: auto; border-radius: 1rem; border: 1px solid var(--borde); }
+.guia-foto { display: block; max-width: 320px; margin: 1.25rem auto; }
+.guia-ciudades { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; margin: 1.25rem 0; }
+.guia-ciudad { border: 1px solid var(--borde); background: #f8fafc; border-radius: 1rem; padding: .8rem .5rem; text-align: center; }
+.guia-ciudad .b { font-size: 1.6rem; line-height: 1; }
+.guia-ciudad .c { font-weight: 800; font-size: .85rem; color: var(--azul); margin-top: .3rem; }
+.guia-ciudad .f { font-size: .7rem; color: #64748b; margin-top: .1rem; }
+@media (min-width: 640px) {
+    .guia-dos { grid-template-columns: 1fr 230px; align-items: start; }
+    .guia-ciudades { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
