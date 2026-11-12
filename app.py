@@ -75,6 +75,7 @@ from __future__ import annotations
 
 import csv
 import io
+import html as html_lib
 import json
 import os
 import re
@@ -2646,8 +2647,13 @@ def no_encontrado(_e):
 # ---------------------------------------------------------------- sitio estático
 # Solo servimos lo público: nunca app.py, la base de datos ni .env
 # Direcciones limpias: /servicios, /servicio?id=…, /rastreo… (sin ".html").
+# Guías: /guias/<slug> lo sirve guia-<slug>.html. Añadir una guía = crear el archivo y una línea aquí.
+GUIAS = {
+    "pasaporte-dominicano": "2026-11-11",   # slug → fecha de la última revisión (sitemap y datos de Google)
+}
+
 PAGINAS = {"promo", "servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora",
-           "nosotros", "privacidad", "terminos", "offline", "admin"}
+           "nosotros", "privacidad", "terminos", "offline", "admin", "guias"} | {f"guia-{g}" for g in GUIAS}
 # 33200d87b13a122cdb2087cad4e581ff.txt: clave de IndexNow (Bing, Yandex…) para avisar a los buscadores de páginas nuevas
 INDEXNOW_KEY = "33200d87b13a122cdb2087cad4e581ff"
 ARCHIVOS_RAIZ = {"sw.js", "robots.txt", "sitemap.xml", "BingSiteAuth.xml", "site.webmanifest", f"{INDEXNOW_KEY}.txt", "9d50825e306b4b0487bb2751161266d3.txt"}
@@ -2663,7 +2669,7 @@ def _con_busqueda(destino: str) -> str:
 # WhatsApp/Facebook/Google (Open Graph). La página de cada servicio lleva su propio título y descripción.
 SEO_PAGINAS = {"index", "servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas",
                "calculadora", "nosotros", "privacidad", "terminos"} | {f"diaspora-{c}" for c in
-               ("nueva-york", "madrid", "miami", "boston", "barcelona")}
+               ("nueva-york", "madrid", "miami", "boston", "barcelona")} | {"guias"} | {f"guia-{g}" for g in GUIAS}
 _html_cache: dict = {}
 
 
@@ -2755,6 +2761,30 @@ def _datos_servicio(serv: dict, sid: str, cat_: dict, sitio: str) -> str:
     return '\n    <script type="application/ld+json">' + json.dumps(datos, ensure_ascii=False).replace("</", "<\\/") + "</script>"
 
 
+def _datos_guia(slug: str, titulo: str, desc: str, url: str, sitio: str, html: str) -> str:
+    """Para Google: artículo con su fecha, migas de pan y las preguntas que ya están escritas en la página."""
+    fecha = GUIAS.get(slug, "")
+    nombre = re.sub(r"\s*[:·|].*$", "", titulo).strip() or titulo
+    grafo = [{"@type": "Article", "headline": titulo[:110], "description": desc, "url": url,
+              "inLanguage": "es-DO", "datePublished": fecha, "dateModified": fecha,
+              "mainEntityOfPage": {"@type": "WebPage", "@id": url},
+              "author": {"@type": "Organization", "name": "TramitaFácil RD", "url": sitio + "/"},
+              "publisher": {"@type": "Organization", "name": "TramitaFácil RD", "url": sitio + "/",
+                            "logo": {"@type": "ImageObject", "url": f"{sitio}/assets/img/og-tramitafacil.png"}}},
+             {"@type": "BreadcrumbList", "itemListElement": [
+                 {"@type": "ListItem", "position": 1, "name": "Inicio", "item": sitio + "/"},
+                 {"@type": "ListItem", "position": 2, "name": "Guías", "item": sitio + "/guias"},
+                 {"@type": "ListItem", "position": 3, "name": nombre, "item": url}]}]
+    preguntas = re.findall(r"<details class=\"serv-faq\"><summary>(.*?)</summary><p>(.*?)</p></details>", html, re.S)
+    if preguntas:
+        limpio = lambda t: html_lib.unescape(re.sub(r"<[^>]+>", "", t)).strip()
+        grafo.append({"@type": "FAQPage", "mainEntity": [
+            {"@type": "Question", "name": limpio(q),
+             "acceptedAnswer": {"@type": "Answer", "text": limpio(r)}} for q, r in preguntas]})
+    datos = {"@context": "https://schema.org", "@graph": grafo}
+    return '\n    <script type="application/ld+json">' + json.dumps(datos, ensure_ascii=False).replace("</", "<\\/") + "</script>"
+
+
 def _catalogo_estatico(cat_: dict) -> str:
     """Los servicios agrupados por área, como enlaces con texto real (el JavaScript los vuelve a pintar como tarjetas)."""
     grupos = []
@@ -2789,7 +2819,8 @@ def pagina(nombre: str, sid: str = ""):
     cat = catalogo_publico()
     sitio = cat["config"].get("sitio", "").rstrip("/")
     ruta = "/" if nombre == "index" else (
-        "/diaspora/" + nombre[len("diaspora-"):] if nombre.startswith("diaspora-") else f"/{nombre}")
+        "/diaspora/" + nombre[len("diaspora-"):] if nombre.startswith("diaspora-")
+        else "/guias/" + nombre[len("guia-"):] if nombre.startswith("guia-") else f"/{nombre}")
     titulo = re.search(r"<title>(.*?)</title>", html, re.S).group(1).strip()
     m = re.search(r'<meta name="description" content="([^"]*)"', html)
     desc = m.group(1) if m else ""
@@ -2845,6 +2876,8 @@ def pagina(nombre: str, sid: str = ""):
     <meta property="og:image:alt" content="TramitaFácil RD · Todos tus trámites en un solo lugar">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image" content="{imagen}">"""
+    if nombre.startswith("guia-"):
+        html = html.replace("</title>", "</title>" + _datos_guia(nombre[len("guia-"):], titulo, desc, url, sitio, html), 1)
     if nombre == "index":
         # Para Google: nombre del sitio y logo de la empresa (no depende del JavaScript)
         org = {"@context": "https://schema.org", "@graph": [
@@ -2874,6 +2907,14 @@ def inicio():
 
 
 CIUDADES = ("nueva-york", "madrid", "miami", "boston", "barcelona")
+
+
+@app.get("/guias/<slug>")
+def guia(slug: str):
+    """Una guía: /guias/pasaporte-dominicano."""
+    if slug not in GUIAS:
+        return redirect("/guias", 301)
+    return pagina(f"guia-{slug}")
 
 
 @app.get("/diaspora/<ciudad>")

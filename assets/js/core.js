@@ -402,6 +402,7 @@
         <li><a href="/instituciones" data-i18n="nav.instituciones"></a></li>
         <li><a href="/calculadora" data-i18n="nav.calculadoras"></a></li>
         <li><a href="/diaspora" data-i18n="nav.diaspora"></a></li>
+        <li><a href="/guias" data-i18n="nav.guias"></a></li>
         <li><a href="/rastreo" data-i18n="m.rastreo"></a></li>
         <li><a href="/preguntas" data-i18n="m.faq"></a></li>
         <li><a href="${homeLink('app')}" data-i18n="tuto.pie"></a></li>

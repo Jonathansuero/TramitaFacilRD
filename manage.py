@@ -81,6 +81,8 @@ def cmd_sitemap(_args):
             ("/servicios", "0.9"), ("/casos", "0.8"), ("/calculadora", "0.8"), ("/preguntas", "0.7"), ("/rastreo", "0.5"),
             ("/nosotros", "0.7"), ("/terminos", "0.3"), ("/privacidad", "0.3")]
     urls += [(f"/diaspora/{c}", "0.7") for c in ("nueva-york", "madrid", "miami", "boston", "barcelona")]
+    from app import GUIAS
+    urls += [("/guias", "0.8")] + [(f"/guias/{g}", "0.8") for g in GUIAS]
     urls += [(f"/servicios/{s['slug']}", "0.6") for s in cat["servicios"].values()]
     from datetime import date
     hoy = date.today().isoformat()
