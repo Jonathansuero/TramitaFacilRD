@@ -72,7 +72,8 @@
     function tc(tipo, key) {
         const tr = state.lang === 'es' ? null : I18N.contenido[state.lang]?.[tipo]?.[key];
         switch (tipo) {
-            case 'servicios': { const s = SERV[key]; return { title: tr?.[0] || s.title, desc: tr?.[1] || s.desc }; }
+            // Un trámite oculto desde el panel sale de SERV: devolvemos vacío en vez de romper la página.
+            case 'servicios': { const s = SERV[key]; if (!s) return { title: '', desc: '' }; return { title: tr?.[0] || s.title, desc: tr?.[1] || s.desc }; }
             case 'categorias': { const c = D.categorias[key]; return { label: tr?.[0] || c.label, resumen: tr?.[1] || c.resumen }; }
             case 'checklists': { const c = D.checklists[key]; return { label: tr?.[0] || c.label, items: tr?.[1] || c.items }; }
             case 'instituciones': { const i = D.instituciones[key]; return { nombre: tr?.[0] || i.nombre, desc: tr?.[1] || i.desc }; }

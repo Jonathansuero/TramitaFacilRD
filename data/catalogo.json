@@ -3276,7 +3276,7 @@
     },
     {
       "id": "pasaporte",
-      "servicio": "pasaporte_normal",
+      "servicio": "pasaporte_electronico",
       "problema": {
         "titulo": {
           "es": "Perder el día entero en Pasaportes.",

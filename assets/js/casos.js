@@ -1,6 +1,6 @@
 /* ==========================================================
    TramitaFácil RD — Casos reales (problema → solución)
-   Usa window.TF (core.js) y TF.cotizador (cotizador.js).
+   Usa window.TF (core.js) y TF.carrusel (carrusel.js).
    Los casos viven en data/catalogo.json → "casos" (es / en / fr).
    ========================================================== */
 (function () {
@@ -70,14 +70,8 @@
 
     function init() {
         renderForm();
-        TF.cotizador.mount('cotizadorApp', { onSolicitar: irAFormulario, formSelect: 'kServicio' });
-        if (CASOS[0]) TF.cotizador.seleccionar(CASOS[0].servicio);
-
-        TF.carrusel.mount('casosCarrusel', {
-            simple: true,
-            onCalcular: k => { TF.cotizador.seleccionar(k); $('cotizador').scrollIntoView({ behavior: 'smooth', block: 'start' }); },
-            onIniciar: irAFormulario
-        });
+        // Esta página no lleva calculadora: quien quiera calcular tiene /calculadora en el menú.
+        TF.carrusel.mount('casosCarrusel', { simple: true, onIniciar: irAFormulario });
         $('kPrefijo').addEventListener('change', e => { ct.elegirPrefijo(e.target.value); $('kTel').focus(); });
         $('kPais').addEventListener('change', e => TF.setPais(e.target.value, { animate: false }));
         $('kForm').addEventListener('input', e => { if (e.target.classList.contains('is-invalid')) { e.target.classList.remove('is-invalid'); if (!$('kForm').querySelector('.is-invalid')) error(''); } });

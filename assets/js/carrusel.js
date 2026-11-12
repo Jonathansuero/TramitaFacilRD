@@ -50,7 +50,8 @@
 
     function mount(id, opts = {}) {
         const raiz = $(id); if (!raiz) return;
-        const casos = (D.casos || []).slice(0, opts.limite || 99);
+        // Si el trámite del caso está oculto desde el panel, el caso no se muestra.
+        const casos = (D.casos || []).filter(c => SERV[c.servicio]).slice(0, opts.limite || 99);
         let actual = 0, timer = null, pausado = false;
 
         raiz.classList.add('crs');
