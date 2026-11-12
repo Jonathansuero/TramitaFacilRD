@@ -2652,6 +2652,18 @@ GUIAS = {
     # slug → fecha de la última revisión (sitemap y datos de Google) y los trámites que resuelven lo que cuenta
     "pasaporte-dominicano": {"fecha": "2026-11-11",
                              "servicios": ["pasaporte_electronico", "pasaporte_vip", "rectificacion_actas_jce"]},
+    "apostilla-de-documentos": {"fecha": "2026-11-11",
+                                "servicios": ["apostilla_documentos", "legalizacion_documentos",
+                                              "traduccion_documentos", "legalizacion_mescyt"]},
+    "poder-notarial-desde-el-exterior": {"fecha": "2026-11-11",
+                                         "servicios": ["poderes_especiales", "declaracion_jurada",
+                                                       "apostilla_documentos", "contrato_notarial"]},
+    "error-en-acta-de-nacimiento": {"fecha": "2026-11-11",
+                                    "servicios": ["rectificacion_actas_jce", "apostilla_documentos",
+                                                  "certificacion_solteria"]},
+    "ipi-propiedad-desde-el-exterior": {"fecha": "2026-11-11",
+                                        "servicios": ["ipi_impuesto", "estado_juridico_inmueble",
+                                                      "pagos_impuestos", "poderes_especiales"]},
 }
 
 PAGINAS = {"promo", "servicios", "servicio", "casos", "instituciones", "diaspora", "rastreo", "preguntas", "calculadora",
