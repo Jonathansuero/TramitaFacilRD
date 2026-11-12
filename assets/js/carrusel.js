@@ -2,7 +2,7 @@
    TramitaFácil RD — Carrusel de casos reales
    TF.carrusel.mount('idDelContenedor', { onCalcular(servicio), onIniciar(servicio), limite, simple })
    simple: true → abajo solo el botón «Iniciar solicitud» (inicio); sin simple → servicio, precio y calculadora (página Casos reales).
-   Cada caso trae su ilustración dominicana (assets/img/rd/<img>.webp).
+   Cada caso son dos conversaciones de WhatsApp: la del familiar que no resuelve y la nuestra.
    Desliza con el dedo, flechas, teclado o solo (cada 8 s; se detiene al tocarlo).
    ========================================================== */
 (function () {
@@ -14,25 +14,44 @@
     const OK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7"/></svg>';
     const reducido = () => window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+    /** Una burbuja del chat. `nota` es el separador gris («2 semanas después»). */
+    function burbuja(quien, texto, hora, verde) {
+        if (quien === 'nota') return `<span class="chat-nota">${esc(texto)}</span>`;
+        const clase = quien === 'yo' ? (verde ? 'chat-yo-verde' : 'chat-yo-gris') : quien === 'tf' ? 'chat-tf' : 'chat-otro';
+        const visto = quien === 'yo' && verde ? ' ' + LEIDO : '';
+        return `<div class="chat-b ${clase}">${esc(texto)}${hora ? `<span class="chat-hora">${esc(hora)}${visto}</span>` : ''}</div>`;
+    }
+
+    /** Una conversación completa: cabecera con el contacto y las burbujas. */
+    function chat(mensajes, de, verde, horas) {
+        const reales = mensajes.filter(m => m[0] !== 'nota');
+        const ultimo = reales.length ? reales[reales.length - 1] : null;
+        return `<div class="chat ${verde ? 'chat-wa' : 'chat-gris'}">
+            <div class="chat-cab ${verde ? 'chat-cab-wa' : 'chat-cab-gris'}">
+                ${verde ? '<span class="chat-tf-logo">TF</span>' : '<span class="chat-avatar"></span>'}
+                <span><b>${esc(de)}</b>${verde ? `<small>${esc(t('crs.enlinea'))}</small>` : ''}</span>
+            </div>
+            <div class="chat-cuerpo">${mensajes.map(m =>
+            burbuja(m[0], tx(m[1]), m === ultimo ? horas : '', verde)).join('')}</div>
+        </div>`;
+    }
+
     function slide(c, i, total, simple) {
         const s = SERV[c.servicio], tr = tc('servicios', c.servicio), tiempo = TF.tiempo(c.servicio);
-        const tf = (c.solucion.chat || []).find(m => m[0] === 'tf');
+        const antes = c.problema.chat || [], despues = c.solucion.chat || [];
         return `<article class="crs-slide" role="group" aria-roledescription="slide" aria-label="${i + 1} / ${total}" data-i="${i}">
-            <figure class="crs-img">
-                <img src="/assets/img/rd/${esc(c.img)}.webp" alt="${esc(tx(c.lugar))}" width="960" height="600" loading="${i < 2 ? 'eager' : 'lazy'}" decoding="async">
-                <figcaption><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${esc(tx(c.lugar))}</figcaption>
-            </figure>
             <div class="crs-cuerpo">
-                <div class="crs-bloque">
-                    <span class="caso-tag caso-tag-rojo">${X}${esc(t('casos.problema'))}</span>
-                    <h3 class="crs-h crs-h-prob">${esc(tx(c.problema.titulo))}</h3>
-                    <p class="crs-p">${esc(tx(c.problema.texto))}</p>
-                </div>
-                <div class="crs-sep" aria-hidden="true"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#002D62" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v15M5 12l7 7 7-7"/></svg></span></div>
-                <div class="crs-bloque">
-                    <span class="caso-tag caso-tag-verde">${OK}${esc(t('casos.solucion'))}</span>
-                    <h3 class="crs-h">${esc(tx(c.solucion.titulo))}</h3>
-                    ${tf ? `<div class="crs-wa"><span class="crs-wa-de"><b>TF</b> TramitaFácil RD</span>${esc(tx(tf[1]))}<span class="chat-hora">10:42 ${LEIDO}</span></div>` : `<p class="crs-p">${esc(tx(c.solucion.texto))}</p>`}
+                <div class="crs-chats${antes.length ? '' : ' crs-chats-uno'}">
+                    ${antes.length ? `<div class="crs-chat">
+                        <span class="caso-tag caso-tag-rojo">${X}${esc(t('casos.problema'))}</span>
+                        ${chat(antes, tx(c.problema.contacto) || t('crs.contacto'), false, '9:14')}
+                        <p class="crs-p">${esc(tx(c.problema.texto))}</p>
+                    </div>` : ''}
+                    <div class="crs-chat">
+                        <span class="caso-tag caso-tag-verde">${OK}${esc(t('casos.solucion'))}</span>
+                        ${chat(despues, 'TramitaFácil RD', true, '10:42')}
+                        <p class="crs-p">${esc(tx(c.solucion.titulo))}</p>
+                    </div>
                 </div>
                 ${simple ? `<div class="crs-pie crs-pie-simple">
                     <button type="button" class="crs-btn crs-btn-rojo crs-btn-grande" data-iniciar="${esc(c.servicio)}">${esc(t('crs.iniciar'))} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>

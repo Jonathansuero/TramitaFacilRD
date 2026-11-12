@@ -3121,14 +3121,6 @@
         },
         "chat": [
           [
-            "yo",
-            {
-              "es": "Primo, ¿pudiste ir a la JCE?",
-              "en": "Cuz, did you make it to the JCE?",
-              "fr": "Cousin, tu as pu aller à la JCE ?"
-            }
-          ],
-          [
             "otro",
             {
               "es": "Esta semana no pude, la otra sí.",
@@ -3234,6 +3226,22 @@
               "en": "A week? Not possible right now.",
               "fr": "Une semaine ? Impossible en ce moment."
             }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Y si mando a alguien con un poder?",
+              "en": "What if I send someone with a power of attorney?",
+              "fr": "Et si j'envoyais quelqu'un avec une procuration ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Eso suena mejor. Pero, ¿eso se hace desde aquí?",
+              "en": "That sounds better. But can that be done from here?",
+              "fr": "Ça semble mieux. Mais ça se fait d'ici ?"
+            }
           ]
         ]
       },
@@ -3309,6 +3317,22 @@
               "en": "They sent me back. A paper was missing and I have to return.",
               "fr": "On m'a renvoyé. Il manquait un papier, je dois revenir."
             }
+          ],
+          [
+            "otro",
+            {
+              "es": "¿Y cuándo te dan otra cita?",
+              "en": "And when do you get another appointment?",
+              "fr": "Et quand te donnent-ils un autre rendez-vous ?"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "No sé. Hay que volver a buscar en el sistema.",
+              "en": "I don't know. I have to search the system again.",
+              "fr": "Je ne sais pas. Il faut rechercher dans le système."
+            }
           ]
         ]
       },
@@ -3368,7 +3392,46 @@
           "es": "Y el formulario de la visa parece un examen.",
           "en": "And the visa form feels like an exam.",
           "fr": "Et le formulaire de visa ressemble à un examen."
-        }
+        },
+        "contacto": {
+          "es": "Agente de Junior",
+          "en": "Junior's agent",
+          "fr": "L'agent de Junior"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "Doña Ana, el campamento empieza el 15. ¿Y la visa?",
+              "en": "Mrs. Ana, camp starts on the 15th. What about the visa?",
+              "fr": "Mme Ana, le camp commence le 15. Et le visa ?"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Estoy en el formulario. Son como cien preguntas.",
+              "en": "I'm on the form. It's about a hundred questions.",
+              "fr": "Je suis sur le formulaire. Il y a une centaine de questions."
+            }
+          ],
+          [
+            "nota",
+            {
+              "es": "3 días después",
+              "en": "3 days later",
+              "fr": "3 jours plus tard"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Lo dejé a medias. No sé qué poner en la parte del viaje.",
+              "en": "I left it half done. I don't know what to put in the travel section.",
+              "fr": "Je l'ai laissé à moitié. Je ne sais pas quoi mettre pour le voyage."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -3388,6 +3451,14 @@
               "es": "Doña Ana, el DS-160 de Junior está listo y la cita en la embajada agendada.",
               "en": "Mrs. Ana, Junior's DS-160 is done and the embassy appointment is booked.",
               "fr": "Mme Ana, le DS-160 de Junior est prêt et le rendez-vous à l'ambassade est fixé."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Gracias! Ya le avisé al agente.",
+              "en": "Thank you! I already told the agent.",
+              "fr": "Merci ! J'ai déjà prévenu l'agent."
             }
           ]
         ]
@@ -3427,6 +3498,22 @@
               "es": "Ni idea… creo que primero va al MESCYT, ¿o era la Cancillería?",
               "en": "No idea… I think MESCYT first, or was it the Foreign Ministry?",
               "fr": "Aucune idée… le MESCYT d'abord, ou c'était la Chancellerie ?"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "En la universidad me dijeron una cosa y en Cancillería otra.",
+              "en": "The university told me one thing and the Foreign Ministry another.",
+              "fr": "L'université m'a dit une chose et la Chancellerie une autre."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Y el trabajo allá te pide todo para el mes que viene…",
+              "en": "And the job over there wants everything by next month…",
+              "fr": "Et le travail là-bas veut tout pour le mois prochain…"
             }
           ]
         ]
@@ -3503,6 +3590,22 @@
               "en": "That lot is totally clean. Trust me.",
               "fr": "Ce terrain est tout propre. Faites-moi confiance."
             }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Y el certificado de título está a su nombre?",
+              "en": "And is the title certificate in your name?",
+              "fr": "Et le certificat de titre est à votre nom ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Eso lo vemos después de la inicial.",
+              "en": "We'll look at that after the down payment.",
+              "fr": "On verra ça après l'acompte."
+            }
           ]
         ]
       },
@@ -3562,7 +3665,38 @@
           "es": "Sin ese papel, Migración no los deja salir del país.",
           "en": "Without it, Immigration won't let them leave the country.",
           "fr": "Sans ce papier, l'Immigration ne les laisse pas sortir."
-        }
+        },
+        "contacto": {
+          "es": "Mi hermana",
+          "en": "My sister",
+          "fr": "Ma sœur"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "¿Y el permiso de los muchachos? El vuelo es el viernes.",
+              "en": "What about the kids' permit? The flight is on Friday.",
+              "fr": "Et l'autorisation des enfants ? Le vol est vendredi."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Hay que ir donde un notario y después a Migración.",
+              "en": "You have to go to a notary and then to Immigration.",
+              "fr": "Il faut aller chez un notaire puis à l'Immigration."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Con el trabajo no me da el tiempo.",
+              "en": "With work, I just don't have the time.",
+              "fr": "Avec le travail, je n'ai pas le temps."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -3582,6 +3716,14 @@
               "es": "Doña Mercedes, el permiso de los niños ya está aprobado. ¡Buen viaje a la familia!",
               "en": "Mrs. Mercedes, the children's permit is approved. Have a great family trip!",
               "fr": "Mme Mercedes, l'autorisation des enfants est approuvée. Bon voyage à la famille !"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Gracias a Dios! Ya puedo dormir tranquila.",
+              "en": "Thank God! Now I can sleep easy.",
+              "fr": "Dieu merci ! Je peux dormir tranquille."
             }
           ]
         ]
@@ -3621,6 +3763,22 @@
               "es": "Tranquilo, eso después lo hago.",
               "en": "Relax, I'll do it later.",
               "fr": "T'inquiète, je le ferai plus tard."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Es que si te ponen una multa, me llega a mí.",
+              "en": "The thing is, if you get a ticket, it comes to me.",
+              "fr": "Le problème, c'est que si tu as une amende, elle me revient."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Nada va a pasar, compadre.",
+              "en": "Nothing's going to happen, man.",
+              "fr": "Il ne va rien se passer, mon ami."
             }
           ]
         ]
@@ -3681,7 +3839,46 @@
           "es": "Cualquiera puede registrarlo primero.",
           "en": "Anyone could register it first.",
           "fr": "N'importe qui pourrait l'enregistrer avant vous."
-        }
+        },
+        "contacto": {
+          "es": "Compadre Chalo",
+          "en": "My buddy Chalo",
+          "fr": "Mon ami Chalo"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "Rosa, vi unas caretas con tu mismo nombre en Santiago.",
+              "en": "Rosa, I saw masks with your same name in Santiago.",
+              "fr": "Rosa, j'ai vu des masques avec ton nom à Santiago."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Cómo? Ese nombre es mío desde hace años.",
+              "en": "What? That name has been mine for years.",
+              "fr": "Quoi ? Ce nom est le mien depuis des années."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "¿Y tú lo registraste?",
+              "en": "But did you register it?",
+              "fr": "Mais tu l'as déposé ?"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "No. Nunca pensé que hacía falta.",
+              "en": "No. I never thought I needed to.",
+              "fr": "Non. Je n'ai jamais pensé qu'il le fallait."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -3701,6 +3898,14 @@
               "es": "Felicidades, Rosa: «Caretas Vegano» ya está registrado a su nombre en ONAPI.",
               "en": "Congrats, Rosa: “Caretas Vegano” is now registered in your name at ONAPI.",
               "fr": "Félicitations, Rosa : « Caretas Vegano » est enregistré à votre nom à l'ONAPI."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Qué alivio! Ahora sí es mío.",
+              "en": "What a relief! Now it's really mine.",
+              "fr": "Quel soulagement ! Maintenant il est à moi."
             }
           ]
         ]
@@ -3740,6 +3945,22 @@
               "es": "¿El qué? Mi vuelo sale mañana temprano.",
               "en": "The what? My flight leaves early tomorrow.",
               "fr": "Le quoi ? Mon vol part demain matin."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Hay que llenarlo antes de llegar al aeropuerto.",
+              "en": "You have to fill it out before getting to the airport.",
+              "fr": "Il faut le remplir avant d'arriver à l'aéroport."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Y si lo hago mal? No quiero perder el vuelo.",
+              "en": "And what if I get it wrong? I don't want to miss the flight.",
+              "fr": "Et si je me trompe ? Je ne veux pas rater le vol."
             }
           ]
         ]
@@ -3800,7 +4021,46 @@
           "es": "Visa, residencia, certificados… y todo en otro idioma.",
           "en": "Visa, residency, certificates… all in another language.",
           "fr": "Visa, résidence, certificats… et tout dans une autre langue."
-        }
+        },
+        "contacto": {
+          "es": "Mi esposo",
+          "en": "My husband",
+          "fr": "Mon mari"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "Amor, en la embajada me dieron una lista de diez documentos.",
+              "en": "Honey, at the embassy they gave me a list of ten documents.",
+              "fr": "Chérie, à l'ambassade on m'a donné une liste de dix documents."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Y eso es para la visa o para la residencia?",
+              "en": "And is that for the visa or for residency?",
+              "fr": "Et c'est pour le visa ou pour la résidence ?"
+            }
+          ],
+          [
+            "nota",
+            {
+              "es": "1 mes después",
+              "en": "1 month later",
+              "fr": "1 mois plus tard"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Seguimos igual. Cada oficina dice una cosa distinta.",
+              "en": "Still nowhere. Every office says something different.",
+              "fr": "Toujours rien. Chaque bureau dit autre chose."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -3820,6 +4080,14 @@
               "es": "Buenas noticias, Mr. Smith: su cita de residencia en la DGM quedó confirmada para el lunes.",
               "en": "Good news, Mr. Smith: your residency appointment at DGM is confirmed for Monday.",
               "fr": "Bonne nouvelle, M. Smith : votre rendez-vous de résidence à la DGM est confirmé pour lundi."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Por fin! Gracias por explicárnoslo todo.",
+              "en": "Finally! Thank you for explaining it all to us.",
+              "fr": "Enfin ! Merci de tout nous avoir expliqué."
             }
           ]
         ]
@@ -3844,7 +4112,38 @@
           "es": "Y la idea era manejar para ir donde la familia.",
           "en": "And the plan was to drive to see the family.",
           "fr": "Et le plan était de conduire pour voir la famille."
-        }
+        },
+        "contacto": {
+          "es": "Mi hermano",
+          "en": "My brother",
+          "fr": "Mon frère"
+        },
+        "chat": [
+          [
+            "yo",
+            {
+              "es": "Llego el 20. ¿Me prestas el carro para ir a Moca?",
+              "en": "I land on the 20th. Can I borrow the car to go to Moca?",
+              "fr": "J'arrive le 20. Tu me prêtes la voiture pour aller à Moca ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Claro. Pero, ¿tú no tienes la licencia vencida?",
+              "en": "Sure. But isn't your license expired?",
+              "fr": "Bien sûr. Mais ton permis n'est pas périmé ?"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Verdad. Y en diciembre el INTRANT está full.",
+              "en": "True. And in December the INTRANT is packed.",
+              "fr": "C'est vrai. Et en décembre l'INTRANT est bondé."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -3864,6 +4163,14 @@
               "es": "Listo, Yorki: su cita en el INTRANT es el 22 a las 8:30. ¡Felices fiestas!",
               "en": "All set, Yorki: your INTRANT appointment is on the 22nd at 8:30. Happy holidays!",
               "fr": "C'est prêt, Yorki : votre rendez-vous à l'INTRANT est le 22 à 8 h 30. Joyeuses fêtes !"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Tremendo! Ya puedo manejar yo mismo.",
+              "en": "Great! Now I can drive myself.",
+              "fr": "Super ! Je peux conduire moi-même."
             }
           ]
         ]
@@ -3888,7 +4195,38 @@
           "es": "Y así no puedes vender ni heredar sin problemas.",
           "en": "So you can't sell or pass it on without trouble.",
           "fr": "Impossible de vendre ou de transmettre sans problème."
-        }
+        },
+        "contacto": {
+          "es": "El comprador",
+          "en": "The buyer",
+          "fr": "L'acheteur"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "Don Rafael, el abogado dice que el título tiene una hipoteca.",
+              "en": "Mr. Rafael, the lawyer says the title still has a mortgage.",
+              "fr": "M. Rafael, l'avocat dit que le titre porte encore une hypothèque."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Pero yo le terminé de pagar al banco hace dos años.",
+              "en": "But I finished paying the bank two years ago.",
+              "fr": "Mais j'ai fini de payer la banque il y a deux ans."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Mientras eso esté ahí, no podemos firmar.",
+              "en": "As long as that's there, we can't sign.",
+              "fr": "Tant que c'est là, on ne peut pas signer."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -3908,6 +4246,14 @@
               "es": "Don Rafael, la hipoteca ya fue cancelada. Su certificado de título está libre de cargas.",
               "en": "Mr. Rafael, the mortgage has been released. Your title is free of liens.",
               "fr": "M. Rafael, l'hypothèque est levée. Votre titre est libre de charges."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Gracias. Ya puedo cerrar la venta.",
+              "en": "Thank you. Now I can close the sale.",
+              "fr": "Merci. Je peux conclure la vente."
             }
           ]
         ]
@@ -3932,7 +4278,38 @@
           "es": "Tantas oficinas que da miedo empezar.",
           "en": "So many offices it's scary to even start.",
           "fr": "Tant de bureaux qu'on a peur de commencer."
-        }
+        },
+        "contacto": {
+          "es": "Mi contable",
+          "en": "My accountant",
+          "fr": "Mon comptable"
+        },
+        "chat": [
+          [
+            "yo",
+            {
+              "es": "Quiero poner el colmado a nombre de una empresa.",
+              "en": "I want to put the store under a company name.",
+              "fr": "Je veux mettre le commerce au nom d'une société."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Necesita ONAPI, Cámara de Comercio, RNC y los estatutos.",
+              "en": "You need ONAPI, Chamber of Commerce, RNC and the bylaws.",
+              "fr": "Il vous faut l'ONAPI, la Chambre de Commerce, le RNC et les statuts."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Y todo eso hay que hacerlo en Santo Domingo?",
+              "en": "And does all that have to be done in Santo Domingo?",
+              "fr": "Et tout ça doit se faire à Saint-Domingue ?"
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -3952,6 +4329,14 @@
               "es": "Don Fello, ya tiene su RNC. ¡Colmado Fello SRL es oficial!",
               "en": "Mr. Fello, your RNC is ready. Colmado Fello SRL is official!",
               "fr": "M. Fello, votre RNC est prêt. Colmado Fello SRL est officiel !"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Qué bueno! Ahora sí puedo facturar.",
+              "en": "Excellent! Now I can invoice.",
+              "fr": "Parfait ! Maintenant je peux facturer."
             }
           ]
         ]
@@ -3976,7 +4361,46 @@
           "es": "Y tú no puedes volver a RD solo para eso.",
           "en": "And you can't fly back to the DR just for that.",
           "fr": "Et vous ne pouvez pas rentrer en RD juste pour ça."
-        }
+        },
+        "contacto": {
+          "es": "Recursos Humanos",
+          "en": "Human Resources",
+          "fr": "Ressources humaines"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "Ing. Peña, para el contrato falta el título legalizado.",
+              "en": "Mr. Peña, for the contract we still need the legalized degree.",
+              "fr": "M. Peña, pour le contrat il manque le diplôme légalisé."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Para cuándo lo necesitan?",
+              "en": "When do you need it by?",
+              "fr": "Pour quand en avez-vous besoin ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "En dos semanas.",
+              "en": "In two weeks.",
+              "fr": "Dans deux semaines."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Y yo estoy a seis horas de vuelo de allá.",
+              "en": "And I'm a six-hour flight away.",
+              "fr": "Et je suis à six heures d'avion de là-bas."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -3996,6 +4420,14 @@
               "es": "Ing. Peña, su título ya está legalizado. Mañana pasa a la apostilla.",
               "en": "Eng. Peña, your degree is legalized. Tomorrow it goes for the apostille.",
               "fr": "Ing. Peña, votre diplôme est légalisé. Demain, il part pour l'apostille."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Perfecto. Mando todo el viernes.",
+              "en": "Perfect. I'll send everything on Friday.",
+              "fr": "Parfait. J'envoie tout vendredi."
             }
           ]
         ]
@@ -4020,7 +4452,38 @@
           "es": "Los recargos crecen mientras tú estás afuera.",
           "en": "Late charges grow while you're away.",
           "fr": "Les pénalités augmentent pendant votre absence."
-        }
+        },
+        "contacto": {
+          "es": "El vecino",
+          "en": "The neighbor",
+          "fr": "Le voisin"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "Don Manuel, dejaron un papel de la DGII en su casa.",
+              "en": "Mr. Manuel, they left a DGII notice at your house.",
+              "fr": "M. Manuel, on a laissé un avis de la DGII chez vous."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿De la DGII? Yo nunca he pagado nada de eso.",
+              "en": "From the DGII? I've never paid anything like that.",
+              "fr": "De la DGII ? Je n'ai jamais rien payé de tel."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "Dice algo de recargos.",
+              "en": "It mentions surcharges.",
+              "fr": "Ça parle de majorations."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -4040,6 +4503,14 @@
               "es": "Don Manuel, su IPI está al día. Le enviamos el comprobante de la DGII.",
               "en": "Mr. Manuel, your IPI is up to date. We've sent you the DGII receipt.",
               "fr": "M. Manuel, votre IPI est à jour. Nous vous avons envoyé le reçu de la DGII."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Menos mal que lo cogimos a tiempo.",
+              "en": "Good thing we caught it in time.",
+              "fr": "Heureusement qu'on l'a pris à temps."
             }
           ]
         ]
@@ -4064,7 +4535,38 @@
           "es": "Y en pleno viaje no sabes dónde pagarlas.",
           "en": "And mid-trip you don't know where to pay them.",
           "fr": "Et en plein voyage, impossible de savoir où payer."
-        }
+        },
+        "contacto": {
+          "es": "Mi pana",
+          "en": "My buddy",
+          "fr": "Mon pote"
+        },
+        "chat": [
+          [
+            "yo",
+            {
+              "es": "Me pararon en un chequeo en la Duarte.",
+              "en": "They stopped me at a checkpoint on the Duarte.",
+              "fr": "On m'a arrêté à un contrôle sur la Duarte."
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "¿Y qué pasó?",
+              "en": "And what happened?",
+              "fr": "Et alors ?"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Que tengo dos multas que ni sabía. Y me voy el domingo.",
+              "en": "Turns out I have two fines I didn't know about. And I leave on Sunday.",
+              "fr": "J'ai deux amendes dont j'ignorais tout. Et je pars dimanche."
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -4084,6 +4586,14 @@
               "es": "Listo, Carlos: sus dos multas están pagadas. Aquí tiene los comprobantes.",
               "en": "Done, Carlos: both fines are paid. Here are the receipts.",
               "fr": "C'est fait, Carlos : vos deux amendes sont payées. Voici les reçus."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "Resuelto. Gracias, mi hermano.",
+              "en": "Sorted. Thanks, brother.",
+              "fr": "Réglé. Merci, mon frère."
             }
           ]
         ]
@@ -4108,7 +4618,46 @@
           "es": "Actas, contratos y certificados, todo en otro idioma.",
           "en": "Records, contracts and certificates, all in another language.",
           "fr": "Actes, contrats et certificats, tout dans une autre langue."
-        }
+        },
+        "contacto": {
+          "es": "El promotor",
+          "en": "The promoter",
+          "fr": "Le promoteur"
+        },
+        "chat": [
+          [
+            "otro",
+            {
+              "es": "Maestro, el consulado pide los documentos traducidos.",
+              "en": "Maestro, the consulate wants the documents translated.",
+              "fr": "Maestro, le consulat demande les documents traduits."
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¿Traducidos por cualquiera?",
+              "en": "Translated by just anyone?",
+              "fr": "Traduits par n'importe qui ?"
+            }
+          ],
+          [
+            "otro",
+            {
+              "es": "No. Tiene que ser traductor judicial.",
+              "en": "No. It has to be a court translator.",
+              "fr": "Non. Il faut un traducteur judiciaire."
+            }
+          ],
+          [
+            "nota",
+            {
+              "es": "La gira es en tres semanas",
+              "en": "The tour is in three weeks",
+              "fr": "La tournée est dans trois semaines"
+            }
+          ]
+        ]
       },
       "solucion": {
         "titulo": {
@@ -4128,6 +4677,14 @@
               "es": "Maestro, las traducciones del grupo están listas y certificadas. ¡Que suene esa güira!",
               "en": "Maestro, the band's translations are ready and certified. Let that güira ring!",
               "fr": "Maestro, les traductions du groupe sont prêtes et certifiées. Que la güira résonne !"
+            }
+          ],
+          [
+            "yo",
+            {
+              "es": "¡Gracias! Nos vemos en París.",
+              "en": "Thank you! See you in Paris.",
+              "fr": "Merci ! On se voit à Paris."
             }
           ]
         ]

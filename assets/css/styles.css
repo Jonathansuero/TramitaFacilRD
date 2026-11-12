@@ -631,7 +631,18 @@ html.is-app input, html.is-app textarea, html.is-app [contenteditable], html.is-
 .crs-pista { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; border-radius: 1.75rem; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 30px 60px -38px rgba(0,45,98,.55); outline: none; }
 .crs-pista::-webkit-scrollbar { display: none; }
 .crs-pista:focus-visible { box-shadow: 0 0 0 3px #D4AF37; }
-.crs-slide { flex: 0 0 100%; scroll-snap-align: start; display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr); min-height: 0; }
+.crs-slide { flex: 0 0 100%; scroll-snap-align: start; display: flex; flex-direction: column; min-height: 0; }
+.crs-slide > .crs-cuerpo { flex: 1; }
+/* ---------- Casos reales: la tarjeta es la conversación ---------- */
+.crs-chats { display: grid; gap: 1.25rem; align-items: start; }
+.crs-chat { display: flex; flex-direction: column; gap: .6rem; min-width: 0; }
+.crs-chat .chat { max-width: none; justify-self: stretch; }
+.crs-chat .caso-tag { align-self: flex-start; }
+.crs-chat .crs-p { font-size: .82rem; color: #64748b; }
+@media (min-width: 820px) {
+    .crs-chats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.75rem; }
+    .crs-chats-uno { grid-template-columns: minmax(0, 32rem); justify-content: center; }
+}
 .crs-img { position: relative; margin: 0; background: #002D62; }
 .crs-img { min-height: 320px; }
 .crs-img img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
