@@ -847,9 +847,6 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .ciudad-guias { display: grid; gap: .6rem; }
 @media (min-width: 768px) { .ciudad-guias { grid-template-columns: repeat(3, 1fr); } }
 .ciudad-serv-otra { background: #F7FAFF; border-style: dashed; }
-.ml-ciudades { display: flex; flex-wrap: wrap; gap: .4rem; padding: .2rem 0 .6rem 3.1rem; }
-.ml-ciudad { font-size: .78rem; font-weight: 600; color: #475569; background: #F1F5F9; border-radius: 999px; padding: .3rem .7rem; }
-.ml-ciudad.nav-active { background: #EAF2FF; color: #002D62; }
 
 /* ---------- Rastreo: tres espacios (pagos · documentos · archivos) ---------- */
 .track-sec { margin-top: 1.25rem; background: #fff; border: 1px solid #D5E1F0; border-radius: 1.1rem; padding: 1.1rem; text-align: left; box-shadow: 0 10px 24px -20px rgba(0, 45, 98, .55); }

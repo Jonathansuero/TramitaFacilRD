@@ -307,13 +307,11 @@
         { href: '/servicios', key: 'nav.servicios', page: 'servicios' },
         { href: '/casos', key: 'nav.casos', page: 'casos' },
         { href: '/calculadora', key: 'nav.calculadoras', page: 'calculadora' },
-        { href: '/instituciones', key: 'nav.instituciones', page: 'instituciones' },
-        { href: '/diaspora', key: 'nav.diaspora', page: 'diaspora' },
         { href: '/rastreo', key: 'nav.rastrear', page: 'rastreo' },
         { href: '/preguntas', key: 'nav.faq', page: 'preguntas' },
         { href: '/nosotros', key: 'nav.nosotros', page: 'nosotros' }
     ];
-    /** Ciudades con guía propia: salen bajo «Diáspora» en el menú y en el pie. */
+    /** Ciudades con guía propia: salen en la columna «Ciudades» del pie. */
     const CIUDADES = [['/diaspora/nueva-york', '🇺🇸 Nueva York'], ['/diaspora/madrid', '🇪🇸 Madrid'],
         ['/diaspora/miami', '🇺🇸 Miami'], ['/diaspora/boston', '🇺🇸 Boston'], ['/diaspora/barcelona', '🇪🇸 Barcelona']];
     const MOBILE = [
@@ -372,9 +370,6 @@
     <button type="button" id="instalarMenu" hidden class="mobile-link ml-install w-full text-left"><span class="ml-ico" aria-hidden="true"><i class="fa-solid fa-mobile-screen-button"></i></span><span class="ml-txt"><span class="block" data-i18n="app.instalar"></span><span class="block text-[11px] font-medium text-slate-500" data-i18n="app.menu.d"></span></span><i class="fa-solid fa-chevron-right ml-go" aria-hidden="true"></i></button>
     ${mobileLink('/servicios', 'fa-layer-group', 'm.servicios', ` ml-page${PAGE === 'servicios' ? ' nav-active' : ''}`)}
     ${mobileLink('/casos', 'fa-comments', 'nav.casos', ` ml-page${PAGE === 'casos' ? ' nav-active' : ''}`)}
-    ${mobileLink('/instituciones', 'fa-building-columns', 'nav.instituciones', ` ml-page${PAGE === 'instituciones' ? ' nav-active' : ''}`)}
-    ${mobileLink('/diaspora', 'fa-globe', 'nav.diaspora', ` ml-page${PAGE === 'diaspora' ? ' nav-active' : ''}`)}
-    <div class="ml-ciudades">${CIUDADES.map(([u, n]) => `<a href="${u}" class="ml-ciudad${location.pathname === u ? ' nav-active' : ''}">${n}</a>`).join('')}</div>
     ${mobileLink('/calculadora', 'fa-calculator', 'nav.calculadoras', ` ml-page${PAGE === 'calculadora' ? ' nav-active' : ''}`)}
     ${mobileLink('/rastreo', 'fa-location-crosshairs', 'm.rastreo', ` ml-page${PAGE === 'rastreo' ? ' nav-active' : ''}`)}
     ${mobileLink('/preguntas', 'fa-circle-question', 'm.faq', ` ml-page${PAGE === 'preguntas' ? ' nav-active' : ''}`)}
