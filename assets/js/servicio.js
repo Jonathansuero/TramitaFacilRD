@@ -6,6 +6,7 @@
     const ct = TF.contacto;
 
     let keys = Object.keys(SERV);   // se actualiza si el panel oculta algún trámite
+    let otros = null;               // bloque «Otros servicios» del final
     /** El trámite sale de la dirección: /servicios/<palabras>, o del ?id= de los enlaces viejos. */
     const porSlug = s => Object.keys(SERV).find(k => SERV[k].slug === s);
     const idDeUrl = () => porSlug(decodeURIComponent(location.pathname.split('/').filter(Boolean).pop() || ''))
@@ -49,77 +50,7 @@
         precio();
         $('cTitulo').textContent = tr.title;
 
-        // relacionados y navegación anterior/siguiente
-        renderRelacionados();
-        const i = keys.indexOf(id);
-        $('sPrev').href = TF.servUrl(keys[(i - 1 + keys.length) % keys.length]);
-        $('sNext').href = TF.servUrl(keys[(i + 1) % keys.length]);
-        $('sPrev').setAttribute('aria-label', t('serv.anterior')); $('sNext').setAttribute('aria-label', t('serv.siguiente'));
-    }
-
-    // ---------------- Trámites relacionados: todos los del área, con detalle desplegable aquí mismo
-    let abierto = null;
-    function renderRelacionados() {
-        const s = SERV[id], rel = keys.filter(k => k !== id && SERV[k].category === s.category);
-        if (!rel.includes(abierto)) abierto = null;
-        $('sRelSub').textContent = t(rel.length === 1 ? 'serv.rel.sub1' : 'serv.rel.sub', { n: rel.length, area: tc('categorias', s.category).label });
-        $('sRel').innerHTML = rel.map(k => `
-            <button type="button" class="cat-card rel-card ${k === abierto ? 'is-open' : ''}" data-rel="${k}" aria-expanded="${k === abierto}">
-                <h3>${esc(tc('servicios', k).title)}</h3><p>${esc(tc('servicios', k).desc)}</p>
-                <div class="flex items-end justify-between gap-2 mt-3 w-full">
-                    <div class="cat-precio">${esc(t('precio.desde'))}<strong>${money(SERV[k].tax + SERV[k].fee)}</strong></div>
-                    <span class="rel-mas" aria-hidden="true"><i class="fa-solid fa-chevron-down"></i></span>
-                </div>
-            </button>`).join('');
-        if (abierto) colocarDetalle(false);
-    }
-    function detalleHtml(k) {
-        const s = SERV[k], tr = tc('servicios', k), ck = D.checklists[k] ? tc('checklists', k).items : null;
-        const total = money(s.tax + s.fee);
-        return `<div class="rel-detalle" role="region" aria-label="${esc(tr.title)}">
-            <div class="flex items-start justify-between gap-3">
-                <div><p class="text-[11px] font-bold uppercase tracking-wider text-domRed"><i class="fa-solid ${D.categorias[s.category].icono} mr-1"></i>${esc(tc('categorias', s.category).label)} <span class="text-slate-400 ml-1">${s.paises.map(p => PAISES[p].bandera).join(' ')}</span></p>
-                    <h3 class="text-lg sm:text-xl font-extrabold text-slate-900 mt-1">${esc(tr.title)}</h3></div>
-                <button type="button" class="rel-cerrar" data-rel-cerrar aria-label="${esc(t('serv.rel.cerrar'))}"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <p class="text-sm text-slate-600 mt-2">${esc(tr.desc)}</p>
-            <div class="rel-cuerpo">
-                <div class="space-y-4">
-                    ${s.inst.length ? `<div><p class="rel-t">${esc(t('serv.ante'))}</p><div class="flex flex-wrap gap-1.5">${s.inst.map(i => `<a href="/instituciones#${i}" class="inst-tag">${esc(D.instituciones[i].sigla)}</a>`).join('')}</div></div>` : ''}
-                    ${ck ? `<div><p class="rel-t">${esc(t('serv.rel.req'))}</p><ul class="rel-req">${ck.map(x => `<li><i class="fa-solid fa-circle-check"></i><span>${esc(x)}</span></li>`).join('')}</ul></div>` : ''}
-                </div>
-                <div class="rel-precio">
-                    <div class="flex justify-between gap-3"><span>${esc(t('calc.tasas'))}</span><strong>${money(s.tax)}</strong></div>
-                    <div class="flex justify-between gap-3"><span>${esc(t('calc.hon'))}</span><strong>${money(s.fee)}</strong></div>
-                    <div class="rel-total"><span>${esc(t('calc.total'))}</span><strong>${total}</strong></div>
-                </div>
-            </div>
-            <div class="rel-acciones">
-                <button type="button" class="rel-btn rel-btn-rojo" data-rel-solicitar="${k}">${esc(t('serv.solicitar'))}</button>
-                <a class="rel-btn rel-btn-verde" target="_blank" rel="noopener" href="${waLink(saludo(t('wa.servicio', { s: tr.title, total })))}"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
-                <a class="rel-btn rel-btn-borde" href="/#cotizar=${encodeURIComponent(k)}">${esc(t('cat.cotizar'))}</a>
-                <button type="button" class="rel-btn rel-btn-azul" data-rel-ficha="${k}">${esc(t('serv.rel.ficha'))} <i class="fa-solid fa-arrow-right"></i></button>
-            </div>
-        </div>`;
-    }
-    /** Pone el detalle debajo de la fila de la tarjeta elegida (sin mover la página hacia arriba). */
-    function colocarDetalle(desplazar = true) {
-        $$('#sRel .rel-detalle').forEach(n => n.remove());
-        const card = document.querySelector(`#sRel [data-rel="${abierto}"]`); if (!card) return;
-        const cards = $$('#sRel .rel-card'), fila = cards.filter(c => c.offsetTop === card.offsetTop);
-        fila[fila.length - 1].insertAdjacentHTML('afterend', detalleHtml(abierto));
-        const panel = $('sRel').querySelector('.rel-detalle');
-        if (desplazar) requestAnimationFrame(() => {
-            const r = panel.getBoundingClientRect(), alto = window.innerHeight;
-            // solo baja lo justo para que se vea el detalle; nunca sube la página
-            const bajar = Math.min(r.bottom - alto + 24, r.top - 90);
-            if (bajar > 0) window.scrollBy({ top: bajar, behavior: 'smooth' });
-        });
-    }
-    function abrirRelacionado(k) {
-        abierto = abierto === k ? null : k;
-        $$('#sRel .rel-card').forEach(c => { const on = c.dataset.rel === abierto; c.classList.toggle('is-open', on); c.setAttribute('aria-expanded', String(on)); });
-        if (abierto) colocarDetalle(true); else $$('#sRel .rel-detalle').forEach(n => n.remove());
+        if (otros) otros.refrescar();   // «Otros servicios»: que no se liste la ficha abierta
     }
 
     // ---------------- Confirmar la solicitud sin salir de la ficha
@@ -291,13 +222,7 @@
         setTimeout(arriba, 150);
     }
 
-    // Con las flechas anterior/siguiente la página se queda donde está: se guarda a qué altura
-    // de la pantalla estaba la flecha y se devuelve ahí, porque el texto de arriba cambia de alto.
-    let ancla = null;                   // { el, top } mientras dura el cambio de trámite
-    let anclaVigila = null;             // observador del alto de la página, mientras dura
-
-    /** Mueve la página al instante: la hoja de estilos pide desplazamiento suave y aquí estorba,
-     *  porque cada ajuste se animaba y el siguiente medía a medio camino. */
+    /** Mueve la página al instante: la hoja de estilos pide desplazamiento suave y aquí estorba. */
     function saltar(y) {
         const raiz = document.documentElement, antes = raiz.style.scrollBehavior;
         raiz.style.scrollBehavior = 'auto';
@@ -305,38 +230,9 @@
         raiz.style.scrollBehavior = antes;
     }
 
-    function mantenerAncla() {
-        if (!ancla) return;
-        const dif = Math.round(ancla.el.getBoundingClientRect().top - ancla.top);
-        if (dif) saltar(window.scrollY + dif);
-    }
-
-    function soltarAncla() {
-        ancla = null;
-        if (anclaVigila) { anclaVigila.disconnect(); anclaVigila = null; }
-    }
-
-    /** Cambia de trámite sin mover la página, para seguir mirando donde estabas. */
-    function irASinSaltar(nuevo, referencia) {
-        if (!SERV[nuevo] || nuevo === id) return;
-        const el = referencia || $('sRel');
-        soltarAncla();
-        ancla = { el, top: el.getBoundingClientRect().top };
-        irA(nuevo, { subir: false });
-        mantenerAncla();
-        // el texto de arriba llega después (y con él las fotos y las letras): se sujeta mientras cambia de alto
-        if (window.ResizeObserver) {
-            anclaVigila = new ResizeObserver(mantenerAncla);
-            anclaVigila.observe(document.body);
-        }
-        requestAnimationFrame(mantenerAncla);
-        setTimeout(soltarAncla, 2000);
-    }
-
     function irA(nuevo, { guardar = true, subir = true } = {}) {
         if (!SERV[nuevo] || nuevo === id) return;
         id = nuevo;
-        abierto = null;                 // cerrar el detalle del trámite anterior
         $('pExp').checked = false; $('pEnv').checked = false;
         if (subir) subirArriba();       // antes de pushState: el navegador guarda esta posición
         render();
@@ -355,16 +251,7 @@
         }
         precio();
         history.replaceState({ id }, '', location.href);
-        $('sRel').addEventListener('click', e => {
-            const f = e.target.closest('[data-rel-ficha]'); if (f) { irA(f.dataset.relFicha); return; }
-            const so = e.target.closest('[data-rel-solicitar]'); if (so) { irA(so.dataset.relSolicitar); irAConfirmar(false); return; }
-            if (e.target.closest('[data-rel-cerrar]')) { abrirRelacionado(abierto); return; }
-            const c = e.target.closest('[data-rel]'); if (c) abrirRelacionado(c.dataset.rel);
-        });
-        // si el visitante mueve la página él mismo, dejamos de sujetarla
-        ['wheel', 'touchmove', 'keydown'].forEach(ev => window.addEventListener(ev, soltarAncla, { passive: true }));
-        let anchoPrevio = window.innerWidth;
-        window.addEventListener('resize', () => { if (abierto && window.innerWidth !== anchoPrevio) { anchoPrevio = window.innerWidth; colocarDetalle(false); } });
+        otros = TF.catalogo ? TF.catalogo({ excluir: () => id }) : null;
         document.addEventListener('click', e => {
             const a = e.target.closest('a[href^="/servicios/"], a[href^="servicio?id="]');
             if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target === '_blank') return;
@@ -373,8 +260,7 @@
                 : new URLSearchParams(href.split('?')[1]).get('id');
             if (!SERV[nuevo]) return;
             e.preventDefault(); e.stopPropagation();
-            // las flechas anterior/siguiente no mueven la página; los demás enlaces abren el trámite desde arriba
-            if (a.id === 'sPrev' || a.id === 'sNext') irASinSaltar(nuevo, a); else irA(nuevo);
+            irA(nuevo);
         }, true);
         window.addEventListener('popstate', e => { const nuevo = (e.state && e.state.id) || idDeUrl(); if (nuevo) irA(nuevo, { guardar: false }); });
         ['pExp', 'pEnv'].forEach(i => $(i).addEventListener('change', precio));

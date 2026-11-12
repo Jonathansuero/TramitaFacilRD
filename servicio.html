@@ -165,20 +165,25 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
     <section class="pb-16">
         <div class="max-w-6xl mx-auto px-4 sm:px-6">
-            <div class="flex items-end justify-between gap-3 mb-5">
-                <div>
-                    <h2 class="text-xl font-extrabold text-domBlue" data-i18n="serv.relacionados">Trámites relacionados</h2>
-                    <p id="sRelSub" class="text-sm text-slate-500 mt-1"></p>
+            <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-5 sm:p-8">
+                <h2 class="text-xl font-extrabold text-domBlue" data-i18n="serv.otros.t">Otros servicios</h2>
+                <p class="text-sm text-slate-500 mt-1 mb-4" data-i18n="serv.otros.d">Busca por nombre o filtra por área. Toca uno para ver su página.</p>
+                <div class="flex flex-col md:flex-row gap-3 mb-4">
+                    <input type="search" id="catSearch" data-i18n-ph="cat.ph" data-i18n-aria="cat.ph" class="flex-1 bg-slate-50 border border-slate-300 text-sm rounded-xl p-3 focus:ring-2 focus:ring-domBlue outline-none">
+                    <div id="catPaisFilter" class="flex gap-2 overflow-x-auto"></div>
                 </div>
-                <div class="flex gap-2 shrink-0"><a id="sPrev" class="pager" href="#"><i class="fa-solid fa-arrow-left"></i></a><a id="sNext" class="pager" href="#"><i class="fa-solid fa-arrow-right"></i></a></div>
+                <div id="catChips" class="flex gap-2 overflow-x-auto pb-3 mb-4"></div>
+                <p id="catCount" class="text-xs text-slate-500 mb-3"></p>
+                <div class="cat-viewport" id="catViewport" aria-live="polite"><div class="cat-track" id="catGrid"></div></div>
+                <nav class="cat-pager" id="catPager" data-i18n-aria="cat.paginas"></nav>
             </div>
-            <div id="sRel" class="rel-grid"></div>
         </div>
     </section>
 </main>
 <div id="tf-footer"></div>
 <script src="/assets/js/data.js"></script>
 <script src="/assets/js/core.js"></script>
+<script src="/assets/js/catalogo.js"></script>
 <script src="/assets/js/servicio.js"></script>
 </body>
 </html>

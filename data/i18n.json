@@ -1471,6 +1471,16 @@
       "Ideal for",
       "Idéal pour"
     ],
+    "serv.otros.t": [
+      "Otros servicios",
+      "Other services",
+      "Autres services"
+    ],
+    "serv.otros.d": [
+      "Busca por nombre o filtra por área. Toca uno para ver su página.",
+      "Search by name or filter by area. Tap one to open its page.",
+      "Cherchez par nom ou filtrez par domaine. Touchez-en une pour ouvrir sa page."
+    ],
     "serv.ante": [
       "Lo gestionamos ante",
       "We handle it at",
@@ -1566,36 +1576,6 @@
       "We can represent you with a power of attorney signed at a Dominican consulate or before a notary with an apostille in your country.",
       "Nous pouvons vous représenter avec une procuration signée au consulat dominicain ou devant notaire avec apostille dans votre pays."
     ],
-    "serv.relacionados": [
-      "Trámites relacionados",
-      "Related services",
-      "Démarches associées"
-    ],
-    "serv.rel.sub": [
-      "{n} trámites más en {area}. Toca uno para ver sus detalles aquí mismo.",
-      "{n} more services in {area}. Tap one to see its details right here.",
-      "{n} autres démarches en {area}. Touchez-en une pour voir les détails ici même."
-    ],
-    "serv.rel.sub1": [
-      "1 trámite más en {area}. Tócalo para ver sus detalles aquí mismo.",
-      "1 more service in {area}. Tap it to see its details right here.",
-      "1 autre démarche en {area}. Touchez-la pour voir les détails ici même."
-    ],
-    "serv.rel.req": [
-      "Requisitos",
-      "Requirements",
-      "Documents requis"
-    ],
-    "serv.rel.ficha": [
-      "Ver ficha completa",
-      "See full page",
-      "Voir la fiche complète"
-    ],
-    "serv.rel.cerrar": [
-      "Cerrar",
-      "Close",
-      "Fermer"
-    ],
     "conf.eyebrow": [
       "Último paso",
       "Last step",
@@ -1645,16 +1625,6 @@
       "Confirmar y recibir mi código",
       "Confirm and get my code",
       "Confirmer et recevoir mon code"
-    ],
-    "serv.anterior": [
-      "Servicio anterior",
-      "Previous service",
-      "Service précédent"
-    ],
-    "serv.siguiente": [
-      "Servicio siguiente",
-      "Next service",
-      "Service suivant"
     ],
     "dia.sub": [
       "Elige tu país y te mostramos tu hora frente a RD, cuándo podemos atenderte, la moneda de tu cotización y los trámites que más piden los dominicanos que viven allí.",
