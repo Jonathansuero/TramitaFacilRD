@@ -115,6 +115,8 @@
     const tiempo = id => { const x = (D.tiempos || {})[id]; return x ? { txt: x[state.lang] || x.es, fuente: x.fuente } : null; };
     const tiempoHtml = (id, variante = '') => {
         const x = tiempo(id);
+        // Un trámite que hacemos nosotros solos (sin institución) no tiene «fecha que determina la institución».
+        if (!x && SERV[id] && !(SERV[id].inst || []).length) return '';
         if (!x) return `<div class="tiempo-est ${variante}"><i class="fa-regular fa-clock" aria-hidden="true"></i><div><div class="tiempo-t">${esc(t('tiempo.entrega'))}</div><div class="tiempo-v">${esc(t('tiempo.inst'))}</div></div></div>`;
         return `<div class="tiempo-est ${variante}"><i class="fa-regular fa-clock" aria-hidden="true"></i><div><div class="tiempo-t">${esc(t('tiempo.t'))}</div><div class="tiempo-v">${esc(x.txt)}</div><div class="tiempo-f">${esc(t('tiempo.fuente', { fuente: x.fuente }))}</div></div></div>`;
     };

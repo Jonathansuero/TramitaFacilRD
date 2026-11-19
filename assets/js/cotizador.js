@@ -18,14 +18,14 @@
             <select id="calcServiceSelect" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl p-3.5 focus:ring-2 focus:ring-domBlue font-semibold outline-none"></select>
         </div>
         <div><span class="form-label" data-i18n="calc.l2">2. ¿Desde dónde nos escribes?</span><div id="calcPais" class="grid grid-cols-2 sm:grid-cols-5 gap-2"></div></div>
-        <div>
+        <div id="calcPrioridad">
             <span class="form-label" data-i18n="calc.l3">3. Prioridad de gestión</span>
             <div class="grid grid-cols-2 gap-3">
                 <label class="opcion"><input type="radio" name="speed" value="standard" checked><div><span class="block text-xs font-bold text-slate-800" data-i18n="calc.std">Estándar</span><span class="block text-[11px] text-slate-500" data-i18n="calc.std.d">Tiempo regular</span></div></label>
                 <label class="opcion"><input type="radio" name="speed" value="express"><div><span class="block text-xs font-bold text-slate-800"><span data-i18n="calc.exp">Express</span> 🔥</span><span class="block text-[11px] text-slate-500">+ <span data-express-fee></span></span></div></label>
             </div>
         </div>
-        <div>
+        <div id="calcEntrega">
             <span class="form-label" data-i18n="calc.l4">4. Entrega</span>
             <label class="opcion bg-slate-50"><input type="checkbox" id="calcDelivery"><span class="text-xs font-semibold text-slate-700"><span data-i18n="calc.envio">Envío físico por mensajería / courier</span> (+ <span data-delivery-fee></span>)</span></label>
         </div>
@@ -85,13 +85,16 @@
     function renderPais() {
         $('calcPais').innerHTML = Object.keys(PAISES).map(k => `<button type="button" class="pais-pill ${k === state.pais ? 'is-active' : ''}" data-pais="${k}" aria-pressed="${k === state.pais}">${PAISES[k].bandera} ${esc(tc('paises', k).corto)}</button>`).join('');
     }
-    const opciones = () => montado()
+    const digital = () => { const s = SERV[$('calcServiceSelect').value]; return !!(s && s.digital); };
+    const opciones = () => montado() && !digital()
         ? { express: document.querySelector('input[name="speed"]:checked').value === 'express', envio: $('calcDelivery').checked }
         : { express: false, envio: false };
 
     function calcular() {
         const k = $('calcServiceSelect').value, s = SERV[k]; if (!s) return;
         const { express, envio } = opciones(), extras = (express ? C.express_fee : 0) + (envio ? C.delivery_fee : 0);
+        // Trámite 100 % digital: no hay prioridad Express ni entrega física.
+        ['calcPrioridad', 'calcEntrega'].forEach(x => $(x).classList.toggle('hidden', !!s.digital));
         $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
         $$('[data-express-fee]').forEach(el => el.textContent = money(C.express_fee));
         $$('[data-delivery-fee]').forEach(el => el.textContent = money(C.delivery_fee));

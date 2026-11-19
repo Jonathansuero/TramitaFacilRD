@@ -529,6 +529,7 @@ $('#f_pais').addEventListener('change', e => { const p = PAISES.find(x => x[0] =
 
 function pintaCot() {
   const s = SERV[st.sid]; if (!s) return;
+  if (s.digital) st.express = st.envio = false;   // trámite 100 % digital: sin Express ni envío
   const ex = st.express ? C.express_fee : 0, en = st.envio ? C.delivery_fee : 0, m = st.moneda, extras = ex + en;
   const tot = s.tax + s.fee + extras, mitad = tot / 2;
   const insts = (s.inst || []).map(i => (D.instituciones || {})[i]).filter(Boolean);
@@ -536,7 +537,7 @@ function pintaCot() {
   const ck = (D.checklists || {})[st.sid];
   const MON = {DOP: 'RD$', USD: 'US$', EUR: '€'};
   $('#cot').innerHTML = `
-    <div class="lc-opts">
+    ${s.digital ? '' : `<div class="lc-opts">
       <span class="lc-l">Prioridad</span>
       <div class="lc-2">
         <label class="opcion"><input type="radio" name="speed" value="standard" ${st.express ? '' : 'checked'}><div><b>Estándar</b><small>Tiempo regular</small></div></label>
@@ -544,11 +545,11 @@ function pintaCot() {
       </div>
       <span class="lc-l">Entrega</span>
       <label class="opcion"><input type="checkbox" data-x="envio" ${st.envio ? 'checked' : ''}><div><b>Envío por mensajería</b><small>+ ${fmt(C.delivery_fee, m)}</small></div></label>
-    </div>
+    </div>`}
     <div class="lc-card">
       <div class="lc-h"><h3>Resumen</h3><div class="lc-mon" role="group" aria-label="Moneda">${['DOP','USD','EUR'].map(x => `<button type="button" data-mon="${x}" aria-pressed="${x === m}">${MON[x]}</button>`).join('')}</div></div>
       <p class="lc-t">${esc(s.title)}</p>
-      <div class="lc-r"><span>Tasas oficiales<small>Lo que cobra ${esc(nomInst)}</small></span><b>${fmt(s.tax, m)}</b></div>
+      ${s.digital && !s.tax ? '' : `<div class="lc-r"><span>Tasas oficiales<small>Lo que cobra ${esc(nomInst)}</small></span><b>${fmt(s.tax, m)}</b></div>`}
       <div class="lc-r"><span>Honorarios TramitaFácil<small>Revisión, gestión y seguimiento</small></span><b>${fmt(s.fee, m)}</b></div>
       ${extras ? `<div class="lc-r x"><span>Recargos (${[ex ? 'Express' : '', en ? 'Envío' : ''].filter(Boolean).join(' + ')})</span><b>${fmt(extras, m)}</b></div>` : ''}
       <div class="lc-tot"><div class="k">Total estimado</div><div class="v">${fmt(tot, m)}</div>

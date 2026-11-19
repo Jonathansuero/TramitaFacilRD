@@ -29,6 +29,16 @@ def test_cotizacion_servicio_invalido():
     with pytest.raises(ValueError):
         calculos.cotizar(CAT, "no_existe")
 
+def test_tramite_digital_ignora_express_y_envio():
+    """Un trámite 100 % digital no cobra Express ni courier, aunque lo pidan."""
+    digitales = [k for k, s in CAT["servicios"].items() if s.get("digital")]
+    assert {"pagina_web_basico", "pagina_web_premium"} <= set(digitales)
+    for k in digitales:
+        r = calculos.cotizar(CAT, k, express=True, envio=True)
+        assert r["extras"] == 0
+        assert r["total"] == calculos.cotizar(CAT, k)["total"]
+
+
 
 def test_ipi_exento_y_gravado():
     assert calculos.calcular_ipi(5_000_000, 9_520_861)["exento"]
@@ -1011,7 +1021,7 @@ def test_servicio_trae_su_contenido_escrito_en_el_html(client):
     # los requisitos de la checklist también se escriben (el JavaScript los vuelve a pintar interactivos)
     poder = client.get("/servicios/poder-notarial-especial").get_data(as_text=True)
     assert "Datos completos del apoderado en RD" in poder.split("<body", 1)[1]
-    # los 41 trámites tienen su contenido propio, sin textos repetidos entre ellos
+    # todos los trámites tienen su contenido propio, sin textos repetidos entre ellos
     import app as _app
     servicios = _app.catalogo()["servicios"]
     assert all(x.get("intro") and len(x.get("como", [])) == 3 and x.get("entrega") and len(x.get("faq", [])) == 4
