@@ -2513,7 +2513,7 @@
         "ext",
         "mundo"
       ],
-      "desc": "Creamos la página web de tu negocio con dominio incluido, mantenimiento por un año y dos actualizaciones al mes. La dejamos activa en Google.",
+      "desc": "Creamos la página web de tu negocio con dominio incluido y mantenimiento por un año. La dejamos activa en Google.",
       "incluye": [
         "Plantilla adaptada a tu marca",
         "Página única (landing)",
@@ -2522,18 +2522,18 @@
         "SEO básico: activación en Google para que te encuentren",
         "Formulario de contacto básico",
         "1 revisión de diseño al mes",
-        "Mantenimiento durante un año y 2 actualizaciones al mes",
+        "Mantenimiento durante un año",
         "Entrega en 5 a 7 días"
       ],
       "inst": [],
       "digital": true,
       "seo_titulo": "Página web para tu negocio, con dominio incluido",
-      "seo": "Creamos la página web de tu negocio con dominio incluido, mantenimiento por un año, 2 actualizaciones al mes y activación en Google. Cotiza gratis.",
-      "intro": "Muchos clientes buscan primero en Google, y un negocio sin página web no aparece en esa búsqueda. El Plan Básico te da una página profesional para tu negocio, con su dominio, un año de mantenimiento y dos actualizaciones cada mes, ya activada en los buscadores. Es para emprendedores y negocios, dentro o fuera de República Dominicana, que quieren presencia en internet sin armar nada por su cuenta.",
+      "seo": "Creamos la página web de tu negocio con dominio incluido, mantenimiento por un año y activación en Google. Cotiza gratis.",
+      "intro": "Muchos clientes buscan primero en Google, y un negocio sin página web no aparece en esa búsqueda. El Plan Básico te da una página profesional para tu negocio, con su dominio, un año de mantenimiento, ya activada en los buscadores. Es para emprendedores y negocios, dentro o fuera de República Dominicana, que quieren presencia en internet sin armar nada por su cuenta.",
       "como": [
         "Nos cuentas a qué se dedica tu negocio, qué quieres mostrar y qué nombre de dominio te gustaría.",
         "Diseñamos y creamos tu página, registramos el dominio y la publicamos.",
-        "La activamos en los buscadores de Google y te la entregamos funcionando. Desde ahí tienes dos actualizaciones al mes durante el año de mantenimiento."
+        "La activamos en los buscadores de Google y te la entregamos funcionando, con el año de mantenimiento incluido."
       ],
       "entrega": "Recibes tu página web publicada en su propio dominio y activada en Google, en 5 a 7 días, con la dirección lista para compartirla con tus clientes.",
       "faq": [
@@ -2546,8 +2546,8 @@
           "a": "Durante un año nos encargamos de mantener tu página funcionando. Va incluido en el precio y no se cobra aparte."
         },
         {
-          "q": "¿Qué son las 2 actualizaciones al mes?",
-          "a": "Cada mes puedes pedirnos hasta dos cambios en tu página, como un precio, una foto o un texto. Nos escribes por WhatsApp y los hacemos por ti."
+          "q": "¿Puedo pedir cambios cada mes?",
+          "a": "Cada mes tienes una revisión de diseño incluida. Las actualizaciones mensuales de contenido forman parte del Plan Premium, no de este plan."
         },
         {
           "q": "¿Mi página va a aparecer en Google?",
@@ -2577,11 +2577,13 @@
       "incluye": [
         "Diseño personalizado",
         "Sitio de 5 a 7 secciones",
-        "Dominio, mantenimiento por un año y 2 actualizaciones al mes, como en el Básico",
+        "Dominio y mantenimiento por un año, como en el Básico",
+        "2 actualizaciones al mes",
         "Hosting por 1 año, con más capacidad",
         "SEO optimizado por secciones",
         "Formulario avanzado: cotizaciones, citas o reservas",
         "Estadísticas de visitas con Google Analytics y píxel de Meta",
+        "Seguimiento en tiempo real de cuántas personas visitan tu página web",
         "3 revisiones de diseño al mes",
         "Mensajes personalizados a WhatsApp",
         "Portal para darle seguimiento a tus clientes",
@@ -2595,13 +2597,13 @@
       "como": [
         "Nos cuentas cómo trabaja tu negocio: qué ofreces, qué pasos sigue cada cliente y qué mensajes quieres que reciba.",
         "Creamos tu página con su dominio y armamos el portal de seguimiento y los mensajes personalizados de WhatsApp.",
-        "Lo activamos en Google y te entregamos todo funcionando, con el año de mantenimiento y las dos actualizaciones al mes del Plan Básico."
+        "Lo activamos en Google y te entregamos todo funcionando, con el año de mantenimiento y las dos actualizaciones al mes."
       ],
       "entrega": "Recibes tu sitio web publicado y activado en Google, en 15 a 20 días, con el portal de seguimiento de clientes y los mensajes de WhatsApp ya configurados.",
       "faq": [
         {
           "q": "¿Qué diferencia hay con el Plan Básico?",
-          "a": "El Premium es un sitio de 5 a 7 secciones con diseño personalizado, SEO por secciones, formulario avanzado, estadísticas de visitas, 3 revisiones al mes, WhatsApp y portal de clientes. Tarda 15 a 20 días."
+          "a": "El Premium es un sitio de 5 a 7 secciones con diseño personalizado, SEO por secciones, formulario avanzado, estadísticas y seguimiento de visitas en tiempo real, 2 actualizaciones al mes, 3 revisiones, WhatsApp y portal de clientes."
         },
         {
           "q": "¿Qué es el portal de seguimiento?",
@@ -2613,7 +2615,7 @@
         },
         {
           "q": "¿Qué estadísticas de visitas incluye?",
-          "a": "El Premium incluye Google Analytics y el píxel de Meta, para saber cuánta gente visita tu sitio y poder medir tus anuncios. El Plan Básico no incluye estadísticas de visitas."
+          "a": "El Premium incluye Google Analytics y el píxel de Meta, y además un seguimiento en tiempo real de cuántas personas están visitando tu página web. El Plan Básico no incluye estadísticas de visitas."
         }
       ],
       "relacionados": [
