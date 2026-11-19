@@ -2497,6 +2497,115 @@
         "contrato_notarial",
         "declaracion_jurada"
       ]
+    },
+    "pagina_web_basico": {
+      "title": "Página Web Profesional – Plan Básico",
+      "slug": "pagina-web-plan-basico",
+      "tax": 0,
+      "fee": 14500,
+      "category": "empresas",
+      "paises": [
+        "rd",
+        "us",
+        "es",
+        "ext",
+        "mundo"
+      ],
+      "desc": "Creamos la página web de tu negocio con dominio incluido, mantenimiento por un año y dos actualizaciones al mes. La dejamos activa en Google.",
+      "incluye": [
+        "Diseño y creación de la página web de tu negocio",
+        "Dominio incluido",
+        "Mantenimiento durante un año",
+        "2 actualizaciones al mes",
+        "Activación en los buscadores de Google"
+      ],
+      "inst": [],
+      "seo_titulo": "Página web para tu negocio, con dominio incluido",
+      "seo": "Creamos la página web de tu negocio con dominio incluido, mantenimiento por un año, 2 actualizaciones al mes y activación en Google. Cotiza gratis.",
+      "intro": "Muchos clientes buscan primero en Google, y un negocio sin página web no aparece en esa búsqueda. El Plan Básico te da una página profesional para tu negocio, con su dominio, un año de mantenimiento y dos actualizaciones cada mes, ya activada en los buscadores. Es para emprendedores y negocios, dentro o fuera de República Dominicana, que quieren presencia en internet sin armar nada por su cuenta.",
+      "como": [
+        "Nos cuentas a qué se dedica tu negocio, qué quieres mostrar y qué nombre de dominio te gustaría.",
+        "Diseñamos y creamos tu página, registramos el dominio y la publicamos.",
+        "La activamos en los buscadores de Google y te la entregamos funcionando. Desde ahí tienes dos actualizaciones al mes durante el año de mantenimiento."
+      ],
+      "entrega": "Recibes tu página web publicada en su propio dominio y activada en Google, con la dirección lista para compartirla con tus clientes.",
+      "faq": [
+        {
+          "q": "¿Qué incluye el dominio?",
+          "a": "El dominio es la dirección de tu página, por ejemplo minegocio.com, y va incluido en el precio. Tú eliges el nombre y nosotros lo registramos."
+        },
+        {
+          "q": "¿Qué significa el mantenimiento por un año?",
+          "a": "Durante un año nos encargamos de mantener tu página funcionando. Va incluido en el precio y no se cobra aparte."
+        },
+        {
+          "q": "¿Qué son las 2 actualizaciones al mes?",
+          "a": "Cada mes puedes pedirnos hasta dos cambios en tu página, como un precio, una foto o un texto. Nos escribes por WhatsApp y los hacemos por ti."
+        },
+        {
+          "q": "¿Mi página va a aparecer en Google?",
+          "a": "La dejamos activada en los buscadores de Google, que es lo que permite que te encuentren. En qué lugar sales en los resultados depende de varios factores y no se puede garantizar."
+        }
+      ],
+      "relacionados": [
+        "pagina_web_premium",
+        "registro_empresa_onapi",
+        "constitucion_empresas"
+      ]
+    },
+    "pagina_web_premium": {
+      "title": "Página Web Profesional – Plan Premium",
+      "slug": "pagina-web-plan-premium",
+      "tax": 0,
+      "fee": 24900,
+      "category": "empresas",
+      "paises": [
+        "rd",
+        "us",
+        "es",
+        "ext",
+        "mundo"
+      ],
+      "desc": "Todo lo del Plan Básico, más mensajes personalizados por WhatsApp y un portal para darle seguimiento a tus clientes.",
+      "incluye": [
+        "Todo lo del Plan Básico: página web, dominio, un año de mantenimiento y 2 actualizaciones al mes",
+        "Activación en los buscadores de Google",
+        "Mensajes personalizados a WhatsApp",
+        "Portal para darle seguimiento a tus clientes"
+      ],
+      "inst": [],
+      "seo_titulo": "Página web con WhatsApp y portal de clientes",
+      "seo": "Página web para tu negocio con mensajes personalizados por WhatsApp y un portal para dar seguimiento a tus clientes, más dominio, mantenimiento y Google.",
+      "intro": "El Plan Premium es para el negocio que no solo quiere mostrarse en internet, sino atender mejor a sus clientes. Incluye todo lo del Plan Básico y le suma mensajes personalizados que salen por WhatsApp y un portal para darle seguimiento a cada cliente. Sirve a negocios de servicios que reciben solicitudes y quieren llevar el control de cada una en un solo lugar.",
+      "como": [
+        "Nos cuentas cómo trabaja tu negocio: qué ofreces, qué pasos sigue cada cliente y qué mensajes quieres que reciba.",
+        "Creamos tu página con su dominio y armamos el portal de seguimiento y los mensajes personalizados de WhatsApp.",
+        "Lo activamos en Google y te entregamos todo funcionando, con el año de mantenimiento y las dos actualizaciones al mes del Plan Básico."
+      ],
+      "entrega": "Recibes tu página web publicada y activada en Google, con el portal de seguimiento de clientes y los mensajes de WhatsApp ya configurados.",
+      "faq": [
+        {
+          "q": "¿Qué diferencia hay con el Plan Básico?",
+          "a": "El Premium incluye todo lo del Básico y le suma dos cosas: mensajes personalizados que salen por WhatsApp y un portal para darle seguimiento a tus clientes."
+        },
+        {
+          "q": "¿Qué es el portal de seguimiento?",
+          "a": "Es un portal para darle seguimiento a tus clientes: ver en qué va cada uno y llevar el control de todos en un solo lugar."
+        },
+        {
+          "q": "¿Qué son los mensajes personalizados de WhatsApp?",
+          "a": "Son mensajes con el nombre y los datos de cada cliente, que salen por WhatsApp para mantenerlo informado, en lugar de un mensaje igual para todos."
+        },
+        {
+          "q": "¿Incluye dominio, mantenimiento y Google?",
+          "a": "Sí. El Premium trae lo mismo que el Básico: dominio incluido, mantenimiento por un año, dos actualizaciones al mes y activación en los buscadores de Google."
+        }
+      ],
+      "relacionados": [
+        "pagina_web_basico",
+        "constitucion_empresas",
+        "registro_empresa_onapi"
+      ]
     }
   },
   "checklists": {

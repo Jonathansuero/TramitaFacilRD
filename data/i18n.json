@@ -27,9 +27,9 @@
       "Démarches dominicaines depuis l'étranger : services et tarifs"
     ],
     "meta.servicios.desc": [
-      "Apostillas, actas, pasaportes, poderes, traspasos y más: 41 trámites dominicanos que resolvemos por ti desde donde estés. Cotiza gratis en RD$, US$ o €.",
-      "Apostilles, certificates, passports, powers of attorney, vehicle transfers and more: 41 Dominican services we handle for you wherever you are. Free quote.",
-      "Apostilles, actes, passeports, procurations, transferts et plus : 41 démarches dominicaines que nous réalisons où que vous soyez. Devis gratuit."
+      "Apostillas, actas, pasaportes, poderes, traspasos y más: 43 trámites dominicanos que resolvemos por ti desde donde estés. Cotiza gratis en RD$, US$ o €.",
+      "Apostilles, certificates, passports, powers of attorney, vehicle transfers and more: 43 Dominican services we handle for you wherever you are. Free quote.",
+      "Apostilles, actes, passeports, procurations, transferts et plus : 43 démarches dominicaines que nous réalisons où que vous soyez. Devis gratuit."
     ],
     "meta.diaspora.title": [
       "Trámites dominicanos desde EE.UU., España o cualquier país",
@@ -3055,6 +3055,14 @@
         "creacion_cv": [
           "Professional Résumé (CV) Writing",
           "We write and design your CV in Spanish or English, ready for jobs in the DR or abroad. Delivered in PDF and Word."
+        ],
+        "pagina_web_basico": [
+          "Professional Website – Basic Plan",
+          "We build your business website with domain included, one year of maintenance and two updates a month. We get it live on Google."
+        ],
+        "pagina_web_premium": [
+          "Professional Website – Premium Plan",
+          "Everything in the Basic Plan, plus personalized WhatsApp messages and a portal to follow up with your clients."
         ]
       },
       "checklists": {
@@ -3563,6 +3571,14 @@
         "creacion_cv": [
           "Rédaction de CV professionnel",
           "Nous rédigeons et mettons en page votre CV en espagnol ou en anglais, prêt pour des emplois en RD ou à l'étranger. Livré en PDF et Word."
+        ],
+        "pagina_web_basico": [
+          "Site web professionnel – Formule Basique",
+          "Nous créons le site web de votre entreprise avec nom de domaine inclus, un an de maintenance et deux mises à jour par mois. Nous l'activons sur Google."
+        ],
+        "pagina_web_premium": [
+          "Site web professionnel – Formule Premium",
+          "Tout ce qui est dans la formule Basique, plus des messages WhatsApp personnalisés et un portail de suivi de vos clients."
         ]
       },
       "checklists": {
