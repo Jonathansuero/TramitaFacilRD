@@ -2515,11 +2515,15 @@
       ],
       "desc": "Creamos la página web de tu negocio con dominio incluido, mantenimiento por un año y dos actualizaciones al mes. La dejamos activa en Google.",
       "incluye": [
-        "Diseño y creación de la página web de tu negocio",
+        "Plantilla adaptada a tu marca",
+        "Página única (landing)",
         "Dominio incluido",
-        "Mantenimiento durante un año",
-        "2 actualizaciones al mes",
-        "Activación en los buscadores de Google"
+        "Hosting por 1 año",
+        "SEO básico: activación en Google para que te encuentren",
+        "Formulario de contacto básico",
+        "1 revisión de diseño al mes",
+        "Mantenimiento durante un año y 2 actualizaciones al mes",
+        "Entrega en 5 a 7 días"
       ],
       "inst": [],
       "digital": true,
@@ -2531,11 +2535,11 @@
         "Diseñamos y creamos tu página, registramos el dominio y la publicamos.",
         "La activamos en los buscadores de Google y te la entregamos funcionando. Desde ahí tienes dos actualizaciones al mes durante el año de mantenimiento."
       ],
-      "entrega": "Recibes tu página web publicada en su propio dominio y activada en Google, con la dirección lista para compartirla con tus clientes.",
+      "entrega": "Recibes tu página web publicada en su propio dominio y activada en Google, en 5 a 7 días, con la dirección lista para compartirla con tus clientes.",
       "faq": [
         {
-          "q": "¿Qué incluye el dominio?",
-          "a": "El dominio es la dirección de tu página, por ejemplo minegocio.com, y va incluido en el precio. Tú eliges el nombre y nosotros lo registramos."
+          "q": "¿Qué tipo de página es?",
+          "a": "Es una página única (landing), con una plantilla adaptada a la marca de tu negocio, y puedes pedir una revisión de diseño cada mes. Se entrega en 5 a 7 días."
         },
         {
           "q": "¿Qué significa el mantenimiento por un año?",
@@ -2571,9 +2575,17 @@
       ],
       "desc": "Todo lo del Plan Básico, más mensajes personalizados por WhatsApp y un portal para darle seguimiento a tus clientes.",
       "incluye": [
-        "Todo lo del Plan Básico",
+        "Diseño personalizado",
+        "Sitio de 5 a 7 secciones",
+        "Dominio, mantenimiento por un año y 2 actualizaciones al mes, como en el Básico",
+        "Hosting por 1 año, con más capacidad",
+        "SEO optimizado por secciones",
+        "Formulario avanzado: cotizaciones, citas o reservas",
+        "Estadísticas de visitas con Google Analytics y píxel de Meta",
+        "3 revisiones de diseño al mes",
         "Mensajes personalizados a WhatsApp",
-        "Portal para darle seguimiento a tus clientes"
+        "Portal para darle seguimiento a tus clientes",
+        "Entrega en 15 a 20 días"
       ],
       "inst": [],
       "digital": true,
@@ -2585,11 +2597,11 @@
         "Creamos tu página con su dominio y armamos el portal de seguimiento y los mensajes personalizados de WhatsApp.",
         "Lo activamos en Google y te entregamos todo funcionando, con el año de mantenimiento y las dos actualizaciones al mes del Plan Básico."
       ],
-      "entrega": "Recibes tu página web publicada y activada en Google, con el portal de seguimiento de clientes y los mensajes de WhatsApp ya configurados.",
+      "entrega": "Recibes tu sitio web publicado y activado en Google, en 15 a 20 días, con el portal de seguimiento de clientes y los mensajes de WhatsApp ya configurados.",
       "faq": [
         {
           "q": "¿Qué diferencia hay con el Plan Básico?",
-          "a": "El Premium incluye todo lo del Básico y le suma dos cosas: mensajes personalizados que salen por WhatsApp y un portal para darle seguimiento a tus clientes."
+          "a": "El Premium es un sitio de 5 a 7 secciones con diseño personalizado, SEO por secciones, formulario avanzado, estadísticas de visitas, 3 revisiones al mes, WhatsApp y portal de clientes. Tarda 15 a 20 días."
         },
         {
           "q": "¿Qué es el portal de seguimiento?",
@@ -2600,8 +2612,8 @@
           "a": "Son mensajes con el nombre y los datos de cada cliente, que salen por WhatsApp para mantenerlo informado, en lugar de un mensaje igual para todos."
         },
         {
-          "q": "¿Incluye dominio, mantenimiento y Google?",
-          "a": "Sí. El Premium trae lo mismo que el Básico: dominio incluido, mantenimiento por un año, dos actualizaciones al mes y activación en los buscadores de Google."
+          "q": "¿Qué estadísticas de visitas incluye?",
+          "a": "El Premium incluye Google Analytics y el píxel de Meta, para saber cuánta gente visita tu sitio y poder medir tus anuncios. El Plan Básico no incluye estadísticas de visitas."
         }
       ],
       "relacionados": [
