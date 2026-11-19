@@ -43,6 +43,9 @@ def cotizar(catalogo: dict, servicio: str, express: bool = False, envio: bool = 
 
     cfg = catalogo["config"]
     s = servicios[servicio]
+    # Un trámite digital (sin institución ni documentos físicos) no tiene Express ni courier.
+    if s.get("digital"):
+        express = envio = False
     extras = (cfg["express_fee"] if express else 0) + (cfg["delivery_fee"] if envio else 0)
     total_dop = s["tax"] + s["fee"] + extras
     tasa = _tasas(catalogo, tasas)[moneda]

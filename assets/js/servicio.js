@@ -19,6 +19,11 @@
         const s = SERV[id], tr = tc('servicios', id), cat = tc('categorias', s.category);
         // En español manda el título pensado para Google; en otros idiomas, el nombre traducido
         document.title = (state.lang === 'es' && s.seo_titulo) || tr.title;
+        // Trámite 100 % digital: sin Express, courier, institución ni poder. Se adapta la página.
+        const dig = !!s.digital;
+        ['sPasosBox', 'sInstBox', 'pExpRow', 'pEnvRow', 'sExterior'].forEach(x => $(x).classList.toggle('hidden', dig));
+        $('pTax').parentElement.classList.toggle('hidden', dig && !s.tax);
+        if (dig) { $('pExp').checked = false; $('pEnv').checked = false; }
         pintarExtra();
         $('sTiempo').innerHTML = TF.tiempoHtml(id, 'tiempo-oscuro');
         $('bcCat').textContent = cat.label;
@@ -68,7 +73,7 @@
         const wa = ct.whatsapp($('cPrefijo').value, $('cTel').value), email = $('cEmail').value.trim();
         return { nombre: $('cNombre').value.trim(), whatsapp: wa, email, contacto: [wa, email].filter(Boolean).join(' · '),
             pais: $('cPais').value, servicio: id, mensaje: $('cMensaje').value.trim(), acepta: $('cAcepta').checked, web: $('cWeb').value,
-            express: $('pExp').checked, envio: $('pEnv').checked, moneda: state.moneda, idioma: state.lang, pais_detalle: state.detalle || '' };
+            express: !SERV[id].digital && $('pExp').checked, envio: !SERV[id].digital && $('pEnv').checked, moneda: state.moneda, idioma: state.lang, pais_detalle: state.detalle || '' };
     }
     function validarConfirmar(d) {
         const err = [];
@@ -155,7 +160,7 @@
 
     function precio() {
         incluye();
-        const s = SERV[id], exp = $('pExp').checked, env = $('pEnv').checked;
+        const s = SERV[id], exp = !s.digital && $('pExp').checked, env = !s.digital && $('pEnv').checked;
         $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
         $('pTax').textContent = money(s.tax); $('pFee').textContent = money(s.fee);
         $('pExpV').textContent = '+ ' + money(C.express_fee); $('pEnvV').textContent = '+ ' + money(C.delivery_fee);
