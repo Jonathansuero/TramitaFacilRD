@@ -3153,6 +3153,42 @@
         "pagina_web_premium": [
           "Professional Website – Premium Plan",
           "Everything in the Basic Plan, plus personalized WhatsApp messages and a portal to follow up with your clients."
+        ],
+        "cert_cedula_vip": [
+          "ID Card Certification VIP (Electoral Registry)",
+          "VIP service for Electoral Registry certifications from the JCE."
+        ],
+        "cert_cedula_legales": [
+          "ID Card Certification for legal purposes (JCE)",
+          "ID card certification issued by the JCE for legal procedures and purposes."
+        ],
+        "cert_cedula_judiciales": [
+          "ID Card Certification for judicial purposes (JCE)",
+          "ID card certification issued by the JCE for courts and judicial proceedings."
+        ],
+        "cert_cedula_fiscalias": [
+          "ID Card Certification for prosecutors’ offices (JCE)",
+          "ID card certification issued by the JCE to submit to the prosecutors’ offices."
+        ],
+        "cert_cedula_dgii": [
+          "ID Card Certification for the tax authority (DGII) (JCE)",
+          "ID card certification issued by the JCE to submit to the DGII."
+        ],
+        "cert_cedula_registro_titulos": [
+          "ID Card Certification for the Land Registry, Real Estate Jurisdiction and related bodies (JCE)",
+          "ID card certification issued by the JCE for the Land Registry, the Real Estate Jurisdiction and related bodies."
+        ],
+        "cert_cedula_bancos": [
+          "ID Card Certification for banks (JCE)",
+          "ID card certification issued by the JCE to submit to banks."
+        ],
+        "cert_cedula_pasaportes": [
+          "ID Card Certification for the Passport Office and/or consulates (JCE)",
+          "ID card certification issued by the JCE for the Passport Office and/or consulates."
+        ],
+        "cert_cedula_otras": [
+          "ID Card Certification for other purposes and institutions (JCE)",
+          "ID card certification issued by the JCE for other institutions and purposes."
         ]
       },
       "checklists": {
@@ -3250,6 +3286,78 @@
             "Studies, courses and certifications",
             "Work experience: companies, positions and dates",
             "Job or country you want to apply to"
+          ]
+        ],
+        "cert_cedula_vip": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "cert_cedula_legales": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "cert_cedula_judiciales": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "cert_cedula_fiscalias": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "cert_cedula_dgii": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "cert_cedula_registro_titulos": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "cert_cedula_bancos": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "cert_cedula_pasaportes": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "cert_cedula_otras": [
+          "JCE ID card",
+          [
+            "Copy of Dominican ID",
+            "Institution where you will submit the certification",
+            "Any extra details the JCE asks for your case (we confirm them)"
           ]
         ]
       },
@@ -3669,6 +3777,42 @@
         "pagina_web_premium": [
           "Site web professionnel – Formule Premium",
           "Tout ce qui est dans la formule Basique, plus des messages WhatsApp personnalisés et un portail de suivi de vos clients."
+        ],
+        "cert_cedula_vip": [
+          "Certification de carte d’identité VIP (Registre électoral)",
+          "Service VIP de certifications du Registre électoral de la JCE."
+        ],
+        "cert_cedula_legales": [
+          "Certification de carte d’identité pour fins légales (JCE)",
+          "Certification de votre carte d’identité délivrée par la JCE pour des démarches et fins légales."
+        ],
+        "cert_cedula_judiciales": [
+          "Certification de carte d’identité pour fins judiciaires (JCE)",
+          "Certification de votre carte d’identité délivrée par la JCE pour les tribunaux et procédures judiciaires."
+        ],
+        "cert_cedula_fiscalias": [
+          "Certification de carte d’identité pour parquets (JCE)",
+          "Certification de votre carte d’identité délivrée par la JCE à présenter aux parquets."
+        ],
+        "cert_cedula_dgii": [
+          "Certification de carte d’identité pour la Direction des impôts (DGII) (JCE)",
+          "Certification de votre carte d’identité délivrée par la JCE à présenter à la DGII."
+        ],
+        "cert_cedula_registro_titulos": [
+          "Certification de carte d’identité pour le Registre foncier, la Juridiction immobilière et organismes liés (JCE)",
+          "Certification de votre carte d’identité délivrée par la JCE pour le Registre foncier, la Juridiction immobilière et organismes liés."
+        ],
+        "cert_cedula_bancos": [
+          "Certification de carte d’identité pour banques (JCE)",
+          "Certification de votre carte d’identité délivrée par la JCE à présenter aux banques."
+        ],
+        "cert_cedula_pasaportes": [
+          "Certification de carte d’identité pour la Direction des passeports et/ou les consulats (JCE)",
+          "Certification de votre carte d’identité délivrée par la JCE pour la Direction des passeports et/ou les consulats."
+        ],
+        "cert_cedula_otras": [
+          "Certification de carte d’identité pour autres fins et institutions (JCE)",
+          "Certification de votre carte d’identité délivrée par la JCE pour d’autres institutions et fins."
         ]
       },
       "checklists": {
@@ -3766,6 +3910,78 @@
             "Études, formations et certifications",
             "Expérience professionnelle : entreprises, postes et dates",
             "Poste ou pays visé"
+          ]
+        ],
+        "cert_cedula_vip": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "cert_cedula_legales": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "cert_cedula_judiciales": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "cert_cedula_fiscalias": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "cert_cedula_dgii": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "cert_cedula_registro_titulos": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "cert_cedula_bancos": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "cert_cedula_pasaportes": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "cert_cedula_otras": [
+          "Carte JCE",
+          [
+            "Copie de la carte d’identité dominicaine",
+            "Institution où vous présenterez la certification",
+            "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
           ]
         ]
       },
