@@ -3,6 +3,7 @@
     "whatsapp": "18492431206",
     "email": "Tramitafacilrd@gmail.com",
     "instagram": "TramitaFacilRD",
+    "itbis": 0.18,
     "express_fee": 1750,
     "delivery_fee": 600,
     "ipi_exencion": 9520861,
@@ -2669,7 +2670,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "Para Fines Legales, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "Para Fines Legales, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para trámites y fines legales, con la tasa oficial que publica la JCE.",
@@ -2724,7 +2725,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "Para Fines Judiciales, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "Para Fines Judiciales, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para tribunales y procesos judiciales, con la tasa oficial que publica la JCE.",
@@ -2779,7 +2780,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "Para Fiscalías, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "Para Fiscalías, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para presentarla ante las fiscalías, con la tasa oficial que publica la JCE.",
@@ -2834,7 +2835,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "Para Dirección General de Impuestos Internos, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "Para Dirección General de Impuestos Internos, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para presentarla ante la DGII, con la tasa oficial que publica la JCE.",
@@ -2889,7 +2890,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "Para Registro de Títulos, Jurisdicción Inmobiliaria e Instituciones Afines, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "Para Registro de Títulos, Jurisdicción Inmobiliaria e Instituciones Afines, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para el Registro de Títulos, la Jurisdicción Inmobiliaria e instituciones afines, con la tasa oficial que publica la JCE.",
@@ -2944,7 +2945,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "Para Bancos, la tasa oficial de la JCE es RD$ 2,000 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "Para Bancos, la tasa oficial de la JCE es RD$ 2,000 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 4,720, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para presentarla en bancos, con la tasa oficial que publica la JCE.",
@@ -2999,7 +3000,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "Para Dirección General de Pasaportes y/o Consulares, la tasa oficial de la JCE es RD$ 1,500 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "Para Dirección General de Pasaportes y/o Consulares, la tasa oficial de la JCE es RD$ 1,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 4,130, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para la Dirección General de Pasaportes y/o los consulados, con la tasa oficial que publica la JCE.",
@@ -3054,7 +3055,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "Para Fines Correspondientes y Otras Instituciones, la tasa oficial de la JCE es RD$ 1,500 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "Para Fines Correspondientes y Otras Instituciones, la tasa oficial de la JCE es RD$ 1,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 4,130, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para otras instituciones y fines correspondientes, con la tasa oficial que publica la JCE.",
@@ -3109,7 +3110,7 @@
         },
         {
           "q": "¿Cuánto cuesta?",
-          "a": "La tasa oficial de la JCE es RD$ 1,000 y nuestros honorarios son RD$ 2,000. Ves el total en la cotización, antes de pagar."
+          "a": "La tasa oficial de la JCE es RD$ 1,000 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 3,540, y lo ves en la cotización antes de pagar."
         }
       ],
       "intro": "La JCE publica un servicio VIP para certificaciones del Registro Electoral. Si lo necesitas, nosotros pagamos la tasa y lo gestionamos por ti, con el precio claro desde la cotización.",

@@ -57,7 +57,7 @@
                     <button type="button" class="crs-btn crs-btn-rojo crs-btn-grande" data-iniciar="${esc(c.servicio)}">${esc(t('crs.iniciar'))} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>
                 </div>` : `                <div class="crs-pie">
                     <div class="crs-serv"><a href="${TF.servUrl(c.servicio)}">${esc(tr.title)}</a>
-                        <span>${esc(t('precio.desde'))} <strong>${money(s.tax + s.fee)}</strong>${tiempo ? ` · <i class="fa-regular fa-clock" aria-hidden="true"></i> ${esc(tiempo.txt)}` : ''}</span></div>
+                        <span>${esc(t('precio.desde'))} <strong>${money(TF.precio(s).final)}</strong>${tiempo ? ` · <i class="fa-regular fa-clock" aria-hidden="true"></i> ${esc(tiempo.txt)}` : ''}</span></div>
                     <div class="crs-botones">
                         <button type="button" class="crs-btn crs-btn-borde" data-calcular="${esc(c.servicio)}"><i class="fa-solid fa-calculator" aria-hidden="true"></i> ${esc(t('casos.calcular'))}</button>
                         <button type="button" class="crs-btn crs-btn-rojo" data-iniciar="${esc(c.servicio)}">${esc(t('casos.inicia'))} <i class="fa-solid fa-arrow-right" aria-hidden="true"></i></button>

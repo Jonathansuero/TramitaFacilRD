@@ -34,7 +34,7 @@
             <p class="text-sm text-slate-600 mt-4">${esc(tr.desc)}</p>
             <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 mt-6 mb-3">${esc(t('instp.tramites'))}</h3>
             <div class="space-y-2">${lista.map(k => `<a href="${TF.servUrl(k)}" class="flex items-center justify-between gap-3 p-3 rounded-xl border border-slate-200 hover:border-domBlue hover:bg-sky-50 transition-colors">
-                <span class="text-sm font-semibold text-slate-800">${esc(tc('servicios', k).title)}</span><span class="text-xs font-bold text-domBlue whitespace-nowrap">${money(SERV[k].tax + SERV[k].fee)} →</span></a>`).join('')}</div>
+                <span class="text-sm font-semibold text-slate-800">${esc(tc('servicios', k).title)}</span><span class="text-xs font-bold text-domBlue whitespace-nowrap">${money(TF.precio(SERV[k]).final)} →</span></a>`).join('')}</div>
             <a href="${waLink(saludo(t('wa.inst', { inst: tr.nombre })))}" target="_blank" rel="noopener" class="mt-6 flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold py-3 rounded-xl"><i class="fa-brands fa-whatsapp"></i> ${esc(t('instp.consultar'))}</a>
             <p class="text-[11px] text-slate-400 mt-4">${esc(t('inst.aviso'))}</p>`;
         const dr = $('iDrawer');

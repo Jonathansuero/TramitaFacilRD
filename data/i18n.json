@@ -2875,6 +2875,11 @@
       "Al entregar",
       "On delivery",
       "À la remise"
+    ],
+    "calc.itbis": [
+      "ITBIS (18%)",
+      "ITBIS tax (18%)",
+      "ITBIS (18 %)"
     ]
   },
   "contenido": {
