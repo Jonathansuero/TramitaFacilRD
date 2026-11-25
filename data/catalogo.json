@@ -2624,6 +2624,501 @@
         "constitucion_empresas",
         "registro_empresa_onapi"
       ]
+    },
+    "cert_cedula_legales": {
+      "title": "Certificación de Cédula para Fines Legales (JCE)",
+      "slug": "certificacion-cedula-fines-legales",
+      "tax": 2500,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Certificación de tu cédula expedida por la JCE para trámites y fines legales.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud de la certificación en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula JCE: Fines Legales",
+      "seo": "Pedimos tu certificación de cédula en la JCE para trámites y fines legales: pagamos la tasa y la gestionamos por ti. Cotiza gratis con el precio claro.",
+      "como": [
+        "Nos dices para qué institución necesitas la certificación y nos das los datos de tu cédula.",
+        "Pagamos la tasa oficial y solicitamos la certificación en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es la certificación de cédula?",
+          "a": "Es un documento de la Junta Central Electoral que certifica los datos de tu cédula; esta versión es la que corresponde para trámites y fines legales."
+        },
+        {
+          "q": "¿Por qué hay una tasa para cada institución?",
+          "a": "Porque la JCE publica una tarifa por tipo de uso. Para Fines Legales es RD$ 2,500, y por eso te preguntamos primero dónde la vas a presentar."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "Escríbenos con tu caso. Antes de que pagues, te confirmamos qué datos o documentos pide la JCE para la certificación para trámites y fines legales."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "Para Fines Legales, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para trámites y fines legales, con la tasa oficial que publica la JCE.",
+      "relacionados": [
+        "certificacion_solteria",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
+    },
+    "cert_cedula_judiciales": {
+      "title": "Certificación de Cédula para Fines Judiciales (JCE)",
+      "slug": "certificacion-cedula-fines-judiciales",
+      "tax": 2500,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Certificación de tu cédula expedida por la JCE para tribunales y procesos judiciales.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud de la certificación en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula JCE: Fines Judiciales",
+      "seo": "Pedimos tu certificación de cédula en la JCE para tribunales y procesos judiciales: pagamos la tasa y la gestionamos por ti. Cotiza gratis con el precio claro.",
+      "como": [
+        "Nos dices para qué institución necesitas la certificación y nos das los datos de tu cédula.",
+        "Pagamos la tasa oficial y solicitamos la certificación en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es la certificación de cédula?",
+          "a": "Es un documento de la Junta Central Electoral que certifica los datos de tu cédula; esta versión es la que corresponde para tribunales y procesos judiciales."
+        },
+        {
+          "q": "¿Por qué hay una tasa para cada institución?",
+          "a": "Porque la JCE publica una tarifa por tipo de uso. Para Fines Judiciales es RD$ 2,500, y por eso te preguntamos primero dónde la vas a presentar."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "Escríbenos con tu caso. Antes de que pagues, te confirmamos qué datos o documentos pide la JCE para la certificación para tribunales y procesos judiciales."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "Para Fines Judiciales, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para tribunales y procesos judiciales, con la tasa oficial que publica la JCE.",
+      "relacionados": [
+        "certificacion_solteria",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
+    },
+    "cert_cedula_fiscalias": {
+      "title": "Certificación de Cédula para Fiscalías (JCE)",
+      "slug": "certificacion-cedula-fiscalias",
+      "tax": 2500,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Certificación de tu cédula expedida por la JCE para presentarla ante las fiscalías.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud de la certificación en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula JCE: Fiscalías",
+      "seo": "Pedimos tu certificación de cédula en la JCE para presentarla ante las fiscalías: pagamos la tasa y la gestionamos por ti. Cotiza gratis con el precio claro.",
+      "como": [
+        "Nos dices para qué institución necesitas la certificación y nos das los datos de tu cédula.",
+        "Pagamos la tasa oficial y solicitamos la certificación en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es la certificación de cédula?",
+          "a": "Es un documento de la Junta Central Electoral que certifica los datos de tu cédula; esta versión es la que corresponde para presentarla ante las fiscalías."
+        },
+        {
+          "q": "¿Por qué hay una tasa para cada institución?",
+          "a": "Porque la JCE publica una tarifa por tipo de uso. Para Fiscalías es RD$ 2,500, y por eso te preguntamos primero dónde la vas a presentar."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "Escríbenos con tu caso. Antes de que pagues, te confirmamos qué datos o documentos pide la JCE para la certificación para presentarla ante las fiscalías."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "Para Fiscalías, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para presentarla ante las fiscalías, con la tasa oficial que publica la JCE.",
+      "relacionados": [
+        "certificacion_solteria",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
+    },
+    "cert_cedula_dgii": {
+      "title": "Certificación de Cédula para Dirección General de Impuestos Internos (JCE)",
+      "slug": "certificacion-cedula-dgii",
+      "tax": 2500,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Certificación de tu cédula expedida por la JCE para presentarla ante la DGII.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud de la certificación en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula JCE: Dirección General de Impuestos",
+      "seo": "Pedimos tu certificación de cédula en la JCE para presentarla ante la DGII: pagamos la tasa y la gestionamos por ti. Cotiza gratis con el precio claro.",
+      "como": [
+        "Nos dices para qué institución necesitas la certificación y nos das los datos de tu cédula.",
+        "Pagamos la tasa oficial y solicitamos la certificación en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es la certificación de cédula?",
+          "a": "Es un documento de la Junta Central Electoral que certifica los datos de tu cédula; esta versión es la que corresponde para presentarla ante la DGII."
+        },
+        {
+          "q": "¿Por qué hay una tasa para cada institución?",
+          "a": "Porque la JCE publica una tarifa por tipo de uso. Para Dirección General de Impuestos Internos es RD$ 2,500, y por eso te preguntamos primero dónde la vas a presentar."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "Escríbenos con tu caso. Antes de que pagues, te confirmamos qué datos o documentos pide la JCE para la certificación para presentarla ante la DGII."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "Para Dirección General de Impuestos Internos, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para presentarla ante la DGII, con la tasa oficial que publica la JCE.",
+      "relacionados": [
+        "certificacion_solteria",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
+    },
+    "cert_cedula_registro_titulos": {
+      "title": "Certificación de Cédula para Registro de Títulos, Jurisdicción Inmobiliaria e Instituciones Afines (JCE)",
+      "slug": "certificacion-cedula-registro-de-titulos",
+      "tax": 2500,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Certificación de tu cédula expedida por la JCE para el Registro de Títulos, la Jurisdicción Inmobiliaria e instituciones afines.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud de la certificación en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula JCE: Registro de Títulos",
+      "seo": "Pedimos tu certificación de cédula en la JCE para el Registro de Títulos y la Jurisdicción Inmobiliaria: pagamos la tasa y la gestionamos. Cotiza gratis.",
+      "como": [
+        "Nos dices para qué institución necesitas la certificación y nos das los datos de tu cédula.",
+        "Pagamos la tasa oficial y solicitamos la certificación en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es la certificación de cédula?",
+          "a": "Es un documento de la Junta Central Electoral que certifica los datos de tu cédula; esta versión es la que corresponde para el Registro de Títulos, la Jurisdicción Inmobiliaria e instituciones afines."
+        },
+        {
+          "q": "¿Por qué hay una tasa para cada institución?",
+          "a": "Porque la JCE publica una tarifa por tipo de uso. Para Registro de Títulos, Jurisdicción Inmobiliaria e Instituciones Afines es RD$ 2,500, y por eso te preguntamos primero dónde la vas a presentar."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "Escríbenos con tu caso. Antes de que pagues, te confirmamos qué datos o documentos pide la JCE para la certificación para el Registro de Títulos, la Jurisdicción Inmobiliaria e instituciones afines."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "Para Registro de Títulos, Jurisdicción Inmobiliaria e Instituciones Afines, la tasa oficial de la JCE es RD$ 2,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 5,310, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para el Registro de Títulos, la Jurisdicción Inmobiliaria e instituciones afines, con la tasa oficial que publica la JCE.",
+      "relacionados": [
+        "certificacion_solteria",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
+    },
+    "cert_cedula_bancos": {
+      "title": "Certificación de Cédula para Bancos (JCE)",
+      "slug": "certificacion-cedula-bancos",
+      "tax": 2000,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Certificación de tu cédula expedida por la JCE para presentarla en bancos.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud de la certificación en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula JCE: Bancos",
+      "seo": "Pedimos tu certificación de cédula en la JCE para presentarla en bancos: pagamos la tasa y la gestionamos por ti. Cotiza gratis con el precio claro.",
+      "como": [
+        "Nos dices para qué institución necesitas la certificación y nos das los datos de tu cédula.",
+        "Pagamos la tasa oficial y solicitamos la certificación en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es la certificación de cédula?",
+          "a": "Es un documento de la Junta Central Electoral que certifica los datos de tu cédula; esta versión es la que corresponde para presentarla en bancos."
+        },
+        {
+          "q": "¿Por qué hay una tasa para cada institución?",
+          "a": "Porque la JCE publica una tarifa por tipo de uso. Para Bancos es RD$ 2,000, y por eso te preguntamos primero dónde la vas a presentar."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "Escríbenos con tu caso. Antes de que pagues, te confirmamos qué datos o documentos pide la JCE para la certificación para presentarla en bancos."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "Para Bancos, la tasa oficial de la JCE es RD$ 2,000 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 4,720, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para presentarla en bancos, con la tasa oficial que publica la JCE.",
+      "relacionados": [
+        "certificacion_solteria",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
+    },
+    "cert_cedula_pasaportes": {
+      "title": "Certificación de Cédula para Dirección General de Pasaportes y/o Consulares (JCE)",
+      "slug": "certificacion-cedula-pasaportes-consulados",
+      "tax": 1500,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Certificación de tu cédula expedida por la JCE para la Dirección General de Pasaportes y/o los consulados.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud de la certificación en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula JCE: Dirección General de Pasaporte",
+      "seo": "Pedimos tu certificación de cédula en la JCE para el Registro de Títulos y la Jurisdicción Inmobiliaria: pagamos la tasa y la gestionamos. Cotiza gratis.",
+      "como": [
+        "Nos dices para qué institución necesitas la certificación y nos das los datos de tu cédula.",
+        "Pagamos la tasa oficial y solicitamos la certificación en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es la certificación de cédula?",
+          "a": "Es un documento de la Junta Central Electoral que certifica los datos de tu cédula; esta versión es la que corresponde para la Dirección General de Pasaportes y/o los consulados."
+        },
+        {
+          "q": "¿Por qué hay una tasa para cada institución?",
+          "a": "Porque la JCE publica una tarifa por tipo de uso. Para Dirección General de Pasaportes y/o Consulares es RD$ 1,500, y por eso te preguntamos primero dónde la vas a presentar."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "Escríbenos con tu caso. Antes de que pagues, te confirmamos qué datos o documentos pide la JCE para la certificación para la Dirección General de Pasaportes y/o los consulados."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "Para Dirección General de Pasaportes y/o Consulares, la tasa oficial de la JCE es RD$ 1,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 4,130, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para la Dirección General de Pasaportes y/o los consulados, con la tasa oficial que publica la JCE.",
+      "relacionados": [
+        "certificacion_solteria",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
+    },
+    "cert_cedula_otras": {
+      "title": "Certificación de Cédula para Fines Correspondientes y Otras Instituciones (JCE)",
+      "slug": "certificacion-cedula-otras-instituciones",
+      "tax": 1500,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Certificación de tu cédula expedida por la JCE para otras instituciones y fines correspondientes.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud de la certificación en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula JCE: Fines Correspondientes y Otras",
+      "seo": "Pedimos tu certificación de cédula en la JCE para el Registro de Títulos y la Jurisdicción Inmobiliaria: pagamos la tasa y la gestionamos. Cotiza gratis.",
+      "como": [
+        "Nos dices para qué institución necesitas la certificación y nos das los datos de tu cédula.",
+        "Pagamos la tasa oficial y solicitamos la certificación en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es la certificación de cédula?",
+          "a": "Es un documento de la Junta Central Electoral que certifica los datos de tu cédula; esta versión es la que corresponde para otras instituciones y fines correspondientes."
+        },
+        {
+          "q": "¿Por qué hay una tasa para cada institución?",
+          "a": "Porque la JCE publica una tarifa por tipo de uso. Para Fines Correspondientes y Otras Instituciones es RD$ 1,500, y por eso te preguntamos primero dónde la vas a presentar."
+        },
+        {
+          "q": "¿Tengo que estar en RD?",
+          "a": "Escríbenos con tu caso. Antes de que pagues, te confirmamos qué datos o documentos pide la JCE para la certificación para otras instituciones y fines correspondientes."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "Para Fines Correspondientes y Otras Instituciones, la tasa oficial de la JCE es RD$ 1,500 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 4,130, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La certificación de cédula es el documento con el que la Junta Central Electoral certifica los datos de tu cédula. Cada institución pide la suya: esta es la que corresponde para otras instituciones y fines correspondientes, con la tasa oficial que publica la JCE.",
+      "relacionados": [
+        "certificacion_solteria",
+        "rectificacion_actas_jce",
+        "declaracion_jurada"
+      ]
+    },
+    "cert_cedula_vip": {
+      "title": "Certificación de Cédula VIP (Registro Electoral)",
+      "slug": "certificacion-cedula-vip",
+      "tax": 1000,
+      "fee": 2000,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Servicio VIP de certificaciones del Registro Electoral de la JCE.",
+      "incluye": [
+        "Pago de la tasa oficial de la JCE",
+        "Solicitud del servicio VIP en la JCE",
+        "Certificación escaneada en PDF",
+        "Seguimiento con tu código de expediente"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Certificación de cédula VIP en la JCE",
+      "seo": "Gestionamos el servicio VIP de certificaciones del Registro Electoral de la JCE: pagamos la tasa y lo tramitamos por ti. Cotiza gratis con precio claro.",
+      "como": [
+        "Nos dices qué certificación necesitas y para qué institución.",
+        "Pagamos la tasa oficial del servicio VIP y lo solicitamos en la JCE por ti.",
+        "Te avisamos en cada paso por tu rastreo y te entregamos la certificación lista."
+      ],
+      "entrega": "Recibes la certificación escaneada en PDF y te avisamos por tu rastreo cuando esté lista.",
+      "faq": [
+        {
+          "q": "¿Qué es el servicio VIP de la JCE?",
+          "a": "Es el servicio VIP de certificaciones del Registro Electoral que aparece en el tarifario de la JCE. Cuéntanos qué certificación necesitas y te confirmamos cómo aplica a tu caso."
+        },
+        {
+          "q": "¿Quién hace el trámite en la JCE?",
+          "a": "Lo hacemos nosotros: pagamos la tasa, solicitamos el servicio y te avisamos cada paso por tu rastreo."
+        },
+        {
+          "q": "¿Reemplaza la tasa de la certificación normal?",
+          "a": "Te confirmamos antes de cobrarte si va solo o junto a otra certificación, para que pagues únicamente lo que tu caso exige."
+        },
+        {
+          "q": "¿Cuánto cuesta?",
+          "a": "La tasa oficial de la JCE es RD$ 1,000 y nuestros honorarios son RD$ 2,000. Con el ITBIS (18 %), el total es RD$ 3,540, y lo ves en la cotización antes de pagar."
+        }
+      ],
+      "intro": "La JCE publica un servicio VIP para certificaciones del Registro Electoral. Si lo necesitas, nosotros pagamos la tasa y lo gestionamos por ti, con el precio claro desde la cotización.",
+      "relacionados": [
+        "cert_cedula_legales",
+        "cert_cedula_bancos",
+        "certificacion_solteria"
+      ]
     }
   },
   "checklists": {
@@ -2721,6 +3216,78 @@
         "Estudios, cursos y certificaciones",
         "Experiencia laboral: empresas, cargos y fechas",
         "Puesto o país al que quieres aplicar"
+      ]
+    },
+    "cert_cedula_legales": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "cert_cedula_judiciales": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "cert_cedula_fiscalias": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "cert_cedula_dgii": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "cert_cedula_registro_titulos": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "cert_cedula_bancos": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "cert_cedula_pasaportes": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "cert_cedula_otras": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "cert_cedula_vip": {
+      "label": "Cédula JCE",
+      "items": [
+        "Copia de cédula dominicana",
+        "Institución donde presentarás la certificación",
+        "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
       ]
     }
   },
