@@ -162,7 +162,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2 class="section-title" data-i18n="caso.t">¿Cuál es tu caso?</h2>
             <p class="text-slate-600 mt-3" data-i18n="caso.sub">Elige lo que se parece a lo tuyo y te mostramos solo los trámites que aplican.</p>
         </div>
-        <div class="caso-grid">
+        <div class="caso-carrusel" id="casoCarrusel" role="region" aria-roledescription="carrusel" aria-label="¿Cuál es tu caso?">
+            <button type="button" class="caso-flecha caso-prev" aria-label="Anterior" data-caso-dir="-1"><i class="fa-solid fa-chevron-left" aria-hidden="true"></i></button>
+            <div class="caso-pista" id="casoPista" tabindex="0">
             <a class="caso-card" href="/servicios?cat=inmobiliario,impuestos_vehiculos">
                 <i class="fa-solid fa-house-chimney" aria-hidden="true"></i>
                 <h3 data-i18n="caso.1.t">Tengo una propiedad o un vehículo en RD</h3>
@@ -181,8 +183,16 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <p data-i18n="caso.3.d">Pasaporte, visa americana, petición familiar y permiso de salida de menores, paso a paso.</p>
                 <span class="caso-link" data-i18n="caso.3.a">Ver trámites de viaje</span>
             </a>
+            <a class="caso-card caso-card-ext" href="/servicios/residencia-dominicana-para-extranjeros">
+                <i class="fa-solid fa-id-card" aria-hidden="true"></i>
+                <h3 data-i18n="caso.4.t">Soy extranjero y vivo en RD</h3>
+                <p data-i18n="caso.4.d">Residencia dominicana y certificaciones de Migración, con el proceso explicado paso a paso.</p>
+                <span class="caso-link" data-i18n="caso.4.a">Ver residencia y Migración</span>
+            </a>
+            </div>
+            <button type="button" class="caso-flecha caso-next" aria-label="Siguiente" data-caso-dir="1"><i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button>
         </div>
-        <p class="text-center mt-6"><a class="caso-ext" href="/servicios/residencia-dominicana-para-extranjeros"><span data-i18n="caso.ext">¿Eres extranjero y vives en RD?</span> <strong data-i18n="caso.ext.a">Residencia y certificaciones de Migración →</strong></a></p>
+        <p class="caso-ext-fila"><a class="caso-ext" href="/servicios/residencia-dominicana-para-extranjeros"><span data-i18n="caso.ext">¿Eres extranjero y vives en RD?</span> <strong data-i18n="caso.ext.a">Residencia y certificaciones de Migración →</strong></a></p>
     </div>
 </section>
 

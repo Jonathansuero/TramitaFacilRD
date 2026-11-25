@@ -390,3 +390,25 @@
         window.addEventListener('hashchange', handleHash);
     });
 })();
+
+/* ¿Cuál es tu caso?: carrusel con flechas, deslizar con el dedo y avance automático que se detiene al tocar o pasar el mouse */
+(function () {
+    const pista = document.getElementById('casoPista'); if (!pista) return;
+    const caja = document.getElementById('casoCarrusel');
+    const paso = () => { const c = pista.querySelector('.caso-card'); return c ? c.getBoundingClientRect().width + parseFloat(getComputedStyle(pista).columnGap || 20) : 300; };
+    const mover = dir => {
+        const fin = pista.scrollLeft + pista.clientWidth >= pista.scrollWidth - 4;
+        if (dir > 0 && fin) pista.scrollTo({ left: 0 });
+        else if (dir < 0 && pista.scrollLeft < 4) pista.scrollTo({ left: pista.scrollWidth });
+        else pista.scrollBy({ left: dir * paso() });
+    };
+    caja.addEventListener('click', e => { const b = e.target.closest('[data-caso-dir]'); if (b) { mover(+b.dataset.casoDir); parar(); } });
+    pista.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { mover(1); e.preventDefault(); } if (e.key === 'ArrowLeft') { mover(-1); e.preventDefault(); } });
+    const quieto = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) || (window.matchMedia && matchMedia('(min-width: 768px)').matches);   // en computadora no hay carrusel
+    let timer = null, pausa = false;
+    function parar() { pausa = true; }
+    function arrancar() { if (quieto || timer) return; timer = setInterval(() => { if (!pausa && !document.hidden) mover(1); }, 5500); }
+    ['mouseenter', 'focusin', 'touchstart'].forEach(ev => caja.addEventListener(ev, parar, { passive: true }));
+    caja.addEventListener('mouseleave', () => { pausa = false; });
+    arrancar();
+})();
