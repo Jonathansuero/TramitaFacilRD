@@ -2,14 +2,14 @@
   "_formato": "ui: clave -> [español, inglés, francés]. contenido: traducciones de servicios, países, etc. (el español vive en catalogo.json). Verifica con: python manage.py i18n",
   "ui": {
     "meta.home.title": [
-      "TramitaFácil RD | Trámites en República Dominicana sin viajar",
-      "TramitaFácil RD | Dominican paperwork without traveling",
-      "TramitaFácil RD | Démarches dominicaines sans voyager"
+      "TramitaFácil RD: Trámites en RD desde el Exterior, sin Viajar",
+      "TramitaFácil RD: Dominican Paperwork from Abroad, No Travel",
+      "TramitaFácil RD : Démarches dominicaines depuis l'étranger"
     ],
     "meta.home.desc": [
-      "¿Vives fuera y necesitas un trámite en República Dominicana? Lo gestionamos por ti ante la JCE, DGII, MIREX y más, sin que viajes. Cotiza en RD$, US$ o €.",
-      "Living abroad and need paperwork done in the Dominican Republic? We handle it for you at the JCE, DGII, MIREX and more. Get a free quote in RD$, US$ or €.",
-      "Vous vivez à l'étranger et avez besoin d'une démarche en République dominicaine ? Nous nous en chargeons (JCE, DGII, MIREX…). Devis gratuit en RD$, US$ ou €."
+      "En TramitaFácil RD gestionamos pasaporte, apostilla, poderes, actas, visas y licencia desde el exterior, sin que viajes. Cotiza en RD$, US$ o €.",
+      "At TramitaFácil RD we handle passports, apostilles, powers of attorney, civil records, visas and licenses from abroad, no travel needed. Quote in RD$, US$ or €.",
+      "Chez TramitaFácil RD, nous gérons passeport, apostille, procurations, actes, visas et permis depuis l'étranger, sans voyager. Devis en RD$, US$ ou €."
     ],
     "meta.instituciones.title": [
       "JCE, DGII, MIREX, DGM: instituciones donde gestionamos",

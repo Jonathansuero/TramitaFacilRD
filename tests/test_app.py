@@ -279,7 +279,7 @@ def test_seo_canonical_y_vista_previa(client):
     assert r.count('rel="canonical"') == 1 and r.count('property="og:title"') == 1
     inicio = client.get("/").get_data(as_text=True)
     assert 'href="https://tramitafacilrd.com/"' in inicio
-    assert "<title>TramitaFácil RD | Trámites en República Dominicana sin viajar</title>" in inicio   # la portada conserva la marca
+    assert "<title>TramitaFácil RD: Trámites en RD desde el Exterior, sin Viajar</title>" in inicio   # la portada conserva la marca
     rastreo = client.get("/rastreo").get_data(as_text=True)
     assert "<title>Rastrear mi trámite con el código de expediente</title>" in rastreo
     assert 'og:title" content="Rastrear mi trámite con el código de expediente | TramitaFácil RD"' in rastreo
