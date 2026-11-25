@@ -2222,9 +2222,9 @@
       "Suivez-nous sur Instagram"
     ],
     "pago.t": [
-      "Forma de pago: 50% y 50%",
-      "Payment: 50% now, 50% on delivery",
-      "Paiement : 50 % et 50 %"
+      "Cómo pagas y qué pasa después",
+      "How you pay and what happens next",
+      "Comment vous payez et la suite"
     ],
     "pago.inicio": [
       "50% para iniciar el trámite",
@@ -2825,6 +2825,56 @@
       "Así te ayudamos",
       "How we help you",
       "Comment nous vous aidons"
+    ],
+    "pago.1.t": [
+      "Cotizas gratis",
+      "You get a free quote",
+      "Vous obtenez un devis gratuit"
+    ],
+    "pago.1.d": [
+      "Ves el total antes de decidir, separado en tasa oficial y honorarios.",
+      "You see the total before deciding, split into official fee and our fee.",
+      "Vous voyez le total avant de décider, séparé en taxe officielle et honoraires."
+    ],
+    "pago.2.t": [
+      "Pagas la mitad para empezar",
+      "You pay half to start",
+      "Vous payez la moitié pour commencer"
+    ],
+    "pago.2.d": [
+      "Recibes tu código de expediente en ese momento.",
+      "You get your file code right then.",
+      "Vous recevez votre code de dossier à ce moment."
+    ],
+    "pago.3.t": [
+      "Lo gestionamos y te avisamos",
+      "We handle it and keep you posted",
+      "Nous nous en occupons et vous informons"
+    ],
+    "pago.3.d": [
+      "Cada paso queda en tu rastreo y te llega por WhatsApp.",
+      "Every step shows in your tracking and reaches you on WhatsApp.",
+      "Chaque étape apparaît dans votre suivi et vous parvient par WhatsApp."
+    ],
+    "pago.4.t": [
+      "Recibes tu trámite y pagas el resto",
+      "You receive it and pay the rest",
+      "Vous le recevez et payez le solde"
+    ],
+    "pago.4.d": [
+      "La segunda mitad se paga al entregar, no antes.",
+      "The second half is paid on delivery, not before.",
+      "La seconde moitié se paie à la remise, pas avant."
+    ],
+    "pago.hoy": [
+      "Hoy (al iniciar)",
+      "Today (to start)",
+      "Aujourd'hui (au début)"
+    ],
+    "pago.fin": [
+      "Al entregar",
+      "On delivery",
+      "À la remise"
     ]
   },
   "contenido": {

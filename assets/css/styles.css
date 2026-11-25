@@ -943,3 +943,15 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .mensaje-quieto dt{font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#D4AF37;margin-bottom:.4rem}
 .mensaje-quieto dd{margin:0;font-size:.95rem;line-height:1.55;color:#f1f5f9}
 .mensaje-quieto-final{margin-bottom:0}
+
+/* ---- Ficha: cómo pagas y qué pasa después ---- */
+.pago-pasos { display: grid; gap: 1.1rem; }
+.pago-pasos li { display: flex; gap: .9rem; align-items: flex-start; }
+.pago-pasos li > span { flex-shrink: 0; width: 2rem; height: 2rem; border-radius: 999px; background: #002D62; color: #fff; font-weight: 800; font-size: .8rem; display: flex; align-items: center; justify-content: center; }
+.pago-pasos li > span.pago-ult { background: #CE1126; }
+.pago-pasos strong { font-size: .95rem; color: #0f172a; }
+.pago-pasos p { font-size: .85rem; color: #64748b; margin-top: .15rem; }
+.pago-mitades { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin-top: .9rem; }
+.pago-mitades > div { background: rgba(255,255,255,.08); border-radius: .75rem; padding: .6rem .75rem; }
+.pago-mitades span { display: block; font-size: .7rem; color: #94a3b8; }
+.pago-mitades strong { display: block; font-size: 1rem; font-weight: 800; color: #fff; margin-top: .1rem; }
