@@ -40,7 +40,7 @@
             const s = tc('servicios', k), cat = D.categorias[SERV[k].category];
             return `<a class="quick-btn group" href="${servUrl(k)}">
                 <span class="flex items-center gap-3"><span class="ico"><i class="fa-solid ${cat.icono}"></i></span>
-                <span><span class="block font-bold text-xs text-slate-800">${esc(s.title)}</span><span class="block text-[10px] text-slate-500">${esc(t('precio.desde'))} ${money(SERV[k].tax + SERV[k].fee)}</span></span></span>
+                <span><span class="block font-bold text-xs text-slate-800">${esc(s.title)}</span><span class="block text-[10px] text-slate-500">${esc(t('precio.desde'))} ${money(TF.precio(SERV[k]).final)}</span></span></span>
                 <i class="fa-solid fa-chevron-right text-slate-400 text-xs"></i></a>`;
         }).join('');
         $('verTodos').textContent = t('quick.todos', { n: Object.keys(SERV).length });
@@ -163,7 +163,7 @@
             <p class="text-xs text-slate-600 mt-1">${esc(tr.desc)}</p>
             <p class="text-xs text-slate-500 mt-2">${esc(t('serv.ideal'))}: ${s.paises.map(p => `${PAISES[p].bandera} ${esc(tc('paises', p).corto)}`).join(' · ')}</p>
             ${s.inst.length ? `<p class="text-xs text-slate-500 mt-1">${esc(t('serv.ante'))}: ${s.inst.map(i => `<a class="font-bold text-domBlue hover:underline" href="/instituciones#${i}">${esc(D.instituciones[i].sigla)}</a>`).join(', ')}</p>` : ''}
-            <div class="mt-3 text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">${esc(t('quiz.base'))} ${money(s.tax + s.fee)}</div>`;
+            <div class="mt-3 text-xs font-bold text-emerald-700 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">${esc(t('quiz.base'))} ${money(TF.precio(s).final)}</div>`;
         $('quizPageBtn').href = servUrl(k);
         $('quizStep2').classList.add('hidden'); $('quizStep3').classList.remove('hidden'); quizDots(3);
     }
