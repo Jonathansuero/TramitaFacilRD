@@ -661,10 +661,10 @@ ${ES_APP ? renderTabbar() : ''}`;
     };
 
     /** Precio de un trámite en DOP (igual que calculos.precio en el servidor):
-     *  tasa + honorarios + ITBIS sobre los dos; Express = % del valor final; courier fijo. */
+     *  tasa + honorarios + ITBIS sobre los dos; Express y courier son cargos fijos aparte. */
     function precio(s, express, envio) {
         const base = (s.tax || 0) + (s.fee || 0), itbis = Math.round(base * (C.itbis || 0)), final = base + itbis;
-        const ex = express && !s.digital ? Math.round(final * (C.express_pct || 0)) : 0;
+        const ex = express && !s.digital ? (C.express_fee || 0) : 0;
         const en = envio && !s.digital ? (C.delivery_fee || 0) : 0;
         return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total: final + ex + en };
     }

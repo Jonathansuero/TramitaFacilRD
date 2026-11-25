@@ -20,7 +20,7 @@ def test_cotizacion_dop_con_extras():
     base = 15000 + 22000
     final = base + round(base * cfg["itbis"])                    # ITBIS 18 % sobre tasa + honorarios
     assert r["itbis"] == 6660 and final == 43660
-    assert r["total"] == final + round(final * cfg["express_pct"]) + cfg["delivery_fee"]   # Express = 30 % del valor final
+    assert r["total"] == final + cfg["express_fee"] + cfg["delivery_fee"]   # Express y courier: cargos fijos aparte
 
 
 def test_cotizacion_en_usd_usa_tasa():

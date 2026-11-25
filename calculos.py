@@ -32,11 +32,11 @@ def _tasas(catalogo: dict, tasas: dict | None) -> dict:
 
 
 def precio(s: dict, cfg: dict, express: bool = False, envio: bool = False) -> dict:
-    """Precio de un trámite en DOP: tasa + honorarios + ITBIS (sobre los dos); Express = % del valor final; courier fijo."""
+    """Precio de un trámite en DOP: tasa + honorarios + ITBIS (sobre los dos); Express y courier son cargos fijos aparte."""
     base = s["tax"] + s["fee"]
     itbis = round(base * cfg.get("itbis", 0))
     final = base + itbis
-    express = round(final * cfg.get("express_pct", 0)) if express and not s.get("digital") else 0
+    express = cfg.get("express_fee", 0) if express and not s.get("digital") else 0
     envio = cfg.get("delivery_fee", 0) if envio and not s.get("digital") else 0
     return {"tax": s["tax"], "fee": s["fee"], "itbis": itbis, "final": final, "express": express, "envio": envio,
             "total": final + express + envio}
