@@ -2950,6 +2950,16 @@
       "Ver residencia y Migración",
       "See residency and Immigration",
       "Voir résidence et Migration"
+    ],
+    "caso.ext": [
+      "¿Eres extranjero y vives en RD?",
+      "Are you a foreigner living in the DR?",
+      "Vous êtes étranger et vivez en RD ?"
+    ],
+    "caso.ext.a": [
+      "Residencia y certificaciones de Migración →",
+      "Residency and Immigration certificates →",
+      "Résidence et certificats de Migration →"
     ]
   },
   "contenido": {

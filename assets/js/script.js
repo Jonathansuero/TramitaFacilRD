@@ -404,7 +404,7 @@
     };
     caja.addEventListener('click', e => { const b = e.target.closest('[data-caso-dir]'); if (b) { mover(+b.dataset.casoDir); parar(); } });
     pista.addEventListener('keydown', e => { if (e.key === 'ArrowRight') { mover(1); e.preventDefault(); } if (e.key === 'ArrowLeft') { mover(-1); e.preventDefault(); } });
-    const quieto = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const quieto = (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) || (window.matchMedia && matchMedia('(min-width: 768px)').matches);   // en computadora no hay carrusel
     let timer = null, pausa = false;
     function parar() { pausa = true; }
     function arrancar() { if (quieto || timer) return; timer = setInterval(() => { if (!pausa && !document.hidden) mover(1); }, 5500); }

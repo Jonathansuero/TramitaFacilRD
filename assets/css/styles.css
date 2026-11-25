@@ -975,3 +975,14 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 @media (min-width: 1100px) { .caso-prev { left: -1.4rem; } .caso-next { right: -1.4rem; } }
 @media (prefers-reduced-motion: reduce) { .caso-pista { scroll-behavior: auto; } }
 @media (max-width: 639px) { .caso-flecha { display: none; } }
+/* Computadora: las 3 tarjetas fijas y la línea de extranjeros; el carrusel es solo para el celular */
+.caso-ext-fila { display: none; }
+@media (min-width: 768px) {
+  .caso-pista { display: grid; grid-template-columns: repeat(3, 1fr); overflow: visible; scroll-snap-type: none; padding: .5rem 0 0; }
+  .caso-card { flex-basis: auto; }
+  .caso-card-ext, .caso-flecha { display: none; }
+  .caso-ext-fila { display: block; text-align: center; margin-top: 1.5rem; }
+  .caso-ext { display: inline-block; font-size: .9rem; color: #334155; border: 1px dashed #94a3b8; border-radius: 999px; padding: .55rem 1.1rem; text-decoration: none; }
+  .caso-ext strong { color: #002D62; }
+  .caso-ext:hover { border-color: #002D62; }
+}
