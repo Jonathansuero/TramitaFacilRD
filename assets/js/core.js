@@ -240,8 +240,20 @@
         const r = await fetch('/api' + path, { headers: { 'Content-Type': 'application/json' }, ...opts });
         const j = await r.json().catch(() => ({}));
         if (!r.ok) { const e = new Error(j.error || 'Error'); e.status = r.status; throw e; }
+        if (path === '/solicitud') evento('solicitud_enviada', { servicio: servicioDe(opts.body) });
         return j;
     }
+    // ---------------- medición: eventos para Google Tag Manager (nunca llevan nombre, teléfono ni correo)
+    function servicioDe(body) { try { return String(JSON.parse(body).servicio || '').slice(0, 60); } catch (e) { return ''; } }
+    function evento(nombre, datos) {
+        try { (window.dataLayer = window.dataLayer || []).push({ event: nombre, pagina: location.pathname, origen: ORIGEN, ...datos }); } catch (e) { /* sin medición */ }
+    }
+    document.addEventListener('click', e => {
+        const a = e.target.closest && e.target.closest('a[href]'); if (!a) return;
+        const h = a.getAttribute('href') || '';
+        if (/api\.whatsapp\.com|wa\.me/.test(h)) evento('clic_whatsapp', { destino: a.id || (a.closest('[id]') || {}).id || 'enlace' });
+        else if (/#cotizar=|#confirmar$/.test(h)) { const m = h.match(/#cotizar=([^&]+)/); evento('clic_cotizar', { servicio: m ? decodeURIComponent(m[1]).slice(0, 60) : (new URLSearchParams(location.search).get('id') || '') }); }
+    });
     // Promesa que se cumple cuando ya se sabe si hay servidor (las páginas que consultan al cargar la esperan)
     let apiDetectada;
     const apiLista = new Promise(r => { apiDetectada = r; });
@@ -649,7 +661,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     };
 
     window.TF = {
-        enlaceCliente, leerEnlace,
+        evento, enlaceCliente, leerEnlace,
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state, servUrl,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
         t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, tiempo, tiempoHtml, incluyeHtml, saludo, lugar, toast, api, apiLista, contacto,
