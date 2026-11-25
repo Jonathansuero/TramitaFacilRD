@@ -2222,9 +2222,9 @@
       "Suivez-nous sur Instagram"
     ],
     "pago.t": [
-      "Forma de pago: 50% y 50%",
-      "Payment: 50% now, 50% on delivery",
-      "Paiement : 50 % et 50 %"
+      "Cómo pagas y qué pasa después",
+      "How you pay and what happens next",
+      "Comment vous payez et la suite"
     ],
     "pago.inicio": [
       "50% para iniciar el trámite",
@@ -2825,6 +2825,126 @@
       "Así te ayudamos",
       "How we help you",
       "Comment nous vous aidons"
+    ],
+    "pago.1.t": [
+      "Cotizas gratis",
+      "You get a free quote",
+      "Vous obtenez un devis gratuit"
+    ],
+    "pago.1.d": [
+      "Ves el total antes de decidir, separado en tasa oficial y honorarios.",
+      "You see the total before deciding, split into official fee and our fee.",
+      "Vous voyez le total avant de décider, séparé en taxe officielle et honoraires."
+    ],
+    "pago.2.t": [
+      "Pagas la mitad para empezar",
+      "You pay half to start",
+      "Vous payez la moitié pour commencer"
+    ],
+    "pago.2.d": [
+      "Recibes tu código de expediente en ese momento.",
+      "You get your file code right then.",
+      "Vous recevez votre code de dossier à ce moment."
+    ],
+    "pago.3.t": [
+      "Lo gestionamos y te avisamos",
+      "We handle it and keep you posted",
+      "Nous nous en occupons et vous informons"
+    ],
+    "pago.3.d": [
+      "Cada paso queda en tu rastreo y te llega por WhatsApp.",
+      "Every step shows in your tracking and reaches you on WhatsApp.",
+      "Chaque étape apparaît dans votre suivi et vous parvient par WhatsApp."
+    ],
+    "pago.4.t": [
+      "Recibes tu trámite y pagas el resto",
+      "You receive it and pay the rest",
+      "Vous le recevez et payez le solde"
+    ],
+    "pago.4.d": [
+      "La segunda mitad se paga al entregar, no antes.",
+      "The second half is paid on delivery, not before.",
+      "La seconde moitié se paie à la remise, pas avant."
+    ],
+    "pago.hoy": [
+      "Hoy (al iniciar)",
+      "Today (to start)",
+      "Aujourd'hui (au début)"
+    ],
+    "pago.fin": [
+      "Al entregar",
+      "On delivery",
+      "À la remise"
+    ],
+    "caso.eyebrow": [
+      "Empieza por tu situación",
+      "Start with your situation",
+      "Commencez par votre situation"
+    ],
+    "caso.t": [
+      "¿Cuál es tu caso?",
+      "What is your case?",
+      "Quel est votre cas ?"
+    ],
+    "caso.sub": [
+      "Elige lo que se parece a lo tuyo y te mostramos solo los trámites que aplican.",
+      "Pick what looks like yours and we show only the procedures that apply.",
+      "Choisissez ce qui ressemble à votre cas et nous ne montrons que les démarches concernées."
+    ],
+    "caso.1.t": [
+      "Tengo una propiedad o un vehículo en RD",
+      "I own property or a vehicle in the DR",
+      "Je possède un bien ou un véhicule en RD"
+    ],
+    "caso.1.d": [
+      "IPI, estado jurídico, traspasos, matrícula y licencia, sin tener que estar allá.",
+      "Property tax, legal status, transfers, registration and license, without being there.",
+      "Impôt foncier, état juridique, transferts, carte grise et permis, sans être sur place."
+    ],
+    "caso.1.a": [
+      "Ver trámites de propiedades y vehículos",
+      "See property and vehicle procedures",
+      "Voir les démarches biens et véhicules"
+    ],
+    "caso.2.t": [
+      "Me piden un documento dominicano afuera",
+      "I need a Dominican document abroad",
+      "On me demande un document dominicain à l'étranger"
+    ],
+    "caso.2.d": [
+      "Apostilla, legalización, soltería, títulos y corrección de actas, enviados a donde vives.",
+      "Apostille, legalization, single-status certificate, degrees and record corrections, sent where you live.",
+      "Apostille, légalisation, célibat, diplômes et rectification d'actes, envoyés où vous vivez."
+    ],
+    "caso.2.a": [
+      "Ver trámites de documentos",
+      "See document procedures",
+      "Voir les démarches de documents"
+    ],
+    "caso.3.t": [
+      "Viaje, familia y migración",
+      "Travel, family and immigration",
+      "Voyage, famille et migration"
+    ],
+    "caso.3.d": [
+      "Pasaporte, visa americana, petición familiar y permiso de salida de menores, paso a paso.",
+      "Passport, US visa, family petition and minors exit permit, step by step.",
+      "Passeport, visa américain, demande familiale et autorisation de sortie des mineurs, pas à pas."
+    ],
+    "caso.3.a": [
+      "Ver trámites de viaje",
+      "See travel procedures",
+      "Voir les démarches de voyage"
+    ],
+    "caso.ext": [
+      "¿Eres extranjero y vives en RD?",
+      "Are you a foreigner living in the DR?",
+      "Vous êtes étranger et vivez en RD ?"
+    ],
+    "caso.ext.a": [
+      "Residencia y certificaciones de Migración →",
+      "Residency and Immigration certificates →",
+      "Résidence et certificats de Migration →"
     ]
   },
   "contenido": {

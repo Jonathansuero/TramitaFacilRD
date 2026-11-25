@@ -164,7 +164,10 @@
         $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
         $('pTax').textContent = money(s.tax); $('pFee').textContent = money(s.fee);
         $('pExpV').textContent = '+ ' + money(C.express_fee); $('pEnvV').textContent = '+ ' + money(C.delivery_fee);
-        $('pTotal').textContent = money(s.tax + s.fee + (exp ? C.express_fee : 0) + (env ? C.delivery_fee : 0));
+        const total = s.tax + s.fee + (exp ? C.express_fee : 0) + (env ? C.delivery_fee : 0);
+        $('pTotal').textContent = money(total);
+        // pago en dos partes: la mitad al iniciar y el resto al entregar (igual que en el panel)
+        $('pHoy').textContent = money(Math.round(total / 2)); $('pFin').textContent = money(total - Math.round(total / 2));
         restart($('pTotal'), 'bump');
         $('sWa').href = waLink(saludo(t('wa.servicio', { s: tc('servicios', id).title, total: $('pTotal').textContent })));
         // resumen del bloque "Confirma tu solicitud"
