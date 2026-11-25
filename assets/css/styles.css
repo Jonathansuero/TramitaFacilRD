@@ -932,3 +932,13 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
     .guia-dos { grid-template-columns: 1fr 230px; align-items: start; }
     .guia-ciudades { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
+
+/* Portada: qué hacemos, para quién y para qué */
+.mensaje-grid{display:grid;gap:1.25rem}
+@media (min-width:768px){.mensaje-grid{grid-template-columns:repeat(3,1fr);gap:2rem}}
+.mensaje-item{display:flex;gap:.9rem;align-items:flex-start}
+.mensaje-icono{flex:0 0 2.75rem;height:2.75rem;border-radius:.9rem;background:#eef4ff;color:#002D62;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.mensaje-l{font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#CE1126;margin:0 0 .25rem}
+.mensaje-item p{font-size:.95rem;line-height:1.5;color:#1e293b;margin:0;font-weight:500}
+.mensaje-banda{padding-top:2.25rem;padding-bottom:2.25rem}
+@media (min-width:768px){.mensaje-banda{padding-top:2.75rem;padding-bottom:2.75rem}}
