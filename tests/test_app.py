@@ -17,12 +17,15 @@ CAT = calculos.cargar_catalogo()
 def test_cotizacion_dop_con_extras():
     r = calculos.cotizar(CAT, "residencia_dominicana", express=True, envio=True)
     cfg = CAT["config"]
-    assert r["total"] == 15000 + 22000 + cfg["express_fee"] + cfg["delivery_fee"]
+    base = 15000 + 22000
+    final = base + round(base * cfg["itbis"])                    # ITBIS 18 % sobre tasa + honorarios
+    assert r["itbis"] == 6660 and final == 43660
+    assert r["total"] == final + round(final * cfg["express_pct"]) + cfg["delivery_fee"]   # Express = 30 % del valor final
 
 
 def test_cotizacion_en_usd_usa_tasa():
     r = calculos.cotizar(CAT, "e_ticket", moneda="USD", tasas={"USD": 0.02})
-    assert r["total"] == 11.0  # 550 DOP * 0.02
+    assert r["total"] == 12.98  # (550 + 18 % de ITBIS = 649 DOP) * 0.02
 
 
 def test_cotizacion_servicio_invalido():
@@ -105,7 +108,7 @@ def test_rastreo_demo_y_desconocido(client):
 
 def test_cotizar_api(client):
     r = client.post("/api/cotizar", json={"servicio": "apostilla_documentos", "moneda": "DOP"}).json
-    assert r["total"] == 2520  # 620 tasas + 1900 honorarios
+    assert r["total"] == 2974  # 620 tasas + 1900 honorarios + 18 % de ITBIS
 
 
 # ------------------------------------------------ v3: idiomas, instituciones, diáspora
@@ -215,7 +218,7 @@ def test_varios_tramites_un_codigo(client):
         exp = r.json["expediente"]
         codigo, items = exp["codigo"], exp["tramites"]
         assert len(items) == 2 and items[1]["titulo"] == "Certificado de buena conducta"
-        assert exp["total_dop"] == 2520 + 2500
+        assert exp["total_dop"] == 2974 + 2500
 
         # cada trámite avanza por su cuenta; el resumen va al ritmo del más atrasado
         client.post("/api/admin/estado", json={"codigo": codigo, "tramite": items[0]["id"], "paso": 4, "detalle": "Apostilla lista."})
@@ -307,18 +310,18 @@ def test_panel_cobros_precios_origen(client):
         codigo = r.json["codigo"]
         e = client.get("/api/admin/expedientes").json["expedientes"][0]
         assert (e["origen"], e["origen_detalle"], e["pagina"], e["dispositivo"]) == ("instagram", "l.instagram.com", "casos", "movil")
-        assert e["total_dop"] == 2520 and e["pagado"] == 0 and e["pendiente"] == 2520
+        assert e["total_dop"] == 2974 and e["pagado"] == 0 and e["pendiente"] == 2974
 
         # cobro 50 / 50
-        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": 1260, "metodo": "Zelle",
+        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "anticipo", "monto": 1487, "metodo": "Zelle",
                                                  "fecha": "2026-10-20"}).json["expediente"]
-        assert e["pagado"] == 1260 and e["pendiente"] == 1260 and e["pagos"][0]["metodo"] == "Zelle"
+        assert e["pagado"] == 1487 and e["pendiente"] == 1487 and e["pagos"][0]["metodo"] == "Zelle"
         assert client.post("/api/admin/pago", json={"codigo": codigo, "monto": -5}).status_code == 400
         assert client.post("/api/admin/pago", json={"codigo": "RD-NADA", "monto": 5}).status_code == 404
-        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": 1260}).json["expediente"]
+        e = client.post("/api/admin/pago", json={"codigo": codigo, "tipo": "saldo", "monto": 1487}).json["expediente"]
         assert e["pendiente"] == 0
         e = client.post("/api/admin/pago/quitar", json={"codigo": codigo, "id": e["pagos"][1]["id"]}).json["expediente"]
-        assert e["pendiente"] == 1260
+        assert e["pendiente"] == 1487
 
         # notas internas (no salen en el rastreo) y documentos recibidos
         e = client.post("/api/admin/nota", json={"codigo": codigo, "texto": "Falta copia de cédula"}).json["expediente"]
@@ -332,7 +335,7 @@ def test_panel_cobros_precios_origen(client):
         # precios desde el panel: la API pública y la cotización usan el nuevo precio
         assert client.post("/api/admin/precio", json={"servicio": "apostilla_documentos", "tax": 700, "fee": 1300}).json["ok"]
         assert client.get("/api/precios").json["precios"]["apostilla_documentos"] == {"tax": 700, "fee": 1300}
-        assert client.post("/api/cotizar", json={"servicio": "apostilla_documentos"}).json["total"] == 2000
+        assert client.post("/api/cotizar", json={"servicio": "apostilla_documentos"}).json["total"] == 2360   # 2,000 + 18 %
         p = client.get("/api/admin/precios").json
         s = next(x for x in p["servicios"] if x["id"] == "apostilla_documentos")
         assert s["modificado"] and s["tax_base"] == 620 and p["historial"][0]["tax"] == 700

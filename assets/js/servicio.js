@@ -162,9 +162,9 @@
         incluye();
         const s = SERV[id], exp = !s.digital && $('pExp').checked, env = !s.digital && $('pEnv').checked;
         $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
-        $('pTax').textContent = money(s.tax); $('pFee').textContent = money(s.fee);
-        $('pExpV').textContent = '+ ' + money(C.express_fee); $('pEnvV').textContent = '+ ' + money(C.delivery_fee);
-        const total = s.tax + s.fee + (exp ? C.express_fee : 0) + (env ? C.delivery_fee : 0);
+        const pr = TF.precio(s, exp, env), total = pr.total;
+        $('pTax').textContent = money(s.tax); $('pFee').textContent = money(s.fee); $('pItbis').textContent = money(pr.itbis);
+        $('pExpV').textContent = '+ ' + money(TF.precio(s, true, false).express); $('pEnvV').textContent = '+ ' + money(C.delivery_fee);
         $('pTotal').textContent = money(total);
         // pago en dos partes: la mitad al iniciar y el resto al entregar (igual que en el panel)
         $('pHoy').textContent = money(Math.round(total / 2)); $('pFin').textContent = money(total - Math.round(total / 2));

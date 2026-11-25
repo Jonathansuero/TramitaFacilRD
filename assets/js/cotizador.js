@@ -41,6 +41,7 @@
         <div class="space-y-3 text-sm">
             <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales / consulares</span><span id="resTax" class="font-bold text-white whitespace-nowrap">—</span></div>
             <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios de gestoría</span><span id="resFee" class="font-bold text-white whitespace-nowrap">—</span></div>
+            <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.itbis">ITBIS (18%)</span><span id="resItbis" class="font-bold text-white whitespace-nowrap">—</span></div>
             <div id="resExtrasRow" class="hidden flex justify-between gap-3 text-sky-300"><span data-i18n="calc.recargos">Recargos (Express/Envío)</span><span id="resExtras" class="font-bold whitespace-nowrap">—</span></div>
         </div>
         <div class="mt-6 pt-4 border-t border-white/20">
@@ -92,21 +93,22 @@
 
     function calcular() {
         const k = $('calcServiceSelect').value, s = SERV[k]; if (!s) return;
-        const { express, envio } = opciones(), extras = (express ? C.express_fee : 0) + (envio ? C.delivery_fee : 0);
+        const { express, envio } = opciones(), pr = TF.precio(s, express, envio), extras = pr.express + pr.envio;
         // Trámite 100 % digital: no hay prioridad Express ni entrega física.
         ['calcPrioridad', 'calcEntrega'].forEach(x => $(x).classList.toggle('hidden', !!s.digital));
         $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
-        $$('[data-express-fee]').forEach(el => el.textContent = money(C.express_fee));
+        $$('[data-express-fee]').forEach(el => el.textContent = money(TF.precio(s, true, false).express));
         $$('[data-delivery-fee]').forEach(el => el.textContent = money(C.delivery_fee));
         $('resTitulo').textContent = tc('servicios', k).title;
         $('resIncluye').innerHTML = TF.incluyeHtml(k);
         $('resTiempo').innerHTML = TF.tiempoHtml(k, 'tiempo-oscuro');
         $('resTax').textContent = money(s.tax);
         $('resFee').textContent = money(s.fee);
+        $('resItbis').textContent = money(pr.itbis);
         $('resExtrasRow').classList.toggle('hidden', extras === 0);
         $('resExtras').textContent = money(extras);
-        $('resTotal').textContent = money(s.tax + s.fee + extras);
-        const mitad = (s.tax + s.fee + extras) / 2;
+        $('resTotal').textContent = money(pr.total);
+        const mitad = pr.total / 2;
         $('pagoInicio').textContent = money(mitad);
         $('pagoEntrega').textContent = money(mitad);
         restart($('resTotal'), 'bump');

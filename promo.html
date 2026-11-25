@@ -530,8 +530,8 @@ $('#f_pais').addEventListener('change', e => { const p = PAISES.find(x => x[0] =
 function pintaCot() {
   const s = SERV[st.sid]; if (!s) return;
   if (s.digital) st.express = st.envio = false;   // trámite 100 % digital: sin Express ni envío
-  const ex = st.express ? C.express_fee : 0, en = st.envio ? C.delivery_fee : 0, m = st.moneda, extras = ex + en;
-  const tot = s.tax + s.fee + extras, mitad = tot / 2;
+  const pr = TF.precio(s, st.express, st.envio), ex = pr.express, en = pr.envio, m = st.moneda, extras = ex + en;
+  const tot = pr.total, mitad = tot / 2;
   const insts = (s.inst || []).map(i => (D.instituciones || {})[i]).filter(Boolean);
   const nomInst = insts.length ? insts.map(i => i.sigla).join(' / ') : 'la institución';
   const ck = (D.checklists || {})[st.sid];
@@ -541,7 +541,7 @@ function pintaCot() {
       <span class="lc-l">Prioridad</span>
       <div class="lc-2">
         <label class="opcion"><input type="radio" name="speed" value="standard" ${st.express ? '' : 'checked'}><div><b>Estándar</b><small>Tiempo regular</small></div></label>
-        <label class="opcion"><input type="radio" name="speed" value="express" ${st.express ? 'checked' : ''}><div><b>Express</b><small>+ ${fmt(C.express_fee, m)}</small></div></label>
+        <label class="opcion"><input type="radio" name="speed" value="express" ${st.express ? 'checked' : ''}><div><b>Express</b><small>+ ${fmt(TF.precio(s, true, false).express, m)}</small></div></label>
       </div>
       <span class="lc-l">Entrega</span>
       <label class="opcion"><input type="checkbox" data-x="envio" ${st.envio ? 'checked' : ''}><div><b>Envío por mensajería</b><small>+ ${fmt(C.delivery_fee, m)}</small></div></label>
@@ -551,6 +551,7 @@ function pintaCot() {
       <p class="lc-t">${esc(s.title)}</p>
       ${s.digital && !s.tax ? '' : `<div class="lc-r"><span>Tasas oficiales<small>Lo que cobra ${esc(nomInst)}</small></span><b>${fmt(s.tax, m)}</b></div>`}
       <div class="lc-r"><span>Honorarios TramitaFácil<small>Revisión, gestión y seguimiento</small></span><b>${fmt(s.fee, m)}</b></div>
+      <div class="lc-r"><span>ITBIS (18%)<small>Sobre tasas y honorarios</small></span><b>${fmt(pr.itbis, m)}</b></div>
       ${extras ? `<div class="lc-r x"><span>Recargos (${[ex ? 'Express' : '', en ? 'Envío' : ''].filter(Boolean).join(' + ')})</span><b>${fmt(extras, m)}</b></div>` : ''}
       <div class="lc-tot"><div class="k">Total estimado</div><div class="v">${fmt(tot, m)}</div>
         <div class="e">≈ ${['DOP','USD','EUR'].filter(x => x !== m).map(x => fmt(tot, x)).join(' · ')}</div></div>

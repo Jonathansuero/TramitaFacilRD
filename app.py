@@ -1133,7 +1133,7 @@ def api_solicitud():
                " VALUES (?,?,?,?,?,?,?)",
                (codigo, titulo, calculos.nombre_publico(nombre), 1, "Solicitud Recibida", DETALLE_INICIAL, ts))
     srv = cat["servicios"][servicio]
-    agregar_tramite(db, codigo, servicio, titulo, srv["tax"] + srv["fee"], ts)
+    agregar_tramite(db, codigo, servicio, titulo, calculos.precio(srv, cat["config"], bool(d.get("express")), bool(d.get("envio")))["total"], ts)
     db.commit()
 
     notificar_solicitud({"codigo": codigo, "nombre": nombre, "idioma": idioma.upper(),
@@ -1303,7 +1303,7 @@ def servicio_pedido(item: dict, cat: dict) -> tuple[str, str, float | None] | st
     if sid not in cat["servicios"]:
         return "Elige el trámite."
     s = cat["servicios"][sid]
-    return sid, s["title"], precio if precio is not None else s["tax"] + s["fee"]
+    return sid, s["title"], precio if precio is not None else calculos.precio(s, cat["config"])["final"]
 
 
 @app.get("/api/admin/sesion")
@@ -2761,7 +2761,7 @@ def _datos_servicio(serv: dict, sid: str, cat_: dict, sitio: str) -> str:
     grafo = [{"@type": "Service", "name": serv["title"], "description": serv.get("desc", ""),
               "serviceType": serv["title"], "url": url, "areaServed": {"@type": "Country", "name": "República Dominicana"},
               "provider": {"@type": "Organization", "name": "TramitaFácil RD", "url": sitio + "/"},
-              "offers": {"@type": "Offer", "url": url, "price": str(_entero(tax) + _entero(fee)),
+              "offers": {"@type": "Offer", "url": url, "price": str(calculos.precio({"tax": _entero(tax), "fee": _entero(fee)}, cat_["config"])["final"]),
                          "priceCurrency": "DOP", "availability": "https://schema.org/InStock"}},
              {"@type": "BreadcrumbList", "itemListElement": [
                  {"@type": "ListItem", "position": 1, "name": "Inicio", "item": sitio + "/"},

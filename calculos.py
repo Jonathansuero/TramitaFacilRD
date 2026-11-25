@@ -31,6 +31,17 @@ def _tasas(catalogo: dict, tasas: dict | None) -> dict:
     return base
 
 
+def precio(s: dict, cfg: dict, express: bool = False, envio: bool = False) -> dict:
+    """Precio de un trámite en DOP: tasa + honorarios + ITBIS (sobre los dos); Express = % del valor final; courier fijo."""
+    base = s["tax"] + s["fee"]
+    itbis = round(base * cfg.get("itbis", 0))
+    final = base + itbis
+    express = round(final * cfg.get("express_pct", 0)) if express and not s.get("digital") else 0
+    envio = cfg.get("delivery_fee", 0) if envio and not s.get("digital") else 0
+    return {"tax": s["tax"], "fee": s["fee"], "itbis": itbis, "final": final, "express": express, "envio": envio,
+            "total": final + express + envio}
+
+
 def cotizar(catalogo: dict, servicio: str, express: bool = False, envio: bool = False,
             moneda: str = "DOP", tasas: dict | None = None) -> dict:
     """Desglose de una cotización. Los montos base están en DOP."""
@@ -46,8 +57,9 @@ def cotizar(catalogo: dict, servicio: str, express: bool = False, envio: bool = 
     # Un trámite digital (sin institución ni documentos físicos) no tiene Express ni courier.
     if s.get("digital"):
         express = envio = False
-    extras = (cfg["express_fee"] if express else 0) + (cfg["delivery_fee"] if envio else 0)
-    total_dop = s["tax"] + s["fee"] + extras
+    p = precio(s, cfg, express, envio)
+    extras = p["express"] + p["envio"]
+    total_dop = p["total"]
     tasa = _tasas(catalogo, tasas)[moneda]
     decimales = 0 if moneda == "DOP" else 2
 
@@ -61,6 +73,9 @@ def cotizar(catalogo: dict, servicio: str, express: bool = False, envio: bool = 
         "tasa": tasa,
         "tasas_oficiales": conv(s["tax"]),
         "honorarios": conv(s["fee"]),
+        "itbis": conv(p["itbis"]),
+        "express": conv(p["express"]),
+        "envio": conv(p["envio"]),
         "extras": conv(extras),
         "total": conv(total_dop),
         "total_dop": total_dop,

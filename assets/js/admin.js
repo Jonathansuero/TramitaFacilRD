@@ -200,7 +200,9 @@
     const paisNombre = (pais, det) => ((cat && cat.paises[pais] && cat.paises[pais].nombre) || pais || '—') + (det ? ` (${det})` : '');
     const tono = paso => ({ 1: 'sky', 2: 'sky', 3: 'amber', 4: 'emerald' }[paso] || 'sky');
     const barra = paso => `<span class="barra">${[1, 2, 3, 4].map(i => `<i class="${i <= paso ? 'on' : ''}${paso === 4 ? ' listo' : ''}"></i>`).join('')}</span>`;
-    const precioCatalogo = id => (cat && cat.servicios[id]) ? cat.servicios[id].tax + cat.servicios[id].fee : null;
+    // mismo cálculo que la página: tasa + honorarios + ITBIS sobre los dos (el panel guarda el precio final)
+    const TF_PRECIO = (s, cfg) => { const b = (s.tax || 0) + (s.fee || 0); return b + Math.round(b * ((cfg && cfg.itbis) || 0)); };
+    const precioCatalogo = id => (cat && cat.servicios[id]) ? TF_PRECIO(cat.servicios[id], cat.config) : null;
     const DOCS_GENERICOS = ['Copia de cédula o pasaporte', 'Datos completos del trámite', 'Documentos de soporte', 'Comprobante de pago'];
     const checklist = t => (cat && cat.checklists && cat.checklists[t.servicio_id] && cat.checklists[t.servicio_id].items) || DOCS_GENERICOS;
     const diasSin = e => Math.floor((Date.now() - new Date(e.actualizado)) / 86400000);
