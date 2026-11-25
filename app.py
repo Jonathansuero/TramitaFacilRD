@@ -2914,6 +2914,18 @@ def pagina(nombre: str, sid: str = ""):
     if nombre.startswith("guia-"):
         html = _rellenar(html, "gServicios", _servicios_guia(nombre[len("guia-"):], cat))
         html = html.replace("</title>", "</title>" + _datos_guia(nombre[len("guia-"):], titulo, desc, url, sitio, html), 1)
+    if nombre in PAGINAS_CON_MIGAS:
+        # Para Google: migas de pan (Inicio › Diáspora › Nueva York) escritas en el HTML
+        nombre_pag = re.sub(r"\s*[:·|\u2013\u2014-].*$", "", titulo).strip() or titulo
+        migas = [{"@type": "ListItem", "position": 1, "name": "Inicio", "item": sitio + "/"}]
+        if ruta.startswith("/diaspora/"):
+            migas.append({"@type": "ListItem", "position": 2, "name": "Diáspora", "item": sitio + "/diaspora"})
+        migas.append({"@type": "ListItem", "position": len(migas) + 1, "name": nombre_pag, "item": url})
+        datos_pag = {"@context": "https://schema.org", "@graph": [
+            {"@type": "WebPage", "name": titulo, "description": desc, "url": url, "inLanguage": "es-DO",
+             "isPartOf": {"@type": "WebSite", "name": "TramitaFácil RD", "url": sitio + "/"}},
+            {"@type": "BreadcrumbList", "itemListElement": migas}]}
+        etiquetas += '\n    <script type="application/ld+json">' + json.dumps(datos_pag, ensure_ascii=False).replace("</", "<\\/") + "</script>"
     if nombre == "index":
         # Para Google: nombre del sitio y logo de la empresa (no depende del JavaScript)
         org = {"@context": "https://schema.org", "@graph": [
@@ -2925,6 +2937,22 @@ def pagina(nombre: str, sid: str = ""):
         etiquetas += '\n    <script type="application/ld+json">' + json.dumps(org, ensure_ascii=False).replace("</", "<\\/") + "</script>"
     html = html.replace("</title>", "</title>" + etiquetas, 1)
     return Response(html, mimetype="text/html")
+
+
+# Páginas públicas que llevan migas de pan y WebPage (las fichas y las guías ya tienen sus propios datos)
+PAGINAS_CON_MIGAS = {"calculadora", "casos", "diaspora", "diaspora-nueva-york", "diaspora-madrid", "diaspora-miami",
+                     "diaspora-boston", "diaspora-barcelona", "guias", "instituciones", "nosotros", "preguntas",
+                     "privacidad", "rastreo", "servicios", "terminos"}
+
+
+@app.before_request
+def sin_barra_final():
+    """/servicios/ → /servicios (una sola dirección por página: Google no la toma como duplicada ni como 404)."""
+    ruta = request.path
+    if request.method == "GET" and len(ruta) > 1 and ruta.endswith("/") and not ruta.startswith(("/api/", "/admin")):
+        destino = ruta.rstrip("/") or "/"
+        return redirect(destino + ("?" + request.query_string.decode() if request.query_string else ""), 301)
+    return None
 
 
 @app.before_request
