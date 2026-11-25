@@ -19,7 +19,7 @@
         if (!$('catGrid')) return null;             // la página no lleva catálogo
         const params = new URLSearchParams(location.search);
         const ui = {
-            cat: (url && D.categorias[params.get('cat')]) ? params.get('cat') : 'todos',
+            cat: (url && (params.get('cat') || '').split(',').every(k => D.categorias[k])) ? params.get('cat') : 'todos',   // una o varias categorías, separadas por coma
             catPais: (url && params.get('pais') === 'mio') ? 'mio' : 'todos',
             catQuery: url ? (params.get('q') || '').slice(0, 60) : '',
             catPage: 0, catPaginas: 0, catTotal: 0
@@ -49,7 +49,7 @@
             const q = normal(ui.catQuery.trim()), fuera = excluir ? excluir() : null;
             const items = Object.keys(SERV).filter(k => {
                 const s = SERV[k], tr = tc('servicios', k);
-                return k !== fuera && (ui.cat === 'todos' || s.category === ui.cat) && (ui.catPais === 'todos' || s.paises.includes(state.pais)) &&
+                return k !== fuera && (ui.cat === 'todos' || ui.cat.split(',').includes(s.category)) && (ui.catPais === 'todos' || s.paises.includes(state.pais)) &&
                     (!q || normal(tr.title + ' ' + tr.desc + ' ' + s.title + ' ' + s.inst.map(i => D.instituciones[i].sigla).join(' ')).includes(q));
             });
             ui.catTotal = items.length;
