@@ -2936,15 +2936,20 @@
       "See travel procedures",
       "Voir les démarches de voyage"
     ],
-    "caso.ext": [
-      "¿Eres extranjero y vives en RD?",
-      "Are you a foreigner living in the DR?",
-      "Vous êtes étranger et vivez en RD ?"
+    "caso.4.t": [
+      "Soy extranjero y vivo en RD",
+      "I am a foreigner living in the DR",
+      "Je suis étranger et je vis en RD"
     ],
-    "caso.ext.a": [
-      "Residencia y certificaciones de Migración →",
-      "Residency and Immigration certificates →",
-      "Résidence et certificats de Migration →"
+    "caso.4.d": [
+      "Residencia dominicana y certificaciones de Migración, con el proceso explicado paso a paso.",
+      "Dominican residency and Immigration certificates, with the process explained step by step.",
+      "Résidence dominicaine et certificats de Migration, avec le processus expliqué pas à pas."
+    ],
+    "caso.4.a": [
+      "Ver residencia y Migración",
+      "See residency and Immigration",
+      "Voir résidence et Migration"
     ]
   },
   "contenido": {
