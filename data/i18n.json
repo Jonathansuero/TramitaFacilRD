@@ -3329,6 +3329,10 @@
         "cert_cedula_otras": [
           "ID Card Certification for other purposes and institutions (JCE)",
           "ID card certification issued by the JCE for other institutions and purposes."
+        ],
+        "acta_nacimiento": [
+          "Dominican Birth Certificate (JCE)",
+          "Dominican birth certificate in the JCE's single format, ready to apostille and sent wherever you are."
         ]
       },
       "checklists": {
@@ -3498,6 +3502,14 @@
             "Copy of Dominican ID",
             "Institution where you will submit the certification",
             "Any extra details the JCE asks for your case (we confirm them)"
+          ]
+        ],
+        "acta_nacimiento": [
+          "Birth certificate",
+          [
+            "Full name of the person on the record",
+            "ID number, or book, folio and year of the record (if you have them)",
+            "Country where it will be used (for apostille)"
           ]
         ]
       },
@@ -3953,6 +3965,10 @@
         "cert_cedula_otras": [
           "Certification de carte d’identité pour autres fins et institutions (JCE)",
           "Certification de votre carte d’identité délivrée par la JCE pour d’autres institutions et fins."
+        ],
+        "acta_nacimiento": [
+          "Acte de naissance dominicain (JCE)",
+          "Acte de naissance dominicain au format unique de la JCE, prêt à apostiller et envoyé où que vous soyez."
         ]
       },
       "checklists": {
@@ -4122,6 +4138,14 @@
             "Copie de la carte d’identité dominicaine",
             "Institution où vous présenterez la certification",
             "Autres données demandées par la JCE pour votre cas (nous les confirmons)"
+          ]
+        ],
+        "acta_nacimiento": [
+          "Acte de naissance",
+          [
+            "Nom complet de la personne concernée",
+            "Numéro de pièce d'identité, ou livre, folio et année de l'acte (si vous les avez)",
+            "Pays où il sera utilisé (pour l'apostille)"
           ]
         ]
       },

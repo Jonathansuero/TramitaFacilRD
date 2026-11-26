@@ -852,6 +852,61 @@
         "declaracion_jurada"
       ]
     },
+    "acta_nacimiento": {
+      "title": "Acta de Nacimiento Dominicana (JCE)",
+      "slug": "acta-de-nacimiento",
+      "tax": 600,
+      "fee": 1500,
+      "category": "legales",
+      "paises": [
+        "us",
+        "es",
+        "rd",
+        "mundo"
+      ],
+      "desc": "Acta de nacimiento dominicana en el formato único de la JCE, lista para apostillar y enviada a donde estés.",
+      "incluye": [
+        "Pago de la tasa de la JCE",
+        "Solicitud y retiro del acta en la oficialía",
+        "Acta escaneada en PDF",
+        "Apostilla en el MIREX si la vas a usar fuera"
+      ],
+      "inst": [
+        "jce"
+      ],
+      "seo_titulo": "Acta de nacimiento dominicana desde el exterior",
+      "seo": "Pedimos tu acta de nacimiento en la JCE, en el formato único vigente, apostillada si la necesitas y enviada a donde estés. Cotiza ya.",
+      "como": [
+        "Nos das el nombre completo de la persona del acta y, si los tienes, el libro, el folio y el año, o su cédula.",
+        "La pedimos en la JCE y la retiramos cuando está lista, ya en el formato único que se usa desde julio de 2025.",
+        "Si la vas a usar fuera del país, la apostillamos en el MIREX antes de enviártela."
+      ],
+      "entrega": "Te llega el acta escaneada en PDF y, si la pediste apostillada, el original por courier a la dirección que nos indiques.",
+      "faq": [
+        {
+          "q": "¿Qué cambió con el formato único de la JCE?",
+          "a": "Desde el 1 de julio de 2025 la JCE emite las actas del estado civil en un solo formato y ya no distingue entre extracto e inextensa. Muchas instituciones siguen aceptando las anteriores, pero si te exigen una reciente, lo más seguro es pedir una nueva."
+        },
+        {
+          "q": "¿Necesito el libro y el folio del acta?",
+          "a": "Ayudan a ubicarla más rápido, pero no son obligatorios: con el nombre completo y la cédula de la persona solemos encontrarla. Si no tienes nada, cuéntanos lo que sepas y la buscamos."
+        },
+        {
+          "q": "¿Sirve para el pasaporte, una visa o un matrimonio en el exterior?",
+          "a": "Es el documento base de casi todos esos trámites. Si la van a usar en otro país, pídela apostillada de una vez para no repetir la gestión."
+        },
+        {
+          "q": "Mi acta tiene un error, ¿la pido igual?",
+          "a": "Mejor corrígela primero: sacar un acta con el error te deja el mismo problema en papel nuevo. Cuéntanos qué dice y te decimos si corresponde la rectificación."
+        }
+      ],
+      "intro": "El acta de nacimiento es el documento del que salen todos los demás: la cédula, el pasaporte, el matrimonio, la residencia en otro país. Pedirla desde el exterior suele ser lo que más se atrasa, porque la oficialía donde está inscrita queda en República Dominicana.",
+      "relacionados": [
+        "apostilla_documentos",
+        "rectificacion_actas_jce",
+        "certificacion_solteria"
+      ]
+    },
     "poderes_especiales": {
       "title": "Poderes Notariales Especiales",
       "slug": "poder-notarial-especial",
@@ -3288,6 +3343,14 @@
         "Copia de cédula dominicana",
         "Institución donde presentarás la certificación",
         "Datos adicionales que pida la JCE para tu caso (te los confirmamos)"
+      ]
+    },
+    "acta_nacimiento": {
+      "label": "Acta de nacimiento",
+      "items": [
+        "Nombre completo de la persona del acta",
+        "Cédula, o libro, folio y año del acta (si los tienes)",
+        "País donde se usará el documento (para apostilla)"
       ]
     }
   },
