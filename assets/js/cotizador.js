@@ -47,12 +47,14 @@
         <div class="mt-6 pt-4 border-t border-white/20">
             <div class="text-xs text-slate-400 uppercase font-bold tracking-wider" data-i18n="calc.total">Total estimado</div>
             <div id="resTotal" class="text-3xl font-black text-domGold my-1 tabular-nums">—</div>
-            <div class="pago-mitades">
-                <div><span data-i18n="pago.hoy">Hoy (al iniciar)</span><strong id="pagoInicio" class="tabular-nums">—</strong></div>
-                <div><span data-i18n="pago.fin">Al entregar</span><strong id="pagoEntrega" class="tabular-nums">—</strong></div>
-            </div>
-            <p class="text-[11px] text-slate-400 italic mt-2" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
+            <p class="text-[11px] text-slate-400 italic" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
             <p id="rateNote" class="text-[11px] text-slate-400 mt-1"></p>
+        </div>
+        <div class="pago-5050" aria-labelledby="pagoT">
+            <div id="pagoT" class="pago-t"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span data-i18n="pago.t">Cómo pagas y qué pasa después</span></div>
+            <div class="pago-fila"><span><b>1</b><span data-i18n="pago.inicio">Pago inicial para empezar</span></span><strong id="pagoInicio" class="tabular-nums">—</strong></div>
+            <div class="pago-fila"><span><b>2</b><span data-i18n="pago.entrega">El resto cuando te entregamos</span></span><strong id="pagoEntrega" class="tabular-nums">—</strong></div>
+            <p class="pago-nota" data-i18n="pago.nota">Para empezar pagas lo que cubre la tasa oficial; el resto, al recibir tu trámite terminado.</p>
         </div>
         <div id="resIncluye"></div>
         <div id="resTiempo"></div>
