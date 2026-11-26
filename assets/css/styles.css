@@ -973,3 +973,6 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .cesta-form { padding: 14px; border-radius: 16px; background: #f1f5f9; border: 1px solid #e2e8f0; }
 .cesta-form ol { margin: 8px 0 0; padding-left: 22px; list-style: decimal; font-size: 14px; font-weight: 600; color: #0f172a; display: grid; gap: 4px; }
 .cesta-form small { display: block; margin-top: 8px; color: #64748b; font-size: 12px; }
+
+.cesta-vacia { margin-top: 12px; padding: 14px 16px; border: 2px dashed #cbd5e1; border-radius: 16px; color: #64748b; font-size: 13px; font-weight: 600; background: #f8fafc; }
+#quoteFormBtn:disabled, #quoteCopyBtn:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }

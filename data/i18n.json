@@ -2965,6 +2965,11 @@
       "+ Agregar otro trámite",
       "+ Add another service",
       "+ Ajouter une autre démarche"
+    ],
+    "cart.vacio": [
+      "Aún no has elegido ningún trámite. Elígelo en la lista de arriba.",
+      "You haven't chosen a service yet. Pick one from the list above.",
+      "Vous n'avez pas encore choisi de démarche. Choisissez-en une dans la liste ci-dessus."
     ]
   },
   "contenido": {

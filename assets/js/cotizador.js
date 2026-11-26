@@ -90,25 +90,24 @@
         restart($('quoteSummary'), 'flash-ring');
     }
     function quitar(k) {
-        if (cart.length < 2) return;
         cart = cart.filter(x => x !== k); aviso('');
         buildServiceSelect($('calcServiceSearch').value);
     }
     function renderCesta() {
         const lista = ids(), box = $('calcCesta');
+        if (!lista.length) { box.innerHTML = `<p class="cesta-vacia">${esc(t('cart.vacio'))}</p>`; return; }
         box.innerHTML = `<span class="form-label">${esc(t('cart.titulo'))}</span>` + lista.map((k, i) => {
             const previa = lista.findIndex(esCert);
             const mismoDoc = k === 'apostilla_documentos' && previa > -1 && previa < i;
             return `<div class="cesta-item"><span class="cesta-n">${i + 1}</span><div class="cesta-t"><b>${esc(tc('servicios', k).title)}</b>
                 ${mismoDoc ? `<span class="cesta-doc"><i class="fa-solid fa-check" aria-hidden="true"></i> ${esc(t('cart.mismoDoc', { n: previa + 1 }))}</span>` : ''}
-                ${lista.length > 1 ? `<button type="button" class="cesta-quitar" data-quitar="${k}">${esc(t('cart.quitar'))}</button>` : ''}</div>
+                <button type="button" class="cesta-quitar" data-quitar="${k}">${esc(t('cart.quitar'))}</button></div>
                 <span class="cesta-precio">${money(TF.precio(SERV[k], false, false).total)}</span></div>`;
         }).join('');
     }
 
     function buildServiceSelect(filter = '') {
         const select = $('calcServiceSelect'), q = normal(filter.trim()), usados = new Set(cart);
-        if (!cart.length) cart = [PAISES[state.pais].destacados[0]].filter(k => SERV[k]);
         let html = '';
         Object.keys(D.categorias).forEach(cat => {
             const items = Object.keys(SERV).filter(k => SERV[k].category === cat && !usados.has(k) && (!q || normal(tc('servicios', k).title + ' ' + SERV[k].title).includes(q)));
@@ -128,7 +127,23 @@
 
     const cambios = [];
     function calcular() {
-        const lista = ids(), k = lista[0], s = SERV[k]; if (!s) return;
+        const lista = ids(), k = lista[0], s = SERV[k];
+        const vacio = !s;
+        $$('#quoteSummary .pago-5050').forEach(x => x.classList.toggle('hidden', vacio));
+        if (vacio) {
+            $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
+            ['calcPrioridad', 'calcEntrega'].forEach(x => $(x).classList.add('hidden'));
+            $('resH3').textContent = t('calc.resumen');
+            $('resTitulo').textContent = t('cart.vacio');
+            ['resTaxRow', 'resFeeRow', 'resItbisRow', 'resExtrasRow', 'resMulti', 'resIncluye', 'resTiempo', 'quotePageLink', 'calcUnaVez'].forEach(x => $(x).classList.add('hidden'));
+            ['resTotal', 'pagoInicio', 'pagoEntrega'].forEach(x => $(x).textContent = '—');
+            $('rateNote').textContent = '';
+            ['quoteFormBtn', 'quoteCopyBtn'].forEach(x => { $(x).disabled = true; $(x).classList.add('opacity-50', 'cursor-not-allowed'); });
+            $('quoteWaBtn').href = waLink(t('wa.cot.hola') + '\n' + t('wa.cot.desde', { lugar: TF.lugar() }));
+            renderCesta(); cambios.forEach(f => f()); return;
+        }
+        ['quoteFormBtn', 'quoteCopyBtn'].forEach(x => { $(x).disabled = false; $(x).classList.remove('opacity-50', 'cursor-not-allowed'); });
+        $('resItbisRow').classList.remove('hidden');
         const m = lista.length > 1, n = lista.length;
         const { express, envio } = opciones(), c = TF.cesta(lista, express, envio);
         // Trámite 100 % digital: no hay prioridad Express ni entrega física.
@@ -199,7 +214,7 @@
         host.innerHTML = PLANTILLA;
         TF.applyI18n(host);
         renderPais();
-        cart = [PAISES[state.pais].destacados[0]].filter(k => SERV[k]);
+        cart = [];
         buildServiceSelect('');
         $('calcServiceSearch').addEventListener('input', e => buildServiceSelect(e.target.value));
         $('calcServiceSelect').addEventListener('change', e => { if (e.target.value) agregar(e.target.value); });
