@@ -86,7 +86,7 @@ import threading
 import time
 import urllib.request
 from collections import defaultdict, deque
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from email.message import EmailMessage
 from functools import wraps
 from pathlib import Path
@@ -407,6 +407,16 @@ CREATE TABLE IF NOT EXISTS servicios_incluye (
     destacado TEXT NOT NULL DEFAULT '',
     actualizado TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS recordatorios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    codigo TEXT NOT NULL,
+    tipo TEXT NOT NULL,
+    clave TEXT NOT NULL DEFAULT '',
+    canal TEXT NOT NULL,
+    usuario TEXT,
+    fecha TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_recordatorios ON recordatorios (codigo, tipo, clave);
 """
 
 
@@ -437,6 +447,13 @@ def migrar(db: sqlite3.Connection) -> None:
     for col in ("eliminado", "eliminado_por", "eliminado_motivo"):  # zafacón: fecha, quién y por qué
         if col not in cols_s:
             db.execute(f"ALTER TABLE seguimiento ADD COLUMN {col} TEXT")
+    for col in ("sin_respuesta", "reabierta"):   # cotización archivada por falta de respuesta · y cuándo se volvió a abrir (fechas)
+        if col not in cols_s:
+            db.execute(f"ALTER TABLE seguimiento ADD COLUMN {col} TEXT")
+    cols_t = {r[1] for r in db.execute("PRAGMA table_info(tramites)")}
+    for col in ("entrega_prometida", "motivo_atraso"):   # fecha prometida al cliente (AAAA-MM-DD) y por qué se movió
+        if col not in cols_t:
+            db.execute(f"ALTER TABLE tramites ADD COLUMN {col} TEXT")
     cols_p = {r[1] for r in db.execute("PRAGMA table_info(pagos)")}
     if "estado" not in cols_p:  # los pagos de antes ya se daban por buenos
         db.execute("ALTER TABLE pagos ADD COLUMN estado TEXT NOT NULL DEFAULT 'confirmado'")
@@ -489,7 +506,8 @@ DETALLE_INICIAL = "Recibimos tu solicitud. Un gestor te contactará para validar
 
 def tramites_de(db: sqlite3.Connection, codigo: str) -> list[dict]:
     rows = db.execute("SELECT * FROM tramites WHERE codigo=? ORDER BY id", (codigo,)).fetchall()
-    return [{**dict(r), "tono": TONO_POR_PASO.get(r["paso"], "sky"), "docs": _lista_json(r["docs"])} for r in rows]
+    return [{**dict(r), "tono": TONO_POR_PASO.get(r["paso"], "sky"), "docs": _lista_json(r["docs"]),
+             "atraso_dias": atraso_dias(r["paso"], r["entrega_prometida"])} for r in rows]
 
 
 def _lista_json(texto) -> list:
@@ -1274,6 +1292,7 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
         "SELECT asunto, para, tipo, estado, fecha FROM correos WHERE codigo=? AND tipo<>'equipo' ORDER BY id DESC LIMIT 10", (d["codigo"],))]
     d["docs_pedidos"] = docs_pedidos_de(db, d["codigo"])
     d["pago_wa"] = db.execute("SELECT pago_wa FROM seguimiento WHERE codigo=?", (d["codigo"],)).fetchone()["pago_wa"]
+    d.update(estado_cotizacion(db, d))
     d["archivos_bloqueados"] = not archivos_desbloqueados(db, d["codigo"])
     d["archivos_liberados_manual"] = bool(db.execute("SELECT archivos_liberados FROM seguimiento WHERE codigo=?", (d["codigo"],)).fetchone()[0])
     d["comprobantes"] = [dict(r) for r in db.execute(
@@ -1288,7 +1307,7 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
 
 
 CONSULTA_EXPEDIENTES = """
-SELECT s.codigo, s.servicio AS servicio_titulo, s.cliente, s.paso, s.estado, s.detalle, s.actualizado,
+SELECT s.codigo, s.servicio AS servicio_titulo, s.cliente, s.paso, s.estado, s.detalle, s.actualizado, s.sin_respuesta, s.reabierta,
        o.nombre, o.contacto, o.pais, o.pais_detalle, o.mensaje, o.total_estimado, o.moneda, o.creado,
        o.idioma, o.servicio AS servicio_id, o.origen, o.origen_detalle, o.pagina, o.dispositivo
 FROM seguimiento s LEFT JOIN solicitudes o ON o.codigo = s.codigo
@@ -1536,10 +1555,12 @@ def admin_cliente():
 def admin_expedientes():
     db = get_db()
     purgar_zafacon(db)
+    mantenimiento_seguimiento(db)
     rows = db.execute(CONSULTA_EXPEDIENTES + " WHERE s.eliminado IS NULL ORDER BY s.actualizado DESC LIMIT 1000").fetchall()
     lista = [expediente(db, r) for r in rows]
     conteo = {str(p): sum(1 for e in lista if e["paso"] == p) for p in PASOS}
-    return jsonify({"ok": True, "expedientes": lista, "conteo": conteo, "pasos": PASOS})
+    return jsonify({"ok": True, "expedientes": lista, "conteo": conteo, "pasos": PASOS,
+                    "recordatorios_auto": ajuste(db, "recordatorios_auto") == "1"})
 
 
 @app.post("/api/admin/estado")
@@ -1570,6 +1591,10 @@ def admin_estado():
         return error("Elige cuál de los trámites quieres actualizar.")
     db.execute("UPDATE tramites SET paso=?, estado=?, detalle=?, actualizado=? WHERE id=? AND codigo=?",
                (paso, estado, detalle, ahora(), tid, codigo))
+    sid = next(t["servicio_id"] for t in items if t["id"] == tid)
+    if paso == 3 and sid in DIAS_OFICIALES and not next(t["entrega_prometida"] for t in items if t["id"] == tid):
+        # al entrar a la institución se propone la fecha con el tiempo que publica la propia institución (la puedes cambiar)
+        db.execute("UPDATE tramites SET entrega_prometida=? WHERE id=?", (sumar_habiles(hoy_rd(), DIAS_OFICIALES[sid]).isoformat(), tid))
     recalcular(db, codigo)
     titulo = next(t["titulo"] for t in items if t["id"] == tid)
     registrar(f"Movió a paso {paso} ({PASOS[paso]})", codigo, f"{titulo}: {detalle}")
@@ -1682,6 +1707,346 @@ def admin_avisar():
     registrar("Envió un correo al cliente", codigo, f"{asunto} → {para}")
     db.commit()
     return jsonify({"ok": True, "para": para, "expediente": un_expediente(db, codigo)})
+
+
+# ---------------------------------------------------------------- seguimiento: cotizaciones sin cerrar y trámites atrasados
+DIAS_REC1, DIAS_REC2, DIAS_ARCHIVO = 2, 7, 15       # días desde que el cliente pidió y no paga
+TZ_RD = timezone(timedelta(hours=-4))               # República Dominicana no cambia de hora
+# Tiempo máximo que publica cada institución (en días hábiles). Solo se usa para SUGERIR una fecha; la decides tú.
+DIAS_OFICIALES = {"e_ticket": 0, "pasaporte_normal": 3, "pasaporte_electronico": 2, "pasaporte_vip": 0,
+                  "certificacion_solteria": 0, "apostilla_documentos": 3, "legalizacion_mescyt": 15,
+                  "estado_juridico_inmueble": 30, "certificacion_no_registro_vehicular": 3}
+MESES = {"es": "ene feb mar abr may jun jul ago sep oct nov dic", "en": "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec",
+         "fr": "janv. févr. mars avr. mai juin juil. août sept. oct. nov. déc."}
+
+
+def hoy_rd() -> date:
+    return datetime.now(TZ_RD).date()
+
+
+def _fecha_iso(valor) -> date | None:
+    try:
+        return date.fromisoformat(str(valor or "")[:10])
+    except ValueError:
+        return None
+
+
+def atraso_dias(paso: int, entrega_prometida) -> int:
+    """Días que lleva pasada la fecha prometida (0 si no hay fecha, no ha pasado o el trámite ya está listo)."""
+    f = _fecha_iso(entrega_prometida)
+    return max(0, (hoy_rd() - f).days) if f and paso < 4 else 0
+
+
+def sumar_habiles(desde: date, n: int) -> date:
+    f = desde
+    while n > 0:
+        f += timedelta(days=1)
+        if f.weekday() < 5:
+            n -= 1
+    return f
+
+
+def fecha_corta(f: date, idioma: str | None) -> str:
+    lang = (idioma or "es")[:2]
+    mes = MESES.get(lang, MESES["es"]).split()[f.month - 1]
+    return f"{f.day} {mes} {f.year}" if lang != "en" else f"{mes} {f.day}, {f.year}"
+
+
+def dias_desde(iso) -> int:
+    try:
+        d = datetime.fromisoformat(str(iso))
+    except ValueError:
+        return 0
+    return max(0, (datetime.now(timezone.utc) - (d if d.tzinfo else d.replace(tzinfo=timezone.utc))).days)
+
+
+def cotizacion_abierta(db: sqlite3.Connection, codigo: str) -> bool:
+    """Pidió el trámite y no ha dado señales: nada pagado, ni comprobante, ni documentos, ni avance."""
+    if db.execute("SELECT 1 FROM tramites WHERE codigo=? AND paso>1 LIMIT 1", (codigo,)).fetchone():
+        return False
+    for sql in ("SELECT 1 FROM pagos WHERE codigo=?", "SELECT 1 FROM comprobantes WHERE codigo=?",
+                "SELECT 1 FROM archivos WHERE codigo=? AND clase='recibido'",
+                "SELECT 1 FROM seguimiento WHERE codigo=? AND COALESCE(pago_wa,'')<>''"):
+        if db.execute(sql + " LIMIT 1", (codigo,)).fetchone():
+            return False
+    return True
+
+
+def estado_cotizacion(db: sqlite3.Connection, d: dict) -> dict:
+    """Etapa de seguimiento de un expediente (para el panel)."""
+    codigo = d["codigo"]
+    enviados = [dict(r) for r in db.execute("SELECT tipo, canal, usuario, fecha FROM recordatorios WHERE codigo=? ORDER BY id", (codigo,))]
+    out = {"recordatorios": enviados, "cot_dias": None, "cot_etapa": None, "cot_tipo": None}
+    if d.get("sin_respuesta"):
+        out["cot_etapa"] = "archivada"
+        return out
+    if not cotizacion_abierta(db, codigo):
+        return out
+    dias = dias_desde(d.get("reabierta") or d.get("creado") or d.get("actualizado"))
+    out["cot_dias"] = dias
+    hechos = {r["tipo"] for r in enviados}
+    if dias >= DIAS_ARCHIVO:
+        out["cot_etapa"] = "archivar"
+    elif dias >= DIAS_REC2:
+        out["cot_etapa"] = "frio"
+        out["cot_tipo"] = "cot_7"
+    elif dias >= DIAS_REC1:
+        out["cot_etapa"] = "recordar"
+        out["cot_tipo"] = "cot_2"
+    else:
+        out["cot_etapa"] = "nueva"
+    out["cot_enviado"] = out["cot_tipo"] in hechos if out["cot_tipo"] else False
+    return out
+
+
+def ajuste(db: sqlite3.Connection, clave: str, defecto: str = "") -> str:
+    r = db.execute("SELECT valor FROM ajustes WHERE clave=?", (clave,)).fetchone()
+    return r["valor"] if r else defecto
+
+
+def moneda_rd(v: float) -> str:
+    return "RD$ " + f"{round(v):,}"
+
+
+def armar_recordatorio(db: sqlite3.Connection, codigo: str, tipo: str, tramite: int | None = None) -> dict | None:
+    """Prepara el correo y el texto de WhatsApp de un recordatorio (sin enviar nada)."""
+    sol = db.execute("SELECT nombre, contacto, idioma FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()
+    items = tramites_de(db, codigo) if sol else []
+    if not sol or not items:
+        return None
+    T = avisos.textos(sol["idioma"])
+    nombre = (sol["nombre"].split() or [""])[0]
+    enlace = f"{avisos.sitio()}/rastreo?c={codigo}"
+    if tipo in ("cot_2", "cot_7"):
+        datos = [(T["tramite"], t["titulo"]) for t in items] + [(T["codigo"], codigo)]
+        precios = [t["precio"] for t in items]
+        if precios and all(p is not None for p in precios):
+            cat = catalogo()
+            comp = calculos.composicion(items, cat["servicios"], cat["config"])
+            datos.append((T["rec_pago"], moneda_rd(min(sum(precios), comp["inicial"]))))
+        parrafos = [T["rec1"] if tipo == "cot_2" else T["rec2"], T["rec_nota"]]
+        titulo, asunto = T["rec_t"], T["rec_asunto"].format(codigo=codigo)
+        boton = (T["boton"], enlace)
+    elif tipo == "atraso":
+        t = next((x for x in items if x["id"] == tramite), None)
+        f = _fecha_iso(t["entrega_prometida"]) if t else None
+        if not t or not f:
+            return None
+        datos = [(T["tramite"], t["titulo"]), (T["codigo"], codigo), (T["atraso_fecha"], fecha_corta(f, sol["idioma"]))]
+        if t.get("motivo_atraso"):
+            datos.append((T["atraso_motivo"], t["motivo_atraso"]))
+        parrafos = [T["atraso"]]
+        titulo, asunto = T["atraso_t"], T["atraso_asunto"].format(codigo=codigo)
+        boton = (T["boton"], enlace)
+    else:
+        return None
+    saludo = T["hola"].format(nombre=nombre)
+    texto, html_ = avisos.plantilla(titulo, saludo, parrafos, datos=datos, boton=boton, pie=T["pie"])
+    wa = "\n\n".join([saludo] + parrafos + ["\n".join(f"{k}: {v}" for k, v in datos), enlace, "— TramitaFácil RD"])
+    return {"asunto": asunto, "titulo": titulo, "texto": texto, "html": html_, "para": avisos.correo_de(sol["contacto"]),
+            "whatsapp": wa, "idioma": (sol["idioma"] or "es")[:2]}
+
+
+def reclamar_recordatorio(db: sqlite3.Connection, codigo: str, tipo: str, clave: str, canal: str, usuario: str = "sistema") -> bool:
+    """Anota el envío SOLO si nadie lo había anotado (así dos procesos nunca mandan lo mismo dos veces)."""
+    cur = db.execute("INSERT INTO recordatorios (codigo, tipo, clave, canal, usuario, fecha)"
+                     " SELECT ?,?,?,?,?,? WHERE NOT EXISTS (SELECT 1 FROM recordatorios WHERE codigo=? AND tipo=? AND clave=?)",
+                     (codigo, tipo, clave, canal, usuario, ahora(), codigo, tipo, clave))
+    db.commit()
+    return cur.rowcount == 1
+
+
+def enviar_recordatorio(db: sqlite3.Connection, codigo: str, tipo: str, tramite: int | None = None) -> str:
+    """Manda el correo. Devuelve el correo al que fue, o '' si no se pudo (sin correo o correo sin activar)."""
+    m = armar_recordatorio(db, codigo, tipo, tramite)
+    if not m or not m["para"] or not avisos.configurado():
+        return ""
+    avisos.enviar([m["para"]], m["asunto"], m["texto"], m["html"], al_terminar=anotar_correo(codigo, [m["para"]], m["asunto"], "recordatorio"))
+    return m["para"]
+
+
+def aviso_interno(db: sqlite3.Connection, tipo: str, titulo: str, detalle: str, codigo: str) -> None:
+    db.execute("INSERT INTO avisos (tipo, titulo, detalle, codigo, creado, usuario) VALUES (?,?,?,?,?,?)",
+               (tipo, titulo[:200], detalle[:200], codigo, ahora(), None))
+    db.commit()
+    notificar_push(db, lambda p: "expedientes" in p, titulo, detalle, codigo)
+
+
+def mantenimiento_seguimiento(db: sqlite3.Connection) -> dict:
+    """Se corre solo cada pocos minutos: archiva cotizaciones sin respuesta, manda recordatorios (si están activados)
+    y avisa al equipo de los trámites que vencen mañana o ya vencieron. Cada cosa se hace una sola vez."""
+    res = {"archivadas": 0, "enviados": 0, "avisos": 0}
+    auto = ajuste(db, "recordatorios_auto") == "1" and avisos.configurado()
+    for r in db.execute("SELECT s.codigo, COALESCE(s.reabierta, o.creado) AS creado, o.nombre FROM seguimiento s JOIN solicitudes o ON o.codigo=s.codigo"
+                        " WHERE s.eliminado IS NULL AND s.sin_respuesta IS NULL AND s.paso=1").fetchall():
+        if not cotizacion_abierta(db, r["codigo"]):
+            continue
+        dias = dias_desde(r["creado"])
+        if dias >= DIAS_ARCHIVO:
+            db.execute("UPDATE seguimiento SET sin_respuesta=? WHERE codigo=?", (ahora(), r["codigo"]))
+            db.execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
+                       ("sistema", "Marcó la solicitud «Sin respuesta»", r["codigo"], f"{dias} días sin pagar ni responder", ahora()))
+            db.commit()
+            res["archivadas"] += 1
+        elif auto and dias >= DIAS_REC1:
+            tipo = "cot_7" if dias >= DIAS_REC2 else "cot_2"
+            m = armar_recordatorio(db, r["codigo"], tipo)
+            if m and m["para"] and reclamar_recordatorio(db, r["codigo"], tipo, "", "correo (automático)"):
+                if enviar_recordatorio(db, r["codigo"], tipo):
+                    db.execute("INSERT INTO actividad (usuario, accion, codigo, detalle, fecha) VALUES (?,?,?,?,?)",
+                               ("sistema", "Envió un recordatorio automático", r["codigo"], f"{tipo} → {m['para']}", ahora()))
+                    db.commit()
+                    res["enviados"] += 1
+    hoy = hoy_rd()
+    for t in db.execute("SELECT t.id, t.codigo, t.titulo, t.entrega_prometida, o.nombre FROM tramites t"
+                        " JOIN seguimiento s ON s.codigo=t.codigo LEFT JOIN solicitudes o ON o.codigo=t.codigo"
+                        " WHERE s.eliminado IS NULL AND t.paso<4 AND t.entrega_prometida IS NOT NULL AND t.entrega_prometida<>''").fetchall():
+        f = _fecha_iso(t["entrega_prometida"])
+        if not f:
+            continue
+        cliente = t["nombre"] or t["codigo"]
+        clave = f"{t['id']}:{f.isoformat()}"
+        if f == hoy + timedelta(days=1) and reclamar_recordatorio(db, t["codigo"], "vence_manana", clave, "interno"):
+            aviso_interno(db, "vence", "Mañana vence un trámite", f"{cliente} · {t['titulo']}", t["codigo"])
+            res["avisos"] += 1
+        elif f < hoy and reclamar_recordatorio(db, t["codigo"], "atrasado", clave, "interno"):
+            aviso_interno(db, "vence", "Trámite atrasado", f"{cliente} · {t['titulo']} · prometido para el {fecha_corta(f, 'es')}", t["codigo"])
+            res["avisos"] += 1
+    return res
+
+
+_ultimo_mantenimiento = 0.0
+
+
+@app.before_request
+def mantenimiento_periodico():
+    """Cada 10 minutos, con la primera visita que llegue (la página no necesita un programa aparte)."""
+    global _ultimo_mantenimiento
+    if request.path.startswith(("/assets", "/static")) or time.time() - _ultimo_mantenimiento < 600:
+        return None
+    _ultimo_mantenimiento = time.time()
+    try:
+        mantenimiento_seguimiento(get_db())
+    except Exception:  # noqa: BLE001 — un fallo aquí nunca debe tumbar la página
+        app.logger.exception("mantenimiento_seguimiento")
+    return None
+
+
+@app.post("/api/admin/recordatorio")
+@requiere("expedientes")
+def admin_recordatorio():
+    """{codigo, tipo: cot|atraso, accion: vista|enviar|marcar, canal?, tramite?}
+    vista = ver cómo quedaría (no envía) · enviar = manda el correo · marcar = anota que lo mandaste por WhatsApp."""
+    d = cuerpo_json()
+    codigo = str(d.get("codigo", "")).strip().upper()[:12]
+    db = get_db()
+    r = db.execute(CONSULTA_EXPEDIENTES + " WHERE s.codigo=? AND s.eliminado IS NULL", (codigo,)).fetchone()
+    if not r:
+        return error("No existe ese código.", 404)
+    exp = dict(r)
+    tipo = str(d.get("tipo", "cot"))
+    tramite = None
+    if tipo == "cot":
+        etapa = estado_cotizacion(db, exp)
+        tipo = etapa["cot_tipo"] or ("cot_7" if dias_desde(exp.get("reabierta") or exp.get("creado")) >= DIAS_REC2 else "cot_2")
+        clave = ""
+    elif tipo == "atraso":
+        try:
+            tramite = int(d.get("tramite"))
+        except (TypeError, ValueError):
+            return error("Elige el trámite.")
+        t = next((x for x in tramites_de(db, codigo) if x["id"] == tramite), None)
+        if not t or not t["entrega_prometida"]:
+            return error("Ese trámite no tiene fecha de entrega.")
+        if t["atraso_dias"] > 0:
+            return error("La fecha prometida ya pasó. Pon la nueva fecha, guarda y entonces avisa al cliente.")
+        clave = f"{tramite}:{t['entrega_prometida']}"
+    else:
+        return error("Tipo de recordatorio no válido.")
+    m = armar_recordatorio(db, codigo, tipo, tramite)
+    if not m:
+        return error("No se pudo preparar el mensaje.")
+    antes = db.execute("SELECT canal, fecha FROM recordatorios WHERE codigo=? AND tipo=? AND clave=? ORDER BY id DESC LIMIT 1", (codigo, tipo, clave)).fetchone()
+    accion = str(d.get("accion", "vista"))
+    if accion == "vista":
+        return jsonify({"ok": True, "tipo": tipo, "asunto": m["asunto"], "texto": m["texto"], "para": m["para"], "whatsapp": m["whatsapp"],
+                        "correo_activo": avisos.configurado(), "antes": dict(antes) if antes else None})
+    u = usuario_actual()["usuario"]
+    if accion == "enviar":
+        if not m["para"]:
+            return error("Este cliente no tiene correo. Avísale por WhatsApp.")
+        if not avisos.configurado():
+            return error("El envío de correos aún no está activado. En el servidor escribe: tramita correo", 503)
+        enviar_recordatorio(db, codigo, tipo, tramite)
+        db.execute("INSERT INTO recordatorios (codigo, tipo, clave, canal, usuario, fecha) VALUES (?,?,?,?,?,?)", (codigo, tipo, clave, "correo", u, ahora()))
+        registrar("Envió un recordatorio por correo", codigo, f"{tipo} → {m['para']}")
+    elif accion == "marcar":
+        db.execute("INSERT INTO recordatorios (codigo, tipo, clave, canal, usuario, fecha) VALUES (?,?,?,?,?,?)", (codigo, tipo, clave, "whatsapp", u, ahora()))
+        registrar("Envió un recordatorio por WhatsApp", codigo, tipo)
+    else:
+        return error("Acción no válida.")
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/sin-respuesta")
+@requiere("expedientes")
+def admin_sin_respuesta():
+    """{codigo, valor}: archiva la cotización como «Sin respuesta» (true) o la reabre (false). No se borra nada."""
+    d = cuerpo_json()
+    codigo = str(d.get("codigo", "")).strip().upper()[:12]
+    db = get_db()
+    if not db.execute("SELECT 1 FROM seguimiento WHERE codigo=? AND eliminado IS NULL", (codigo,)).fetchone():
+        return error("No existe ese código.", 404)
+    archivar = d.get("valor") is True
+    if archivar:
+        db.execute("UPDATE seguimiento SET sin_respuesta=? WHERE codigo=?", (ahora(), codigo))
+    else:   # al reabrir, el conteo de días vuelve a empezar: se borran los recordatorios para poder usarlos otra vez
+        db.execute("UPDATE seguimiento SET sin_respuesta=NULL, reabierta=? WHERE codigo=?", (ahora(), codigo))
+        db.execute("DELETE FROM recordatorios WHERE codigo=? AND tipo IN ('cot_2','cot_7')", (codigo,))
+    registrar("Marcó «Sin respuesta»" if archivar else "Reabrió la solicitud", codigo)
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/entrega")
+@requiere("expedientes")
+def admin_entrega():
+    """{codigo, tramite, fecha (AAAA-MM-DD o vacío para quitarla), motivo?}: la fecha que le prometes al cliente."""
+    d = cuerpo_json()
+    codigo = str(d.get("codigo", "")).strip().upper()[:12]
+    db = get_db()
+    try:
+        tid = int(d.get("tramite"))
+    except (TypeError, ValueError):
+        return error("Elige el trámite.")
+    t = db.execute("SELECT id, titulo, entrega_prometida FROM tramites WHERE id=? AND codigo=?", (tid, codigo)).fetchone()
+    if not t:
+        return error("No existe ese trámite.", 404)
+    texto = str(d.get("fecha", "")).strip()
+    f = _fecha_iso(texto) if texto else None
+    if texto and (not f or f.year < 2024 or f.year > 2100):
+        return error("La fecha no es válida.")
+    motivo = str(d.get("motivo", "")).strip()[:200] or None
+    db.execute("UPDATE tramites SET entrega_prometida=?, motivo_atraso=? WHERE id=?", (f.isoformat() if f else None, motivo if f else None, tid))
+    registrar("Fijó la fecha de entrega" if f else "Quitó la fecha de entrega", codigo,
+              f"{t['titulo']}: {f.isoformat()}" + (f" · {motivo}" if motivo else "") if f else t["titulo"])
+    db.commit()
+    return jsonify({"ok": True, "expediente": un_expediente(db, codigo)})
+
+
+@app.post("/api/admin/recordatorios-auto")
+@requiere("usuarios")
+def admin_recordatorios_auto():
+    """{valor}: activa o apaga el envío automático de recordatorios de cotizaciones (solo el administrador principal)."""
+    if not es_dueno():
+        return error("Solo el administrador principal puede cambiar esto.", 403)
+    on = cuerpo_json().get("valor") is True
+    db = get_db()
+    db.execute("INSERT INTO ajustes (clave, valor) VALUES ('recordatorios_auto', ?) ON CONFLICT(clave) DO UPDATE SET valor=excluded.valor", ("1" if on else "0",))
+    registrar("Activó los recordatorios automáticos" if on else "Apagó los recordatorios automáticos")
+    db.commit()
+    return jsonify({"ok": True, "recordatorios_auto": on})
 
 
 @app.post("/api/admin/agregar")
@@ -2186,7 +2551,7 @@ def admin_archivo_enviar():
 
 # ---------------------------------------------------------------- zafacón (solo administradores)
 DIAS_ZAFACON = 7
-TABLAS_CLIENTE = ("tramites", "pagos", "notas", "archivos", "comprobantes", "correos", "avisos", "solicitudes", "seguimiento")
+TABLAS_CLIENTE = ("tramites", "pagos", "notas", "archivos", "comprobantes", "correos", "avisos", "recordatorios", "solicitudes", "seguimiento")
 
 
 def _digitos_tel(contacto: str | None) -> set[str]:
@@ -2391,7 +2756,7 @@ def admin_push_probar():
 @requiere_admin
 def admin_avisos():
     """Solicitudes nuevas para la campana del panel. Los usuarios de solo lectura no reciben avisos."""
-    tipos = (["solicitud", "equipo"] if puede("expedientes") else []) + (["pago"] if puede_validar() else []) \
+    tipos = (["solicitud", "equipo", "vence"] if puede("expedientes") else []) + (["pago"] if puede_validar() else []) \
         + (["comprobante", "recibido"] if puede("pagos") or puede_validar() else []) + (["estado"] if es_dueno() else [])
     if not tipos:
         return jsonify({"ok": True, "avisos": [], "sin_leer": 0, "ultimo": 0, "solo_lectura": True})

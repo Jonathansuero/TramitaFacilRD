@@ -423,6 +423,23 @@
         .tile b { font-size: 26px; line-height: 1.1; font-weight: 800; color: var(--azul); }
         .tile span { font-size: 13px; color: var(--suave); font-weight: 600; }
         .tile.alerta b { color: #B45309; } .tile.cobro b { color: var(--rojo); }
+        /* seguimiento: cotizaciones sin cerrar y trámites atrasados */
+        .chip.atraso { background: #FEE2E2; color: #991B1B; } .chip.gris { background: #E2E8F0; color: #475569; }
+        .fila-ini .etq.atraso { background: #FEE2E2; color: #991B1B; } .fila-ini .etq.tibio { background: #FEF3C7; color: #92400E; } .fila-ini .etq.frio { background: #DBEAFE; color: #1E40AF; }
+        .ver-todos { display: block; width: 100%; padding: 10px 16px; background: none; border: 0; border-top: 1px solid #F1F5F9; color: var(--azul); font-weight: 700; font-size: 13px; text-align: left; }
+        .bloque.seg { gap: 12px; }
+        .seg-card { display: grid; gap: 8px; padding: 12px; border-radius: 12px; background: #FFFBEB; border: 1px solid #FDE68A; }
+        .seg-card.frio { background: #EFF6FF; border-color: #BFDBFE; } .seg-card.gris { background: #F1F5F9; border-color: var(--borde); }
+        .seg-card > b { font-size: 14px; color: #0F172A; } .seg-card small, .seg-fila small { color: var(--suave); font-size: 12.5px; line-height: 1.45; }
+        .seg-ya { color: #92400E !important; font-weight: 600; margin: 0; }
+        .seg-fila { display: grid; gap: 8px; padding: 12px; border: 1px solid var(--borde); border-radius: 12px; }
+        .seg-fila.atrasado { border-color: #FCA5A5; background: #FEF2F2; }
+        .seg-t { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; } .seg-t b { font-size: 14px; }
+        .seg-campos { display: grid; gap: 8px; } @media (min-width: 640px) { .seg-campos { grid-template-columns: 1fr 1.4fr auto; align-items: end; } }
+        .seg-previa { display: grid; gap: 8px; padding: 12px; background: #fff; border: 1px dashed #94A3B8; border-radius: 12px; }
+        .seg-previa pre { margin: 0; white-space: pre-wrap; word-break: break-word; font: inherit; font-size: 13px; line-height: 1.5; color: #334155; max-height: 220px; overflow: auto; background: #F8FAFC; border-radius: 10px; padding: 10px 12px; }
+        .seg-para { color: var(--suave); }
+        .interruptor { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; color: var(--azul); } .interruptor input { width: 20px; height: 20px; }
         .bloque-ini { background: #fff; border: 1px solid var(--borde); border-radius: 18px; padding: 6px 0; }
         .bloque-ini h4 { margin: 10px 16px 6px; font-size: 14px; color: var(--azul); }
         .fila-ini { display: flex; width: 100%; align-items: center; gap: 12px; padding: 11px 16px; background: none; border: 0; border-top: 1px solid #F1F5F9; text-align: left; }
@@ -861,6 +878,9 @@
                 <span id="mostrando"></span>
                 <span class="chips">
                     <button type="button" class="chip-btn" id="btnDetenidos" title="Expedientes sin moverse en 5 días o más">Detenidos</button>
+                    <button type="button" class="chip-btn" id="btnAtrasados" title="Trámites que pasaron la fecha prometida al cliente" hidden>Atrasados</button>
+                    <button type="button" class="chip-btn" id="btnSeguir" title="Pidieron el trámite y no han pagado" hidden>Por seguir</button>
+                    <button type="button" class="chip-btn" id="btnSinResp" title="Cotizaciones archivadas por falta de respuesta" hidden>Sin respuesta</button>
                     <button type="button" class="chip-btn" id="btnMas">Filtros</button>
                 </span>
             </div>

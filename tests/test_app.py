@@ -1216,3 +1216,150 @@ def test_pago_inicial_cubre_la_tasa_oficial():
     # servicios digitales (web, CV, Turnitin): fuera de la regla -> la mitad
     web = calculos.precio(srv["pagina_web_basico"], cfg)
     assert calculos.composicion([{"servicio_id": "pagina_web_basico", "precio": web["total"]}], srv, cfg)["inicial"] == web["total"] / 2
+
+
+# ------------------------------------------------ seguimiento: cotizaciones sin cerrar y trámites atrasados
+def _config_correo(client, monkeypatch, tmp_path):
+    import avisos
+    from werkzeug.security import generate_password_hash
+    enviados = []
+    monkeypatch.setattr(avisos, "_smtp_enviar", lambda msg: enviados.append(msg))
+    for k, v in {"SMTP_HOST": "smtp.prueba", "SMTP_USER": "info@tramitafacilrd.com", "TF_CORREO_SINCRONO": "1",
+                 "TF_ARCHIVOS": str(tmp_path / "archivos"), "TF_ADMIN_HASH": generate_password_hash("clave-del-dueno")}.items():
+        monkeypatch.setenv(k, v)
+    monkeypatch.delenv("NOTIFY_TO", raising=False)
+    assert client.post("/api/admin/login", json={"usuario": "admin", "clave": "clave-del-dueno"}).json["ok"]
+    return enviados
+
+
+def _envejecer(codigo, dias):
+    """Hace que la solicitud tenga `dias` días de antigüedad."""
+    import sqlite3
+    from datetime import datetime, timedelta, timezone
+    import app as app_module
+    con = sqlite3.connect(app_module.DB_PATH)
+    con.execute("UPDATE solicitudes SET creado=? WHERE codigo=?", ((datetime.now(timezone.utc) - timedelta(days=dias)).isoformat(timespec="seconds"), codigo))
+    con.commit()
+    con.close()
+
+
+def _solicitud(client, nombre="Ana Rodríguez", correo="ana@correo.com", servicio="apostilla_documentos"):
+    r = client.post("/api/solicitud", json={"nombre": nombre, "contacto": f"+1 809 555 1234 · {correo}", "pais": "us", "servicio": servicio, "acepta": True})
+    return r.json["codigo"]
+
+
+def _exp(client, codigo):
+    return next(e for e in client.get("/api/admin/expedientes").json["expedientes"] if e["codigo"] == codigo)
+
+
+def test_cotizacion_sin_cerrar_etapas_recordatorios_y_archivo(client, monkeypatch, tmp_path):
+    import app as app_module
+    enviados = _config_correo(client, monkeypatch, tmp_path)
+    codigo = _solicitud(client)
+    enviados.clear()
+    assert _exp(client, codigo)["cot_etapa"] == "nueva"                       # recién llegó: todavía nada que hacer
+    _envejecer(codigo, 3)
+    e = _exp(client, codigo)
+    assert e["cot_etapa"] == "recordar" and e["cot_dias"] == 3 and e["cot_tipo"] == "cot_2"
+    # vista previa: no envía nada
+    v = client.post("/api/admin/recordatorio", json={"codigo": codigo, "tipo": "cot", "accion": "vista"}).json
+    assert v["ok"] and v["para"] == "ana@correo.com" and "RD$" in v["texto"] and codigo in v["whatsapp"] and enviados == []
+    # envío manual: sale un correo y queda anotado
+    r = client.post("/api/admin/recordatorio", json={"codigo": codigo, "tipo": "cot", "accion": "enviar"}).json
+    assert r["ok"] and len(enviados) == 1 and enviados[0]["To"] == "ana@correo.com"
+    assert [x["tipo"] for x in r["expediente"]["recordatorios"]] == ["cot_2"]
+    # a los 8 días: cliente frío, y el recordatorio que toca es otro
+    _envejecer(codigo, 8)
+    assert _exp(client, codigo)["cot_etapa"] == "frio" and _exp(client, codigo)["cot_tipo"] == "cot_7"
+    # pasados 15 días sin señales: se archiva sola (no se borra) y se puede reabrir
+    _envejecer(codigo, 16)
+    e = _exp(client, codigo)
+    assert e["sin_respuesta"] and e["cot_etapa"] == "archivada"
+    r = client.post("/api/admin/sin-respuesta", json={"codigo": codigo, "valor": False}).json["expediente"]
+    assert not r["sin_respuesta"] and r["cot_etapa"] == "nueva" and r["recordatorios"] == []
+
+
+def test_cotizacion_con_pago_o_avance_no_se_persigue(client, monkeypatch, tmp_path):
+    enviados = _config_correo(client, monkeypatch, tmp_path)
+    pago = _solicitud(client, "Luis Pérez", "luis@correo.com")
+    avance = _solicitud(client, "Marta Díaz", "marta@correo.com")
+    client.post("/api/admin/pago", json={"codigo": pago, "monto": 1000, "metodo": "Transferencia"})
+    r = client.get(f"/api/admin/expedientes").json["expedientes"]
+    t = next(e for e in r if e["codigo"] == avance)["tramites"][0]["id"]
+    client.post("/api/admin/estado", json={"codigo": avance, "tramite": t, "paso": 2, "detalle": "Documentos verificados"})
+    for c in (pago, avance):
+        _envejecer(c, 20)
+    assert _exp(client, pago)["cot_etapa"] is None and not _exp(client, pago)["sin_respuesta"]
+    assert _exp(client, avance)["cot_etapa"] is None and not _exp(client, avance)["sin_respuesta"]
+
+
+def test_recordatorios_automaticos_apagados_por_defecto_y_sin_duplicados(client, monkeypatch, tmp_path):
+    import app as app_module
+    enviados = _config_correo(client, monkeypatch, tmp_path)
+    codigo = _solicitud(client)
+    _envejecer(codigo, 3)
+    enviados.clear()
+    client.get("/api/admin/expedientes")
+    assert enviados == []                                                     # apagado: no se manda nada solo
+    assert client.post("/api/admin/recordatorios-auto", json={"valor": True}).json["recordatorios_auto"] is True
+    client.get("/api/admin/expedientes")
+    client.get("/api/admin/expedientes")
+    assert len(enviados) == 1 and enviados[0]["To"] == "ana@correo.com"        # se manda una sola vez
+    _envejecer(codigo, 8)
+    client.get("/api/admin/expedientes")
+    client.get("/api/admin/expedientes")
+    assert len(enviados) == 2                                                  # el segundo recordatorio, también una vez
+
+
+def test_tramite_atrasado_fecha_aviso_al_cliente_y_alerta_interna(client, monkeypatch, tmp_path):
+    from datetime import timedelta
+    import app as app_module
+    enviados = _config_correo(client, monkeypatch, tmp_path)
+    codigo = _solicitud(client)
+    tid = _exp(client, codigo)["tramites"][0]["id"]
+    ayer = (app_module.hoy_rd() - timedelta(days=2)).isoformat()
+    r = client.post("/api/admin/entrega", json={"codigo": codigo, "tramite": tid, "fecha": ayer, "motivo": "La institución está tardando"})
+    t = r.json["expediente"]["tramites"][0]
+    assert t["atraso_dias"] == 2 and t["motivo_atraso"] == "La institución está tardando"
+    # alerta interna: una sola vez
+    n0 = len(client.get("/api/admin/avisos").json["avisos"])
+    client.get("/api/admin/expedientes"); client.get("/api/admin/expedientes")
+    av = [a for a in client.get("/api/admin/avisos").json["avisos"] if a["titulo"] == "Trámite atrasado"]
+    assert len(av) == 1
+    # con la fecha todavía vencida no se puede avisar de una «nueva fecha»
+    assert client.post("/api/admin/recordatorio", json={"codigo": codigo, "tipo": "atraso", "tramite": tid, "accion": "vista"}).status_code == 400
+    # correo al cliente con la nueva fecha
+    nueva = (app_module.hoy_rd() + timedelta(days=5)).isoformat()
+    client.post("/api/admin/entrega", json={"codigo": codigo, "tramite": tid, "fecha": nueva, "motivo": "La institución está tardando"})
+    enviados.clear()
+    v = client.post("/api/admin/recordatorio", json={"codigo": codigo, "tipo": "atraso", "tramite": tid, "accion": "vista"}).json
+    assert "La institución está tardando" in v["texto"] and str(app_module._fecha_iso(nueva).year) in v["texto"]
+    assert "La institución está tardando" in v["whatsapp"] and "Nueva fecha estimada" in v["whatsapp"]   # WhatsApp lleva lo mismo que el correo
+    assert client.post("/api/admin/recordatorio", json={"codigo": codigo, "tipo": "atraso", "tramite": tid, "accion": "enviar"}).json["ok"]
+    assert len(enviados) == 1 and "Nueva fecha estimada" in enviados[0]["Subject"]
+    # ya no está atrasado; y un trámite listo nunca cuenta como atrasado
+    assert _exp(client, codigo)["tramites"][0]["atraso_dias"] == 0
+    client.post("/api/admin/entrega", json={"codigo": codigo, "tramite": tid, "fecha": ayer})
+    client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo"})
+    assert _exp(client, codigo)["tramites"][0]["atraso_dias"] == 0
+    assert client.post("/api/admin/entrega", json={"codigo": codigo, "tramite": tid, "fecha": "no-es-fecha"}).status_code == 400
+
+
+def test_fecha_sugerida_al_entrar_a_la_institucion_y_solo_con_tiempo_oficial(client, monkeypatch, tmp_path):
+    import app as app_module
+    _config_correo(client, monkeypatch, tmp_path)
+    a = _solicitud(client, servicio="apostilla_documentos")        # MIREX publica 3 días laborables
+    b = _solicitud(client, "Pedro Gómez", "pedro@correo.com", servicio="traduccion_documentos")   # sin tiempo oficial publicado
+    for codigo in (a, b):
+        tid = _exp(client, codigo)["tramites"][0]["id"]
+        client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 3, "detalle": "Depositado en la institución"})
+    f = _exp(client, a)["tramites"][0]["entrega_prometida"]
+    assert f and app_module._fecha_iso(f) > app_module.hoy_rd() and app_module._fecha_iso(f).weekday() < 5
+    assert _exp(client, b)["tramites"][0]["entrega_prometida"] is None
+
+
+def test_sumar_habiles_salta_fines_de_semana():
+    import app as app_module
+    from datetime import date
+    assert app_module.sumar_habiles(date(2026, 11, 26), 3) == date(2026, 12, 1)   # jueves + 3 laborables = martes
+    assert app_module.sumar_habiles(date(2026, 11, 26), 0) == date(2026, 11, 26)
