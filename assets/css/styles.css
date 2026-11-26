@@ -976,3 +976,10 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 
 .cesta-vacia { margin-top: 12px; padding: 14px 16px; border: 2px dashed #cbd5e1; border-radius: 16px; color: #64748b; font-size: 13px; font-weight: 600; background: #f8fafc; }
 #quoteFormBtn:disabled, #quoteCopyBtn:disabled { opacity: .45; cursor: not-allowed; filter: grayscale(.4); }
+
+.cesta-pers { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 12px; font-weight: 700; color: #475569; }
+.cesta-pers button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #94a3b8; background: #fff; color: #002D62; font-size: 16px; font-weight: 800; line-height: 1; cursor: pointer; }
+.cesta-pers button:hover:not(:disabled) { background: #eff6ff; border-color: #002D62; }
+.cesta-pers button:disabled { opacity: .35; cursor: not-allowed; }
+.cesta-pers b { min-width: 18px; text-align: center; font-size: 14px; color: #0f172a; }
+.cesta-ayuda { margin-top: 8px; font-size: 11.5px; color: #64748b; }

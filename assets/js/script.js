@@ -196,7 +196,8 @@
         $('fCesta').classList.toggle('hidden', !m);
         if (!m) { $('fCesta').innerHTML = ''; return; }
         const c = TF.cesta(lista, TF.cotizador.opciones().express, TF.cotizador.opciones().envio);
-        $('fCesta').innerHTML = `<span class="form-label">${esc(t('cart.formulario'))}</span><ol>${lista.map(k => `<li>${esc(tc('servicios', k).title)}</li>`).join('')}</ol>
+        $('fCesta').innerHTML = `<span class="form-label">${esc(t('cart.formulario'))}</span><ol>${[...lista.reduce((mp, k) => mp.set(k, (mp.get(k) || 0) + 1), new Map())].map(([k, n]) => `<li>${esc(tc('servicios', k).title)}${n > 1 ? ` × ${esc(t('cart.xn', { n }))}` : ''}</li>`).join('')}</ol>
+            ${lista.length > new Set(lista).size ? `<p class="cesta-ayuda">${esc(t('cart.familia'))}</p>` : ''}
             <small>${esc(t('calc.total'))}: <b>${esc(money(c.total))}</b> · ${esc(t('pago.inicio'))}: <b>${esc(money(c.hoy))}</b></small>`;
     }
     function irASolicitud(k) {

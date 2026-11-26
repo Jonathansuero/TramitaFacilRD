@@ -677,7 +677,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     }
     /** Varios trámites bajo un solo código. Express y courier se cobran UNA sola vez (en el primer trámite que no sea digital),
      *  igual que en el servidor. Cada pago inicial es el de su trámite; el ITBIS se muestra como un solo total. */
-    const MAX_CESTA = 6;
+    const MAX_CESTA = 12, MAX_TIPOS = 6, MAX_PERSONAS = 6;   // trámites en total · distintos · personas por trámite (igual que el servidor)
     function cesta(ids, express, envio) {
         const items = ids.filter(k => SERV[k]);
         const cargo = Math.max(0, items.findIndex(k => !SERV[k].digital));
@@ -705,7 +705,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     }
     window.TF = {
         precio, compartirTramite,
-        evento, enlaceCliente, enlaceCesta, leerEnlace, cesta, MAX_CESTA,
+        evento, enlaceCliente, enlaceCesta, leerEnlace, cesta, MAX_CESTA, MAX_TIPOS, MAX_PERSONAS,
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state, servUrl,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
         t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, tiempo, tiempoHtml, incluyeHtml, saludo, lugar, toast, api, apiLista, contacto,

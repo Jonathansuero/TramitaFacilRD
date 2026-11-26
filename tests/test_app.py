@@ -1406,8 +1406,7 @@ def test_varios_tramites_limites_y_nota_de_apostilla(client):
     muchos = ["certificacion_solteria", "apostilla_documentos", "cert_cedula_legales", "cert_cedula_bancos", "cert_cedula_vip",
               "cert_cedula_pasaportes", "cert_cedula_otras"]
     assert _pedir(client, muchos).status_code == 400                                          # más de 6
-    r = _pedir(client, ["apostilla_documentos", "apostilla_documentos"])                      # repetidos cuentan una vez
-    assert r.status_code == 201 and len(_tramites_de(r.json["codigo"])) == 1
+    assert _pedir(client, ["apostilla_documentos"] * 7).status_code == 400                    # más de 6 personas en un trámite
     c = _pedir(client, ["certificacion_solteria", "apostilla_documentos"]).json["codigo"]
     con = sqlite3.connect(app_module.DB_PATH)
     msg = con.execute("SELECT mensaje FROM solicitudes WHERE codigo=?", (c,)).fetchone()[0]
@@ -1419,3 +1418,23 @@ def test_formulario_viejo_con_un_solo_servicio_sigue_funcionando(client):
     r = client.post("/api/solicitud", json={"nombre": "Luis Pérez", "whatsapp": "+1 809 555 9999", "email": "luis@correo.com",
                                             "pais": "us", "servicio": "apostilla_documentos", "acepta": True})
     assert r.status_code == 201 and _tramites_de(r.json["codigo"]) == [("apostilla_documentos", 2974)]
+
+
+def test_varias_personas_en_el_mismo_tramite_un_solo_codigo(client):
+    import sqlite3
+    import app as app_module
+    r = _pedir(client, ["certificacion_solteria"] * 3 + ["apostilla_documentos"] * 3, express=True, envio=True)
+    assert r.status_code == 201
+    codigo = r.json["codigo"]
+    assert "×3" in r.json["servicio"]
+    filas = _tramites_de(codigo)
+    assert [f[0] for f in filas] == ["certificacion_solteria"] * 3 + ["apostilla_documentos"] * 3   # cada persona, su trámite
+    assert [f[1] for f in filas] == [3540 + 1750 + 600, 3540, 3540, 2974, 2974, 2974]               # Express y courier, una vez
+    con = sqlite3.connect(app_module.DB_PATH)
+    titulos = [x[0] for x in con.execute("SELECT titulo FROM tramites WHERE codigo=? ORDER BY id", (codigo,))]
+    total = con.execute("SELECT total_estimado FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()[0]
+    con.close()
+    assert titulos[0].endswith("persona 1 de 3") and titulos[2].endswith("persona 3 de 3")
+    assert total == 3 * 3540 + 3 * 2974 + 1750 + 600
+    muchas = ["certificacion_solteria"] * 6 + ["apostilla_documentos"] * 6 + ["cert_cedula_vip"]
+    assert _pedir(client, muchas).status_code == 400                                              # más de 12 en total
