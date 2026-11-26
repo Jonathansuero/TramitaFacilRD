@@ -2886,30 +2886,10 @@
       "Your services",
       "Vos démarches"
     ],
-    "cart.add": [
-      "+ Agregar otro trámite",
-      "+ Add another service",
-      "+ Ajouter une autre démarche"
-    ],
-    "cart.agregar": [
-      "Agregar",
-      "Add",
-      "Ajouter"
-    ],
-    "cart.cancelar": [
-      "Cancelar",
-      "Cancel",
-      "Annuler"
-    ],
     "cart.quitar": [
       "Quitar",
       "Remove",
       "Retirer"
-    ],
-    "cart.elige": [
-      "Elige el trámite que quieres agregar",
-      "Choose the service you want to add",
-      "Choisissez la démarche à ajouter"
     ],
     "cart.max": [
       "Puedes pedir hasta {n} trámites a la vez. Para más, escríbenos por WhatsApp.",
@@ -2975,6 +2955,16 @@
       "📄 Trámites",
       "📄 Services",
       "📄 Démarches"
+    ],
+    "cart.elegir": [
+      "Elige un trámite para agregarlo…",
+      "Choose a service to add it…",
+      "Choisissez une démarche à ajouter…"
+    ],
+    "cart.add": [
+      "+ Agregar otro trámite",
+      "+ Add another service",
+      "+ Ajouter une autre démarche"
     ]
   },
   "contenido": {
