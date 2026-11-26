@@ -47,12 +47,18 @@ def anticipo(total: float, tasas: float, honorarios: float | None = None) -> flo
     - si las tasas son menores que los honorarios: todo menos los honorarios (tasas + ITBIS + extras);
       los honorarios se pagan al terminar;
     - si no: la mitad del total, o las tasas si son más (nunca se adelanta dinero propio a una institución).
-    Nunca más que el total."""
+    Después se ajusta a 40 %–60 % para que los dos pagos no queden muy desiguales. Nunca más que el total."""
     if total is None:
         return None
     if honorarios is not None and (tasas or 0) < honorarios:
-        return round(max(0, total - honorarios), 2)
-    return round(min(total, max(total / 2, tasas or 0)), 2)
+        ini = max(0, total - honorarios)
+    else:
+        ini = max(total / 2, tasas or 0)
+    # ningún pago muy desigual: el inicial queda entre el 40 % y el 60 % del total,
+    # salvo que la tasa oficial sola pase del 60 % (esa siempre se cobra al iniciar)
+    ini = max(ini, total * 0.4)
+    ini = min(ini, max(total * 0.6, tasas or 0))
+    return round(min(total, ini), 2)
 
 
 def composicion(tramites: list, servicios: dict, cfg: dict) -> dict:

@@ -316,7 +316,6 @@ body[data-page="promo"] #tf-header,body[data-page="promo"] .lang-hint,body[data-
 .lc-r b{color:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
 .lc-r small{display:block;font-size:.7rem;color:#94a3b8;margin-top:.1rem;font-weight:400}
 .lc-r.x{color:#7dd3fc}
-.lc-inc{margin:.3rem 0 0;font-size:.78rem;line-height:1.45;color:#cbd5e1}
 .lc-tot{margin-top:.8rem;padding-top:.8rem;border-top:1px solid rgba(255,255,255,.2)}
 .lc-tot .k{font-size:.7rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#94a3b8}
 .lc-tot .v{font-family:'Plus Jakarta Sans',sans-serif;font-weight:900;color:var(--oro);font-size:clamp(1.7rem,8.5vw,2.2rem);line-height:1.15;white-space:nowrap;font-variant-numeric:tabular-nums;margin:.1rem 0}
@@ -550,18 +549,18 @@ function pintaCot() {
     <div class="lc-card">
       <div class="lc-h"><h3>Resumen</h3><div class="lc-mon" role="group" aria-label="Moneda">${['DOP','USD','EUR'].map(x => `<button type="button" data-mon="${x}" aria-pressed="${x === m}">${MON[x]}</button>`).join('')}</div></div>
       <p class="lc-t">${esc(s.title)}</p>
-      ${pr.ocultarHon || (s.digital && !s.tax) ? '' : `<div class="lc-r"><span>Tasas oficiales<small>Lo que cobra ${esc(nomInst)}</small></span><b>${fmt(s.tax, m)}</b></div>`}
-      ${pr.ocultarHon ? '' : `<div class="lc-r"><span>Honorarios TramitaFácil<small>Revisión, gestión y seguimiento</small></span><b>${fmt(s.fee, m)}</b></div>`}
-      ${pr.ocultarHon ? '<p class="lc-inc">El precio incluye la tasa oficial del trámite, nuestros honorarios y el ITBIS.</p>' : `<div class="lc-r"><span>ITBIS (18%)<small>Sobre tasas y honorarios</small></span><b>${fmt(pr.itbis, m)}</b></div>`}
+      <div class="lc-r"><span>Tasas oficiales<small>Lo que cobra ${esc(nomInst)}</small></span><b>${fmt(s.tax, m)}</b></div>
+      <div class="lc-r"><span>Honorarios TramitaFácil<small>Revisión, gestión y seguimiento</small></span><b>${fmt(s.fee, m)}</b></div>
+      <div class="lc-r"><span>ITBIS (18%)<small>Sobre tasas y honorarios</small></span><b>${fmt(pr.itbis, m)}</b></div>
       ${extras ? `<div class="lc-r x"><span>Recargos (${[ex ? 'Express' : '', en ? 'Envío' : ''].filter(Boolean).join(' + ')})</span><b>${fmt(extras, m)}</b></div>` : ''}
       <div class="lc-tot"><div class="k">Total estimado</div><div class="v">${fmt(tot, m)}</div>
         <div class="e">≈ ${['DOP','USD','EUR'].filter(x => x !== m).map(x => fmt(tot, x)).join(' · ')}</div></div>
+      <div class="pago-mitades">
+        <div><span>Hoy (al iniciar)</span><strong>${fmt(pr.hoy, m)}</strong></div>
+        <div><span>Al entregar</span><strong>${fmt(pr.fin, m)}</strong></div></div>
+      <p class="lc-nota">Monto referencial. Lo confirmamos por WhatsApp antes de empezar.</p>
       ${TF.incluyeHtml ? TF.incluyeHtml(st.sid) : ''}
       ${TF.tiempoHtml ? TF.tiempoHtml(st.sid, 'tiempo-oscuro') : ''}
-      <div class="pago-5050"><div class="pago-t"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span>Forma de pago: 50% y 50%</span></div>
-        <div class="pago-fila"><span><b>1</b><span>Para iniciar el trámite</span></span><strong>${fmt(pr.hoy, m)}</strong></div>
-        <div class="pago-fila"><span><b>2</b><span>Cuando te entregamos</span></span><strong>${fmt(pr.fin, m)}</strong></div></div>
-      <p class="lc-nota">Monto referencial. Lo confirmamos por WhatsApp antes de empezar.</p>
     </div>
     ${ck ? `<details class="lp-docs"><summary>Documentos que suelen pedir</summary><ul>${ck.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></details>` : ''}`;
   $('#waCot').href = waLink(waMsg());

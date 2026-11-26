@@ -698,7 +698,7 @@
                 <div class="${e.pendiente > 0 ? 'pend' : 'ok'}"><small>Pendiente</small><b>${esc(total == null ? '—' : rd(e.pendiente))}</b></div>
             </div>
             ${total ? `<div class="progreso"><i style="width:${pct}%"></i></div>` : '<small style="color:var(--suave)">Este expediente tiene un trámite sin precio; ponle precio para calcular lo pendiente.</small>'}
-            ${total ? (() => {   // desglose interno: el cliente ve solo el precio con todo incluido cuando la tasa es menor que los honorarios
+            ${total ? (() => {   // desglose del expediente: tasa, honorarios, ITBIS y extras
                 const tas = e.tasas_dop || 0, hon = e.honorarios_dop || 0, itb = e.itbis_dop || 0, ext = Math.max(0, Math.round(total - tas - hon - itb));
                 const ini = inicialDe(e);
                 return `<div class="desglose-int">
@@ -707,7 +707,7 @@
                     <div><small>ITBIS (DGII)</small><b>${esc(rd(itb))}</b></div>
                     ${ext ? `<div><small>Extras (Express/courier)</small><b>${esc(rd(ext))}</b></div>` : ''}
                 </div>
-                <p class="desglose-pagos"><b>Pago inicial:</b> ${esc(rd(ini))} · <b>Pago final:</b> ${esc(rd(Math.max(0, total - ini)))}${tas < hon && !(e.tramites || []).some(t => ((cat && cat.servicios[t.servicio_id]) || {}).digital) ? ' <span class="chip">el cliente no ve tus honorarios</span>' : ''}</p>`; })() : ''}
+                <p class="desglose-pagos"><b>Pago inicial:</b> ${esc(rd(ini))} · <b>Pago final:</b> ${esc(rd(Math.max(0, total - ini)))}</p>`; })() : ''}
             ${e.por_confirmar > 0 ? `<div class="pago-alerta">${ico('validar_pagos', 18)}<span><b>${esc(rd(e.por_confirmar))} por confirmar</b>${puedeValidar() ? 'Revisa que el dinero llegó y confírmalo o recházalo.' : 'Administración o contabilidad debe confirmarlo. El cliente ve «Pago pendiente por confirmar».'}</span></div>` : ''}
             ${pagos.length ? `<ul class="filas pagos-lista">${pagos.map(p => filaPago(e, p)).join('')}</ul>` : ''}
             ${bloqueComprobantes(e)}
