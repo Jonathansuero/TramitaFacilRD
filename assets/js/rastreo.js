@@ -56,9 +56,10 @@
         const listo = Number(data.step) === 4;
         const verificando = pago === 'por_confirmar';
         // Los dos pagos del trámite: 50% para empezar y 50% cuando esté listo
-        const mitad = hayTotal ? rd(saldo.mitad) : '';
-        const hito = (nombre, est, texto) => `<li class="${est}"><i class="fa-solid ${{ ok: 'fa-circle-check', ver: 'fa-hourglass-half', pend: 'fa-circle-exclamation', espera: 'fa-clock' }[est]}"></i>
-            <div><b>${esc(t(nombre))}</b>${mitad ? `<span>${esc(mitad)}</span>` : ''}</div><em>${esc(t(texto))}</em></li>`;
+        const montoIni = hayTotal ? rd(saldo.mitad) : '', montoFin = hayTotal ? rd(Math.max(0, saldo.total - saldo.mitad)) : '';
+        const hito = (nombre, est, texto) => { const monto = nombre === 'track.hito.ini' ? montoIni : montoFin;
+            return `<li class="${est}"><i class="fa-solid ${{ ok: 'fa-circle-check', ver: 'fa-hourglass-half', pend: 'fa-circle-exclamation', espera: 'fa-clock' }[est]}"></i>
+            <div><b>${esc(t(nombre))}</b>${monto ? `<span>${esc(monto)}</span>` : ''}</div><em>${esc(t(texto))}</em></li>`; };
         $('trackHitos').innerHTML =
             hito('track.hito.ini', inicialOk ? 'ok' : verificando ? 'ver' : 'pend', inicialOk ? 'track.hito.conf' : verificando ? 'track.hito.ver' : 'track.hito.pend') +
             hito('track.hito.fin', completo ? 'ok' : inicialOk && verificando ? 'ver' : inicialOk && listo ? 'pend' : 'espera',

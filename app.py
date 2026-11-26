@@ -877,9 +877,13 @@ def saldo_cliente(db: sqlite3.Connection, codigo: str) -> dict:
         return {"total": None, "pagado": pagado, "falta": None, "pct": None}
     falta = max(0, round(total - pagado, 2))
     pct = 100 if total <= 0 else max(0, min(100, round(pagado / total * 100)))
-    mitad = round(total / 2, 2)    # el primer 50% se paga para empezar; el otro 50%, cuando el trámite esté listo
+    # pago inicial: la mitad, o las tasas oficiales si son más; el resto, cuando el trámite esté listo
+    cat = catalogo()
+    comp = calculos.composicion([dict(t) for t in db.execute("SELECT servicio_id, precio FROM tramites WHERE codigo=?", (codigo,))],
+                                cat["servicios"], cat["config"])
+    inicial = calculos.anticipo(total, comp["tasas"])
     return {"total": total, "pagado": pagado, "falta": falta, "pct": pct,
-            "mitad": mitad, "falta_mitad": max(0, round(mitad - pagado, 2))}
+            "mitad": inicial, "inicial": inicial, "falta_mitad": max(0, round(inicial - pagado, 2))}
 
 
 def archivos_desbloqueados(db: sqlite3.Connection, codigo: str) -> bool:
@@ -1254,6 +1258,10 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["pagado"] = sum(p["monto"] for p in d["pagos"] if p["estado"] == "confirmado")  # solo lo confirmado cuenta
     d["por_confirmar"] = sum(p["monto"] for p in d["pagos"] if p["estado"] == "pendiente")
     d["pendiente"] = max(0, d["total_dop"] - d["pagado"]) if d["total_dop"] is not None else None
+    cat = catalogo()
+    comp = calculos.composicion(d["tramites"], cat["servicios"], cat["config"])
+    d["tasas_dop"], d["itbis_dop"] = comp["tasas"], comp["itbis"]          # para el reporte del mes
+    d["inicial_dop"] = calculos.anticipo(d["total_dop"], comp["tasas"])   # pago inicial: la mitad o las tasas, lo que sea más
     d["notas"] = [dict(r) for r in db.execute("SELECT id, texto, creado FROM notas WHERE codigo=? ORDER BY id DESC", (d["codigo"],))]
     d["actividad"] = [dict(r) for r in db.execute(
         "SELECT usuario, accion, detalle, fecha FROM actividad WHERE codigo=? ORDER BY id DESC LIMIT 20", (d["codigo"],))]

@@ -666,7 +666,10 @@ ${ES_APP ? renderTabbar() : ''}`;
         const base = (s.tax || 0) + (s.fee || 0), itbis = Math.round(base * (C.itbis || 0)), final = base + itbis;
         const ex = express && !s.digital ? (C.express_fee || 0) : 0;
         const en = envio && !s.digital ? (C.delivery_fee || 0) : 0;
-        return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total: final + ex + en };
+        const total = final + ex + en;
+        // pago inicial: la mitad, o la tasa oficial si es más (así nunca se adelanta dinero propio a la institución)
+        const hoy = Math.round(Math.min(total, Math.max(total / 2, s.tax || 0)));
+        return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total, hoy, fin: total - hoy };
     }
     window.TF = {
         precio,

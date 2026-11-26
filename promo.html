@@ -531,7 +531,7 @@ function pintaCot() {
   const s = SERV[st.sid]; if (!s) return;
   if (s.digital) st.express = st.envio = false;   // trámite 100 % digital: sin Express ni envío
   const pr = TF.precio(s, st.express, st.envio), ex = pr.express, en = pr.envio, m = st.moneda, extras = ex + en;
-  const tot = pr.total, mitad = tot / 2;
+  const tot = pr.total;
   const insts = (s.inst || []).map(i => (D.instituciones || {})[i]).filter(Boolean);
   const nomInst = insts.length ? insts.map(i => i.sigla).join(' / ') : 'la institución';
   const ck = (D.checklists || {})[st.sid];
@@ -558,8 +558,8 @@ function pintaCot() {
       ${TF.incluyeHtml ? TF.incluyeHtml(st.sid) : ''}
       ${TF.tiempoHtml ? TF.tiempoHtml(st.sid, 'tiempo-oscuro') : ''}
       <div class="pago-5050"><div class="pago-t"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span>Forma de pago: 50% y 50%</span></div>
-        <div class="pago-fila"><span><b>1</b><span>Para iniciar el trámite</span></span><strong>${fmt(mitad, m)}</strong></div>
-        <div class="pago-fila"><span><b>2</b><span>Cuando te entregamos</span></span><strong>${fmt(mitad, m)}</strong></div></div>
+        <div class="pago-fila"><span><b>1</b><span>Para iniciar el trámite</span></span><strong>${fmt(pr.hoy, m)}</strong></div>
+        <div class="pago-fila"><span><b>2</b><span>Cuando te entregamos</span></span><strong>${fmt(pr.fin, m)}</strong></div></div>
       <p class="lc-nota">Monto referencial. Lo confirmamos por WhatsApp antes de empezar.</p>
     </div>
     ${ck ? `<details class="lp-docs"><summary>Documentos que suelen pedir</summary><ul>${ck.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul></details>` : ''}`;

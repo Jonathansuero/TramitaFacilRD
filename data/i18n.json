@@ -2227,24 +2227,24 @@
       "Comment vous payez et la suite"
     ],
     "pago.inicio": [
-      "50% para iniciar el trámite",
-      "50% to start the process",
-      "50 % pour lancer la démarche"
+      "Pago inicial para empezar",
+      "Initial payment to start",
+      "Paiement initial pour commencer"
     ],
     "pago.entrega": [
-      "50% cuando te entregamos",
-      "50% when we deliver",
-      "50 % à la livraison"
+      "El resto cuando te entregamos",
+      "The rest when we deliver",
+      "Le reste à la remise"
     ],
     "pago.nota": [
-      "Pagas la mitad para empezar y la otra mitad al recibir tu trámite terminado.",
-      "You pay half to get started and the other half when you receive your completed paperwork.",
-      "Vous payez la moitié pour commencer et l'autre moitié à la réception de votre démarche terminée."
+      "Para empezar pagas la mitad, o la tasa oficial si es mayor. El resto, al recibir tu trámite terminado.",
+      "To start you pay half, or the official fee if it is higher. The rest when you receive your finished procedure.",
+      "Pour commencer, vous payez la moitié, ou la taxe officielle si elle est plus élevée. Le reste à la remise de votre démarche terminée."
     ],
     "wa.cot.pago": [
-      "Pago: {inicio} al iniciar y {entrega} al entregar (50% y 50%)",
-      "Payment: {inicio} to start and {entrega} on delivery (50% / 50%)",
-      "Paiement : {inicio} au début et {entrega} à la livraison (50 % / 50 %)"
+      "Pago: {inicio} al iniciar y {entrega} al entregar",
+      "Payment: {inicio} to start and {entrega} on delivery",
+      "Paiement : {inicio} au début et {entrega} à la remise"
     ],
     "tiempo.t": [
       "Tiempo estimado de la institución",
@@ -2487,9 +2487,9 @@
       "Actes, procurations, apostilles, passeports, permis, biens immobiliers et plus."
     ],
     "catc.p2": [
-      "Precio claro antes de empezar: 50% al iniciar y 50% al entregar.",
-      "Clear price upfront: 50% to start and 50% on delivery.",
-      "Prix clair dès le départ : 50 % au début et 50 % à la livraison."
+      "Precio claro antes de empezar: un pago para iniciar y el resto al entregar.",
+      "Clear price before starting: one payment to begin and the rest on delivery.",
+      "Prix clair avant de commencer : un paiement pour démarrer et le reste à la remise."
     ],
     "catc.p3": [
       "Te avisamos de cada paso por WhatsApp y rastreas con tu código.",
@@ -2572,9 +2572,9 @@
       "Paiements"
     ],
     "track.sec.pagos.d": [
-      "Tu pago se divide en dos partes: 50% para iniciar tu trámite y 50% cuando esté listo.",
-      "Your payment is split in two: 50% to start your request and 50% when it is ready.",
-      "Votre paiement se fait en deux parties : 50 % pour démarrer et 50 % lorsque la démarche est prête."
+      "Tu pago se divide en dos partes: el pago inicial para empezar tu trámite y el resto cuando esté listo.",
+      "Your payment is split in two: the initial payment to start your procedure and the rest when it is ready.",
+      "Votre paiement se fait en deux fois : le paiement initial pour démarrer votre démarche et le reste quand elle est prête."
     ],
     "track.sec.docs.t": [
       "Tus documentos",
@@ -2597,14 +2597,14 @@
       "Les documents finaux de votre démarche se débloquent une fois le paiement complété."
     ],
     "track.hito.ini": [
-      "Pago inicial (50%)",
-      "Initial payment (50%)",
-      "Paiement initial (50 %)"
+      "Pago inicial",
+      "Initial payment",
+      "Paiement initial"
     ],
     "track.hito.fin": [
-      "Pago final (50%)",
-      "Final payment (50%)",
-      "Paiement final (50 %)"
+      "Pago final",
+      "Final payment",
+      "Paiement final"
     ],
     "track.hito.conf": [
       "Confirmado",
@@ -2632,19 +2632,19 @@
       "À régler maintenant"
     ],
     "track.pago.ini": [
-      "Falta tu pago inicial del 50%",
-      "Your initial 50% payment is missing",
-      "Votre paiement initial de 50 % est manquant"
+      "Falta tu pago inicial",
+      "Your initial payment is pending",
+      "Votre paiement initial est en attente"
     ],
     "track.pago.ini.d": [
-      "Para iniciar tu trámite, realiza el 50% ({monto}) y sube aquí tu recibo. Nuestro equipo lo confirma.",
-      "To start your request, pay 50% ({monto}) and upload your receipt here. Our team will confirm it.",
-      "Pour démarrer votre démarche, réglez 50 % ({monto}) et téléversez votre reçu ici. Notre équipe le confirmera."
+      "Para iniciar tu trámite, realiza el pago inicial ({monto}) y sube aquí tu recibo. Nuestro equipo lo confirma.",
+      "To start your procedure, make the initial payment ({monto}) and upload your receipt here. Our team confirms it.",
+      "Pour démarrer votre démarche, effectuez le paiement initial ({monto}) et téléversez ici votre reçu. Notre équipe le confirme."
     ],
     "track.pago.ini.d0": [
-      "Para iniciar tu trámite, realiza el 50% del pago y sube aquí tu recibo. Nuestro equipo lo confirma.",
-      "To start your request, pay 50% and upload your receipt here. Our team will confirm it.",
-      "Pour démarrer votre démarche, réglez 50 % et téléversez votre reçu ici. Notre équipe le confirmera."
+      "Para iniciar tu trámite, realiza el pago inicial y sube aquí tu recibo. Nuestro equipo lo confirma.",
+      "To start your procedure, make the initial payment and upload your receipt here. Our team confirms it.",
+      "Pour démarrer votre démarche, effectuez le paiement initial et téléversez ici votre reçu. Notre équipe le confirme."
     ],
     "track.pago.inok": [
       "Pago inicial confirmado",
@@ -2652,24 +2652,24 @@
       "Paiement initial confirmé"
     ],
     "track.pago.inok.d": [
-      "Tu trámite está en proceso. El 50% restante lo pagas cuando esté listo.",
-      "Your request is in progress. You pay the remaining 50% when it is ready.",
-      "Votre démarche est en cours. Vous réglez les 50 % restants lorsqu’elle est prête."
+      "Tu trámite está en proceso. El resto lo pagas cuando esté listo.",
+      "Your procedure is in progress. You pay the rest when it is ready.",
+      "Votre démarche est en cours. Vous payez le reste quand elle est prête."
     ],
     "track.pago.listo": [
-      "Tu trámite está listo: realiza el 50% restante",
-      "Your request is ready: pay the remaining 50%",
-      "Votre démarche est prête : réglez les 50 % restants"
+      "Tu trámite está listo: realiza el pago final",
+      "Your procedure is ready: make the final payment",
+      "Votre démarche est prête : effectuez le paiement final"
     ],
     "track.pago.listo.d": [
-      "Recuerda pagar el 50% restante ({monto}) y subir tu recibo. Cuando administración lo confirme, se desbloquean tus archivos.",
-      "Remember to pay the remaining 50% ({monto}) and upload your receipt. Once our team confirms it, your files unlock.",
-      "N’oubliez pas de régler les 50 % restants ({monto}) et de téléverser votre reçu. Dès que notre équipe le confirme, vos fichiers sont débloqués."
+      "Recuerda hacer el pago final ({monto}) y subir tu recibo. Cuando administración lo confirme, se desbloquean tus archivos.",
+      "Remember to make the final payment ({monto}) and upload your receipt. Once our office confirms it, your files are unlocked.",
+      "Pensez à effectuer le paiement final ({monto}) et à téléverser votre reçu. Une fois confirmé, vos fichiers sont débloqués."
     ],
     "track.pago.listo.d0": [
-      "Recuerda pagar el 50% restante y subir tu recibo. Cuando administración lo confirme, se desbloquean tus archivos.",
-      "Remember to pay the remaining 50% and upload your receipt. Once our team confirms it, your files unlock.",
-      "N’oubliez pas de régler les 50 % restants et de téléverser votre reçu. Dès que notre équipe le confirme, vos fichiers sont débloqués."
+      "Recuerda hacer el pago final y subir tu recibo. Cuando administración lo confirme, se desbloquean tus archivos.",
+      "Remember to make the final payment and upload your receipt. Once our office confirms it, your files are unlocked.",
+      "Pensez à effectuer le paiement final et à téléverser votre reçu. Une fois confirmé, vos fichiers sont débloqués."
     ],
     "track.comp.concepto": [
       "¿Qué pago es?",
@@ -2677,14 +2677,14 @@
       "De quel paiement s’agit-il ?"
     ],
     "track.comp.c.inicial": [
-      "Pago inicial (50%)",
-      "Initial payment (50%)",
-      "Paiement initial (50 %)"
+      "Pago inicial",
+      "Initial payment",
+      "Paiement initial"
     ],
     "track.comp.c.final": [
-      "Pago final (50%)",
-      "Final payment (50%)",
-      "Paiement final (50 %)"
+      "Pago final",
+      "Final payment",
+      "Paiement final"
     ],
     "track.lock.t": [
       "Tus archivos están listos, pero bloqueados",
@@ -2692,9 +2692,9 @@
       "Vos fichiers sont prêts, mais verrouillés"
     ],
     "track.lock.d": [
-      "Para desbloquearlos, realiza el 50% restante ({monto}) y sube tu recibo en la sección de pagos. Nuestro equipo lo confirmará y los verás aquí.",
-      "To unlock them, pay the remaining 50% ({monto}) and upload your receipt in the payments section. Our team will confirm it and you will see them here.",
-      "Pour les débloquer, réglez les 50 % restants ({monto}) et téléversez votre reçu dans la section paiements. Notre équipe le confirmera et vous les verrez ici."
+      "Para desbloquearlos, realiza el pago final ({monto}) y sube tu recibo en la sección de pagos. Nuestro equipo lo confirmará y los verás aquí.",
+      "To unlock them, make the final payment ({monto}) and upload your receipt in the payments section. Our team will confirm it and you will see them here.",
+      "Pour les débloquer, effectuez le paiement final ({monto}) et téléversez votre reçu dans la section paiements. Notre équipe le confirmera et vous les verrez ici."
     ],
     "track.lock.d0": [
       "Para desbloquearlos, completa el pago y sube tu recibo en la sección de pagos. Nuestro equipo lo confirmará y los verás aquí.",
@@ -2712,9 +2712,9 @@
       "{n} fichiers en attente"
     ],
     "track.docs.bloq": [
-      "Tus archivos siguen bloqueados hasta que administración confirme el pago del 50% restante.",
-      "Your files stay locked until our team confirms the remaining 50% payment.",
-      "Vos fichiers restent verrouillés jusqu’à la confirmation des 50 % restants."
+      "Tus archivos siguen bloqueados hasta que administración confirme el pago final.",
+      "Your files stay locked until our office confirms the final payment.",
+      "Vos fichiers restent bloqués jusqu’à la confirmation du paiement final."
     ],
     "track.pide.vacio": [
       "Por ahora no te hemos pedido documentos. Si necesitas enviar alguno, súbelo aquí.",
@@ -2837,14 +2837,14 @@
       "Vous voyez le total avant de décider, séparé en taxe officielle et honoraires."
     ],
     "pago.2.t": [
-      "Pagas la mitad para empezar",
-      "You pay half to start",
-      "Vous payez la moitié pour commencer"
+      "Haces el pago inicial para empezar",
+      "You make the initial payment to start",
+      "Vous faites le paiement initial pour commencer"
     ],
     "pago.2.d": [
-      "Recibes tu código de expediente en ese momento.",
-      "You get your file code right then.",
-      "Vous recevez votre code de dossier à ce moment."
+      "Es la mitad del total, o la tasa oficial si es mayor. Recibes tu código de expediente en ese momento.",
+      "It is half the total, or the official fee if higher. You get your file code right then.",
+      "C’est la moitié du total, ou la taxe officielle si elle est plus élevée. Vous recevez votre code de dossier à ce moment."
     ],
     "pago.3.t": [
       "Lo gestionamos y te avisamos",
@@ -2862,9 +2862,9 @@
       "Vous le recevez et payez le solde"
     ],
     "pago.4.d": [
-      "La segunda mitad se paga al entregar, no antes.",
-      "The second half is paid on delivery, not before.",
-      "La seconde moitié se paie à la remise, pas avant."
+      "El resto se paga al entregar, no antes.",
+      "The rest is paid on delivery, not before.",
+      "Le reste se paie à la remise, pas avant."
     ],
     "pago.hoy": [
       "Hoy (al iniciar)",
@@ -3471,11 +3471,11 @@
         ],
         [
           "Why don't you have a physical office? How do I know it's safe?",
-          "We are a 100% digital agency, so we can serve Dominicans in any country without them having to go anywhere. For your peace of mind, you pay 50% to start and the other 50% when we deliver; we give you a code to track your request on our website, and we send you the institution's official receipts in your name. If you prefer, we can do a 5-minute video call before we start."
+          "We are a 100% digital agency, so we can serve Dominicans in any country without them having to go anywhere. For your peace of mind, you make an initial payment to start (half, or the official fee if higher) and the rest when we deliver; we give you a code to track your request on our website, and we send you the institution's official receipts in your name. If you prefer, we can do a 5-minute video call before we start."
         ],
         [
           "How do I pay if I live abroad?",
-          "We send your quote in your currency (US$ or €) and agree the payment method on WhatsApp. We work 50/50: you pay half to start and the other half when we deliver your completed paperwork. Only pay through the channels shown on this site."
+          "We send your quote in your currency (US$ or €) and agree the payment method on WhatsApp. You pay in two parts: to start, half the total or the official fee if higher; the rest when we deliver your completed paperwork. Only pay through the channels shown on this site."
         ],
         [
           "Do you assist foreigners?",
@@ -4095,11 +4095,11 @@
         ],
         [
           "Pourquoi n'avez-vous pas de bureau physique ? Comment savoir que c'est sûr ?",
-          "Nous sommes une agence 100 % numérique : nous servons ainsi les Dominicains de n'importe quel pays sans qu'ils aient à se déplacer. Pour votre tranquillité, vous payez 50 % au départ et les 50 % restants à la livraison ; nous vous donnons un code pour suivre votre démarche sur notre site, et nous vous envoyons les reçus officiels de l'institution à votre nom. Si vous préférez, nous faisons un appel vidéo de 5 minutes avant de commencer."
+          "Nous sommes une agence 100 % numérique : nous servons ainsi les Dominicains de n'importe quel pays sans qu'ils aient à se déplacer. Pour votre tranquillité, vous faites un paiement initial pour commencer (la moitié, ou la taxe officielle si elle est plus élevée) et le reste à la livraison ; nous vous donnons un code pour suivre votre démarche sur notre site, et nous vous envoyons les reçus officiels de l'institution à votre nom. Si vous préférez, nous faisons un appel vidéo de 5 minutes avant de commencer."
         ],
         [
           "Comment payer si je vis à l'étranger ?",
-          "Nous vous envoyons le devis dans votre devise (US$ ou €) et convenons du mode de paiement sur WhatsApp. Nous travaillons à 50 % / 50 % : vous payez la moitié pour commencer et l'autre moitié à la livraison de votre démarche terminée. Payez uniquement via les canaux indiqués sur ce site."
+          "Nous vous envoyons le devis dans votre devise (US$ ou €) et convenons du mode de paiement sur WhatsApp. Vous payez en deux fois : pour commencer, la moitié du total ou la taxe officielle si elle est plus élevée ; le reste à la livraison de votre démarche terminée. Payez uniquement via les canaux indiqués sur ce site."
         ],
         [
           "Accompagnez-vous les étrangers ?",

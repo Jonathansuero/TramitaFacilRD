@@ -166,8 +166,8 @@
         $('pTax').textContent = money(s.tax); $('pFee').textContent = money(s.fee); $('pItbis').textContent = money(pr.itbis);
         $('pExpV').textContent = '+ ' + money(TF.precio(s, true, false).express); $('pEnvV').textContent = '+ ' + money(C.delivery_fee);
         $('pTotal').textContent = money(total);
-        // pago en dos partes: la mitad al iniciar y el resto al entregar (igual que en el panel)
-        $('pHoy').textContent = money(Math.round(total / 2)); $('pFin').textContent = money(total - Math.round(total / 2));
+        // pago en dos partes: la mitad (o la tasa oficial, si es más) al iniciar y el resto al entregar, igual que en el panel
+        $('pHoy').textContent = money(pr.hoy); $('pFin').textContent = money(pr.fin);
         restart($('pTotal'), 'bump');
         $('sWa').href = waLink(saludo(t('wa.servicio', { s: tc('servicios', id).title, total: $('pTotal').textContent })));
         // resumen del bloque "Confirma tu solicitud"

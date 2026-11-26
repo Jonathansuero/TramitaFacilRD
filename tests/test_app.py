@@ -503,7 +503,7 @@ def test_correos_documentos_y_avisos(client, monkeypatch, tmp_path):
     # al pasar a Listo el correo lleva el enlace de descarga
     client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar", "avisar": True})
     cuerpo = enviados[-1].get_body(("plain",)).get_content()
-    assert "/descarga/" not in cuerpo and "50%" in cuerpo       # sin el pago confirmado no se mandan enlaces
+    assert "/descarga/" not in cuerpo and "pago final" in cuerpo       # sin el pago confirmado no se mandan enlaces
     # los archivos siguen bloqueados: ni el cliente ni el correo manual pueden entregarlos
     assert client.post("/api/admin/archivo/enviar", json={"codigo": codigo}).status_code == 400
     assert client.get(f"/api/rastreo/{codigo}").json["archivos_bloqueados"] is True
@@ -1182,3 +1182,23 @@ def test_servicios_preguntas_e_instituciones_traen_su_contenido_en_el_html(clien
     assert 'href="/servicios/' in h and "Residencia Dominicana para Extranjeros" in h
     assert "¿Necesito viajar a República Dominicana" in client.get("/preguntas").get_data(as_text=True)
     assert "Dirección General de Migración" in client.get("/instituciones").get_data(as_text=True)
+
+
+def test_pago_inicial_cubre_la_tasa_oficial():
+    """El pago inicial es la mitad del total, o las tasas oficiales si son más: nunca se adelanta dinero propio."""
+    cat = calculos.cargar_catalogo()
+    srv, cfg = cat["servicios"], cat["config"]
+    # apostilla: la tasa (620) es menos que la mitad (1,487) -> se queda la mitad
+    ap = calculos.precio(srv["apostilla_documentos"], cfg)
+    assert calculos.anticipo(ap["total"], 620) == ap["total"] / 2
+    # pasaporte electrónico: la tasa (6,700) es más que la mitad -> el pago inicial cubre la tasa
+    pe = calculos.precio(srv["pasaporte_electronico"], cfg)
+    assert pe["total"] / 2 < 6700 and calculos.anticipo(pe["total"], 6700) == 6700
+    assert calculos.anticipo(1000, 5000) == 1000          # nunca más que el total
+    # composición: tasas e ITBIS de un expediente con precio del catálogo y uno puesto a mano
+    comp = calculos.composicion([{"servicio_id": "pasaporte_electronico", "precio": pe["final"]},
+                                 {"servicio_id": None, "precio": 1180}], srv, cfg)
+    assert comp["tasas"] == 6700 and comp["itbis"] == pe["itbis"] + 180
+    # un precio viejo, sin ITBIS, no suma ITBIS
+    viejo = calculos.composicion([{"servicio_id": "apostilla_documentos", "precio": 2520}], srv, cfg)
+    assert viejo == {"tasas": 620, "itbis": 0}
