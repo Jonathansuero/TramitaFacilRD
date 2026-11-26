@@ -1117,7 +1117,8 @@ def api_solicitud():
     servicio = str(d.get("servicio", "")).strip()
     # uno o varios trámites bajo un solo código (la página manda «servicios»; los formularios viejos mandan «servicio»)
     pedidos_ids = d.get("servicios") if isinstance(d.get("servicios"), list) else [servicio]
-    ids = list(dict.fromkeys(str(x).strip() for x in pedidos_ids if str(x).strip()))
+    # un mismo trámite repetido = varias personas (familia) con su propio documento, cada una como un trámite aparte
+    ids = [str(x).strip() for x in pedidos_ids if str(x).strip()]
     moneda = str(d.get("moneda", "DOP")).upper()
     idioma = str(d.get("idioma", "es"))[:2] if str(d.get("idioma", "es"))[:2] in ("es", "en", "fr") else "es"
     pais_detalle = "".join(ch for ch in str(d.get("pais_detalle", "")).upper() if ch.isalpha())[:2]
@@ -1137,8 +1138,11 @@ def api_solicitud():
         return error("Selecciona desde dónde nos escribes.")
     if not ids or any(x not in cat["servicios"] for x in ids):
         return error("Selecciona un trámite válido.")
-    if len(ids) > MAX_TRAMITES_WEB:
-        return error(f"Puedes pedir hasta {MAX_TRAMITES_WEB} trámites a la vez. Para más, escríbenos por WhatsApp.")
+    distintos = list(dict.fromkeys(ids))
+    if len(distintos) > MAX_TRAMITES_WEB or len(ids) > MAX_UNIDADES_WEB:
+        return error(f"Puedes pedir hasta {MAX_TRAMITES_WEB} trámites distintos y {MAX_UNIDADES_WEB} en total a la vez. Para más, escríbenos por WhatsApp.")
+    if any(ids.count(x) > MAX_PERSONAS_WEB for x in distintos):
+        return error(f"Máximo {MAX_PERSONAS_WEB} personas por trámite. Para más, escríbenos por WhatsApp.")
     servicio = ids[0]
     if not d.get("acepta"):
         return error("Debes aceptar el uso de tus datos para gestionar el trámite.")
@@ -1155,10 +1159,17 @@ def api_solicitud():
         cot = {"total": sum(c["total"] for c in cots), "moneda": cots[0]["moneda"]}
     except ValueError:
         cot = {"total": None, "moneda": "DOP"}
-    titulos = [cat["servicios"][x]["title"] for x in ids]
-    titulo = " + ".join(titulos)
+    base = [cat["servicios"][x]["title"] for x in ids]
+    veces = {x: ids.count(x) for x in distintos}
+    vistos: dict[str, int] = {}
+    titulos = []
+    for x, tit in zip(ids, base):   # varias personas: «Certificación … — persona 2 de 3»
+        vistos[x] = vistos.get(x, 0) + 1
+        titulos.append(f"{tit} — persona {vistos[x]} de {veces[x]}" if veces[x] > 1 else tit)
+    rotulo = lambda x: cat["servicios"][x]["title"] + (f" ×{veces[x]}" if veces[x] > 1 else "")
+    titulo = " + ".join(rotulo(x) for x in distintos)
     # la apostilla se hace sobre el documento que sale de la certificación pedida antes: no se le pide dos veces
-    docs = [titulos[i] for i, x in enumerate(ids) if x.startswith(("certificacion_", "cert_"))]
+    docs = [rotulo(x) for x in distintos if x.startswith(("certificacion_", "cert_"))]
     if "apostilla_documentos" in ids and docs:
         mensaje = (mensaje + "\n" if mensaje else "")[:900] + f"[La apostilla va sobre el documento de: {', '.join(docs)}]"
     ts = ahora()
@@ -1194,7 +1205,9 @@ PERMISOS = {
     "herramientas": "Descargar Excel y respaldos",
     "usuarios": "Administrar usuarios y ver la actividad del equipo",
 }
-MAX_TRAMITES_WEB = 6   # trámites que una persona puede pedir a la vez desde la página
+MAX_TRAMITES_WEB = 6   # trámites distintos que se pueden pedir a la vez desde la página
+MAX_UNIDADES_WEB = 12  # trámites en total (varias personas con el mismo trámite cuentan cada una)
+MAX_PERSONAS_WEB = 6   # personas por trámite
 RE_USUARIO = re.compile(r"^[a-z0-9._-]{3,30}$")
 
 

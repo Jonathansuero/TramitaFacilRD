@@ -2892,9 +2892,9 @@
       "Retirer"
     ],
     "cart.max": [
-      "Puedes pedir hasta {n} trámites a la vez. Para más, escríbenos por WhatsApp.",
-      "You can request up to {n} services at once. For more, write to us on WhatsApp.",
-      "Vous pouvez demander jusqu'à {n} démarches à la fois. Pour plus, écrivez-nous sur WhatsApp."
+      "Puedes pedir hasta {n} trámites distintos a la vez. Para más, escríbenos por WhatsApp.",
+      "You can request up to {n} different services at once. For more, write to us on WhatsApp.",
+      "Vous pouvez demander jusqu'à {n} démarches différentes à la fois. Pour plus, écrivez-nous sur WhatsApp."
     ],
     "cart.mismoDoc": [
       "Usamos el documento del trámite {n}: no tienes que subirlo dos veces",
@@ -2970,6 +2970,51 @@
       "Aún no has elegido ningún trámite. Elígelo en la lista de arriba.",
       "You haven't chosen a service yet. Pick one from the list above.",
       "Vous n'avez pas encore choisi de démarche. Choisissez-en une dans la liste ci-dessus."
+    ],
+    "cart.personas": [
+      "Personas",
+      "People",
+      "Personnes"
+    ],
+    "cart.mas": [
+      "Agregar una persona",
+      "Add one person",
+      "Ajouter une personne"
+    ],
+    "cart.menos": [
+      "Quitar una persona",
+      "Remove one person",
+      "Retirer une personne"
+    ],
+    "cart.xn": [
+      "{n} personas",
+      "{n} people",
+      "{n} personnes"
+    ],
+    "cart.separado": [
+      "Cada persona recibe su propio documento",
+      "Each person gets their own document",
+      "Chaque personne reçoit son propre document"
+    ],
+    "cart.ayuda": [
+      "¿Es para tu familia? Usa «+» para sumar personas en cada trámite.",
+      "For your family? Use “+” to add people to each service.",
+      "Pour votre famille ? Utilisez « + » pour ajouter des personnes à chaque démarche."
+    ],
+    "cart.maxp": [
+      "Máximo {n} personas por trámite. Para más, escríbenos por WhatsApp.",
+      "Up to {n} people per service. For more, write to us on WhatsApp.",
+      "Maximum {n} personnes par démarche. Pour plus, écrivez-nous sur WhatsApp."
+    ],
+    "cart.maxtotal": [
+      "Puedes pedir hasta {n} trámites en total a la vez. Para más, escríbenos por WhatsApp.",
+      "You can request up to {n} services in total at once. For more, write to us on WhatsApp.",
+      "Vous pouvez demander jusqu'à {n} démarches au total à la fois. Pour plus, écrivez-nous sur WhatsApp."
+    ],
+    "cart.familia": [
+      "Escribe en el mensaje el nombre completo de cada persona.",
+      "Write each person's full name in the message.",
+      "Écrivez dans le message le nom complet de chaque personne."
     ]
   },
   "contenido": {
