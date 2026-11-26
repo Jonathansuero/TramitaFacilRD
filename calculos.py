@@ -59,7 +59,7 @@ def composicion(tramites: list, servicios: dict, cfg: dict) -> dict:
     """De qué está hecho el precio de un expediente: tasas oficiales, ITBIS y lo demás (honorarios y extras).
     El ITBIS se detecta comparando con el catálogo: los precios viejos, sin ITBIS, no lo llevan.
     Un trámite puesto a mano (sin servicio del catálogo) se toma como precio con ITBIS incluido."""
-    tasas = itbis = honorarios = 0.0
+    tasas = itbis = honorarios = inicial = 0.0
     tasa_itbis = cfg.get("itbis", 0)
     for t in tramites:
         precio = t.get("precio")
@@ -72,14 +72,18 @@ def composicion(tramites: list, servicios: dict, cfg: dict) -> dict:
             t_tasa = min(precio, s["tax"])
             t_itbis = imp if precio >= base + imp - 1 else 0
             t_hon = min(s["fee"], max(0, precio - t_tasa - t_itbis))
+            # pago inicial de este trámite (ver anticipo); los servicios digitales quedan fuera de la regla de honorarios
+            t_ini = anticipo(precio, t_tasa, None if s.get("digital") else t_hon)
         else:
             t_tasa = 0
             t_itbis = round(precio * tasa_itbis / (1 + tasa_itbis)) if tasa_itbis else 0
             t_hon = precio - t_itbis
+            t_ini = anticipo(precio, 0)          # puesto a mano: la mitad
         tasas += t_tasa
         itbis += t_itbis
         honorarios += t_hon
-    return {"tasas": round(tasas, 2), "itbis": round(itbis, 2), "honorarios": round(honorarios, 2)}
+        inicial += t_ini
+    return {"tasas": round(tasas, 2), "itbis": round(itbis, 2), "honorarios": round(honorarios, 2), "inicial": round(inicial, 2)}
 
 
 def cotizar(catalogo: dict, servicio: str, express: bool = False, envio: bool = False,

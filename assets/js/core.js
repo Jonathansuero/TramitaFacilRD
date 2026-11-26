@@ -669,7 +669,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         const total = final + ex + en;
         // pago inicial (igual que calculos.anticipo): si la tasa es menor que los honorarios, se paga todo menos los honorarios
         // (tasa + ITBIS + extras) y los honorarios al terminar; si no, la mitad o la tasa, lo que sea más
-        const conHon = (s.tax || 0) < (s.fee || 0);
+        const conHon = !s.digital && (s.tax || 0) < (s.fee || 0);   // los servicios digitales (web, CV, Turnitin) quedan fuera
         const hoy = Math.round(conHon ? total - (s.fee || 0) : Math.min(total, Math.max(total / 2, s.tax || 0)));
         return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total, hoy, fin: total - hoy, ocultarHon: conHon };
     }

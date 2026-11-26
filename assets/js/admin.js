@@ -707,7 +707,7 @@
                     <div><small>ITBIS (DGII)</small><b>${esc(rd(itb))}</b></div>
                     ${ext ? `<div><small>Extras (Express/courier)</small><b>${esc(rd(ext))}</b></div>` : ''}
                 </div>
-                <p class="desglose-pagos"><b>Pago inicial:</b> ${esc(rd(ini))} · <b>Pago final:</b> ${esc(rd(Math.max(0, total - ini)))}${tas < hon ? ' <span class="chip">el cliente no ve tus honorarios</span>' : ''}</p>`; })() : ''}
+                <p class="desglose-pagos"><b>Pago inicial:</b> ${esc(rd(ini))} · <b>Pago final:</b> ${esc(rd(Math.max(0, total - ini)))}${tas < hon && !(e.tramites || []).some(t => ((cat && cat.servicios[t.servicio_id]) || {}).digital) ? ' <span class="chip">el cliente no ve tus honorarios</span>' : ''}</p>`; })() : ''}
             ${e.por_confirmar > 0 ? `<div class="pago-alerta">${ico('validar_pagos', 18)}<span><b>${esc(rd(e.por_confirmar))} por confirmar</b>${puedeValidar() ? 'Revisa que el dinero llegó y confírmalo o recházalo.' : 'Administración o contabilidad debe confirmarlo. El cliente ve «Pago pendiente por confirmar».'}</span></div>` : ''}
             ${pagos.length ? `<ul class="filas pagos-lista">${pagos.map(p => filaPago(e, p)).join('')}</ul>` : ''}
             ${bloqueComprobantes(e)}

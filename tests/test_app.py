@@ -981,8 +981,8 @@ def test_rastreo_muestra_pago_parcial_y_completo(client, monkeypatch):
     # sin pagos todavía: no hay nada cobrado y falta todo
     v = client.get(f"/api/rastreo/{codigo}").json
     assert v["pago"] is None and {k: v["saldo"][k] for k in ("total", "pagado", "falta", "pct")} == {"total": 4000, "pagado": 0, "falta": 4000, "pct": 0}
-    # CV: sin tasa y con honorarios de 1,650 -> el pago inicial es todo menos los honorarios (4,000 - 1,650)
-    assert v["saldo"]["mitad"] == 2350 and v["saldo"]["falta_mitad"] == 2350 and v["archivos_bloqueados"] is True
+    # CV: servicio digital, fuera de la regla de honorarios -> el pago inicial es la mitad
+    assert v["saldo"]["mitad"] == 2000 and v["saldo"]["falta_mitad"] == 2000 and v["archivos_bloqueados"] is True
     # mitad pagada y confirmada: sigue faltando, el cliente ve el 50 %
     pid = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Transferencia"}).json["expediente"]["pagos"][-1]["id"]
     client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
@@ -1205,4 +1205,7 @@ def test_pago_inicial_cubre_la_tasa_oficial():
     assert comp["tasas"] == 6700 and comp["itbis"] == pe["itbis"] + 180 and comp["honorarios"] == 2900 + 1000
     # un precio viejo, sin ITBIS, no suma ITBIS
     viejo = calculos.composicion([{"servicio_id": "apostilla_documentos", "precio": 2520}], srv, cfg)
-    assert viejo == {"tasas": 620, "itbis": 0, "honorarios": 1900}
+    assert viejo == {"tasas": 620, "itbis": 0, "honorarios": 1900, "inicial": 620}
+    # servicios digitales (web, CV, Turnitin): fuera de la regla -> la mitad
+    web = calculos.precio(srv["pagina_web_basico"], cfg)
+    assert calculos.composicion([{"servicio_id": "pagina_web_basico", "precio": web["total"]}], srv, cfg)["inicial"] == web["total"] / 2
