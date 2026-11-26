@@ -1197,7 +1197,14 @@ def test_pago_inicial_cubre_la_tasa_oficial():
     assert pe["total"] / 2 < 6700 and calculos.anticipo(pe["total"], 6700) == 6700
     assert calculos.anticipo(1000, 5000) == 1000          # nunca más que el total
     # tasa menor que los honorarios: se paga todo menos los honorarios, y los honorarios al terminar
-    assert calculos.anticipo(ap["total"], 620, 1900) == ap["total"] - 1900 == 620 + ap["itbis"]
+    # apostilla: tasa + ITBIS (1,074) sería el 36 % -> sube al 40 %
+    assert calculos.anticipo(ap["total"], 620, 1900) == round(ap["total"] * 0.4, 2)
+    # soltería: tasa + ITBIS (2,040) es el 58 % -> se queda así
+    so = calculos.precio(srv["certificacion_solteria"], cfg)
+    assert calculos.anticipo(so["total"], 1500, 1500 + 1) == so["total"] - 1501
+    # pasaporte VIP: la tasa sola es el 64 % -> se cobra la tasa completa, aunque pase del 60 %
+    vip = calculos.precio(srv["pasaporte_vip"], cfg)
+    assert calculos.anticipo(vip["total"], vip["tax"]) == vip["tax"] > vip["total"] * 0.6
     assert calculos.anticipo(pe["total"], 6700, 2900) == 6700      # tasa mayor que los honorarios: regla de siempre
     # composición: tasas e ITBIS de un expediente con precio del catálogo y uno puesto a mano
     comp = calculos.composicion([{"servicio_id": "pasaporte_electronico", "precio": pe["final"]},
@@ -1205,7 +1212,7 @@ def test_pago_inicial_cubre_la_tasa_oficial():
     assert comp["tasas"] == 6700 and comp["itbis"] == pe["itbis"] + 180 and comp["honorarios"] == 2900 + 1000
     # un precio viejo, sin ITBIS, no suma ITBIS
     viejo = calculos.composicion([{"servicio_id": "apostilla_documentos", "precio": 2520}], srv, cfg)
-    assert viejo == {"tasas": 620, "itbis": 0, "honorarios": 1900, "inicial": 620}
+    assert viejo == {"tasas": 620, "itbis": 0, "honorarios": 1900, "inicial": 1008}   # 620 sería el 25 % -> 40 % de 2,520
     # servicios digitales (web, CV, Turnitin): fuera de la regla -> la mitad
     web = calculos.precio(srv["pagina_web_basico"], cfg)
     assert calculos.composicion([{"servicio_id": "pagina_web_basico", "precio": web["total"]}], srv, cfg)["inicial"] == web["total"] / 2
