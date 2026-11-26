@@ -41,29 +41,26 @@
         <div class="space-y-3 text-sm">
             <div id="resTaxRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales / consulares</span><span id="resTax" class="font-bold text-white whitespace-nowrap">—</span></div>
             <div id="resFeeRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios de gestoría</span><span id="resFee" class="font-bold text-white whitespace-nowrap">—</span></div>
-            <p id="resIncluye" class="hidden text-slate-300 text-xs leading-relaxed" data-i18n="calc.incluye">El precio incluye la tasa oficial del trámite, nuestros honorarios y el ITBIS.</p>
             <div id="resItbisRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.itbis">ITBIS (18%)</span><span id="resItbis" class="font-bold text-white whitespace-nowrap">—</span></div>
             <div id="resExtrasRow" class="hidden flex justify-between gap-3 text-sky-300"><span data-i18n="calc.recargos">Recargos (Express/Envío)</span><span id="resExtras" class="font-bold whitespace-nowrap">—</span></div>
         </div>
         <div class="mt-6 pt-4 border-t border-white/20">
             <div class="text-xs text-slate-400 uppercase font-bold tracking-wider" data-i18n="calc.total">Total estimado</div>
             <div id="resTotal" class="text-3xl font-black text-domGold my-1 tabular-nums">—</div>
-            <p class="text-[11px] text-slate-400 italic" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
+            <div class="pago-mitades">
+                <div><span data-i18n="pago.hoy">Hoy (al iniciar)</span><strong id="pagoInicio" class="tabular-nums">—</strong></div>
+                <div><span data-i18n="pago.fin">Al entregar</span><strong id="pagoEntrega" class="tabular-nums">—</strong></div>
+            </div>
+            <p class="text-[11px] text-slate-400 italic mt-2" data-i18n="calc.nota">*Montos estimados sujetos a confirmación.</p>
             <p id="rateNote" class="text-[11px] text-slate-400 mt-1"></p>
-            <div id="resIncluye"></div>
-            <div id="resTiempo"></div>
         </div>
-        <div class="pago-5050" aria-labelledby="pagoT">
-            <div id="pagoT" class="pago-t"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span data-i18n="pago.t">Forma de pago: 50% y 50%</span></div>
-            <div class="pago-fila"><span><b>1</b><span data-i18n="pago.inicio">Pago inicial para empezar</span></span><strong id="pagoInicio" class="tabular-nums">—</strong></div>
-            <div class="pago-fila"><span><b>2</b><span data-i18n="pago.entrega">El resto cuando te entregamos</span></span><strong id="pagoEntrega" class="tabular-nums">—</strong></div>
-            <p class="pago-nota" data-i18n="pago.nota">Para empezar pagas lo que cubre la tasa oficial; el resto, al recibir tu trámite terminado.</p>
+        <div id="resIncluye"></div>
+        <div id="resTiempo"></div>
+        <div class="grid gap-2 mt-5">
+            <button id="quoteFormBtn" type="button" class="bg-domRed hover:bg-red-700 text-white text-center font-bold py-3 rounded-xl text-sm" data-i18n="serv.solicitar">Solicitar este trámite</button>
+            <a id="quoteWaBtn" href="#" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-600 text-white text-center font-bold py-3 rounded-xl text-sm"><i class="fa-brands fa-whatsapp mr-1"></i> <span data-i18n="serv.wa">Consultar por WhatsApp</span></a>
+            <button id="quoteCopyBtn" type="button" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-2.5 rounded-xl text-xs"><i class="fa-solid fa-share-nodes mr-1"></i> <span data-i18n="serv.compartir">Compartir este trámite</span></button>
         </div>
-        <div class="grid sm:grid-cols-2 gap-2 mt-6">
-            <a id="quoteWaBtn" href="#" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</a>
-            <button id="quoteFormBtn" class="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-bold py-3 px-4 rounded-xl text-sm" data-i18n="calc.iniciar">Iniciar solicitud →</button>
-        </div>
-        <button id="quoteCopyBtn" type="button" class="w-full mt-3 bg-white hover:bg-sky-100 text-domBlue font-bold py-3 px-4 rounded-xl text-sm"><i class="fa-solid fa-link mr-1"></i> <span data-i18n="calc.copiar">Copiar enlace para el cliente</span></button>
         <a id="quotePageLink" href="#" class="block text-center text-xs text-sky-200 hover:text-white mt-3 underline" data-i18n="calc.detalle">Ver detalles y requisitos del servicio</a>
     </div>
 </div>`;
@@ -106,8 +103,6 @@
         $('resTax').textContent = money(s.tax);
         $('resFee').textContent = money(s.fee);
         $('resItbis').textContent = money(pr.itbis);
-        ['resTaxRow', 'resFeeRow', 'resItbisRow'].forEach(id => $(id).classList.toggle('hidden', pr.ocultarHon));
-        $('resIncluye').classList.toggle('hidden', !pr.ocultarHon);
         $('resExtrasRow').classList.toggle('hidden', extras === 0);
         $('resExtras').textContent = money(extras);
         $('resTotal').textContent = money(pr.total);
@@ -168,8 +163,7 @@
         $('quoteCopyBtn').addEventListener('click', async () => {
             const url = TF.enlaceCliente($('calcServiceSelect').value, opciones());
             if (!url) { TF.toast(t('calc.elige')); $('calcServiceSearch').focus(); return; }
-            try { await navigator.clipboard.writeText(url); TF.toast(t('calc.copiado')); }
-            catch (e) { window.prompt(t('calc.copiar'), url); }
+            TF.compartirTramite(tc('servicios', $('calcServiceSelect').value).title, url);
         });
         TF.on('lang', () => buildServiceSelect($('calcServiceSearch').value));
         TF.on('moneda', () => { const v = $('calcServiceSelect').value; if (v && !SERV[v]) buildServiceSelect($('calcServiceSearch').value); });

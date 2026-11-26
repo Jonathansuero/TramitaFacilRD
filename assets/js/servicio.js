@@ -164,9 +164,6 @@
         $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
         const pr = TF.precio(s, exp, env), total = pr.total;
         $('pTax').textContent = money(s.tax); $('pFee').textContent = money(s.fee); $('pItbis').textContent = money(pr.itbis);
-        // tasa menor que los honorarios: no se desglosa; se muestra el precio con todo incluido (los honorarios se pagan al terminar)
-        ['pTaxRow', 'pFeeRow', 'pItbisRow'].forEach(id => $(id).classList.toggle('hidden', pr.ocultarHon));
-        $('pIncluye').classList.toggle('hidden', !pr.ocultarHon);
         $('pExpV').textContent = '+ ' + money(TF.precio(s, true, false).express); $('pEnvV').textContent = '+ ' + money(C.delivery_fee);
         $('pTotal').textContent = money(total);
         // pago en dos partes: la mitad (o la tasa oficial, si es más) al iniciar y el resto al entregar, igual que en el panel
@@ -279,7 +276,7 @@
         $('sShare').addEventListener('click', async () => {
             const url = (location.protocol.startsWith('http') && TF.enlaceCliente(id, { express: $('pExp').checked, envio: $('pEnv').checked })) || location.href;
             const title = tc('servicios', id).title;
-            try { if (navigator.share) await navigator.share({ title, url }); else { await navigator.clipboard.writeText(url); toast(t('toast.enlace')); } } catch (e) { /* cancelado */ }
+            TF.compartirTramite(title, url);   // menú de compartir del teléfono, o WhatsApp con el enlace
         });
         TF.on('lang', () => { render(); renderConfirmar(); }); TF.on('pais', () => { render(); renderConfirmar(); }); TF.on('moneda', () => { const n = keys.length; keys = Object.keys(SERV); if (keys.length !== n && SERV[id]) { render(); } precio(); });
         if (location.hash === '#confirmar') setTimeout(() => irAConfirmar(false), 50);

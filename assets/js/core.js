@@ -648,7 +648,7 @@ ${ES_APP ? renderTabbar() : ''}`;
         q.set('moneda', state.moneda); q.set('pais', state.pais);
         if (state.detalle) q.set('det', state.detalle);
         q.set('src', 'cotizacion');
-        return `${location.origin}${servUrl(k)}?${q}`;
+        return `${location.origin}${servUrl(k)}?${q}#confirmar`;   // abre directo en el formulario: solo faltan los datos personales
     };
     /** Aplica ?express=&envio=&moneda=&pais= de un enlace; devuelve lo leído (o null si no trae nada). */
     const leerEnlace = () => {
@@ -673,10 +673,16 @@ ${ES_APP ? renderTabbar() : ''}`;
         let ini = conHon ? total - (s.fee || 0) : Math.max(total / 2, s.tax || 0);
         ini = Math.min(Math.max(ini, total * 0.4), Math.max(total * 0.6, s.tax || 0));   // entre 40 % y 60 %, salvo una tasa mayor
         const hoy = Math.round(Math.min(total, ini));
-        return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total, hoy, fin: total - hoy, ocultarHon: conHon };
+        return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total, hoy, fin: total - hoy };
+    }
+    /** Compartir un trámite cotizado: en el teléfono abre el menú de compartir; en la computadora, WhatsApp con el enlace. */
+    async function compartirTramite(titulo, url) {
+        const texto = `${titulo}\n${url}`;
+        try { if (navigator.share) { await navigator.share({ title: titulo, text: titulo, url }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+        window.open('https://wa.me/?text=' + encodeURIComponent(texto), '_blank', 'noopener');
     }
     window.TF = {
-        precio,
+        precio, compartirTramite,
         evento, enlaceCliente, leerEnlace,
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state, servUrl,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
