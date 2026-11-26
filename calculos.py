@@ -42,11 +42,16 @@ def precio(s: dict, cfg: dict, express: bool = False, envio: bool = False) -> di
             "total": final + express + envio}
 
 
-def anticipo(total: float, tasas: float) -> float:
-    """Lo que se paga para empezar: la mitad del total, o las tasas oficiales si son más,
-    para que nunca se adelante dinero propio a una institución. Nunca más que el total."""
+def anticipo(total: float, tasas: float, honorarios: float | None = None) -> float:
+    """Lo que se paga para empezar:
+    - si las tasas son menores que los honorarios: todo menos los honorarios (tasas + ITBIS + extras);
+      los honorarios se pagan al terminar;
+    - si no: la mitad del total, o las tasas si son más (nunca se adelanta dinero propio a una institución).
+    Nunca más que el total."""
     if total is None:
         return None
+    if honorarios is not None and (tasas or 0) < honorarios:
+        return round(max(0, total - honorarios), 2)
     return round(min(total, max(total / 2, tasas or 0)), 2)
 
 
@@ -54,7 +59,7 @@ def composicion(tramites: list, servicios: dict, cfg: dict) -> dict:
     """De qué está hecho el precio de un expediente: tasas oficiales, ITBIS y lo demás (honorarios y extras).
     El ITBIS se detecta comparando con el catálogo: los precios viejos, sin ITBIS, no lo llevan.
     Un trámite puesto a mano (sin servicio del catálogo) se toma como precio con ITBIS incluido."""
-    tasas = itbis = 0.0
+    tasas = itbis = honorarios = 0.0
     tasa_itbis = cfg.get("itbis", 0)
     for t in tramites:
         precio = t.get("precio")
@@ -66,12 +71,15 @@ def composicion(tramites: list, servicios: dict, cfg: dict) -> dict:
             imp = round(base * tasa_itbis)
             t_tasa = min(precio, s["tax"])
             t_itbis = imp if precio >= base + imp - 1 else 0
+            t_hon = min(s["fee"], max(0, precio - t_tasa - t_itbis))
         else:
             t_tasa = 0
             t_itbis = round(precio * tasa_itbis / (1 + tasa_itbis)) if tasa_itbis else 0
+            t_hon = precio - t_itbis
         tasas += t_tasa
         itbis += t_itbis
-    return {"tasas": round(tasas, 2), "itbis": round(itbis, 2)}
+        honorarios += t_hon
+    return {"tasas": round(tasas, 2), "itbis": round(itbis, 2), "honorarios": round(honorarios, 2)}
 
 
 def cotizar(catalogo: dict, servicio: str, express: bool = False, envio: bool = False,

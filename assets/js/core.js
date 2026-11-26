@@ -667,9 +667,11 @@ ${ES_APP ? renderTabbar() : ''}`;
         const ex = express && !s.digital ? (C.express_fee || 0) : 0;
         const en = envio && !s.digital ? (C.delivery_fee || 0) : 0;
         const total = final + ex + en;
-        // pago inicial: la mitad, o la tasa oficial si es más (así nunca se adelanta dinero propio a la institución)
-        const hoy = Math.round(Math.min(total, Math.max(total / 2, s.tax || 0)));
-        return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total, hoy, fin: total - hoy };
+        // pago inicial (igual que calculos.anticipo): si la tasa es menor que los honorarios, se paga todo menos los honorarios
+        // (tasa + ITBIS + extras) y los honorarios al terminar; si no, la mitad o la tasa, lo que sea más
+        const conHon = (s.tax || 0) < (s.fee || 0);
+        const hoy = Math.round(conHon ? total - (s.fee || 0) : Math.min(total, Math.max(total / 2, s.tax || 0)));
+        return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total, hoy, fin: total - hoy, ocultarHon: conHon };
     }
     window.TF = {
         precio,

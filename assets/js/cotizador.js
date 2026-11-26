@@ -39,9 +39,10 @@
         </div>
         <p id="resTitulo" class="text-sm font-semibold text-sky-200 mb-3"></p>
         <div class="space-y-3 text-sm">
-            <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales / consulares</span><span id="resTax" class="font-bold text-white whitespace-nowrap">—</span></div>
-            <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios de gestoría</span><span id="resFee" class="font-bold text-white whitespace-nowrap">—</span></div>
-            <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.itbis">ITBIS (18%)</span><span id="resItbis" class="font-bold text-white whitespace-nowrap">—</span></div>
+            <div id="resTaxRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales / consulares</span><span id="resTax" class="font-bold text-white whitespace-nowrap">—</span></div>
+            <div id="resFeeRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios de gestoría</span><span id="resFee" class="font-bold text-white whitespace-nowrap">—</span></div>
+            <p id="resIncluye" class="hidden text-slate-300 text-xs leading-relaxed" data-i18n="calc.incluye">El precio incluye la tasa oficial del trámite, nuestros honorarios y el ITBIS.</p>
+            <div id="resItbisRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.itbis">ITBIS (18%)</span><span id="resItbis" class="font-bold text-white whitespace-nowrap">—</span></div>
             <div id="resExtrasRow" class="hidden flex justify-between gap-3 text-sky-300"><span data-i18n="calc.recargos">Recargos (Express/Envío)</span><span id="resExtras" class="font-bold whitespace-nowrap">—</span></div>
         </div>
         <div class="mt-6 pt-4 border-t border-white/20">
@@ -56,7 +57,7 @@
             <div id="pagoT" class="pago-t"><i class="fa-solid fa-handshake" aria-hidden="true"></i><span data-i18n="pago.t">Forma de pago: 50% y 50%</span></div>
             <div class="pago-fila"><span><b>1</b><span data-i18n="pago.inicio">Pago inicial para empezar</span></span><strong id="pagoInicio" class="tabular-nums">—</strong></div>
             <div class="pago-fila"><span><b>2</b><span data-i18n="pago.entrega">El resto cuando te entregamos</span></span><strong id="pagoEntrega" class="tabular-nums">—</strong></div>
-            <p class="pago-nota" data-i18n="pago.nota">Para empezar pagas la mitad, o la tasa oficial si es mayor. El resto, al recibir tu trámite terminado.</p>
+            <p class="pago-nota" data-i18n="pago.nota">Para empezar pagas lo que cubre la tasa oficial; el resto, al recibir tu trámite terminado.</p>
         </div>
         <div class="grid sm:grid-cols-2 gap-2 mt-6">
             <a id="quoteWaBtn" href="#" target="_blank" rel="noopener" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 text-sm"><i class="fa-brands fa-whatsapp text-lg"></i> WhatsApp</a>
@@ -105,6 +106,8 @@
         $('resTax').textContent = money(s.tax);
         $('resFee').textContent = money(s.fee);
         $('resItbis').textContent = money(pr.itbis);
+        ['resTaxRow', 'resFeeRow', 'resItbisRow'].forEach(id => $(id).classList.toggle('hidden', pr.ocultarHon));
+        $('resIncluye').classList.toggle('hidden', !pr.ocultarHon);
         $('resExtrasRow').classList.toggle('hidden', extras === 0);
         $('resExtras').textContent = money(extras);
         $('resTotal').textContent = money(pr.total);

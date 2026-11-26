@@ -164,6 +164,9 @@
         $$('#monedaToggle button').forEach(b => b.classList.toggle('is-active', b.dataset.moneda === state.moneda));
         const pr = TF.precio(s, exp, env), total = pr.total;
         $('pTax').textContent = money(s.tax); $('pFee').textContent = money(s.fee); $('pItbis').textContent = money(pr.itbis);
+        // tasa menor que los honorarios: no se desglosa; se muestra el precio con todo incluido (los honorarios se pagan al terminar)
+        ['pTaxRow', 'pFeeRow', 'pItbisRow'].forEach(id => $(id).classList.toggle('hidden', pr.ocultarHon));
+        $('pIncluye').classList.toggle('hidden', !pr.ocultarHon);
         $('pExpV').textContent = '+ ' + money(TF.precio(s, true, false).express); $('pEnvV').textContent = '+ ' + money(C.delivery_fee);
         $('pTotal').textContent = money(total);
         // pago en dos partes: la mitad (o la tasa oficial, si es más) al iniciar y el resto al entregar, igual que en el panel

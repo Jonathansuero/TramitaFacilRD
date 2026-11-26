@@ -881,7 +881,7 @@ def saldo_cliente(db: sqlite3.Connection, codigo: str) -> dict:
     cat = catalogo()
     comp = calculos.composicion([dict(t) for t in db.execute("SELECT servicio_id, precio FROM tramites WHERE codigo=?", (codigo,))],
                                 cat["servicios"], cat["config"])
-    inicial = calculos.anticipo(total, comp["tasas"])
+    inicial = calculos.anticipo(total, comp["tasas"], comp["honorarios"])
     return {"total": total, "pagado": pagado, "falta": falta, "pct": pct,
             "mitad": inicial, "inicial": inicial, "falta_mitad": max(0, round(inicial - pagado, 2))}
 
@@ -1260,8 +1260,8 @@ def expediente(db: sqlite3.Connection, row: sqlite3.Row) -> dict:
     d["pendiente"] = max(0, d["total_dop"] - d["pagado"]) if d["total_dop"] is not None else None
     cat = catalogo()
     comp = calculos.composicion(d["tramites"], cat["servicios"], cat["config"])
-    d["tasas_dop"], d["itbis_dop"] = comp["tasas"], comp["itbis"]          # para el reporte del mes
-    d["inicial_dop"] = calculos.anticipo(d["total_dop"], comp["tasas"])   # pago inicial: la mitad o las tasas, lo que sea más
+    d["tasas_dop"], d["itbis_dop"], d["honorarios_dop"] = comp["tasas"], comp["itbis"], comp["honorarios"]   # desglose solo para el panel
+    d["inicial_dop"] = calculos.anticipo(d["total_dop"], comp["tasas"], comp["honorarios"])   # pago inicial (ver calculos.anticipo)
     d["notas"] = [dict(r) for r in db.execute("SELECT id, texto, creado FROM notas WHERE codigo=? ORDER BY id DESC", (d["codigo"],))]
     d["actividad"] = [dict(r) for r in db.execute(
         "SELECT usuario, accion, detalle, fecha FROM actividad WHERE codigo=? ORDER BY id DESC LIMIT 20", (d["codigo"],))]
