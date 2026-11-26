@@ -752,9 +752,9 @@
       "Ce prix comprend"
     ],
     "calc.nota": [
-      "*Montos estimados sujetos a confirmación.",
-      "*Estimated amounts, subject to confirmation.",
-      "*Montants estimés, sous réserve de confirmation."
+      "*Montos estimados sujetos a confirmación. Cotización disponible durante 48 horas.",
+      "*Estimated amounts, subject to confirmation. Quote valid for 48 hours.",
+      "*Montants estimés, sous réserve de confirmation. Devis valable 48 heures."
     ],
     "calc.pesos": [
       "Valores en pesos dominicanos.",
