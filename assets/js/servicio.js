@@ -54,6 +54,7 @@
 
         precio();
         $('cTitulo').textContent = tr.title;
+        $('pTitulo').textContent = tr.title;
 
         if (otros) otros.refrescar();   // «Otros servicios»: que no se liste la ficha abierta
     }
