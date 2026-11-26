@@ -63,7 +63,7 @@
     const colorDe = s => COLORES[[...String(s || '')].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7) % COLORES.length];
     const peso = b => b >= 1048576 ? `${(b / 1048576).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`;
     const IDIOMA_N = { es: 'Español', en: 'Inglés', fr: 'Francés', '': 'Sin dato' };
-    const TIPO_PAGO = { anticipo: 'Anticipo 50%', saldo: 'Saldo 50%', otro: 'Otro pago' };
+    const TIPO_PAGO = { anticipo: 'Pago inicial', saldo: 'Pago final', otro: 'Otro pago' };
     const METODOS = ['Transferencia', 'Zelle', 'Efectivo', 'Remesa', 'PayPal', 'Tarjeta', 'Otro'];
 
     // Mapa de la isla (Hispaniola) dibujado a mano para un lienzo de 640×380
@@ -171,7 +171,7 @@
         const total = e.total_dop, pagado = e.pagado || 0;
         const lineas = [`Hola ${primerNombre(e)} 👋`, ''];
         if (total == null) lineas.push(`Te recordamos el pago pendiente de tu expediente *${e.codigo}*.`);
-        else if (!pagado) lineas.push(`Para iniciar tu expediente *${e.codigo}* necesitamos el anticipo del 50%: *${rd(Math.round(total / 2))}*.`, `(Total del servicio: ${rd(total)}. El otro 50% se paga al terminar.)`);
+        else if (!pagado) lineas.push(`Para iniciar tu expediente *${e.codigo}* necesitamos el pago inicial: *${rd(inicialDe(e))}*.`, `(Total del servicio: ${rd(total)}. El resto se paga al terminar.)`);
         else lineas.push(`Te recordamos el saldo pendiente de tu expediente *${e.codigo}*: *${rd(e.pendiente)}*.`, `Total: ${rd(total)} · Recibido: ${rd(pagado)}.`);
         lineas.push('', 'Cuando hagas el pago, envíanos el comprobante por aquí. ¡Gracias! 🙌', '— TramitaFácil RD');
         return wa(e, lineas);
@@ -201,6 +201,8 @@
     const tono = paso => ({ 1: 'sky', 2: 'sky', 3: 'amber', 4: 'emerald' }[paso] || 'sky');
     const barra = paso => `<span class="barra">${[1, 2, 3, 4].map(i => `<i class="${i <= paso ? 'on' : ''}${paso === 4 ? ' listo' : ''}"></i>`).join('')}</span>`;
     // mismo cálculo que la página: tasa + honorarios + ITBIS sobre los dos (el panel guarda el precio final)
+    // pago inicial que calcula el servidor: la mitad, o las tasas oficiales si son más
+    const inicialDe = e => Math.round(e.inicial_dop != null ? e.inicial_dop : (e.total_dop || 0) / 2);
     const TF_PRECIO = (s, cfg) => { const b = (s.tax || 0) + (s.fee || 0); return b + Math.round(b * ((cfg && cfg.itbis) || 0)); };
     const precioCatalogo = id => (cat && cat.servicios[id]) ? TF_PRECIO(cat.servicios[id], cat.config) : null;
     const DOCS_GENERICOS = ['Copia de cédula o pasaporte', 'Datos completos del trámite', 'Documentos de soporte', 'Comprobante de pago'];
@@ -648,7 +650,7 @@
         const total = e.total_dop;
         if (total == null || p.estado === 'rechazado') return null;
         const antes = (e.pagos || []).filter(x => x.id < p.id && x.estado === 'confirmado').reduce((s, x) => s + x.monto, 0);
-        const esperado = p.tipo === 'anticipo' ? Math.round(total / 2) : p.tipo === 'saldo' ? Math.max(0, total - antes) : null;
+        const esperado = p.tipo === 'anticipo' ? inicialDe(e) : p.tipo === 'saldo' ? Math.max(0, total - antes) : null;
         if (!esperado) return null;
         const dif = Math.round(p.monto - esperado);
         if (dif === 0) return ['Monto completo', 'ok'];
@@ -686,23 +688,33 @@
         const pct = total ? Math.min(100, Math.round(pagado / total * 100)) : 0;
         const hayInicial = pagos.some(p => p.tipo === 'anticipo' && p.estado !== 'rechazado');
         const tipo = hayInicial ? 'saldo' : 'anticipo';
-        const sugerido = total == null ? '' : (tipo === 'anticipo' ? Math.round(total / 2) : e.pendiente || '');
+        const sugerido = total == null ? '' : (tipo === 'anticipo' ? inicialDe(e) : e.pendiente || '');
         const urgente = e.por_confirmar > 0 || compNuevos(e).length > 0;
         const resumen = total == null ? 'sin precio' : e.pendiente > 0 ? `faltan ${esc(rd(e.pendiente))}` : 'cobrado';
-        return plegable(e, 'cobro', 'cash', '2 · Pagos 50% / 50%', resumen, () => `
+        return plegable(e, 'cobro', 'cash', '2 · Pagos: inicial y final', resumen, () => `
             <div class="cobro-nums">
                 <div><small>Total</small><b>${esc(rd(total))}</b></div>
                 <div class="ok"><small>Recibido</small><b>${esc(rd(pagado))}</b></div>
                 <div class="${e.pendiente > 0 ? 'pend' : 'ok'}"><small>Pendiente</small><b>${esc(total == null ? '—' : rd(e.pendiente))}</b></div>
             </div>
             ${total ? `<div class="progreso"><i style="width:${pct}%"></i></div>` : '<small style="color:var(--suave)">Este expediente tiene un trámite sin precio; ponle precio para calcular lo pendiente.</small>'}
+            ${total ? (() => {   // desglose interno: el cliente ve solo el precio con todo incluido cuando la tasa es menor que los honorarios
+                const tas = e.tasas_dop || 0, hon = e.honorarios_dop || 0, itb = e.itbis_dop || 0, ext = Math.max(0, Math.round(total - tas - hon - itb));
+                const ini = inicialDe(e);
+                return `<div class="desglose-int">
+                    <div><small>Tasa oficial</small><b>${esc(rd(tas))}</b></div>
+                    <div><small>Tus honorarios</small><b>${esc(rd(hon))}</b></div>
+                    <div><small>ITBIS (DGII)</small><b>${esc(rd(itb))}</b></div>
+                    ${ext ? `<div><small>Extras (Express/courier)</small><b>${esc(rd(ext))}</b></div>` : ''}
+                </div>
+                <p class="desglose-pagos"><b>Pago inicial:</b> ${esc(rd(ini))} · <b>Pago final:</b> ${esc(rd(Math.max(0, total - ini)))}${tas < hon ? ' <span class="chip">el cliente no ve tus honorarios</span>' : ''}</p>`; })() : ''}
             ${e.por_confirmar > 0 ? `<div class="pago-alerta">${ico('validar_pagos', 18)}<span><b>${esc(rd(e.por_confirmar))} por confirmar</b>${puedeValidar() ? 'Revisa que el dinero llegó y confírmalo o recházalo.' : 'Administración o contabilidad debe confirmarlo. El cliente ve «Pago pendiente por confirmar».'}</span></div>` : ''}
             ${pagos.length ? `<ul class="filas pagos-lista">${pagos.map(p => filaPago(e, p)).join('')}</ul>` : ''}
             ${bloqueComprobantes(e)}
             ${e.pendiente === 0 && pagado > 0 ? `<small style="color:var(--verde);font-weight:700">${ico('ok')} Pagado completo: los archivos se desbloquean solos.</small>` : `
             <form class="form-pago" data-codigo="${esc(e.codigo)}" data-total="${total ?? ''}" data-pendiente="${e.pendiente ?? ''}">
                 <input type="hidden" name="tipo" value="${tipo}">
-                <div class="tipo-btns" role="group" aria-label="Tipo de pago">${[['anticipo', 'Pago inicial 50%'], ['saldo', 'Pago final 50%'], ['otro', 'Extra (opcional)']].map(([k, n]) =>
+                <div class="tipo-btns" role="group" aria-label="Tipo de pago">${[['anticipo', 'Pago inicial'], ['saldo', 'Pago final'], ['otro', 'Extra (opcional)']].map(([k, n]) =>
                     `<button type="button" class="tipo-b${k === tipo ? ' on' : ''}" data-tipo-pago="${k}"${k === 'anticipo' && hayInicial ? ' disabled' : ''}>${n}${k === 'anticipo' && hayInicial ? '<small>ya registrado</small>' : ''}</button>`).join('')}</div>
                 <input class="input" name="monto" type="number" min="1" step="any" inputmode="decimal" placeholder="Monto RD$" value="${sugerido}" aria-label="Monto recibido" required>
                 <select class="input" name="metodo" aria-label="Método">${METODOS.map(m => `<option>${m}</option>`).join('')}</select>
@@ -974,6 +986,46 @@
     }
 
     // ============================================================ PAGOS
+    let mesReporte = null;   // 'AAAA-MM' elegido en el reporte del mes (por defecto, el mes actual)
+    /** Reporte del mes: de lo cobrado, cuánto es de las instituciones (tasas), de la DGII (ITBIS) y tuyo (honorarios y extras).
+     *  Con prudencia: lo que paga cada cliente cubre primero las tasas de su expediente, luego el ITBIS, y lo que sobra es tuyo. */
+    function reporteMes(mes) {
+        const solape = (a, b, c, d) => Math.max(0, Math.min(b, d) - Math.max(a, c));   // parte de [a,b] que cae en [c,d]
+        let cobrado = 0, tasas = 0, itbis = 0, n = 0;
+        expedientes.forEach(e => {
+            const T = e.tasas_dop || 0, I = e.itbis_dop || 0;
+            let antes = 0;
+            (e.pagos || []).filter(p => !p.estado || p.estado === 'confirmado')
+                .sort((x, y) => String(x.fecha).localeCompare(String(y.fecha)) || x.id - y.id)
+                .forEach(p => {
+                    const desde = antes, hasta = antes + p.monto; antes = hasta;
+                    if (!String(p.fecha).startsWith(mes)) return;
+                    n++; cobrado += p.monto;
+                    tasas += solape(desde, hasta, 0, T); itbis += solape(desde, hasta, T, T + I);
+                });
+        });
+        const pagos = { length: n };
+        tasas = Math.round(tasas); itbis = Math.round(itbis);
+        return { cobrado, tasas, itbis, tuyo: Math.max(0, Math.round(cobrado - tasas - itbis)), n: pagos.length };
+    }
+    function bloqueReporte(mesActual) {
+        const mes = mesReporte || mesActual;
+        const meses = Array.from({ length: 6 }, (_, i) => { const d = new Date(mesActual + '-15'); d.setMonth(d.getMonth() - i); return d.toISOString().slice(0, 7); });
+        const nom = m => { const t = new Date(m + '-15').toLocaleDateString('es-DO', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); };
+        const r = reporteMes(mes), pct = v => r.cobrado ? Math.round(v / r.cobrado * 100) : 0;
+        const barra = r.cobrado ? `<div class="rep-barra" role="img" aria-label="Reparto de lo cobrado">
+                <i style="width:${pct(r.tuyo)}%;background:var(--azul)"></i><i style="width:${pct(r.tasas)}%;background:#94A3B8"></i><i style="width:${pct(r.itbis)}%;background:#D4AF37"></i></div>` : '';
+        return `<div class="card reporte-mes"><div class="rep-cab"><div><h3>${ico('cash', 18)} Reporte del mes</h3>
+                <p class="sub">De lo que cobraste, qué es tuyo y qué tienes que pagar a otros.</p></div>
+                <label class="rep-sel">Mes <select id="repMes">${meses.map(m => `<option value="${m}"${m === mes ? ' selected' : ''}>${esc(nom(m))}</option>`).join('')}</select></label></div>
+            <div class="kpis">
+                <div class="kpi"><span>Cobrado</span><b>${esc(rd(r.cobrado))}</b><small>${r.n} ${r.n === 1 ? 'pago confirmado' : 'pagos confirmados'}</small></div>
+                <div class="kpi dinero"><span>Tuyo: honorarios y extras</span><b>${esc(rd(r.tuyo))}</b><small>${pct(r.tuyo)} % de lo cobrado</small></div>
+                <div class="kpi"><span>Tasas para las instituciones</span><b style="color:#475569">${esc(rd(r.tasas))}</b><small>no es ganancia: se paga a la JCE, DGP, MIREX…</small></div>
+                <div class="kpi"><span>ITBIS para la DGII</span><b style="color:#9A7B1C">${esc(rd(r.itbis))}</b><small>apártalo para tu declaración</small></div>
+            </div>${barra}
+            <p class="rep-nota">Cálculo prudente: lo que paga cada cliente cubre primero las tasas de su expediente, luego el ITBIS, y lo que sobra es tuyo. Los expedientes viejos, con precio sin ITBIS, no suman ITBIS. Confírmalo con tu contador antes de declarar.</p></div>`;
+    }
     function pintarPagos() {
         const hoy = hoyRD(), mes = hoy.slice(0, 7);
         const todosConEstado = expedientes.flatMap(e => (e.pagos || []).map(p => ({ ...p, e })));
@@ -996,13 +1048,14 @@
                     <button type="button" class="link" data-ver="${esc(e.codigo)}">Registrar pago →</button></div></li>`;
         };
         $('tPagos').innerHTML = `<div class="pila">
-            <div class="cabecera" style="margin:0"><div><h2>Pagos</h2><p>Anticipo del 50% para iniciar y 50% al terminar</p></div></div>
+            <div class="cabecera" style="margin:0"><div><h2>Pagos</h2><p>Pago inicial (la mitad, o las tasas oficiales si son más) y el resto al terminar</p></div></div>
             <div class="kpis">
                 <div class="kpi dinero"><span>Cobrado en ${esc(nombreMes)}</span><b>${esc(rd(cobradoMes))}</b><small>${delMes.length} ${delMes.length === 1 ? 'pago' : 'pagos'}</small></div>
                 ${porConfirmar.length ? `<div class="kpi alerta"><span>Por confirmar</span><b>${esc(rd(porConfirmar.reduce((s, p) => s + p.monto, 0)))}</b><small>${porConfirmar.length} ${porConfirmar.length === 1 ? 'pago' : 'pagos'} sin confirmar</small></div>` : ''}
                 <div class="kpi"><span>Por cobrar</span><b style="color:var(--rojo)">${esc(rd(porCobrar))}</b><small>${pendientes.length} ${pendientes.length === 1 ? 'cliente' : 'clientes'}</small></div>
                 <div class="kpi${sinAnticipo.length ? ' alerta' : ''}"><span>Sin anticipo todavía</span><b>${sinAnticipo.length}</b><small>expedientes abiertos sin ningún pago</small></div>
             </div>
+            ${puede('pagos') ? bloqueReporte(mes) : ''}
             ${(() => { const cs = expedientes.flatMap(e => compNuevos(e).map(c => ({ ...c, e })));
                 return cs.length ? `<div class="card por-confirmar"><h3>${ico('nota', 18)} Comprobantes nuevos de clientes (${cs.length})</h3>
                 <p class="sub">Los subieron los clientes desde la página. Ábrelos para registrar el pago o descartarlos.</p>
@@ -1246,6 +1299,7 @@
                     </div></div>`; }).join('')}
         </div>`;
     }
+    $('tPagos').addEventListener('change', ev => { if (ev.target.id === 'repMes') { mesReporte = ev.target.value; pintarPagos(); } });
     $('tMensajes').addEventListener('change', ev => { if (ev.target.id === 'msjSrv') { msjServicio = ev.target.value; editandoMsj = null; pintarMensajes(); } });
     $('tMensajes').addEventListener('click', async ev => {
         const n = ev.target.closest('[data-msj-nuevo]'), ed = ev.target.closest('[data-msj-editar]');
@@ -1869,7 +1923,7 @@
             if (!tb.disabled) {
                 const f = tb.closest('form'), v = tb.dataset.tipoPago, total = Number(f.dataset.total), pend = Number(f.dataset.pendiente);
                 f.tipo.value = v; f.querySelectorAll('.tipo-b').forEach(b => b.classList.toggle('on', b === tb));
-                if (total) f.monto.value = v === 'anticipo' ? Math.round(total / 2) : (v === 'saldo' ? pend || '' : '');
+                if (total) f.monto.value = v === 'anticipo' ? inicialDe(e) : (v === 'saldo' ? pend || '' : '');
             }
             return;
         }

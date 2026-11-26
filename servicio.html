@@ -67,9 +67,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                     <h2 class="text-lg font-extrabold text-slate-900" data-i18n="pago.t">Cómo pagas y qué pasa después</h2>
                     <ol class="pago-pasos mt-5">
                         <li><span>1</span><div><strong data-i18n="pago.1.t">Cotizas gratis</strong><p data-i18n="pago.1.d">Ves el total antes de decidir, separado en tasa oficial y honorarios.</p></div></li>
-                        <li><span>2</span><div><strong data-i18n="pago.2.t">Pagas la mitad para empezar</strong><p data-i18n="pago.2.d">Recibes tu código de expediente en ese momento.</p></div></li>
+                        <li><span>2</span><div><strong data-i18n="pago.2.t">Haces el pago inicial para empezar</strong><p data-i18n="pago.2.d">Cubre la tasa oficial del trámite, así la gestión arranca sin esperas. Recibes tu código de expediente en ese momento.</p></div></li>
                         <li><span>3</span><div><strong data-i18n="pago.3.t">Lo gestionamos y te avisamos</strong><p data-i18n="pago.3.d">Cada paso queda en tu rastreo y te llega por WhatsApp.</p></div></li>
-                        <li><span class="pago-ult">4</span><div><strong data-i18n="pago.4.t">Recibes tu trámite y pagas el resto</strong><p data-i18n="pago.4.d">La segunda mitad se paga al entregar, no antes.</p></div></li>
+                        <li><span class="pago-ult">4</span><div><strong data-i18n="pago.4.t">Recibes tu trámite y pagas el resto</strong><p data-i18n="pago.4.d">El resto se paga al entregar, no antes.</p></div></li>
                     </ol>
                 </div>
                 <div class="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8" id="sReqBox">
@@ -95,9 +95,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                         <div class="flex rounded-lg bg-white/10 p-1 text-[11px] font-bold" id="monedaToggle"><button data-moneda="DOP">RD$</button><button data-moneda="USD">US$</button><button data-moneda="EUR">€</button></div>
                     </div>
                     <div class="space-y-2 text-sm">
-                        <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales</span><strong id="pTax" class="text-white whitespace-nowrap"></strong></div>
-                        <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios</span><strong id="pFee" class="text-white whitespace-nowrap"></strong></div>
-                        <div class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.itbis">ITBIS (18%)</span><strong id="pItbis" class="text-white whitespace-nowrap"></strong></div>
+                        <div id="pTaxRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.tasas">Tasas oficiales</span><strong id="pTax" class="text-white whitespace-nowrap"></strong></div>
+                        <div id="pFeeRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.hon">Honorarios</span><strong id="pFee" class="text-white whitespace-nowrap"></strong></div>
+                        <p id="pIncluye" class="hidden text-slate-300 text-xs leading-relaxed" data-i18n="calc.incluye">El precio incluye la tasa oficial del trámite, nuestros honorarios y el ITBIS.</p>
+                        <div id="pItbisRow" class="flex justify-between gap-3 text-slate-300"><span data-i18n="calc.itbis">ITBIS (18%)</span><strong id="pItbis" class="text-white whitespace-nowrap"></strong></div>
                         <label id="pExpRow" class="flex items-center justify-between gap-3 text-slate-300 cursor-pointer"><span><input type="checkbox" id="pExp" class="mr-2 rounded"><span data-i18n="calc.exp">Express</span> 🔥</span><strong id="pExpV" class="whitespace-nowrap"></strong></label>
                         <label id="pEnvRow" class="flex items-center justify-between gap-3 text-slate-300 cursor-pointer"><span><input type="checkbox" id="pEnv" class="mr-2 rounded"><span data-i18n="calc.envio">Envío por courier</span></span><strong id="pEnvV" class="whitespace-nowrap"></strong></label>
                     </div>

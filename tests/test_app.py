@@ -503,7 +503,7 @@ def test_correos_documentos_y_avisos(client, monkeypatch, tmp_path):
     # al pasar a Listo el correo lleva el enlace de descarga
     client.post("/api/admin/estado", json={"codigo": codigo, "tramite": tid, "paso": 4, "detalle": "Listo para entregar", "avisar": True})
     cuerpo = enviados[-1].get_body(("plain",)).get_content()
-    assert "/descarga/" not in cuerpo and "50%" in cuerpo       # sin el pago confirmado no se mandan enlaces
+    assert "/descarga/" not in cuerpo and "pago final" in cuerpo       # sin el pago confirmado no se mandan enlaces
     # los archivos siguen bloqueados: ni el cliente ni el correo manual pueden entregarlos
     assert client.post("/api/admin/archivo/enviar", json={"codigo": codigo}).status_code == 400
     assert client.get(f"/api/rastreo/{codigo}").json["archivos_bloqueados"] is True
@@ -981,7 +981,8 @@ def test_rastreo_muestra_pago_parcial_y_completo(client, monkeypatch):
     # sin pagos todavía: no hay nada cobrado y falta todo
     v = client.get(f"/api/rastreo/{codigo}").json
     assert v["pago"] is None and {k: v["saldo"][k] for k in ("total", "pagado", "falta", "pct")} == {"total": 4000, "pagado": 0, "falta": 4000, "pct": 0}
-    assert v["saldo"]["mitad"] == 2000 and v["saldo"]["falta_mitad"] == 2000 and v["archivos_bloqueados"] is True
+    # CV: sin tasa y con honorarios de 1,650 -> el pago inicial es todo menos los honorarios (4,000 - 1,650)
+    assert v["saldo"]["mitad"] == 2350 and v["saldo"]["falta_mitad"] == 2350 and v["archivos_bloqueados"] is True
     # mitad pagada y confirmada: sigue faltando, el cliente ve el 50 %
     pid = client.post("/api/admin/pago", json={"codigo": codigo, "monto": 2000, "metodo": "Transferencia"}).json["expediente"]["pagos"][-1]["id"]
     client.post("/api/admin/pago/validar", json={"codigo": codigo, "id": pid, "accion": "confirmar"})
@@ -1182,3 +1183,26 @@ def test_servicios_preguntas_e_instituciones_traen_su_contenido_en_el_html(clien
     assert 'href="/servicios/' in h and "Residencia Dominicana para Extranjeros" in h
     assert "¿Necesito viajar a República Dominicana" in client.get("/preguntas").get_data(as_text=True)
     assert "Dirección General de Migración" in client.get("/instituciones").get_data(as_text=True)
+
+
+def test_pago_inicial_cubre_la_tasa_oficial():
+    """El pago inicial es la mitad del total, o las tasas oficiales si son más: nunca se adelanta dinero propio."""
+    cat = calculos.cargar_catalogo()
+    srv, cfg = cat["servicios"], cat["config"]
+    # apostilla: la tasa (620) es menos que la mitad (1,487) -> se queda la mitad
+    ap = calculos.precio(srv["apostilla_documentos"], cfg)
+    assert calculos.anticipo(ap["total"], 620) == ap["total"] / 2
+    # pasaporte electrónico: la tasa (6,700) es más que la mitad -> el pago inicial cubre la tasa
+    pe = calculos.precio(srv["pasaporte_electronico"], cfg)
+    assert pe["total"] / 2 < 6700 and calculos.anticipo(pe["total"], 6700) == 6700
+    assert calculos.anticipo(1000, 5000) == 1000          # nunca más que el total
+    # tasa menor que los honorarios: se paga todo menos los honorarios, y los honorarios al terminar
+    assert calculos.anticipo(ap["total"], 620, 1900) == ap["total"] - 1900 == 620 + ap["itbis"]
+    assert calculos.anticipo(pe["total"], 6700, 2900) == 6700      # tasa mayor que los honorarios: regla de siempre
+    # composición: tasas e ITBIS de un expediente con precio del catálogo y uno puesto a mano
+    comp = calculos.composicion([{"servicio_id": "pasaporte_electronico", "precio": pe["final"]},
+                                 {"servicio_id": None, "precio": 1180}], srv, cfg)
+    assert comp["tasas"] == 6700 and comp["itbis"] == pe["itbis"] + 180 and comp["honorarios"] == 2900 + 1000
+    # un precio viejo, sin ITBIS, no suma ITBIS
+    viejo = calculos.composicion([{"servicio_id": "apostilla_documentos", "precio": 2520}], srv, cfg)
+    assert viejo == {"tasas": 620, "itbis": 0, "honorarios": 1900}
