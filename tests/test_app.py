@@ -1363,3 +1363,59 @@ def test_sumar_habiles_salta_fines_de_semana():
     from datetime import date
     assert app_module.sumar_habiles(date(2026, 11, 26), 3) == date(2026, 12, 1)   # jueves + 3 laborables = martes
     assert app_module.sumar_habiles(date(2026, 11, 26), 0) == date(2026, 11, 26)
+
+
+# ------------------------------------------------ varios trámites con un solo código (desde la página)
+def _pedir(client, servicios, **extra):
+    return client.post("/api/solicitud", json={"nombre": "Ana Rodríguez", "whatsapp": "+1 809 555 1234", "email": "ana@correo.com",
+                                               "pais": "us", "servicios": servicios, "acepta": True, **extra})
+
+
+def _tramites_de(codigo):
+    import sqlite3
+    import app as app_module
+    con = sqlite3.connect(app_module.DB_PATH)
+    filas = con.execute("SELECT servicio_id, precio FROM tramites WHERE codigo=? ORDER BY id", (codigo,)).fetchall()
+    con.close()
+    return filas
+
+
+def test_solicitud_con_varios_tramites_un_solo_codigo(client):
+    r = _pedir(client, ["certificacion_solteria", "apostilla_documentos"])
+    assert r.status_code == 201
+    assert "Soltería" in r.json["servicio"] and "Apostilla" in r.json["servicio"]
+    assert _tramites_de(r.json["codigo"]) == [("certificacion_solteria", 3540), ("apostilla_documentos", 2974)]
+
+
+def test_varios_tramites_express_y_courier_se_cobran_una_sola_vez(client):
+    import sqlite3
+    import app as app_module
+    codigo = _pedir(client, ["certificacion_solteria", "apostilla_documentos"], express=True, envio=True).json["codigo"]
+    precios = [p for _, p in _tramites_de(codigo)]
+    con = sqlite3.connect(app_module.DB_PATH)
+    total_est = con.execute("SELECT total_estimado FROM solicitudes WHERE codigo=?", (codigo,)).fetchone()[0]
+    con.close()
+    assert precios == [3540 + 1750 + 600, 2974]          # el cargo extra va en el primero, una sola vez
+    assert total_est == sum(precios) == 3540 + 2974 + 1750 + 600
+
+
+def test_varios_tramites_limites_y_nota_de_apostilla(client):
+    import sqlite3
+    import app as app_module
+    assert _pedir(client, ["certificacion_solteria", "no_existe"]).status_code == 400          # trámite que no existe
+    muchos = ["certificacion_solteria", "apostilla_documentos", "cert_cedula_legales", "cert_cedula_bancos", "cert_cedula_vip",
+              "cert_cedula_pasaportes", "cert_cedula_otras"]
+    assert _pedir(client, muchos).status_code == 400                                          # más de 6
+    r = _pedir(client, ["apostilla_documentos", "apostilla_documentos"])                      # repetidos cuentan una vez
+    assert r.status_code == 201 and len(_tramites_de(r.json["codigo"])) == 1
+    c = _pedir(client, ["certificacion_solteria", "apostilla_documentos"]).json["codigo"]
+    con = sqlite3.connect(app_module.DB_PATH)
+    msg = con.execute("SELECT mensaje FROM solicitudes WHERE codigo=?", (c,)).fetchone()[0]
+    con.close()
+    assert "apostilla va sobre el documento" in msg and "Soltería" in msg                     # nota para quien tramita
+
+
+def test_formulario_viejo_con_un_solo_servicio_sigue_funcionando(client):
+    r = client.post("/api/solicitud", json={"nombre": "Luis Pérez", "whatsapp": "+1 809 555 9999", "email": "luis@correo.com",
+                                            "pais": "us", "servicio": "apostilla_documentos", "acepta": True})
+    assert r.status_code == 201 and _tramites_de(r.json["codigo"]) == [("apostilla_documentos", 2974)]

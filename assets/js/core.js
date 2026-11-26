@@ -244,7 +244,7 @@
         return j;
     }
     // ---------------- medición: eventos para Google Tag Manager (nunca llevan nombre, teléfono ni correo)
-    function servicioDe(body) { try { return String(JSON.parse(body).servicio || '').slice(0, 60); } catch (e) { return ''; } }
+    function servicioDe(body) { try { const d = JSON.parse(body); return String((Array.isArray(d.servicios) && d.servicios.length > 1 ? d.servicios.join(',') : d.servicio) || '').slice(0, 80); } catch (e) { return ''; } }
     function evento(nombre, datos) {
         try { (window.dataLayer = window.dataLayer || []).push({ event: nombre, pagina: location.pathname, origen: ORIGEN, ...datos }); } catch (e) { /* sin medición */ }
     }
@@ -675,6 +675,28 @@ ${ES_APP ? renderTabbar() : ''}`;
         const hoy = Math.round(Math.min(total, ini));
         return { tax: s.tax || 0, fee: s.fee || 0, itbis, final, express: ex, envio: en, total, hoy, fin: total - hoy };
     }
+    /** Varios trámites bajo un solo código. Express y courier se cobran UNA sola vez (en el primer trámite que no sea digital),
+     *  igual que en el servidor. Cada pago inicial es el de su trámite; el ITBIS se muestra como un solo total. */
+    const MAX_CESTA = 6;
+    function cesta(ids, express, envio) {
+        const items = ids.filter(k => SERV[k]);
+        const cargo = Math.max(0, items.findIndex(k => !SERV[k].digital));
+        const filas = items.map((k, i) => ({ k, s: SERV[k], pr: precio(SERV[k], !!express && i === cargo, !!envio && i === cargo) }));
+        const suma = f => filas.reduce((a, x) => a + f(x.pr), 0);
+        return { filas, tax: suma(p => p.tax), fee: suma(p => p.fee), itbis: suma(p => p.itbis), extras: suma(p => p.express + p.envio),
+            total: suma(p => p.total), hoy: suma(p => p.hoy), fin: suma(p => p.fin) };
+    }
+    /** Enlace para el cliente con varios trámites: abre la portada con la calculadora cargada y el formulario a la vista. */
+    const enlaceCesta = (ids, { express = false, envio = false } = {}) => {
+        const validos = ids.filter(k => SERV[k]); if (!validos.length) return null;
+        const q = new URLSearchParams({ cesta: validos.join(',') });
+        if (express) q.set('express', '1');
+        if (envio) q.set('envio', '1');
+        q.set('moneda', state.moneda); q.set('pais', state.pais);
+        if (state.detalle) q.set('det', state.detalle);
+        q.set('src', 'cotizacion');
+        return `${location.origin}/?${q}#solicitar`;
+    };
     /** Compartir un trámite cotizado: en el teléfono abre el menú de compartir; en la computadora, WhatsApp con el enlace. */
     async function compartirTramite(titulo, url) {
         const texto = `${titulo}\n${url}`;
@@ -683,7 +705,7 @@ ${ES_APP ? renderTabbar() : ''}`;
     }
     window.TF = {
         precio, compartirTramite,
-        evento, enlaceCliente, leerEnlace,
+        evento, enlaceCliente, enlaceCesta, leerEnlace, cesta, MAX_CESTA,
         D, C, PAISES, SERV, SYM, LANGS, RD_TZ, PAGE, IS_HOME, state, servUrl,
         $, $$, esc, store, restart, normal, goTo, homeLink, flagOf, countryName,
         t, tc, applyI18n, money, waLink, waTexto, avisoOficial, igUrl, tiempo, tiempoHtml, incluyeHtml, saludo, lugar, toast, api, apiLista, contacto,

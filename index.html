@@ -237,7 +237,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <p class="text-[11px] text-slate-500 -mt-2" data-i18n="sol.contacto.ayuda">Ambos son obligatorios: por WhatsApp te atendemos y por correo te avisamos de cada avance y te enviamos tus documentos.</p>
             <div class="grid sm:grid-cols-2 gap-4">
                 <div><label for="fPais" class="form-label" data-i18n="sol.pais">¿Dónde resides?</label><select id="fPais" name="pais" class="input"></select></div>
-                <div><label for="fServicio" class="form-label" data-i18n="sol.servicio">Trámite</label><select id="fServicio" name="servicio" class="input"></select></div>
+                <div id="fServicioBox"><label for="fServicio" class="form-label" data-i18n="sol.servicio">Trámite</label><select id="fServicio" name="servicio" class="input"></select></div>
+                <div id="fCesta" class="cesta-form hidden sm:col-span-1"></div>
             </div>
             <div><label for="fMensaje" class="form-label" data-i18n="sol.detalles">Detalles (opcional)</label><textarea id="fMensaje" name="mensaje" rows="3" maxlength="1000" class="input" data-i18n-ph="sol.ph"></textarea></div>
             <input type="text" name="web" tabindex="-1" autocomplete="off" class="hp" aria-hidden="true">

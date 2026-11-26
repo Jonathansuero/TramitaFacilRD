@@ -169,6 +169,7 @@
         // pago en dos partes: la mitad (o la tasa oficial, si es más) al iniciar y el resto al entregar, igual que en el panel
         $('pHoy').textContent = money(pr.hoy); $('pFin').textContent = money(pr.fin);
         restart($('pTotal'), 'bump');
+        $('sAgregar').href = `/?cesta=${encodeURIComponent(id)}#cotizador`;   // sigue en la calculadora con este trámite ya cargado
         $('sWa').href = waLink(saludo(t('wa.servicio', { s: tc('servicios', id).title, total: $('pTotal').textContent })));
         // resumen del bloque "Confirma tu solicitud"
         $('cTotal').textContent = $('pTotal').textContent;

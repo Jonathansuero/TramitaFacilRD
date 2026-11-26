@@ -189,6 +189,16 @@
         TF.cotizador.seleccionar(k);
         goTo('cotizador');
     }
+    /** Con 2 o más trámites el formulario muestra la lista en lugar del selector de un solo trámite. */
+    function renderCestaForm() {
+        const lista = TF.cotizador.ids(), m = lista.length > 1;
+        $('fServicioBox').classList.toggle('hidden', m);
+        $('fCesta').classList.toggle('hidden', !m);
+        if (!m) { $('fCesta').innerHTML = ''; return; }
+        const c = TF.cesta(lista, TF.cotizador.opciones().express, TF.cotizador.opciones().envio);
+        $('fCesta').innerHTML = `<span class="form-label">${esc(t('cart.formulario'))}</span><ol>${lista.map(k => `<li>${esc(tc('servicios', k).title)}</li>`).join('')}</ol>
+            <small>${esc(t('calc.total'))}: <b>${esc(money(c.total))}</b> · ${esc(t('pago.inicio'))}: <b>${esc(money(c.hoy))}</b></small>`;
+    }
     function irASolicitud(k) {
         if (k) $('fServicio').value = k;
         goTo('solicitud');
@@ -245,7 +255,9 @@
     function datosForm() {
         const f = $('solicitudForm');
         const wa = whatsapp(), email = f.email.value.trim();
-        return { nombre: f.nombre.value.trim(), whatsapp: wa, email, contacto: [wa, email].filter(Boolean).join(' · '), pais: f.pais.value, servicio: f.servicio.value,
+        const lista = TF.cotizador.ids(), varios = lista.length > 1;
+        return { nombre: f.nombre.value.trim(), whatsapp: wa, email, contacto: [wa, email].filter(Boolean).join(' · '), pais: f.pais.value, servicio: varios ? lista[0] : f.servicio.value,
+            ...(varios ? { servicios: lista } : {}),
             mensaje: f.mensaje.value.trim(), acepta: f.acepta.checked, web: f.web.value, moneda: state.moneda,
             idioma: state.lang, pais_detalle: state.detalle || '', ...TF.cotizador.opciones() };
     }
@@ -265,7 +277,7 @@
             t('wa.cot.hola'),
             '',
             codigo ? `${t('wa.sol.codigo')}: *${codigo}*` : null,
-            `${t('wa.cot.servicio')}: *${tc('servicios', d.servicio).title}*`,
+            d.servicios ? `${t('wa.cot.servicios')}:\n${d.servicios.map((x, i) => `${i + 1}. *${tc('servicios', x).title}*`).join('\n')}` : `${t('wa.cot.servicio')}: *${tc('servicios', d.servicio).title}*`,
             `${t('wa.sol.nombre')}: ${d.nombre}`,
             `${t('wa.sol.reside')}: ${TF.lugar()}`,
             d.whatsapp ? `${t('wa.sol.whatsapp')}: ${d.whatsapp}` : null,
@@ -352,6 +364,7 @@
         });
     }
     function handleHash() {
+        if (location.hash === '#solicitar') { irASolicitud(); return; }   // enlace compartido con varios trámites
         const m = location.hash.match(/^#(cotizar|requisitos|solicitar|pais)=([\w-]+)$/); if (!m) return;
         const [, tipo, val] = m;
         if (tipo === 'cotizar' && SERV[val]) quickSelect(val);
@@ -374,7 +387,11 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         ui.checklistKey = PAISES[state.pais].destacados.find(k => D.checklists[k]) || Object.keys(D.checklists)[0];
-        TF.cotizador.mount('cotizadorApp', { onSolicitar: irASolicitud, formSelect: 'fServicio' });
+        TF.cotizador.mount('cotizadorApp', { onSolicitar: k => irASolicitud(k), formSelect: 'fServicio' });
+        TF.cotizador.onCambio(renderCestaForm);
+        // enlace con varios trámites: /?cesta=a,b&express=1&pais=us#solicitar
+        const cesta = new URLSearchParams(location.search).get('cesta');
+        if (cesta) { const o = TF.leerEnlace(); if (o) TF.cotizador.fijar(o); TF.cotizador.cargarCesta(cesta.split(',')); if (location.hash === '#cotizador') setTimeout(() => goTo('cotizador'), 300); }
         initPresencia(); initMundo(); initQuiz(); initSolicitud(); initDelegacion();
         $('checklistTabs').addEventListener('click', e => { const b = e.target.closest('[data-key]'); if (b) loadChecklist(b.dataset.key); });
         renderTodo(false);

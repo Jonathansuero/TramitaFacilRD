@@ -2880,6 +2880,101 @@
       "ITBIS (18%)",
       "ITBIS tax (18%)",
       "ITBIS (18 %)"
+    ],
+    "cart.titulo": [
+      "Tus trámites",
+      "Your services",
+      "Vos démarches"
+    ],
+    "cart.add": [
+      "+ Agregar otro trámite",
+      "+ Add another service",
+      "+ Ajouter une autre démarche"
+    ],
+    "cart.agregar": [
+      "Agregar",
+      "Add",
+      "Ajouter"
+    ],
+    "cart.cancelar": [
+      "Cancelar",
+      "Cancel",
+      "Annuler"
+    ],
+    "cart.quitar": [
+      "Quitar",
+      "Remove",
+      "Retirer"
+    ],
+    "cart.elige": [
+      "Elige el trámite que quieres agregar",
+      "Choose the service you want to add",
+      "Choisissez la démarche à ajouter"
+    ],
+    "cart.max": [
+      "Puedes pedir hasta {n} trámites a la vez. Para más, escríbenos por WhatsApp.",
+      "You can request up to {n} services at once. For more, write to us on WhatsApp.",
+      "Vous pouvez demander jusqu'à {n} démarches à la fois. Pour plus, écrivez-nous sur WhatsApp."
+    ],
+    "cart.mismoDoc": [
+      "Usamos el documento del trámite {n}: no tienes que subirlo dos veces",
+      "We use the document from service {n}: you do not have to upload it twice",
+      "Nous utilisons le document de la démarche {n} : inutile de l'envoyer deux fois"
+    ],
+    "cart.itbis": [
+      "ITBIS (18%) · total de los trámites",
+      "ITBIS (18%) · total for all services",
+      "ITBIS (18 %) · total des démarches"
+    ],
+    "cart.unaVez": [
+      "Se cobra una sola vez para todos tus trámites",
+      "Charged only once for all your services",
+      "Facturé une seule fois pour toutes vos démarches"
+    ],
+    "cart.resumen": [
+      "Resumen · {n} trámites",
+      "Summary · {n} services",
+      "Résumé · {n} démarches"
+    ],
+    "cart.solicitar": [
+      "Solicitar estos {n} trámites",
+      "Request these {n} services",
+      "Demander ces {n} démarches"
+    ],
+    "cart.compartir": [
+      "Compartir esta solicitud",
+      "Share this request",
+      "Partager cette demande"
+    ],
+    "cart.titulos": [
+      "{n} trámites en tu solicitud",
+      "{n} services in your request",
+      "{n} démarches dans votre demande"
+    ],
+    "cart.pagoNota": [
+      "Un solo pago inicial y un solo código de seguimiento para tus trámites.",
+      "One initial payment and one tracking code for all your services.",
+      "Un seul paiement initial et un seul code de suivi pour toutes vos démarches."
+    ],
+    "cart.tasa": [
+      "Tasa oficial",
+      "Official fee",
+      "Taxe officielle"
+    ],
+    "cart.hon": [
+      "Honorarios de gestoría",
+      "Service fee",
+      "Honoraires de gestion"
+    ],
+    "cart.formulario": [
+      "Tu solicitud incluye",
+      "Your request includes",
+      "Votre demande comprend"
+    ],
+    "wa.cot.servicios": [
+      "📄 Trámites",
+      "📄 Services",
+      "📄 Démarches"
     ]
   },
   "contenido": {
