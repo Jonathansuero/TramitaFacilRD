@@ -800,7 +800,7 @@
     "certificacion_solteria": {
       "title": "Certificación de Soltería (JCE)",
       "slug": "certificacion-de-solteria",
-      "tax": 800,
+      "tax": 1500,
       "fee": 1500,
       "category": "legales",
       "paises": [
