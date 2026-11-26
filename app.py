@@ -1115,6 +1115,9 @@ def api_solicitud():
     mensaje = str(d.get("mensaje", "")).strip()[:1000]
     pais = str(d.get("pais", "")).strip()
     servicio = str(d.get("servicio", "")).strip()
+    # uno o varios trámites bajo un solo código (la página manda «servicios»; los formularios viejos mandan «servicio»)
+    pedidos_ids = d.get("servicios") if isinstance(d.get("servicios"), list) else [servicio]
+    ids = list(dict.fromkeys(str(x).strip() for x in pedidos_ids if str(x).strip()))
     moneda = str(d.get("moneda", "DOP")).upper()
     idioma = str(d.get("idioma", "es"))[:2] if str(d.get("idioma", "es"))[:2] in ("es", "en", "fr") else "es"
     pais_detalle = "".join(ch for ch in str(d.get("pais_detalle", "")).upper() if ch.isalpha())[:2]
@@ -1132,20 +1135,32 @@ def api_solicitud():
         return error("Escribe un correo electrónico válido.")
     if pais not in calculos.PAISES_VALIDOS:
         return error("Selecciona desde dónde nos escribes.")
-    if servicio not in cat["servicios"]:
+    if not ids or any(x not in cat["servicios"] for x in ids):
         return error("Selecciona un trámite válido.")
+    if len(ids) > MAX_TRAMITES_WEB:
+        return error(f"Puedes pedir hasta {MAX_TRAMITES_WEB} trámites a la vez. Para más, escríbenos por WhatsApp.")
+    servicio = ids[0]
     if not d.get("acepta"):
         return error("Debes aceptar el uso de tus datos para gestionar el trámite.")
 
     db = get_db()
     existe = lambda c: db.execute("SELECT 1 FROM solicitudes WHERE codigo=?", (c,)).fetchone() is not None
     codigo = calculos.generar_codigo(existe)
+    mon = moneda if moneda in calculos.MONEDAS else "DOP"
+    # Express y courier se cobran UNA sola vez por solicitud: van en el primer trámite que no sea 100 % digital
+    cargo = next((i for i, x in enumerate(ids) if not cat["servicios"][x].get("digital")), 0)
+    flags = [(bool(d.get("express")) and i == cargo, bool(d.get("envio")) and i == cargo) for i in range(len(ids))]
     try:
-        cot = calculos.cotizar(cat, servicio, bool(d.get("express")), bool(d.get("envio")),
-                               moneda if moneda in calculos.MONEDAS else "DOP")
+        cots = [calculos.cotizar(cat, x, ex, en, mon) for x, (ex, en) in zip(ids, flags)]
+        cot = {"total": sum(c["total"] for c in cots), "moneda": cots[0]["moneda"]}
     except ValueError:
         cot = {"total": None, "moneda": "DOP"}
-    titulo = cat["servicios"][servicio]["title"]
+    titulos = [cat["servicios"][x]["title"] for x in ids]
+    titulo = " + ".join(titulos)
+    # la apostilla se hace sobre el documento que sale de la certificación pedida antes: no se le pide dos veces
+    docs = [titulos[i] for i, x in enumerate(ids) if x.startswith(("certificacion_", "cert_"))]
+    if "apostilla_documentos" in ids and docs:
+        mensaje = (mensaje + "\n" if mensaje else "")[:900] + f"[La apostilla va sobre el documento de: {', '.join(docs)}]"
     ts = ahora()
     db.execute("INSERT INTO solicitudes (codigo, nombre, pais, servicio, contacto, mensaje, moneda, total_estimado, creado,"
                " idioma, pais_detalle, origen, origen_detalle, pagina, dispositivo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
@@ -1153,9 +1168,11 @@ def api_solicitud():
                 origen, origen_detalle, pagina_origen, dispositivo))
     db.execute("INSERT INTO seguimiento (codigo, servicio, cliente, paso, estado, detalle, actualizado)"
                " VALUES (?,?,?,?,?,?,?)",
-               (codigo, titulo, calculos.nombre_publico(nombre), 1, "Solicitud Recibida", DETALLE_INICIAL, ts))
-    srv = cat["servicios"][servicio]
-    agregar_tramite(db, codigo, servicio, titulo, calculos.precio(srv, cat["config"], bool(d.get("express")), bool(d.get("envio")))["total"], ts)
+               (codigo, titulos[0], calculos.nombre_publico(nombre), 1, "Solicitud Recibida", DETALLE_INICIAL, ts))
+    for x, tit, (ex, en) in zip(ids, titulos, flags):
+        agregar_tramite(db, codigo, x, tit, calculos.precio(cat["servicios"][x], cat["config"], ex, en)["total"], ts)
+    if len(ids) > 1:
+        recalcular(db, codigo)
     db.commit()
 
     notificar_solicitud({"codigo": codigo, "nombre": nombre, "idioma": idioma.upper(),
@@ -1177,6 +1194,7 @@ PERMISOS = {
     "herramientas": "Descargar Excel y respaldos",
     "usuarios": "Administrar usuarios y ver la actividad del equipo",
 }
+MAX_TRAMITES_WEB = 6   # trámites que una persona puede pedir a la vez desde la página
 RE_USUARIO = re.compile(r"^[a-z0-9._-]{3,30}$")
 
 
