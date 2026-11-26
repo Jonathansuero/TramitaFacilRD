@@ -37,30 +37,122 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <div id="tf-header"></div>
 <main id="main">
-    <section class="bg-gradient-to-r from-domRed via-[#8a0c1b] to-domBlue text-white pt-10 pb-20 relative overflow-hidden">
+    <section class="bg-gradient-to-r from-domRed via-[#8a0c1b] to-domBlue text-white gd-hero pt-10 relative overflow-hidden">
         <div class="hero-grid absolute inset-0 pointer-events-none"></div>
-        <div class="max-w-4xl mx-auto px-4 sm:px-6 relative">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 relative">
             <nav class="breadcrumb" aria-label="breadcrumb"><a href="/">Inicio</a><span>›</span><span>Guías</span></nav>
             <span class="eyebrow bg-white/15 text-white mt-6">Guías · 2026</span>
             <h1 class="font-display text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Guías de trámites dominicanos</h1>
             <p class="text-white/85 text-base sm:text-lg mt-4 max-w-3xl">Lo que cuesta cada trámite, qué documentos piden de verdad y cómo resolverlo si vives fuera. Escritas por quienes los gestionan todos los días, con las fuentes a la vista y la fecha de la última revisión.</p>
         </div>
     </section>
-    <section class="-mt-12 pb-16 relative z-10"><div class="max-w-4xl mx-auto px-4 sm:px-6 space-y-5">
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 texto-legal">
-            <div class="ciudad-servs">
-                <a class="ciudad-serv" href="/guias/pasaporte-dominicano"><strong>Pasaporte dominicano 2026: requisitos, costo y cómo sacarlo</strong><span>Qué cuesta el pasaporte electrónico, qué documentos piden y en qué ocho consulados ya se saca sin viajar a RD.</span></a>
-                <a class="ciudad-serv" href="/guias/apostilla-de-documentos"><strong>Apostilla en República Dominicana: cuánto cuesta y cómo se pide</strong><span>La tasa del MIREX, el tiempo de respuesta y la legalización previa que tumba la mayoría de las solicitudes.</span></a>
-                <a class="ciudad-serv" href="/guias/poder-notarial-desde-el-exterior"><strong>Poder notarial dominicano desde el exterior</strong><span>Los dos caminos para firmar un poder sin viajar, qué piden en el consulado y cuánto cuesta cada acto.</span></a>
-                <a class="ciudad-serv" href="/guias/error-en-acta-de-nacimiento"><strong>Error en el acta de nacimiento: cómo corregirlo en la JCE</strong><span>Qué errores corrige la JCE gratis, cuáles exigen un juez y qué documentos piden para sustentarlo.</span></a>
-                <a class="ciudad-serv" href="/guias/acta-de-nacimiento-desde-el-exterior"><strong>Acta de nacimiento dominicana desde el exterior: cómo pedirla</strong><span>La tasa de la JCE, el formato único desde 2025 y los caminos para pedirla si vives fuera.</span></a>
-                <a class="ciudad-serv" href="/guias/licencia-de-conducir-desde-el-exterior"><strong>Licencia de conducir dominicana desde el exterior: dónde renovarla</strong><span>Qué se hace en línea, qué es presencial y las oficinas del INTRANT en el exterior.</span></a>
-                <a class="ciudad-serv" href="/guias/ipi-propiedad-desde-el-exterior"><strong>IPI 2026: quién paga el impuesto de la propiedad en RD</strong><span>El monto exento de este año, cómo se calcula el 1% y por qué la deuda aparece el día que vas a vender.</span></a>
+    <section class="gd-sec"><div class="gd-wrap">
+        <div class="gd-fuerza">
+            <div><i class="fa-solid fa-book-open" aria-hidden="true"></i><span>Fuentes oficiales a la vista</span></div>
+            <div><i class="fa-solid fa-calendar-check" aria-hidden="true"></i><span>Fecha de revisión en cada guía</span></div>
+            <div><i class="fa-solid fa-handshake-angle" aria-hidden="true"></i><span>Escritas desde la gestión diaria</span></div>
+        </div>
+        <a class="gd-dest" href="/guias/pasaporte-dominicano" data-tema="viajes">
+            <img src="/assets/img/guias/pasaporte-dominicano.jpg" alt="Pasaporte dominicano 2026: requisitos, costo y cómo sacarlo" width="1200" height="630" decoding="async">
+            <div class="gd-dest-t">
+                <span class="gd-pill gd-pill-rojo">Guía destacada · Viajes</span>
+                <h2>Pasaporte dominicano 2026: requisitos, costo y cómo sacarlo</h2>
+                <p>Qué cuesta el pasaporte electrónico, qué documentos piden y en qué ocho consulados ya se saca sin viajar a RD.</p>
+                <span class="gd-leer">Leer la guía <i aria-hidden="true">→</i></span>
             </div>
-            <p style="margin-top:1rem">Seguimos escribiendo: visa americana, residencia dominicana, ONAPI y constitución de empresas. Si quieres que empecemos por la tuya, escríbenos.</p>
-            <div class="acciones-legal"><a class="btn-legal" href="/servicios">Ver los 43 trámites</a><a class="btn-legal btn-legal-borde" href="/preguntas">Preguntas frecuentes</a></div>
+        </a>
+
+        <div class="gd-filtros" role="group" aria-label="Filtrar guías por tema">
+            <button type="button" class="gd-chip is-on" data-f="todas">Todas</button>
+            <button type="button" class="gd-chip" data-f="documentos">Documentos</button>
+            <button type="button" class="gd-chip" data-f="viajes">Viajes</button>
+            <button type="button" class="gd-chip" data-f="legal">Legal</button>
+            <button type="button" class="gd-chip" data-f="vehiculos">Vehículos</button>
+            <button type="button" class="gd-chip" data-f="propiedad">Propiedad</button>
+        </div>
+        <div class="gd-grid" id="gdGrid">
+            <a class="gd-card" href="/guias/apostilla-de-documentos" data-tema="documentos">
+                <img src="/assets/img/guias/apostilla-de-documentos.jpg" alt="Apostilla en República Dominicana: cuánto cuesta y cómo se pide" width="1200" height="630" loading="lazy" decoding="async">
+                <div class="gd-card-t">
+                    <span class="gd-pill">Documentos</span>
+                    <h3>Apostilla en República Dominicana: cuánto cuesta y cómo se pide</h3>
+                    <p>La tasa del MIREX, el tiempo de respuesta y la legalización previa que tumba la mayoría de las solicitudes.</p>
+                    <div class="gd-pie"><span>Revisada el 11 nov 2026</span><b>Leer <i aria-hidden="true">→</i></b></div>
+                </div>
+            </a>
+            <a class="gd-card" href="/guias/acta-de-nacimiento-desde-el-exterior" data-tema="documentos">
+                <img src="/assets/img/guias/acta-de-nacimiento-desde-el-exterior.jpg" alt="Acta de nacimiento dominicana desde el exterior: cómo pedirla" width="1200" height="630" loading="lazy" decoding="async">
+                <div class="gd-card-t">
+                    <span class="gd-pill">Documentos</span>
+                    <h3>Acta de nacimiento dominicana desde el exterior: cómo pedirla</h3>
+                    <p>La tasa de la JCE, el formato único desde 2025 y los caminos para pedirla si vives fuera.</p>
+                    <div class="gd-pie"><span>Revisada el 26 nov 2026</span><b>Leer <i aria-hidden="true">→</i></b></div>
+                </div>
+            </a>
+            <a class="gd-card" href="/guias/error-en-acta-de-nacimiento" data-tema="documentos">
+                <img src="/assets/img/guias/error-en-acta-de-nacimiento.jpg" alt="Error en el acta de nacimiento: cómo corregirlo en la JCE" width="1200" height="630" loading="lazy" decoding="async">
+                <div class="gd-card-t">
+                    <span class="gd-pill">Documentos</span>
+                    <h3>Error en el acta de nacimiento: cómo corregirlo en la JCE</h3>
+                    <p>Qué errores corrige la JCE gratis, cuáles exigen un juez y qué documentos piden para sustentarlo.</p>
+                    <div class="gd-pie"><span>Revisada el 11 nov 2026</span><b>Leer <i aria-hidden="true">→</i></b></div>
+                </div>
+            </a>
+            <a class="gd-card" href="/guias/poder-notarial-desde-el-exterior" data-tema="legal">
+                <img src="/assets/img/guias/poder-notarial-desde-el-exterior.jpg" alt="Poder notarial dominicano desde el exterior" width="1200" height="630" loading="lazy" decoding="async">
+                <div class="gd-card-t">
+                    <span class="gd-pill">Legal</span>
+                    <h3>Poder notarial dominicano desde el exterior</h3>
+                    <p>Los dos caminos para firmar un poder sin viajar, qué piden en el consulado y cuánto cuesta cada acto.</p>
+                    <div class="gd-pie"><span>Revisada el 11 nov 2026</span><b>Leer <i aria-hidden="true">→</i></b></div>
+                </div>
+            </a>
+            <a class="gd-card" href="/guias/licencia-de-conducir-desde-el-exterior" data-tema="vehiculos">
+                <img src="/assets/img/guias/licencia-de-conducir-desde-el-exterior.jpg" alt="Licencia de conducir dominicana desde el exterior: dónde renovarla" width="1200" height="630" loading="lazy" decoding="async">
+                <div class="gd-card-t">
+                    <span class="gd-pill">Vehículos</span>
+                    <h3>Licencia de conducir dominicana desde el exterior: dónde renovarla</h3>
+                    <p>Qué se hace en línea, qué es presencial y las oficinas del INTRANT en el exterior.</p>
+                    <div class="gd-pie"><span>Revisada el 26 nov 2026</span><b>Leer <i aria-hidden="true">→</i></b></div>
+                </div>
+            </a>
+            <a class="gd-card" href="/guias/ipi-propiedad-desde-el-exterior" data-tema="propiedad">
+                <img src="/assets/img/guias/ipi-propiedad-desde-el-exterior.jpg" alt="IPI 2026: quién paga el impuesto de la propiedad en RD" width="1200" height="630" loading="lazy" decoding="async">
+                <div class="gd-card-t">
+                    <span class="gd-pill">Propiedad</span>
+                    <h3>IPI 2026: quién paga el impuesto de la propiedad en RD</h3>
+                    <p>El monto exento de este año, cómo se calcula el 1% y por qué la deuda aparece el día que vas a vender.</p>
+                    <div class="gd-pie"><span>Revisada el 11 nov 2026</span><b>Leer <i aria-hidden="true">→</i></b></div>
+                </div>
+            </a>
+        </div>
+        <p class="gd-vacio hidden" id="gdVacio">Todavía no hay guías en este tema. Escríbenos y empezamos por la tuya.</p>
+
+        <div class="gd-cta">
+            <div>
+                <h2>¿No encuentras la guía de tu trámite?</h2>
+                <p>Seguimos escribiendo: visa americana, residencia dominicana, ONAPI y constitución de empresas. Cuéntanos cuál necesitas y empezamos por esa.</p>
+            </div>
+            <div class="gd-cta-b">
+                <a class="gd-btn-oro" id="gdWa" href="https://wa.me/" target="_blank" rel="noopener">Pedir una guía por WhatsApp</a>
+                <a class="gd-btn-borde" href="/servicios">Ver todos los trámites</a>
+            </div>
         </div>
     </div></section>
+    <script>
+    (function () {
+        var chips = document.querySelectorAll('.gd-chip'), items = document.querySelectorAll('#gdGrid [data-tema], .gd-dest');
+        chips.forEach(function (c) { c.addEventListener('click', function () {
+            var f = c.dataset.f, vis = 0;
+            chips.forEach(function (x) { x.classList.toggle('is-on', x === c); });
+            document.querySelectorAll('#gdGrid .gd-card').forEach(function (a) { var ok = f === 'todas' || a.dataset.tema === f; a.classList.toggle('hidden', !ok); if (ok) vis++; });
+            var d = document.querySelector('.gd-dest'); d.classList.toggle('hidden', !(f === 'todas' || d.dataset.tema === f)); if (!d.classList.contains('hidden')) vis++;
+            document.getElementById('gdVacio').classList.toggle('hidden', vis > 0);
+        }); });
+        var wa = document.getElementById('gdWa');
+        try { var n = (window.TF_DATA && TF_DATA.config.whatsapp) || ''; if (n) wa.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent('Hola, me gustaría una guía sobre: '); } catch (e) {}
+    })();
+    </script>
 </main>
 <div id="tf-footer"></div>
 <script src="/assets/js/data.js"></script>
