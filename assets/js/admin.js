@@ -16,6 +16,7 @@
         4: '¡Tu trámite está listo! Te contactaremos para coordinar la entrega.'
     };
     const DIAS_ALERTA = 5;
+    const DIAS_REC1 = 2, DIAS_REC2 = 7, DIAS_ARCHIVO = 15;   // días sin pagar ni responder para archivar una cotización
     const DIAS_ZAFACON = 7;   // días que un cliente eliminado se puede reactivar   // días sin moverse para marcar un expediente como detenido
     const TZ = 'America/Santo_Domingo';
     const ORIGEN_N = { instagram: 'Instagram', facebook: 'Facebook', whatsapp: 'WhatsApp', google: 'Google', tiktok: 'TikTok', youtube: 'YouTube',
@@ -79,7 +80,9 @@
     const editandoCliente = new Set();         // códigos con el formulario de datos del cliente abierto
     let usuariosData = null, editandoUsuario = null;
     const PERM_TAB = { resumen: 'resumen', pagos: 'pagos', precios: 'precios', herr: 'herramientas', usuarios: 'usuarios', zafacon: 'usuarios', mensajes: 'usuarios', registro: 'usuarios' };
-    const filtro = { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
+    const filtro = { paso: 0, detenidos: false, vista: '', servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' };
+    const previas = new Map();       // vista previa de un recordatorio antes de enviarlo («CODIGO:tipo:tramite»)
+    let recordatoriosAuto = false;   // ¿envío automático de recordatorios activado?
     let tab = 'inicio', periodo = 30;
     let precios = null, preciosQ = '', preciosCat = '', incAbierto = '';
     const abiertos = new Set();      // códigos con la tarjeta abierta
@@ -208,7 +211,12 @@
     const DOCS_GENERICOS = ['Copia de cédula o pasaporte', 'Datos completos del trámite', 'Documentos de soporte', 'Comprobante de pago'];
     const checklist = t => (cat && cat.checklists && cat.checklists[t.servicio_id] && cat.checklists[t.servicio_id].items) || DOCS_GENERICOS;
     const diasSin = e => Math.floor((Date.now() - new Date(e.actualizado)) / 86400000);
-    const detenido = e => e.paso < 4 && diasSin(e) >= DIAS_ALERTA;
+    const detenido = e => e.paso < 4 && !e.sin_respuesta && diasSin(e) >= DIAS_ALERTA;
+    const porSeguir = e => ['recordar', 'frio', 'archivar'].includes(e.cot_etapa);          // pidió y no ha pagado (2+ días)
+    const atrasos = e => (e.tramites || []).filter(t => t.atraso_dias > 0);                 // pasó la fecha que se le prometió
+    const atrasado = e => !e.sin_respuesta && atrasos(e).length > 0;
+    const maxAtraso = e => Math.max(0, ...atrasos(e).map(t => t.atraso_dias));
+    const dia1 = n => `${n} ${n === 1 ? 'día' : 'días'}`;
     const creado = e => e.creado || e.actualizado;
     const origenDe = e => e.origen || '';
 
@@ -279,7 +287,7 @@
     async function cargar() {
         try {
             const r = await api('/admin/expedientes');
-            expedientes = r.expedientes; conteo = r.conteo; pendiente = null;
+            expedientes = r.expedientes; conteo = r.conteo; recordatoriosAuto = !!r.recordatorios_auto; pendiente = null;
             $('avisoNuevas').hidden = true;
             pintarTodo();
         } catch (e) {
@@ -305,7 +313,7 @@
                 const b = $('avisoNuevas'); b.hidden = false;
                 b.textContent = nuevas ? `${nuevas} ${nuevas === 1 ? 'solicitud nueva' : 'solicitudes nuevas'}. Toca para verlas.` : 'Hay cambios en los expedientes. Toca para actualizar.';
             } else {
-                expedientes = r.expedientes; conteo = r.conteo; pintarTodo();
+                expedientes = r.expedientes; conteo = r.conteo; recordatoriosAuto = !!r.recordatorios_auto; pintarTodo();
                 if (nuevas) toast(`${nuevas} ${nuevas === 1 ? 'solicitud nueva' : 'solicitudes nuevas'}`);
             }
         } catch (e) { /* sin conexión: se intenta en la próxima vuelta */ }
@@ -358,7 +366,7 @@
         window.scrollTo({ top: 0 });
     }
     function verExpediente(codigo) {
-        filtro.paso = 0; filtro.detenidos = false; $('q').value = ''; abiertos.add(codigo); enfocado = codigo;
+        filtro.paso = 0; filtro.detenidos = false; filtro.vista = ''; $('q').value = ''; abiertos.add(codigo); enfocado = codigo;
         irATab('exp');
     }
 
@@ -376,6 +384,9 @@
     function pasaFiltros(e, ignorarPaso) {
         const q = $('q').value.trim().toLowerCase();
         if (!ignorarPaso && filtro.paso && e.paso !== filtro.paso) return false;
+        if (e.sin_respuesta ? filtro.vista !== 'sinresp' : filtro.vista === 'sinresp') return false;   // las «Sin respuesta» se archivan aparte
+        if (filtro.vista === 'atrasados' && !atrasado(e)) return false;
+        if (filtro.vista === 'seguir' && !porSeguir(e)) return false;
         if (filtro.detenidos && !detenido(e)) return false;
         if (filtro.servicio && !(e.tramites || []).some(t => t.servicio_id === filtro.servicio)) return false;
         if (filtro.pais && e.pais !== filtro.pais) return false;
@@ -398,10 +409,14 @@
         const items = [[0, 'Todos', base.length], ...Object.entries(PASOS).map(([p, n]) => [Number(p), n, c[p] || 0])];
         $('filtros').innerHTML = items.map(([p, n, k]) =>
             `<button type="button" class="filtro${filtro.paso === p ? ' on' : ''}" data-paso="${p}" role="tab" aria-selected="${filtro.paso === p}"><b>${k}</b><span>${esc(n)}</span></button>`).join('');
-        const total = expedientes.length, enProceso = total - (conteo['4'] || 0), det = expedientes.filter(detenido).length;
+        const total = expedientes.length, enProceso = expedientes.filter(e => e.paso < 4 && !e.sin_respuesta).length, det = expedientes.filter(detenido).length;
         $('resumen').textContent = total ? `${total} ${total === 1 ? 'cliente' : 'clientes'} · ${enProceso} en proceso${det ? ` · ${det} detenido${det === 1 ? '' : 's'}` : ''}` : 'Todavía no hay expedientes';
         $('btnDetenidos').classList.toggle('on', filtro.detenidos);
         $('btnDetenidos').textContent = `Detenidos${det ? ` (${det})` : ''}`;
+        [['btnAtrasados', 'atrasados', 'Atrasados', expedientes.filter(atrasado).length], ['btnSeguir', 'seguir', 'Por seguir', expedientes.filter(porSeguir).length],
+            ['btnSinResp', 'sinresp', 'Sin respuesta', expedientes.filter(e => e.sin_respuesta).length]].forEach(([id, v, n, k]) => {
+            const b = $(id); b.classList.toggle('on', filtro.vista === v); b.textContent = `${n}${k ? ` (${k})` : ''}`; b.hidden = !k && filtro.vista !== v;
+        });
         const extras = ['servicio', 'pais', 'origen', 'cobro', 'desde', 'hasta'].filter(k => filtro[k]).length;
         $('btnMas').classList.toggle('on', !$('masFiltros').hidden || extras > 0);
         $('btnMas').textContent = extras ? `Filtros (${extras})` : 'Filtros';
@@ -446,6 +461,65 @@
                     ${ico('chat', 18)}<span>Enviar por WhatsApp<small>${tel ? '+' + esc(tel) : 'Sin WhatsApp registrado'}</small></span></a>
             </div>
             <small class="ayuda">${listo ? `Le avisa que su trámite está listo, con su número de seguimiento ${esc(e.codigo)}${(e.archivos || []).length ? ' y los enlaces de sus documentos' : ''}.` : `Le envía el estado actual de todos sus trámites con su número de seguimiento ${esc(e.codigo)}.`} Es opcional: úsalo solo cuando quieras avisar.${email && !correoActivo && gestiona ? ' El correo aún no está activado en el servidor (tramita correo).' : ''}</small>`);
+    }
+
+    // ---------------- seguimiento: cotizaciones sin cerrar y trámites atrasados
+    const diaLargo = iso => { const [y, m, d] = String(iso).slice(0, 10).split('-').map(Number); return y ? new Date(y, m - 1, d).toLocaleDateString('es-DO', { weekday: 'short', day: 'numeric', month: 'short' }) : ''; };
+    const llavePrevia = (codigo, tipo, tramite) => `${codigo}:${tipo}:${tramite || ''}`;
+
+    /** Vista previa de un recordatorio (correo o WhatsApp) antes de mandarlo. */
+    function previaHtml(e, tipo, tramite) {
+        const p = previas.get(llavePrevia(e.codigo, tipo, tramite));
+        if (!p) return '';
+        if (p.cargando) return '<div class="seg-previa"><small>Preparando el mensaje…</small></div>';
+        const k = esc(llavePrevia(e.codigo, tipo, tramite));
+        const antes = p.antes ? `<p class="seg-ya">Ya se lo mandaste el ${esc(fecha(p.antes.fecha))} (${esc(p.antes.canal)}). Solo envíalo de nuevo si hace falta.</p>` : '';
+        if (p.canal === 'correo') return `<div class="seg-previa"><small class="seg-para">Para: <b>${esc(p.para)}</b> · Asunto: <b>${esc(p.asunto)}</b></small>${antes}
+            <pre>${esc(p.texto)}</pre>
+            <div class="acciones"><button type="button" class="btn btn-azul btn-sm" data-rec-enviar="${k}">${ico('correo')} Enviar este correo</button>
+            <button type="button" class="btn btn-borde btn-sm" data-rec-cerrar="${k}">Cancelar</button></div></div>`;
+        return `<div class="seg-previa"><small class="seg-para">Mensaje para WhatsApp</small>${antes}
+            <pre>${esc(p.whatsapp)}</pre>
+            <div class="acciones"><a class="btn btn-wa btn-sm" href="${wa(e, [p.whatsapp])}" target="_blank" rel="noopener" data-rec-marcar="${k}">${ico('chat')} Abrir WhatsApp</a>
+            <button type="button" class="btn btn-borde btn-sm" data-rec-cerrar="${k}">Cancelar</button></div></div>`;
+    }
+    function botonesRecordar(e, tipo, tramite, etiqueta) {
+        const t = tramite || '';
+        return `<div class="acciones">
+            <button type="button" class="btn btn-azul btn-sm" data-rec-vista="${esc(e.codigo)}|${tipo}|${t}|correo"${!e.correo_cliente || !correoActivo ? ' disabled' : ''}>${ico('correo')} ${etiqueta} por correo</button>
+            <button type="button" class="btn btn-wa btn-sm" data-rec-vista="${esc(e.codigo)}|${tipo}|${t}|whatsapp">${ico('chat')} ${etiqueta} por WhatsApp</button></div>
+            ${!e.correo_cliente ? '<small class="ayuda">Este cliente no tiene correo: usa WhatsApp.</small>' : !correoActivo ? '<small class="ayuda">El envío de correos aún no está activado en el servidor (tramita correo).</small>' : ''}`;
+    }
+    function bloqueSeguimiento(e) {
+        const gestiona = puede('expedientes'), partes = [];
+        if (e.sin_respuesta) {
+            partes.push(`<div class="seg-card gris"><b>Archivada como «Sin respuesta»</b>
+                <small>No pagó ni respondió. No se borró nada: puedes reabrirla cuando el cliente vuelva a escribir y los días empiezan de nuevo.</small>
+                ${gestiona ? `<div class="acciones"><button type="button" class="btn btn-azul btn-sm" data-sin-resp="${esc(e.codigo)}" data-valor="0">Reabrir solicitud</button></div>` : ''}</div>`);
+        } else if (porSeguir(e)) {
+            const hechos = (e.recordatorios || []).filter(r => r.tipo === e.cot_tipo);
+            const inicial = e.inicial_dop != null ? ` (pago inicial ${esc(rd(e.inicial_dop))})` : '';
+            partes.push(`<div class="seg-card ${e.cot_etapa === 'frio' ? 'frio' : 'tibio'}">
+                <b>${e.cot_etapa === 'frio' ? 'Cliente frío' : 'Toca recordarle'}: pidió hace ${dia1(e.cot_dias)} y no ha pagado${inicial}</b>
+                <small>${recordatoriosAuto ? 'Los recordatorios automáticos están activados. ' : ''}Se archiva sola como «Sin respuesta» a los ${DIAS_ARCHIVO} días si no hay señales del cliente.</small>
+                ${hechos.length ? `<small class="seg-ya">Recordatorio enviado: ${hechos.map(h => `${esc(h.canal)} · ${esc(fecha(h.fecha))}`).join(', ')}</small>` : ''}
+                ${gestiona ? botonesRecordar(e, 'cot', '', 'Recordar') + previaHtml(e, 'cot', '')
+                    + `<div class="acciones"><button type="button" class="link" data-sin-resp="${esc(e.codigo)}" data-valor="1">Marcar «Sin respuesta» ahora</button></div>` : ''}
+            </div>`);
+        }
+        (e.tramites || []).filter(t => t.paso < 4 && (t.paso >= 2 || t.entrega_prometida) && !e.sin_respuesta).forEach(t => {
+            const atr = t.atraso_dias > 0, avisable = !atr && !!t.motivo_atraso;
+            partes.push(`<div class="seg-fila${atr ? ' atrasado' : ''}" data-tramite="${t.id}">
+                <div class="seg-t"><b>${esc(t.titulo)}</b>${atr ? `<span class="chip atraso">Atrasado ${dia1(t.atraso_dias)}</span>` : ''}</div>
+                ${gestiona ? `<div class="seg-campos"><label class="campo">Entrega prometida al cliente<input class="input" type="date" data-entrega-fecha value="${esc(String(t.entrega_prometida || '').slice(0, 10))}"></label>
+                    <label class="campo">Motivo del cambio de fecha<input class="input" data-entrega-motivo maxlength="200" value="${esc(t.motivo_atraso || '')}" placeholder="Ej.: La institución está tardando"></label>
+                    <button type="button" class="btn btn-borde btn-sm" data-entrega-guardar="${esc(e.codigo)}|${t.id}">Guardar fecha</button></div>`
+                    : `<small>${t.entrega_prometida ? `Entrega prometida: ${esc(diaLargo(t.entrega_prometida))}` : 'Sin fecha de entrega'}</small>`}
+                ${gestiona && atr ? '<small class="ayuda">Pon la nueva fecha, escribe el motivo y guarda: entonces podrás avisarle al cliente.</small>' : ''}
+                ${gestiona && avisable ? botonesRecordar(e, 'atraso', t.id, 'Avisar de la nueva fecha') + previaHtml(e, 'atraso', t.id) : ''}
+            </div>`);
+        });
+        return partes.length ? `<div class="bloque seg"><div class="bloque-t"><span>${ico('reloj')} Seguimiento</span></div>${partes.join('')}</div>` : '';
     }
 
     function bloqueEntrega(e) {
@@ -819,6 +893,7 @@
             <div class="exp-cuerpo">
                 ${puede('expedientes') ? bloqueRapido(e) : ''}
                 <div class="actual"><small>Lo que ve el cliente arriba · ${esc(fecha(e.actualizado))}</small><b>${esc(e.estado)}:</b> ${esc(e.detalle)}</div>
+                ${bloqueSeguimiento(e)}
                 ${puede('pagos') ? bloqueCobro(e) : ''}
                 ${bloqueRecibidos(e)}
                 ${bloqueEntrega(e)}
@@ -840,7 +915,7 @@
                 <span class="chip ${tono(e.paso)}">${esc(items.length > 1 ? e.estado : (e.paso === 3 ? 'En institución' : PASOS[e.paso] || e.estado))}</span>
                 <span class="exp-serv">${esc(titulo)}</span>
                 <span class="exp-meta"><span class="codigo">${esc(e.codigo)}</span>${items.length > 1 ? `<span>${items.length} trámites</span>` : ''}${bandera(e.pais)} <span>· ${esc(fecha(e.actualizado))}</span>
-                    ${detenido(e) ? `<span class="chip alerta">${dias} días sin moverse</span>` : ''}${cobroChip}</span>
+                    ${detenido(e) && !porSeguir(e) ? `<span class="chip alerta">${dias} días sin moverse</span>` : ''}${atrasado(e) ? `<span class="chip atraso">Atrasado ${dia1(maxAtraso(e))}</span>` : ''}${porSeguir(e) ? `<span class="chip cobro">Sin pagar · ${dia1(e.cot_dias)}</span>` : ''}${e.sin_respuesta ? '<span class="chip gris">Sin respuesta</span>' : ''}${cobroChip}</span>
                 ${barra(e.paso)}
             </button>${cuerpo}
         </article>`;
@@ -1139,6 +1214,10 @@
                     <a class="btn btn-azul" href="/api/admin/respaldo">Respaldo completo de la base de datos</a>
                 </div>
             </div>
+            ${esDueno() ? `<div class="card"><h3>Recordatorios automáticos</h3>
+                <p class="sub">Cuando una solicitud lleva ${DIAS_REC1} días sin pagar, el cliente recibe un recordatorio por correo; a los ${DIAS_REC2} días, un segundo. A los ${DIAS_ARCHIVO} días sin señales se archiva como «Sin respuesta» (no se borra). Apagado, nada se envía solo: tú ves cada mensaje y lo mandas con un clic.</p>
+                <label class="interruptor"><input type="checkbox" id="chkRecAuto"${recordatoriosAuto ? ' checked' : ''}${correoActivo ? '' : ' disabled'}><span>${recordatoriosAuto ? 'Activados' : 'Apagados'}</span></label>
+                ${correoActivo ? '' : '<small class="ayuda">Primero hay que activar el envío de correos en el servidor (tramita correo).</small>'}</div>` : ''}
             <div class="card"><h3>Alerta de expedientes detenidos</h3><p class="sub">Un expediente se marca en amarillo cuando lleva ${DIAS_ALERTA} días o más sin actualizar su avance y aún no está listo.</p>
                 <button type="button" class="btn btn-borde" data-ver-detenidos>Ver detenidos (${expedientes.filter(detenido).length})</button></div>
         </div>`;
@@ -1451,13 +1530,14 @@
         const nombre = yo ? String(yo.nombre || yo.usuario).trim().split(/\s+/)[0] : '';
         const hoy = new Intl.DateTimeFormat('es-DO', { weekday: 'long', day: 'numeric', month: 'long', timeZone: TZ }).format(new Date()).toLowerCase();
         const porPais = Object.fromEntries(contar(expedientes, e => e.pais || ''));
-        const enProceso = expedientes.filter(e => e.paso < 4), det = expedientes.filter(detenido);
-        const nuevos = expedientes.filter(e => e.paso === 1);
+        const enProceso = expedientes.filter(e => e.paso < 4 && !e.sin_respuesta), det = expedientes.filter(detenido);
+        const nuevos = expedientes.filter(e => e.paso === 1 && !e.sin_respuesta);
+        const losAtrasados = expedientes.filter(atrasado).sort((a, b) => maxAtraso(b) - maxAtraso(a)), porSeguirLista = expedientes.filter(porSeguir).sort((a, b) => b.cot_dias - a.cot_dias);
         const porCobrar = puede('pagos') ? expedientes.filter(e => e.pendiente > 0) : [];
         const pagosConf = [...((puede('expedientes') || puede('pagos')) ? expedientes.filter(e => recSinRevisar(e).length).map(e => [e, 'doc']) : []),
             ...(puede('pagos') ? expedientes.filter(e => compNuevos(e).length).map(e => [e, 'comp']) : []),
             ...(puedeValidar() ? expedientes.filter(e => e.por_confirmar > 0).map(e => [e, 'pago']) : [])];
-        const atender = [...pagosConf, ...det.map(e => [e, 'det']), ...nuevos.filter(e => !detenido(e)).map(e => [e, 'nuevo'])].slice(0, 7);
+        const atender = [...pagosConf, ...det.filter(e => !porSeguir(e) && !atrasado(e)).map(e => [e, 'det']), ...nuevos.filter(e => !detenido(e) && !porSeguir(e)).map(e => [e, 'nuevo'])].slice(0, 7);
         const tile = (n, txt, ir, cls = '') => `<button type="button" class="tile ${cls}" data-ini="${ir}"><b>${n}</b><span>${txt}</span></button>`;
         $('tInicio').innerHTML = `
             <div class="hola"><h2>Hola, ${esc(nombre || 'equipo')}</h2><p>${esc(saludo())} · ${esc(hoy)}${yo ? ` <span class="rol ${rolDe(yo.permisos).c}">${esc(rolDe(yo.permisos).n)}</span>` : ''}</p></div>
@@ -1475,17 +1555,26 @@
                 ${tile(det.length, 'Detenidos', 'detenidos', det.length ? 'alerta' : '')}
                 ${puede('pagos') ? tile(porCobrar.length, 'Por cobrar', 'cobro', porCobrar.length ? 'cobro' : '') : tile(expedientes.filter(e => e.paso === 4).length, 'Listos', 'listos')}
             </div>
+            ${losAtrasados.length || porSeguirLista.length ? [
+                [losAtrasados, 'Atrasados', 'pasó la fecha que prometiste', 'atrasados', e => `Atrasado ${dia1(maxAtraso(e))}`, 'atraso'],
+                [porSeguirLista, 'Por seguir', 'pidieron y no han pagado', 'seguir', e => `Día ${e.cot_dias} sin pagar`, e => e.cot_etapa === 'frio' ? 'frio' : 'tibio']]
+                .filter(g => g[0].length).map(([lista, t, sub, ir, etq, cls]) => `<div class="bloque-ini seg-ini"><h4>${t} <small>· ${sub}</small></h4>${lista.slice(0, 5).map(e => `
+                <button type="button" class="fila-ini" data-codigo="${esc(e.codigo)}">
+                    <span class="ini">${esc(iniciales(e.nombre || e.cliente))}</span>
+                    <span class="t"><b>${esc(e.nombre || e.cliente)}</b><small>${bandera(e.pais)} ${esc(ir === 'atrasados' ? atrasos(e).map(x => x.titulo).join(', ') : ((e.tramites || []).length > 1 ? `${e.tramites.length} trámites` : (e.servicio_titulo || ((e.tramites || [])[0] || {}).titulo || '')))}</small></span>
+                    <span class="etq ${typeof cls === 'function' ? cls(e) : cls}">${esc(etq(e))}</span>
+                </button>`).join('')}${lista.length > 5 ? `<button type="button" class="ver-todos" data-ini="${ir}">Ver los ${lista.length} →</button>` : ''}</div>`).join('') : ''}
             ${atender.length ? `<div class="bloque-ini"><h4>Para atender <small>· ${puedeValidar() ? 'pagos por confirmar, ' : ''}nuevos y detenidos</small></h4>${atender.map(([e, k]) => `
                 <button type="button" class="fila-ini" data-codigo="${esc(e.codigo)}">
                     <span class="ini">${esc(iniciales(e.nombre || e.cliente))}</span>
                     <span class="t"><b>${esc(e.nombre || e.cliente)}</b><small>${bandera(e.pais)} ${esc((e.tramites || []).length > 1 ? `${e.tramites.length} trámites` : (e.servicio_titulo || ((e.tramites || [])[0] || {}).titulo || ''))}</small></span>
                     <span class="etq${k === 'nuevo' ? ' nuevo' : k === 'pago' ? ' pago' : k === 'comp' || k === 'doc' ? ' comp' : ''}${recien.has(e.codigo) ? ' ahora' : ''}">${k === 'nuevo' ? 'Nuevo' : k === 'pago' ? `Confirmar ${esc(rd(e.por_confirmar))}` : k === 'comp' ? 'Comprobante' : k === 'doc' ? 'Documento' : `${diasSin(e)} días`}</span>
-                </button>`).join('')}</div>` : `<div class="vacio"><b>Todo al día</b>No hay expedientes nuevos ni detenidos.</div>`}`;
+                </button>`).join('')}</div>` : (losAtrasados.length || porSeguirLista.length ? '' : `<div class="vacio"><b>Todo al día</b>No hay expedientes nuevos, detenidos ni atrasados.</div>`)}`;
         animarMapa = false;
     }
     function irAExpedientes(cambios) {
         enfocado = null;
-        Object.assign(filtro, { paso: 0, detenidos: false, servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' }, cambios);
+        Object.assign(filtro, { paso: 0, detenidos: false, vista: '', servicio: '', pais: '', origen: '', cobro: '', desde: '', hasta: '' }, cambios);
         [['fServicio', 'servicio'], ['fPais', 'pais'], ['fOrigen', 'origen'], ['fCobro', 'cobro'], ['fDesde', 'desde'], ['fHasta', 'hasta']].forEach(([id, k]) => { $(id).value = filtro[k]; });
         $('q').value = '';
         irATab('exp');
@@ -1500,6 +1589,7 @@
         const ir = t.dataset.ini;
         if (ir === 'nuevos') irAExpedientes({ paso: 1 });
         else if (ir === 'detenidos') irAExpedientes({ detenidos: true });
+        else if (ir === 'atrasados' || ir === 'seguir') irAExpedientes({ vista: ir });
         else if (ir === 'listos') irAExpedientes({ paso: 4 });
         else if (ir === 'cobro') irATab('pagos');
         else irAExpedientes({});
@@ -1532,7 +1622,7 @@
         $('btnAvisos').setAttribute('aria-label', n ? `Avisos: ${n} sin leer` : 'Avisos');
         $('avisosLista').innerHTML = avisosData.avisos.length ? avisosData.avisos.map(a => `
             <button type="button" class="aviso-fila${a.nuevo ? ' nuevo' : ''}" data-aviso-codigo="${esc(a.codigo || '')}">
-                <span class="av-ico av-${esc(a.tipo || 'solicitud')}">${ico({ pago: 'validar_pagos', comprobante: 'cash', recibido: 'clip', equipo: 'campana', estado: 'reloj' }[a.tipo] || 'expedientes', 18)}</span>
+                <span class="av-ico av-${esc(a.tipo || 'solicitud')}">${ico({ pago: 'validar_pagos', comprobante: 'cash', recibido: 'clip', equipo: 'campana', estado: 'reloj', vence: 'reloj' }[a.tipo] || 'expedientes', 18)}</span>
                 <span class="av-t"><b>${esc(a.titulo)}</b><small>${esc(a.detalle || '')}${a.codigo ? ` · ${esc(a.codigo)}` : ''}</small></span>
                 <small class="av-f">${esc(fecha(a.creado))}</small>
             </button>`).join('') : '<p class="ayuda" style="text-align:center;padding:18px 0">No hay avisos todavía. Aquí verás cada solicitud nueva.</p>';
@@ -1632,7 +1722,7 @@
         if (editando || editandoCliente.size || !$('vNuevo').hidden) { await revisar(); return; }
         try {
             const r = await api('/admin/expedientes');
-            expedientes = r.expedientes; conteo = r.conteo; pendiente = null;
+            expedientes = r.expedientes; conteo = r.conteo; recordatoriosAuto = !!r.recordatorios_auto; pendiente = null;
             $('avisoNuevas').hidden = true; pintarTodo();
         } catch (e) { /* sin conexión: lo intenta en la próxima vuelta */ }
     }
@@ -1740,7 +1830,14 @@
         filtro.paso = Number(b.dataset.paso); pintar();
     });
     $('q').addEventListener('input', pintar);
+    $('tHerr').addEventListener('change', async ev => {
+        const c = ev.target.closest('#chkRecAuto'); if (!c) return;
+        try { const r = await post('/admin/recordatorios-auto', { valor: c.checked }); recordatoriosAuto = r.recordatorios_auto; toast(recordatoriosAuto ? 'Recordatorios automáticos activados' : 'Recordatorios automáticos apagados'); }
+        catch (err) { c.checked = !c.checked; if (err.message !== 'sesion') toast(err.message); }
+        pintarHerramientas();
+    });
     $('btnDetenidos').addEventListener('click', () => { filtro.detenidos = !filtro.detenidos; pintar(); });
+    [['btnAtrasados', 'atrasados'], ['btnSeguir', 'seguir'], ['btnSinResp', 'sinresp']].forEach(([id, v]) => $(id).addEventListener('click', () => { filtro.vista = filtro.vista === v ? '' : v; pintar(); }));
     $('btnMas').addEventListener('click', () => { $('masFiltros').hidden = !$('masFiltros').hidden; pintarFiltros(); });
     [['fServicio', 'servicio'], ['fPais', 'pais'], ['fOrigen', 'origen'], ['fCobro', 'cobro'], ['fDesde', 'desde'], ['fHasta', 'hasta']].forEach(([id, k]) =>
         $(id).addEventListener('change', ev => { filtro[k] = ev.target.value; pintar(); }));
@@ -1756,7 +1853,7 @@
         if (per) { periodo = Number(per.dataset.periodo); pintarResumen(); return; }
         const ir = ev.target.closest('[data-ir]');
         if (ir) { ev.preventDefault(); irATab(ir.dataset.ir); return; }
-        if (ev.target.closest('[data-ver-detenidos]')) { ev.preventDefault(); filtro.detenidos = true; filtro.paso = 0; $('q').value = ''; irATab('exp'); return; }
+        if (ev.target.closest('[data-ver-detenidos]')) { ev.preventDefault(); filtro.detenidos = true; filtro.vista = ''; filtro.paso = 0; $('q').value = ''; irATab('exp'); return; }
         if (ev.target.closest('#tPagos')) {   // confirmar, rechazar o borrar pagos desde la pestaña Pagos
             const vp = ev.target.closest('[data-validar-pago]'), rp2 = ev.target.closest('[data-rechazar-pago]');
             if (vp || rp2) { await validarPago(vp || rp2, vp ? 'confirmar' : 'rechazar'); pintarPagos(); return; }
@@ -1959,6 +2056,43 @@
         const el = ev.target.closest('[data-eliminar]');
         if (el) { borrando = el.dataset.eliminar; pintar(); const f = document.querySelector(`[data-borrar="${borrando}"] [name=motivo]`); if (f) f.focus(); return; }
         if (ev.target.closest('[data-cancelar-borrar]')) { borrando = null; pintar(); return; }
+        const rv = ev.target.closest('[data-rec-vista]');
+        if (rv) {
+            const [codigo, tipo, tramite, canal] = rv.dataset.recVista.split('|'), k = llavePrevia(codigo, tipo, tramite);
+            previas.set(k, { cargando: true }); pintar();
+            try { const r = await post('/admin/recordatorio', { codigo, tipo, tramite: tramite || undefined, accion: 'vista' }); previas.set(k, { ...r, canal }); }
+            catch (err) { previas.delete(k); if (err.message !== 'sesion') toast(err.message); }
+            pintar(); return;
+        }
+        const rc = ev.target.closest('[data-rec-cerrar]');
+        if (rc) { previas.delete(rc.dataset.recCerrar); pintar(); return; }
+        const re = ev.target.closest('[data-rec-enviar], [data-rec-marcar]');
+        if (re) {
+            const k = re.dataset.recEnviar || re.dataset.recMarcar, [codigo, tipo, tramite] = k.split(':'), enviar = !!re.dataset.recEnviar, p = previas.get(k) || {};
+            if (enviar) re.disabled = true;
+            try {
+                const r = await post('/admin/recordatorio', { codigo, tipo, tramite: tramite || undefined, accion: enviar ? 'enviar' : 'marcar' });
+                reemplazar(r.expediente); previas.delete(k); pintar(); toast(enviar ? `Correo enviado a ${p.para}` : 'Anotado: recordatorio enviado por WhatsApp');
+            } catch (err) { if (err.message !== 'sesion') toast(err.message); if (enviar) re.disabled = false; }
+            return;   // en WhatsApp el enlace se abre solo en otra pestaña
+        }
+        const sr = ev.target.closest('[data-sin-resp]');
+        if (sr) {
+            sr.disabled = true;
+            try { const r = await post('/admin/sin-respuesta', { codigo: sr.dataset.sinResp, valor: sr.dataset.valor === '1' }); reemplazar(r.expediente); pintar();
+                toast(sr.dataset.valor === '1' ? 'Archivada como «Sin respuesta». Puedes reabrirla cuando quieras.' : 'Solicitud reabierta'); }
+            catch (err) { if (err.message !== 'sesion') toast(err.message); sr.disabled = false; }
+            return;
+        }
+        const eg = ev.target.closest('[data-entrega-guardar]');
+        if (eg) {
+            const [codigo, tramite] = eg.dataset.entregaGuardar.split('|'), fila = eg.closest('.seg-fila');
+            eg.disabled = true;
+            try { const r = await post('/admin/entrega', { codigo, tramite: Number(tramite), fecha: fila.querySelector('[data-entrega-fecha]').value, motivo: fila.querySelector('[data-entrega-motivo]').value });
+                reemplazar(r.expediente); pintar(); toast('Fecha guardada'); }
+            catch (err) { if (err.message !== 'sesion') toast(err.message); eg.disabled = false; }
+            return;
+        }
         const av = ev.target.closest('[data-avisar-correo]');
         if (av) {
             av.disabled = true;
