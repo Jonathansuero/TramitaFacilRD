@@ -389,7 +389,7 @@
     ${mobileLink('/preguntas', 'fa-circle-question', 'm.faq', ` ml-page${PAGE === 'preguntas' ? ' nav-active' : ''}`)}
     ${mobileLink('/nosotros', 'fa-handshake', 'nav.nosotros', ` ml-page${PAGE === 'nosotros' ? ' nav-active' : ''}`)}
     <div class="ml-sep" role="presentation"></div>
-    ${MOBILE.map(([id, ico, key]) => mobileLink(homeLink(id), ico, key)).join('')}
+    ${MOBILE.map(([id, ico, key]) => mobileLink(id === 'asistente' ? '/nosotros#asistente' : homeLink(id), ico, key)).join('')}
   </div>
 </nav>`;
     }

@@ -143,6 +143,7 @@
     // ============================================================
     const quizDots = n => $$('.quiz-dot').forEach(d => d.classList.toggle('is-on', +d.dataset.dot <= n));
     function renderQuizCats() {
+        if (!$('quizCats')) return;
         $('quizCats').innerHTML = Object.keys(D.categorias).map(k => { const c = tc('categorias', k);
             return `<button class="quiz-card group" data-qcat="${k}"><i class="fa-solid ${D.categorias[k].icono} text-domBlue text-2xl mb-2 group-hover:scale-110 transition-transform"></i>
              <div class="font-bold text-slate-800 text-sm">${esc(c.label)}</div><div class="text-xs text-slate-500 mt-1">${esc(c.resumen)}</div></button>`; }).join('');
@@ -169,6 +170,7 @@
     }
     function resetQuiz() { $('quizStep2').classList.add('hidden'); $('quizStep3').classList.add('hidden'); $('quizStep1').classList.remove('hidden'); quizDots(1); }
     function initQuiz() {
+        if (!$('quizCats')) return;
         $('quizCats').addEventListener('click', e => { const b = e.target.closest('[data-qcat]'); if (b) selectQuizCategory(b.dataset.qcat); });
         $('quizOptionsContainer').addEventListener('click', e => { const b = e.target.closest('[data-qserv]'); if (b) showQuizResult(b.dataset.qserv); });
         $('quizBack').addEventListener('click', resetQuiz);
@@ -379,7 +381,7 @@
         renderPais(animate);
         renderMundo();
         renderQuizCats();
-        if (ui.quizKey && !$('quizStep3').classList.contains('hidden')) showQuizResult(ui.quizKey);
+        if (ui.quizKey && $('quizStep3') && !$('quizStep3').classList.contains('hidden')) showQuizResult(ui.quizKey);
         buildFormServicios();
         renderPrefijos();
         renderChecklistTabs();
