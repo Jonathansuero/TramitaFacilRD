@@ -3015,6 +3015,86 @@
       "Escribe en el mensaje el nombre completo de cada persona.",
       "Write each person's full name in the message.",
       "Écrivez dans le message le nom complet de chaque personne."
+    ],
+    "dig.eyebrow": [
+      "Tramitamos por ti",
+      "We handle it for you",
+      "Nous nous en occupons"
+    ],
+    "dig.t": [
+      "Tú nos entregas tus documentos. Nosotros hacemos el resto.",
+      "You hand us your documents. We do the rest.",
+      "Vous nous remettez vos documents. Nous faisons le reste."
+    ],
+    "dig.sub": [
+      "Todo el proceso es digital: no tienes que ir a oficinas, hacer filas ni pedirle el favor a un familiar en República Dominicana.",
+      "The whole process is digital: no office visits, no queues, no asking a relative in the Dominican Republic for a favor.",
+      "Tout le processus est numérique : pas de déplacement, pas de file d'attente, pas besoin de demander un service à un proche en République dominicaine."
+    ],
+    "dig.p1.t": [
+      "Envías tus documentos",
+      "Send your documents",
+      "Envoyez vos documents"
+    ],
+    "dig.p1.d": [
+      "Nos mandas una foto o un escaneo por la web o por WhatsApp. Nada más.",
+      "Send us a photo or scan through the website or WhatsApp. That's it.",
+      "Envoyez-nous une photo ou un scan via le site ou WhatsApp. C'est tout."
+    ],
+    "dig.p2.t": [
+      "Gestionamos todo",
+      "We handle everything",
+      "Nous gérons tout"
+    ],
+    "dig.p2.d": [
+      "Revisamos tu expediente, hacemos las diligencias en las instituciones y te avisamos si falta algo.",
+      "We review your file, carry out the procedures at the institutions and tell you if anything is missing.",
+      "Nous vérifions votre dossier, faisons les démarches auprès des institutions et vous prévenons s'il manque quelque chose."
+    ],
+    "dig.p3.t": [
+      "Sigues el avance",
+      "Follow the progress",
+      "Suivez l'avancement"
+    ],
+    "dig.p3.d": [
+      "Con tu código de seguimiento ves en qué paso va tu trámite, desde donde estés.",
+      "With your tracking code you see where your procedure stands, wherever you are.",
+      "Avec votre code de suivi, vous voyez où en est votre démarche, où que vous soyez."
+    ],
+    "dig.cta1": [
+      "Cotizar mi trámite",
+      "Quote my procedure",
+      "Devis de ma démarche"
+    ],
+    "dig.cta2": [
+      "Hablar por WhatsApp",
+      "Chat on WhatsApp",
+      "Écrire sur WhatsApp"
+    ],
+    "dig.tu": [
+      "Tú",
+      "You",
+      "Vous"
+    ],
+    "dig.nos": [
+      "Nosotros",
+      "We",
+      "Nous"
+    ],
+    "dig.c1": [
+      "Sin filas ni viajes",
+      "No queues, no travel",
+      "Sans file ni déplacement"
+    ],
+    "dig.c2": [
+      "Seguimiento en línea",
+      "Online tracking",
+      "Suivi en ligne"
+    ],
+    "dig.c3": [
+      "Digital y confidencial",
+      "Digital and confidential",
+      "Numérique et confidentiel"
     ]
   },
   "contenido": {
