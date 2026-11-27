@@ -1230,3 +1230,4 @@ html.is-app .tfc-btn { bottom: 5.4rem; }
 .tfc-card li::marker { color: #CE1126; }
 body:has(#tfChat.is-open) .lang-hint { display: none; }
 #tfChat ~ .lang-hint, .lang-hint { bottom: 5rem; }
+@media (max-width: 767px) { #tfChat { display: none !important; } }
