@@ -6,7 +6,7 @@
    - /api/ nunca se guarda (solicitudes y rastreo siempre en vivo).
    VERSION la actualiza `python manage.py build`; al cambiar, los teléfonos reciben la nueva versión.
    ========================================================== */
-const VERSION = 'dc4aaf8561';
+const VERSION = 'b69512f8bd';
 const CACHE = `tramitafacil-${VERSION}`;
 const CACHE_EXT = 'tramitafacil-externos';
 

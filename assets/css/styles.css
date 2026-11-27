@@ -1035,3 +1035,26 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 @media (min-width: 640px) { .gd-hero { padding-bottom: 6.5rem; } }
 
 .gd-dest.hidden, .gd-card.hidden, .gd-vacio.hidden { display: none !important; }
+
+/* Inicio: "Tramitamos por ti" */
+.dig-sec { background: linear-gradient(90deg, #CE1126, #8a0c1b 55%, #002D62); color: #fff; padding: 3.5rem 0; }
+.dig-wrap { max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
+@media (min-width: 640px) { .dig-wrap { padding: 0 1.5rem; } }
+.dig-head { text-align: center; max-width: 46rem; margin: 0 auto 2rem; }
+.dig-head h2 { font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-size: 1.9rem; line-height: 1.15; font-weight: 800; margin-top: .9rem; }
+@media (min-width: 768px) { .dig-head h2 { font-size: 2.6rem; } }
+.dig-head p { color: rgba(255,255,255,.85); margin-top: .9rem; line-height: 1.65; }
+.dig-pasos { display: grid; gap: 1rem; list-style: none; padding: 0; margin: 0; }
+@media (min-width: 768px) { .dig-pasos { grid-template-columns: repeat(3, 1fr); gap: 1.25rem; } }
+.dig-pasos li { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.25); border-radius: 1.4rem; padding: 1.4rem; backdrop-filter: blur(4px); }
+.dig-pasos li.dig-nos { background: #fff; color: #0f172a; border-color: #fff; box-shadow: 0 18px 40px rgba(0,0,0,.25); }
+.dig-pasos i { width: 46px; height: 46px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.18); font-size: 1.15rem; margin-bottom: .9rem; }
+.dig-pasos li.dig-nos i { background: #CE1126; color: #fff; }
+.dig-pasos h3 { font-weight: 800; font-size: 1.1rem; }
+.dig-pasos p { font-size: .92rem; line-height: 1.55; margin-top: .4rem; color: rgba(255,255,255,.85); }
+.dig-pasos li.dig-nos p { color: #475569; }
+.dig-btns { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: center; margin-top: 1.8rem; }
+.dig-b1, .dig-b2 { font-weight: 800; font-size: .92rem; padding: .85rem 1.5rem; border-radius: .9rem; }
+.dig-b1 { background: #D4A843; color: #0f172a; } .dig-b1:hover { background: #f0c050; }
+.dig-b2 { border: 2px solid rgba(255,255,255,.7); color: #fff; } .dig-b2:hover { background: rgba(255,255,255,.12); }
+.dig-head h2::before, .dig-head h2::after { display: none !important; }
