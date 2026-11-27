@@ -1075,3 +1075,37 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 
 .nos-hero { padding-bottom: 7.5rem; }
 @media (min-width: 640px) { .nos-hero { padding-bottom: 6.5rem; } }
+
+/* Quiénes somos: franjas y cuadrículas */
+.nos-sec { padding: 4rem 0; }
+.nos-blanco { background: #fff; }
+.nos-gris { background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+.nos-wrap { max-width: 72rem; margin: 0 auto; padding: 0 1rem; }
+@media (min-width: 640px) { .nos-wrap { padding: 0 1.5rem; } }
+.nos-head { text-align: center; max-width: 44rem; margin: 0 auto 2.2rem; }
+.nos-sub { color: #475569; margin-top: .8rem; line-height: 1.65; }
+.nos-grid { display: grid; gap: 1.1rem; }
+@media (min-width: 720px) { .nos-g3 { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 720px) { .nos-g5 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1000px) { .nos-g5 { grid-template-columns: repeat(6, 1fr); } .nos-g5 .nos-card { grid-column: span 2; } .nos-g5 .nos-card:nth-child(n+4) { grid-column: span 3; } }
+.nos-card { position: relative; background: #fff; border: 1px solid #e2e8f0; border-radius: 1.4rem; padding: 1.5rem; box-shadow: 0 4px 14px rgba(15,23,42,.06); transition: transform .2s, box-shadow .2s, border-color .2s; }
+.nos-gris .nos-card { box-shadow: 0 6px 18px rgba(15,23,42,.07); }
+.nos-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgba(15,23,42,.12); border-color: #002D62; }
+.nos-ico { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: #002D62; color: #fff; font-size: 1.15rem; margin-bottom: 1rem; }
+.nos-card h3 { font-weight: 800; font-size: 1.08rem; line-height: 1.3; color: #0f172a; }
+.nos-card p { font-size: .93rem; line-height: 1.6; color: #475569; margin-top: .5rem; }
+.nos-n { position: absolute; top: .9rem; right: 1.2rem; font-family: 'Plus Jakarta Sans', Inter, sans-serif; font-weight: 800; font-size: 2.6rem; line-height: 1; color: #eef2f7; }
+.nos-card-res { background: linear-gradient(135deg, #002D62, #0f172a); border-color: #002D62; }
+.nos-card-res h3 { color: #fff; } .nos-card-res p { color: rgba(255,255,255,.85); }
+.nos-card-res .nos-ico { background: #CE1126; }
+.nos-no .nos-ico { background: #CE1126; }
+.nos-si { border-color: #86efac; background: #f0fdf4; }
+.nos-si .nos-ico { background: #16a34a; }
+.nos-cont { text-align: center; display: flex; flex-direction: column; align-items: center; }
+.nos-cont p { margin-top: .35rem; word-break: break-word; }
+.nos-link { color: inherit; text-decoration: none; }
+.nos-wa { background: #16a34a; }
+.nos-aviso { display: flex; gap: .9rem; align-items: center; background: #fffbeb; border: 1px solid #fcd34d; border-radius: 1.1rem; padding: 1rem 1.2rem; margin-top: 1.2rem; }
+.nos-aviso i { color: #b45309; font-size: 1.3rem; flex: none; }
+.nos-aviso p { font-size: .92rem; line-height: 1.55; color: #78350f; margin: 0; }
+.nos-btns { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: center; margin-top: 1.6rem; }
