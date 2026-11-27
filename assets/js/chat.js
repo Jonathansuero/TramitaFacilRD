@@ -418,16 +418,28 @@
         if (a === 'persona') return persona();
     });
 
+    // ---------------- historial: la conversación sigue al cambiar de página (se guarda en esta pestaña y se borra al cerrarla)
+    const GUARDA = 'tf_chat_v1';
+    function guardar() {
+        try {
+            const c = msgs.cloneNode(true); c.querySelectorAll('.tfc-typing').forEach(x => x.remove());
+            sessionStorage.setItem(GUARDA, JSON.stringify({ h: c.innerHTML, modo, cat, clave, lugar: lugarElegido, faqDesde, datos, abierto: !panel.hidden }));
+        } catch (e) { /* sin almacenamiento: el chat funciona igual, sin memoria */ }
+    }
+    let pendiente = 0;
+    new MutationObserver(() => { clearTimeout(pendiente); pendiente = setTimeout(guardar, 150); }).observe(msgs, { childList: true });
+    window.addEventListener('pagehide', guardar);
+
     // ---------------- abrir, cerrar, reiniciar
     let iniciado = false;
     function abrir() {
-        panel.hidden = false; raiz.classList.add('is-open'); boton.setAttribute('aria-expanded', 'true');
+        panel.hidden = false; raiz.classList.add('is-open'); boton.setAttribute('aria-expanded', 'true'); setTimeout(guardar, 0);
         TF.evento && TF.evento('chat_abierto', {});
         if (!iniciado) { iniciado = true; bienvenida(); }
         setTimeout(() => entrada.focus({ preventScroll: true }), 50);
     }
-    function cerrar() { panel.hidden = true; raiz.classList.remove('is-open'); boton.setAttribute('aria-expanded', 'false'); boton.focus({ preventScroll: true }); }
-    function reiniciar() { hilo++; ocupado = false; msgs.innerHTML = ''; Object.assign(datos, { nombre: '', wa: '', email: '' }); bienvenida(); }
+    function cerrar() { panel.hidden = true; raiz.classList.remove('is-open'); boton.setAttribute('aria-expanded', 'false'); boton.focus({ preventScroll: true }); guardar(); }
+    function reiniciar() { hilo++; ocupado = false; msgs.innerHTML = ''; Object.assign(datos, { nombre: '', wa: '', email: '' }); lugarElegido = false; bienvenida(); }
     boton.addEventListener('click', () => (panel.hidden ? abrir() : cerrar()));
     $('tfcClose').addEventListener('click', cerrar);
     $('tfcReset').addEventListener('click', reiniciar);
@@ -448,6 +460,16 @@
     }
     textos();
     TF.on('lang', textos);
+    // Si había una conversación en esta pestaña, se retoma donde quedó
+    try {
+        const g = JSON.parse(sessionStorage.getItem(GUARDA) || 'null');
+        if (g && g.h) {
+            msgs.innerHTML = g.h; modo = g.modo || 'libre'; cat = g.cat || null; clave = g.clave || null; lugarElegido = !!g.lugar; faqDesde = g.faqDesde || 0;
+            Object.assign(datos, g.datos || {}); iniciado = true;
+            if (modo === 'libre' && !msgs.querySelector('.tfc-chips:last-child')) menuOpciones();
+            if (g.abierto) { panel.hidden = false; raiz.classList.add('is-open'); boton.setAttribute('aria-expanded', 'true'); requestAnimationFrame(bajar); }
+        }
+    } catch (e) { /* conversación guardada dañada: se empieza de cero */ }
     window.TF_CHAT = { abrir, cerrar };
     if (location.hash === '#chat') abrir();
 })();
