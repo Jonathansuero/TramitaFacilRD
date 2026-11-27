@@ -77,6 +77,41 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         </div>
     </section>
 
+    <section id="asistente" class="py-16 bg-slate-50 border-y border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-10">
+                <span class="eyebrow bg-blue-100 text-domBlue" data-i18n="quiz.eyebrow">Guía paso a paso</span>
+                <h2 class="section-title" data-i18n="quiz.t">Asistente virtual de trámites</h2>
+                <p class="text-slate-600 text-sm mt-1" data-i18n="quiz.sub">Selecciona el área de tu trámite para obtener asesoría instantánea:</p>
+            </div>
+            <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="flex items-center gap-2 mb-6" aria-hidden="true">
+                    <span class="quiz-dot is-on" data-dot="1"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="2"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="3"></span>
+                </div>
+                <div id="quizStep1">
+                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4" data-i18n="quiz.p1">Paso 1: ¿Qué tipo de gestión necesitas?</h3>
+                    <div id="quizCats" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                </div>
+                <div id="quizStep2" class="hidden">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider" data-i18n="quiz.p2">Paso 2: Selecciona el servicio</h3>
+                        <button type="button" id="quizBack" class="text-xs text-domBlue font-semibold hover:underline" data-i18n="quiz.volver">← Volver</button>
+                    </div>
+                    <div id="quizOptionsContainer" class="grid sm:grid-cols-2 gap-3"></div>
+                </div>
+                <div id="quizStep3" class="hidden space-y-4">
+                    <div id="quizResultBox" class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"></div>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <button type="button" id="quizReset" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100" data-i18n="quiz.reiniciar">Reiniciar</button>
+                        <a id="quizPageBtn" href="#" class="px-4 py-2.5 rounded-xl border border-domBlue text-domBlue text-xs font-semibold hover:bg-sky-50 text-center" data-i18n="quiz.pagina">Ver página del servicio</a>
+                        <a id="quizWaBtn" href="https://wa.me/" target="_blank" rel="noopener" class="px-4 py-2.5 rounded-xl border border-emerald-600 text-emerald-700 text-xs font-semibold hover:bg-emerald-50 text-center"><i class="fa-brands fa-whatsapp mr-1" aria-hidden="true"></i><span data-i18n="dig.cta2">Hablar por WhatsApp</span></a>
+                        <a id="quizCalcBtn" href="#" class="flex-1 bg-domBlue hover:bg-domBlueHover text-white px-4 py-2.5 rounded-xl text-xs font-bold text-center" data-i18n="quiz.cotizar">Cotizar este trámite →</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <section class="pt-10 pb-16 relative z-10"><div class="max-w-4xl mx-auto px-4 sm:px-6 space-y-5">
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 texto-legal">
             <h2>Por qué existimos</h2>
@@ -111,6 +146,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div id="tf-footer"></div>
 <script src="/assets/js/data.js"></script>
 <script src="/assets/js/core.js"></script>
+<script src="/assets/js/asistente.js"></script>
 <script>window.addEventListener('load',function(){try{var n=TF_DATA.config.whatsapp;if(n)document.getElementById('digWa').href='https://wa.me/'+n+'?text='+encodeURIComponent('Hola, quiero que me tramiten un documento.')}catch(e){}});</script>
 </body>
 </html>
