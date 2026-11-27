@@ -3032,9 +3032,9 @@
       "Tout le processus est numérique : pas de déplacement, pas de file d'attente, pas besoin de demander un service à un proche en République dominicaine."
     ],
     "dig.p1.t": [
-      "Tú: envías tus documentos",
-      "You: send your documents",
-      "Vous : envoyez vos documents"
+      "Envías tus documentos",
+      "Send your documents",
+      "Envoyez vos documents"
     ],
     "dig.p1.d": [
       "Nos mandas una foto o un escaneo por la web o por WhatsApp. Nada más.",
@@ -3042,9 +3042,9 @@
       "Envoyez-nous une photo ou un scan via le site ou WhatsApp. C'est tout."
     ],
     "dig.p2.t": [
-      "Nosotros: gestionamos todo",
-      "We: handle everything",
-      "Nous : nous gérons tout"
+      "Gestionamos todo",
+      "We handle everything",
+      "Nous gérons tout"
     ],
     "dig.p2.d": [
       "Revisamos tu expediente, hacemos las diligencias en las instituciones y te avisamos si falta algo.",
@@ -3052,9 +3052,9 @@
       "Nous vérifions votre dossier, faisons les démarches auprès des institutions et vous prévenons s'il manque quelque chose."
     ],
     "dig.p3.t": [
-      "Tú: sigues el avance",
-      "You: follow the progress",
-      "Vous : suivez l'avancement"
+      "Sigues el avance",
+      "Follow the progress",
+      "Suivez l'avancement"
     ],
     "dig.p3.d": [
       "Con tu código de seguimiento ves en qué paso va tu trámite, desde donde estés.",
@@ -3070,6 +3070,31 @@
       "Hablar por WhatsApp",
       "Chat on WhatsApp",
       "Écrire sur WhatsApp"
+    ],
+    "dig.tu": [
+      "Tú",
+      "You",
+      "Vous"
+    ],
+    "dig.nos": [
+      "Nosotros",
+      "We",
+      "Nous"
+    ],
+    "dig.c1": [
+      "Sin filas ni viajes",
+      "No queues, no travel",
+      "Sans file ni déplacement"
+    ],
+    "dig.c2": [
+      "Seguimiento en línea",
+      "Online tracking",
+      "Suivi en ligne"
+    ],
+    "dig.c3": [
+      "Digital y confidencial",
+      "Digital and confidential",
+      "Numérique et confidentiel"
     ]
   },
   "contenido": {
