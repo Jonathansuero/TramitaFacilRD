@@ -37,11 +37,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
 <div id="tf-header"></div>
 <main id="main">
-    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white pt-10 pb-20 relative overflow-hidden">
+    <section class="bg-gradient-to-b from-slate-900 via-domBlue to-domBlue text-white nos-hero pt-10 relative overflow-hidden">
         <div class="hero-grid absolute inset-0 pointer-events-none"></div>
         <div class="max-w-4xl mx-auto px-4 sm:px-6 relative">
             <nav class="breadcrumb" aria-label="breadcrumb"><a href="/">Inicio</a><span>›</span><span>Quiénes somos</span></nav>
-            <h1 class="font-display text-3xl sm:text-5xl font-extrabold tracking-tight mt-6">Quiénes somos</h1>
+            <span class="eyebrow bg-white/15 text-white mt-6">Gestoría digital dominicana</span>
+            <h1 class="font-display text-3xl sm:text-5xl font-extrabold tracking-tight mt-4">Quiénes somos</h1>
             <p class="text-slate-300 text-base sm:text-lg mt-4 max-w-3xl">Somos una gestoría dominicana que resuelve trámites en República Dominicana para quienes viven aquí y para dominicanos y extranjeros en cualquier parte del mundo.</p>
         </div>
     </section>
@@ -50,6 +51,33 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <p><strong>TramitaFácil RD es una empresa dominicana</strong> con su nombre comercial registrado en la Oficina Nacional de la Propiedad Industrial (ONAPI). Detrás hay un equipo de gestores que trabaja todos los días frente a las instituciones del Estado: JCE, DGII, MIREX, Migración, MESCYT, INTRANT, ONAPI y los tribunales.</p>
             <p>No somos una oficina del gobierno ni tenemos vínculo con ninguna institución pública. Somos un servicio privado: tú nos encargas el trámite y nosotros lo hacemos por ti, con tu autorización.</p>
         </div>
+    </div></section>
+
+    <section id="digital" class="dig-sec">
+        <div class="dig-wrap">
+            <div class="dig-head">
+                <span class="eyebrow bg-white/15 text-white">Así trabajamos</span>
+                <h2>Tú nos entregas tus documentos. Nosotros hacemos el resto.</h2>
+                <p>Somos una gestoría digital: todo el proceso se hace en línea, sin que tengas que ir a oficinas, hacer filas ni pedirle el favor a un familiar en República Dominicana.</p>
+            </div>
+            <ol class="dig-pasos">
+                <li><span class="dig-n">1</span><div class="dig-top"><i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i><span class="dig-tag">Tú</span></div><h3>Envías tus documentos</h3><p>Nos mandas una foto o un escaneo por la web o por WhatsApp. Nada más.</p></li>
+                <li class="dig-nos"><span class="dig-n">2</span><div class="dig-top"><i class="fa-solid fa-briefcase" aria-hidden="true"></i><span class="dig-tag">Nosotros</span></div><h3>Gestionamos todo</h3><p>Revisamos tu expediente, hacemos las diligencias en las instituciones y te avisamos si falta algo. Si el acto lo exige, lo firma un abogado o notario.</p></li>
+                <li><span class="dig-n">3</span><div class="dig-top"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span class="dig-tag">Tú</span></div><h3>Sigues el avance</h3><p>Con tu código de seguimiento ves en qué paso va tu trámite, desde donde estés.</p></li>
+            </ol>
+            <ul class="dig-chips">
+                <li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Sin filas ni viajes</span></li>
+                <li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Seguimiento en línea</span></li>
+                <li><i class="fa-solid fa-check" aria-hidden="true"></i><span>Digital y confidencial</span></li>
+            </ul>
+            <div class="dig-btns">
+                <a class="dig-b1" href="/#cotizador"><i class="fa-solid fa-calculator" aria-hidden="true"></i> <span>Cotizar mi trámite</span></a>
+                <a class="dig-b2" id="digWa" href="https://wa.me/" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> <span>Hablar por WhatsApp</span></a>
+            </div>
+        </div>
+    </section>
+
+    <section class="pt-10 pb-16 relative z-10"><div class="max-w-4xl mx-auto px-4 sm:px-6 space-y-5">
         <div class="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 sm:p-8 texto-legal">
             <h2>Por qué existimos</h2>
             <p>Un dominicano en Nueva York que necesita su acta apostillada tiene tres opciones: pedirle el favor a un familiar, comprar un pasaje, o dejar el trámite sin hacer. Las tres salen caras.</p>
@@ -83,5 +111,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div id="tf-footer"></div>
 <script src="/assets/js/data.js"></script>
 <script src="/assets/js/core.js"></script>
+<script>window.addEventListener('load',function(){try{var n=TF_DATA.config.whatsapp;if(n)document.getElementById('digWa').href='https://wa.me/'+n+'?text='+encodeURIComponent('Hola, quiero que me tramiten un documento.')}catch(e){}});</script>
 </body>
 </html>
