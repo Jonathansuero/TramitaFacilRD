@@ -716,7 +716,9 @@ ${ES_APP ? renderTabbar() : ''}`;
     /** Asistente de chat (Tramy): se descarga cuando el navegador está libre, para no frenar la carga de la página. */
     if (!/^\/(admin|promo)/.test(location.pathname) && !matchMedia('(max-width: 767px)').matches) {   // en celulares no se carga: menos ruido visual
         const cargarChat = () => { const s = document.createElement('script'); s.src = '/assets/js/chat.js'; s.defer = true; document.head.appendChild(s); };
-        window.addEventListener('load', () => ('requestIdleCallback' in window ? requestIdleCallback(cargarChat, { timeout: 2500 }) : setTimeout(cargarChat, 1200)));
+        let hayChat = false; try { hayChat = !!sessionStorage.getItem('tf_chat_v1'); } catch (e) { /* sin almacenamiento */ }
+        if (hayChat) cargarChat();   // conversación en curso: vuelve enseguida al cambiar de página
+        else window.addEventListener('load', () => ('requestIdleCallback' in window ? requestIdleCallback(cargarChat, { timeout: 2500 }) : setTimeout(cargarChat, 1200)));
     }
 
     /** Cambio de página rápido: al pasar el dedo o el mouse sobre un enlace, la página siguiente se prepara antes del clic
