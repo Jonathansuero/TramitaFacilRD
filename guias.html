@@ -149,8 +149,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             var d = document.querySelector('.gd-dest'); d.classList.toggle('hidden', !(f === 'todas' || d.dataset.tema === f)); if (!d.classList.contains('hidden')) vis++;
             document.getElementById('gdVacio').classList.toggle('hidden', vis > 0);
         }); });
-        var wa = document.getElementById('gdWa');
-        try { var n = (window.TF_DATA && TF_DATA.config.whatsapp) || ''; if (n) wa.href = 'https://wa.me/' + n + '?text=' + encodeURIComponent('Hola, me gustaría una guía sobre: '); } catch (e) {}
+        window.addEventListener('load', function () {
+            try { var n = TF_DATA.config.whatsapp; if (n) document.getElementById('gdWa').href = 'https://wa.me/' + n + '?text=' + encodeURIComponent('Hola, me gustaría una guía sobre: '); } catch (e) {}
+        });
     })();
     </script>
 </main>
