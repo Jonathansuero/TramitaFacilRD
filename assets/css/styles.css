@@ -1160,3 +1160,5 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .nosa-logo-txt b i { font-style: normal; color: #CE1126; }
 .nosa-logo-txt small { font-size: .62rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.7); margin-top: .25rem; }
 .nosa-der { display: flex; flex-direction: column; justify-content: center; }
+.nosa-izq h2 { display:flex; align-items:center; gap:.7rem; }
+.nosa-flag { width:2.2rem; height:auto; border-radius:3px; box-shadow:0 0 0 1px rgba(255,255,255,.35); flex:none; }
