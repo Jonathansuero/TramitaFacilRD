@@ -1109,3 +1109,28 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .nos-aviso i { color: #b45309; font-size: 1.3rem; flex: none; }
 .nos-aviso p { font-size: .92rem; line-height: 1.55; color: #78350f; margin: 0; }
 .nos-btns { display: flex; flex-wrap: wrap; gap: .8rem; justify-content: center; margin-top: 1.6rem; }
+
+/* Móvil: los hijos de una cuadrícula pueden encogerse (una franja ancha no debe ensanchar la columna) */
+.grid > * { min-width: 0; }
+.marquee { max-width: 100%; overflow: hidden; }
+
+/* Móvil pequeño: el encabezado debe caber sin cortar el menú */
+@media (max-width: 400px) {
+    .site-nav a.group .text-xl { font-size: 1.05rem; }
+    .site-nav a.group .tracking-widest { letter-spacing: .05em; font-size: 9px; }
+    .site-nav .h-16 { gap: .5rem; }
+    .site-nav #paisBtn { padding-left: .55rem; padding-right: .55rem; }
+}
+@media (max-width: 340px) {
+    .site-nav a.group .tracking-widest { display: none; }
+    .site-nav a.group .text-xl { font-size: .95rem; }
+    .site-nav a.group > div:first-child { width: 2rem; height: 2rem; font-size: 1rem; }
+    .site-nav .h-16 { padding-left: .75rem; padding-right: .75rem; }
+}
+
+/* Móvil: un poco más de aire a los lados del contenido (ninguna letra pegada al borde) */
+@media (max-width: 639px) {
+    .mx-auto.px-4 { padding-left: 1.25rem; padding-right: 1.25rem; }
+    .dig-wrap, .gd-wrap, .nos-wrap { padding-left: 1.25rem; padding-right: 1.25rem; }
+}
+@media (max-width: 360px) { #mundoInput::placeholder { font-size: .78rem; } }
