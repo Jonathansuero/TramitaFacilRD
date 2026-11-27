@@ -42,7 +42,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         const dePedido = TF.leerEnlace();
-        TF.cotizador.mount('cotizadorApp');
+        TF.cotizador.mount('cotizadorApp', { onSolicitar: k => window.TF_IR_A_SOLICITUD && window.TF_IR_A_SOLICITUD(k), formSelect: 'fServicio' });
         if (dePedido) TF.cotizador.fijar(dePedido);
         const s = new URLSearchParams(location.search).get('s');
         if (SERV[s]) TF.cotizador.seleccionar(s);

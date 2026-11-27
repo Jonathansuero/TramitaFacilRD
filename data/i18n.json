@@ -3100,6 +3100,11 @@
       "Cotizar este trámite →",
       "Get a quote for this procedure →",
       "Obtenir un devis pour cette démarche →"
+    ],
+    "calcp.datos.t": [
+      "Datos del solicitante",
+      "Applicant details",
+      "Coordonnées du demandeur"
     ]
   },
   "contenido": {

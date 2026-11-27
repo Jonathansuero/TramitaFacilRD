@@ -59,7 +59,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <div class="flex flex-wrap justify-center md:justify-start gap-2" id="heroPaises"></div>
             <div class="flex flex-col sm:flex-row items-center gap-4 pt-1">
                 <a href="#cotizador" class="w-full sm:w-auto bg-domRed hover:bg-red-700 text-white font-bold px-7 py-3.5 rounded-xl shadow-lg transition-all text-center"><i class="fa-solid fa-calculator mr-2"></i> <span data-i18n="hero.cta1">Cotizar mi trámite</span></a>
-                <a href="#asistente" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-xl border border-white/20 transition-all text-center"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-domGold"></i> <span data-i18n="hero.cta2">¿Qué trámite necesito?</span></a>
+                <a href="/nosotros#asistente" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3.5 rounded-xl border border-white/20 transition-all text-center"><i class="fa-solid fa-wand-magic-sparkles mr-2 text-domGold"></i> <span data-i18n="hero.cta2">¿Qué trámite necesito?</span></a>
             </div>
             <div class="pt-8 border-t border-white/10 grid grid-cols-3 gap-4 text-center md:text-left">
                 <div><div class="text-2xl sm:text-3xl font-extrabold" data-count="5000" data-prefix="+">+5,000</div><div class="text-xs text-slate-400 font-medium" data-i18n="hero.s1">Trámites exitosos</div></div>
@@ -162,7 +162,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <h2 class="section-title" data-i18n="como.t">Así de fácil, desde cualquier país</h2>
         </div>
         <ol class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <li class="paso"><span class="paso-n">1</span><i class="fa-solid fa-magnifying-glass paso-i"></i><h3 data-i18n="como.p1.t">Elige tu trámite</h3><p data-i18n="como.p1.d">Usa el asistente o el catálogo y revisa los requisitos.</p><a href="#asistente" data-i18n="como.p1.a">Abrir asistente →</a></li>
+            <li class="paso"><span class="paso-n">1</span><i class="fa-solid fa-magnifying-glass paso-i"></i><h3 data-i18n="como.p1.t">Elige tu trámite</h3><p data-i18n="como.p1.d">Usa el asistente o el catálogo y revisa los requisitos.</p><a href="/nosotros#asistente" data-i18n="como.p1.a">Abrir asistente →</a></li>
             <li class="paso"><span class="paso-n">2</span><i class="fa-solid fa-calculator paso-i"></i><h3 data-i18n="como.p2.t">Cotiza en tu moneda</h3><p data-i18n="como.p2.d">Precio desglosado en RD$, US$ o € — sin sorpresas.</p><a href="#cotizador" data-i18n="como.p2.a">Cotizar →</a></li>
             <li class="paso"><span class="paso-n">3</span><i class="fa-solid fa-paper-plane paso-i"></i><h3 data-i18n="como.p3.t">Envía tu solicitud</h3><p data-i18n="como.p3.d">Recibes un código de seguimiento al instante.</p><a href="#solicitud" data-i18n="como.p3.a">Iniciar →</a></li>
             <li class="paso"><span class="paso-n">4</span><i class="fa-solid fa-location-dot paso-i"></i><h3 data-i18n="como.p4.t">Sigue tu expediente</h3><p data-i18n="como.p4.d">Consulta el estado en línea, desde donde estés.</p><a href="/rastreo" data-i18n="como.p4.a">Rastrear →</a></li>
@@ -253,41 +253,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 </section>
 
-<!-- ASISTENTE -->
-<section id="asistente" class="py-16 bg-slate-50 border-y border-slate-200">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6">
-        <div class="text-center mb-10">
-            <span class="eyebrow bg-blue-100 text-domBlue" data-i18n="quiz.eyebrow">Guía paso a paso</span>
-            <h2 class="section-title" data-i18n="quiz.t">Asistente virtual de trámites</h2>
-            <p class="text-slate-600 text-sm mt-1" data-i18n="quiz.sub">Selecciona el área de tu trámite para obtener asesoría instantánea:</p>
-        </div>
-        <div class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
-            <div class="flex items-center gap-2 mb-6" aria-hidden="true">
-                <span class="quiz-dot is-on" data-dot="1"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="2"></span><span class="quiz-bar"></span><span class="quiz-dot" data-dot="3"></span>
-            </div>
-            <div id="quizStep1">
-                <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4" data-i18n="quiz.p1">Paso 1: ¿Qué tipo de gestión necesitas?</h3>
-                <div id="quizCats" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-            </div>
-            <div id="quizStep2" class="hidden">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-sm font-bold text-slate-500 uppercase tracking-wider" data-i18n="quiz.p2">Paso 2: Selecciona el servicio</h3>
-                    <button id="quizBack" class="text-xs text-domBlue font-semibold hover:underline" data-i18n="quiz.volver">← Volver</button>
-                </div>
-                <div id="quizOptionsContainer" class="grid sm:grid-cols-2 gap-3"></div>
-            </div>
-            <div id="quizStep3" class="hidden space-y-4">
-                <div id="quizResultBox" class="bg-slate-50 border border-slate-200 p-5 rounded-2xl"></div>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <button id="quizReset" class="px-4 py-2.5 rounded-xl border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-100" data-i18n="quiz.reiniciar">Reiniciar</button>
-                    <a id="quizPageBtn" href="#" class="px-4 py-2.5 rounded-xl border border-domBlue text-domBlue text-xs font-semibold hover:bg-sky-50 text-center" data-i18n="quiz.pagina">Ver página del servicio</a>
-                    <button id="quizCalcBtn" class="flex-1 bg-domBlue hover:bg-domBlueHover text-white px-4 py-2.5 rounded-xl text-xs font-bold" data-i18n="quiz.calc">Ver cotización en calculadora →</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- REQUISITOS -->
 <section id="requisitos" class="py-16 bg-white">
     <div class="max-w-4xl mx-auto px-4 sm:px-6">
@@ -309,32 +274,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 </section>
 
-
-<!-- TRAMITAMOS POR TI -->
-<section id="digital" class="dig-sec">
-    <div class="dig-wrap">
-        <div class="dig-head">
-            <span class="eyebrow bg-white/15 text-white" data-i18n="dig.eyebrow">Tramitamos por ti</span>
-            <h2 data-i18n="dig.t">Tú nos entregas tus documentos. Nosotros hacemos el resto.</h2>
-            <p data-i18n="dig.sub">Todo el proceso es digital: no tienes que ir a oficinas, hacer filas ni pedirle el favor a un familiar en República Dominicana.</p>
-        </div>
-        <ol class="dig-pasos">
-            <li><span class="dig-n">1</span><div class="dig-top"><i class="fa-solid fa-file-arrow-up" aria-hidden="true"></i><span class="dig-tag" data-i18n="dig.tu">Tú</span></div><h3 data-i18n="dig.p1.t">Envías tus documentos</h3><p data-i18n="dig.p1.d">Nos mandas una foto o un escaneo por la web o por WhatsApp. Nada más.</p></li>
-            <li class="dig-nos"><span class="dig-n">2</span><div class="dig-top"><i class="fa-solid fa-briefcase" aria-hidden="true"></i><span class="dig-tag" data-i18n="dig.nos">Nosotros</span></div><h3 data-i18n="dig.p2.t">Gestionamos todo</h3><p data-i18n="dig.p2.d">Revisamos tu expediente, hacemos las diligencias en las instituciones y te avisamos si falta algo.</p></li>
-            <li><span class="dig-n">3</span><div class="dig-top"><i class="fa-solid fa-location-dot" aria-hidden="true"></i><span class="dig-tag" data-i18n="dig.tu">Tú</span></div><h3 data-i18n="dig.p3.t">Sigues el avance</h3><p data-i18n="dig.p3.d">Con tu código de seguimiento ves en qué paso va tu trámite, desde donde estés.</p></li>
-        </ol>
-        <ul class="dig-chips">
-            <li><i class="fa-solid fa-check" aria-hidden="true"></i><span data-i18n="dig.c1">Sin filas ni viajes</span></li>
-            <li><i class="fa-solid fa-check" aria-hidden="true"></i><span data-i18n="dig.c2">Seguimiento en línea</span></li>
-            <li><i class="fa-solid fa-check" aria-hidden="true"></i><span data-i18n="dig.c3">Digital y confidencial</span></li>
-        </ul>
-        <div class="dig-btns">
-            <a class="dig-b1" href="#cotizador"><i class="fa-solid fa-calculator" aria-hidden="true"></i> <span data-i18n="dig.cta1">Cotizar mi trámite</span></a>
-            <a class="dig-b2" id="digWa" href="https://wa.me/" target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i> <span data-i18n="dig.cta2">Hablar por WhatsApp</span></a>
-        </div>
-    </div>
-    <script>window.addEventListener('load',function(){try{var n=TF_DATA.config.whatsapp;if(n)document.getElementById('digWa').href='https://wa.me/'+n+'?text='+encodeURIComponent('Hola, quiero que me tramiten un documento.')}catch(e){}});</script>
-</section>
 
 <section id="app" class="app-tuto-sec">
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
