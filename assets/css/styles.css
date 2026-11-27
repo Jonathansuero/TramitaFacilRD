@@ -1066,3 +1066,9 @@ button.track-items-t[aria-expanded="true"] .ti-f { transform: rotate(180deg); }
 .dig-b1 { background: #D4A843; color: #0f172a; } .dig-b1:hover { background: #f0c050; }
 .dig-b2 { border: 2px solid rgba(255,255,255,.7); color: #fff; } .dig-b2:hover { background: rgba(255,255,255,.12); }
 .dig-head h2::before, .dig-head h2::after { display: none !important; }
+
+/* Variante azul (como el inicio) */
+.dig-sec { background: linear-gradient(180deg, #0f172a, #002D62 50%, #0f172a); position: relative; overflow: hidden; }
+.dig-sec::before { content: ""; position: absolute; top: -4rem; left: 2rem; width: 18rem; height: 18rem; border-radius: 50%; background: rgba(14,165,233,.2); filter: blur(60px); pointer-events: none; }
+.dig-sec::after { content: ""; position: absolute; bottom: -4rem; right: 2rem; width: 22rem; height: 22rem; border-radius: 50%; background: rgba(206,17,38,.2); filter: blur(70px); pointer-events: none; }
+.dig-wrap { position: relative; z-index: 1; }
